@@ -18,18 +18,16 @@ margin-right:0!important
 }
 
 html{
-  /*background-image: url("https://terrarp.com/db/bg3.webp");
+  background-image: url("https://terrarp.com/db/background/bbga12.webp");
   background-repeat: no-repeat;
-  background-position: top;
   background-position: center;
   background-attachment: fixed;
-  background-size: cover;*/
-  background: #111;
+  background-size: cover;
   font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
 }
 
 #bodyback{
-  background-color: #0e0c0f;
+  background: linear-gradient(0deg, rgba(17,20,28,0.95) 0%, rgba(17,20,28,0.85) 100%);
   width: 75vw;
   border-radius: 10px;
   box-sizing: border-box;
@@ -1514,6 +1512,7 @@ margin: 10px 0 0 0;
   }
   body{
     margin:0;
+    background-color: transparent;
   }
   html{
     background-image: none!important;
