@@ -36,7 +36,6 @@ html{
   margin: auto;
   margin-top: 40px;
   margin-bottom: 20px;
-  padding: 10px;
   padding-bottom: 20px;
   max-width: 900px;
   overflow: hidden;
@@ -375,7 +374,7 @@ ul{
 
 #masterycontainer, #rankselector, #actionselector, #builddisplay, #importdisplay{
   display: block;
-  padding: 10px 10px 0 10px;
+  padding: 10px 10px 0px 10px ;
 }
 
 #rankselector{
@@ -1227,15 +1226,16 @@ background-repeat: no-repeat;
 }*/
 
 #freeactiondisplay{
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
   flex-wrap: wrap;
   padding: -10px;
   margin-top: 5px;
 }
 
 #actionsdisplay{
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
   justify-content: flex-start;
   flex-wrap: wrap;
   margin-top: 13px;
@@ -1828,7 +1828,7 @@ padding: 10px 0;
 .charcontainer, .nameheader, .charimg2, .header-info--functions{float: none!important}
 .nameheader{width: 100%;text-align: center;margin: 0;}
 .charinfo{display:block!important;text-align:center;margin:5px 0 10px 0!important}
-.banner-inner, .banner, .charbanner{width:105%!important;height:250px!important}
+.banner-inner, .banner, .charbanner{width:100%!important;height:250px!important}
 .charbanner{margin:108px -10px 0 -10px!important}
 .banner-inner{margin:0!important}
 .mastery-margin{top: 10px}
@@ -1856,9 +1856,10 @@ padding: 10px 0;
 .charrace{color:#999}
 .charrace, .chartitle{display:block;font-size: 0.65em;font-variant:normal!important}
 .banner-inner, .banner, .charbanner{
-width: 104%;
+width: calc(100% + 20px);
 height: 470px;
-margin: -64px -21px -41px -21px;
+overflow: hidden;
+  margin: -10px -10px 0;
 }
 .banner-inner{/*background: url(/misc/build-fade.png) repeat-x bottom left;*/background: -moz-linear-gradient(0deg, rgba(238,238,238,1) 15%, rgba(0,0,0,0) 85%);background: -webkit-linear-gradient(0deg, rgba(238,238,238,1) 15%, rgba(0,0,0,0) 85%);background: linear-gradient(0deg, rgba(14,12,15,1) 15%, rgba(0,0,0,0) 85%);filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#eeeeee",endColorstr="#000000",GradientType=1);margin-top: 45px;}
 .charbanner{background-size: cover}

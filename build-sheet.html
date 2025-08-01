@@ -20,6 +20,7 @@
   <script src="masteries.js"></script>
   <script src="actions.js"></script>
   <script src="safecharacters.js"></script>
+  <script src="armor-abilities.js"></script>
 </head>
 
 <body>
@@ -53,8 +54,7 @@
           <span class="charname" id="character-name-display">Character Build</span>
         </h1><br>
         <h2 class="charinfo">
-          <span class="chartitle" id="build-summary">Your completed character build</span>
-          <span class="charrace"></span>
+          <span class="charrace" id="character-race-display"></span>
         </h2>
       </div>
       <div class="header-info--functions right">
@@ -77,16 +77,7 @@
 
   <div id="bodyback">
     <div id="builddisplay">
-      <!-- Character Name Section -->
-      <div class="character-header" id="character-header">
-        <div class="charimg"><img id="pfp"></div>
-        <h1 class="nameheader">
-          <span class="characternameheader" id="character-display-name">Character Name</span>
-        </h1>
-      </div>
-
       <!-- Masteries Display -->
-      <h3 class="selectorheader">Masteries</h3>
       <div class="banner"></div>
       <div class="masterycategory mastery-margin" id="masterydisplay"></div>
 
@@ -295,17 +286,11 @@
       <!-- Build Code Display -->
       <div class="masterycategory" id="buildcodedisplay">
         <div class="build-sharing">
-          <h3 class="selectorheader">Share Your Build</h3>
           <div class="share-options">
             <div class="share-option">
               <label>Build URL:</label>
               <textarea id="build-url" readonly onclick="this.select()"></textarea>
               <button class="copy-button" data-target="build-url">Copy</button>
-            </div>
-            <div class="share-option">
-              <label>Forum Code:</label>
-              <textarea id="forum-code" readonly onclick="this.select()"></textarea>  
-              <button class="copy-button" data-target="forum-code">Copy</button>
             </div>
           </div>
         </div>
@@ -313,7 +298,7 @@
     </div>
 
     <div class="button-container">
-      <div class="button" id="back-button">Back: Select Actions</div>
+      <div class="button" id="back-button">< Select Actions</div>
       <div class="button" id="new-build-button">Create New Build</div>
       <div class="button" id="edit-build-button">Edit This Build</div>
     </div>
@@ -399,6 +384,9 @@
         // Display character name and banner
         this.displayCharacterName(currentState.characterName);
         this.displayBanner(currentState);
+
+        console.log(currentState)
+        this.displayCharacterRace(currentState.characterRace);
         
         // Display masteries
         this.displayMasteries(currentState, masteries);
@@ -423,7 +411,11 @@
       displayCharacterName(name) {
         const displayName = name || 'Character Build';
         this.domUtils.setText(this.domUtils.getElementById('character-name-display'), displayName);
-        this.domUtils.setText(this.domUtils.getElementById('character-display-name'), displayName);
+      }
+
+      displayCharacterRace(race) {
+        const displayRace = race || 'Character Race';
+        this.domUtils.setText(this.domUtils.getElementById('character-race-display'), displayRace);
       }
       
       displayBanner(state) {
@@ -502,14 +494,12 @@
       
       displayEquipment(state) {
         const { armorType, weaponRank, armorRank } = state;
-        
-        // Set weapon rank display - exactly like original
+
         this.domUtils.setHTML(
           this.domUtils.querySelector('.weaponrankdisplay'),
           `<div class="displaycircle equipment"><img src="https://terrarp.com/db/tool/weapon-rank.png"></div><div class="displaytitle">Weapon</div><div class="displayrank">${this.rankLabels[weaponRank]}</div>`
         );
-        
-        // Set armor display - exactly like original
+
         if (armorType && this.armorImages[armorType]) {
           this.domUtils.setHTML(
             this.domUtils.querySelector('.armorrankdisplay'),
@@ -526,13 +516,10 @@
       }
       
       getArmorAbility(armorType, armorRank) {
-        const abilities = {
-          'light': ['No ability', 'No ability', '+1 Movement Speed', '+1 Movement Speed, +2 Reflex', '+1 Movement Speed, +2 Reflex, Stealth and Lockpicking advantages', '+2 Movement Speed, +3 Reflex, Stealth and Lockpicking advantages'],
-          'medium': ['No ability', 'No ability', '+1 to all saves', '+1 to all saves, +1 max HP', '+1 to all saves, +2 max HP, immunity to fear', '+2 to all saves, +3 max HP, immunity to fear'],
-          'heavy': ['No ability', 'No ability', '+2 max HP', '+2 max HP, +1 Fortitude', '+3 max HP, +2 Fortitude, resistance to critical hits', '+4 max HP, +3 Fortitude, resistance to critical hits']
-        };
+        if (!window.armorAbilities) return 'No ability';
         
-        return abilities[armorType]?.[armorRank] || 'No ability';
+        const rankLetter = this.rankLabels[armorRank];
+        return window.armorAbilities[armorType]?.[rankLetter] || 'No ability';
       }
       
       populateMasteryCheckIcons(state) {
@@ -636,16 +623,6 @@
         // Generate main build URL
         const buildURL = this.buildEncoder.generateBuildCode(state);
         this.domUtils.setValue(this.domUtils.getElementById('build-url'), buildURL);
-        
-        // Generate forum code
-        const forumCode = `[url=${buildURL}]${state.characterName || 'My Build'}[/url]`;
-        this.domUtils.setValue(this.domUtils.getElementById('forum-code'), forumCode);
-        
-        // Update final build display
-        const finalBuildContainer = this.domUtils.getElementById('finalbuild');
-        this.domUtils.setHTML(finalBuildContainer, 
-          `<textarea id='finalcode' autocomplete='off' cols='30' rows='5' readonly onclick='this.select()'>${buildURL}</textarea>`
-        );
       }
       
       setupThreadCode() {
@@ -730,37 +707,32 @@
       new BuildSheet();
     };
   </script>
-  
+
   <style>
-    .character-header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    
     .build-sharing {
       background-color: #f8f9fa;
       border-radius: 8px;
       padding: 20px;
       margin-top: 30px;
     }
-    
+
     .share-options {
       display: flex;
       flex-direction: column;
       gap: 15px;
     }
-    
+
     .share-option {
       display: flex;
       flex-direction: column;
       gap: 5px;
     }
-    
+
     .share-option label {
       font-weight: bold;
       color: #495057;
     }
-    
+
     .share-option textarea {
       min-height: 60px;
       padding: 8px;
@@ -770,7 +742,7 @@
       font-size: 12px;
       resize: vertical;
     }
-    
+
     .copy-button {
       align-self: flex-start;
       padding: 6px 12px;
@@ -781,66 +753,14 @@
       cursor: pointer;
       font-size: 12px;
     }
-    
+
     .copy-button:hover {
       background-color: #0056b3;
     }
-    
-    .mdisplay {
-      display: inline-block;
-      text-align: center;
-      margin: 10px;
-      vertical-align: top;
-    }
-    
-    .displaycircle {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 8px;
-    }
-    
-    .displaycircle img {
-      width: 48px;
-      height: 48px;
-    }
-    
+
     .displaytitle {
       font-weight: bold;
       margin-bottom: 4px;
-    }
-    
-    .displayrank {
-      font-size: 0.9em;
-      color: #666;
-    }
-    
-    .edisplay {
-      display: inline-block;
-      text-align: center;
-      margin: 10px 20px;
-      vertical-align: top;
-    }
-    
-    .stat-numbers {
-      width: 100%;
-    }
-    
-    .stat-numbers td {
-      padding: 2px 8px;
-      text-align: left;
-    }
-    
-    .stat-numbers td:last-child {
-      text-align: right;
-      font-weight: bold;
-    }
-    
-    .rangecontainer {
-      display: none;
     }
   </style>
 </body>

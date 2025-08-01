@@ -15,6 +15,7 @@
   <script src="masteries.js"></script>
   <script src="actions.js"></script>
   <script src="safecharacters.js"></script>
+  <script src="armor-abilities.js"></script>
   
   <style>
     body {
@@ -133,7 +134,7 @@
         state.updateState({
           characterName: characterData.username,
           characterTitle: characterData.custom_title || '',
-          characterRace: '', // Not provided by API
+          characterRace: characterData.Race || '',
           profileImageUrl: characterData.avatar_urls?.m || '',
           profileBannerUrl: characterData.banner_urls?.l || '',
           chosenMasteries: chosenMasteries,
