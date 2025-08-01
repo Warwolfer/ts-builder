@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TerraSphere Build Editor - Character Build</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="index.css">
+  <link rel="shortcut icon" href="https://www.terrarp.com//favicon.ico">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  
+  <!-- Shared modules -->
+  <script src="shared/state-manager.js"></script>
+  <script src="shared/dom-utils.js"></script>
+  <script src="shared/data-loader.js"></script>
+  <script src="shared/calculations.js"></script>
+  <script src="shared/build-encoder.js"></script>
+  
+  <!-- Data files -->
+  <script src="masteries.js"></script>
+  <script src="actions.js"></script>
+  <script src="safecharacters.js"></script>
+</head>
+
+<body>
+  <nav id="mw-navigation" class="fixed-top">
+    <div class="container">
+      <a href="https://terrarp.com/build/" class="navbar-brand">
+        <img src="https://terrarp.com/db/logo/logo-xs.png">
+      </a>
+      <div class="nav-left">
+        <div class="link"><a href="https://terrarp.com/build/index.html" style="color:#47cbdd">Build Planner</a></div>
+        <div class="link"><a href="https://terrarp.com/index.php">Forums</a></div>
+        <div class="link"><a href="https://terrarp.com/wiki/Main_Page">Wiki</a></div>
+        <div class="dropdown">
+          <button class="dropbtn">Important <i class="fa fa-caret-down"></i></button>
+          <div class="dropdown-content">
+            <a href="https://terrarp.com/wiki/Mastery">Mastery List</a>
+            <a href="https://terrarp.com/wiki/Races">Playable Races</a>
+            <a href="https://terrarp.com/wiki/RPG_Mechanics">RPG Mechanics</a>
+            <a href="https://terrarp.com/wiki/Actions">Action List</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="header-info">
+    <div class="header-info--content">
+      <div class="charimg2 left"><img id="pfp2"></div>
+      <div class="charcontainer left">
+        <h1 class="nameheader header-info--nameheader">
+          <span class="charname" id="character-name-display">Character Build</span>
+        </h1><br>
+        <h2 class="charinfo">
+          <span class="chartitle" id="build-summary">Your completed character build</span>
+          <span class="charrace"></span>
+        </h2>
+      </div>
+      <div class="header-info--functions right">
+        <div class="masterycategory" id="inputbox">
+          <table class="typebox">
+            <tr>
+              <td id="threadcodeinput">
+                <input type="text" id="threadcodereplace" autocomplete="off" placeholder="Thread code (510C5)...">
+              </td>
+              <td id="threadcodebutton">
+                <div id="thrcodebutton" class="threadcodeinput">Update</div>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div id="finalbuild"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="bodyback">
+    <div id="builddisplay">
+      <!-- Character Name Section -->
+      <div class="character-header" id="character-header">
+        <div class="charimg"><img id="pfp"></div>
+        <h1 class="nameheader">
+          <span class="characternameheader" id="character-display-name">Character Name</span>
+        </h1>
+      </div>
+
+      <!-- Masteries Display -->
+      <h3 class="selectorheader">Masteries</h3>
+      <div class="banner"></div>
+      <div class="masterycategory mastery-margin" id="masterydisplay"></div>
+
+      <!-- Stats Display -->
+      <h3 class="selectorheader">Stats</h3>
+      <div class="masterycategory first" id="statsdisplay">
+        <div class="hpcontainer">
+          <div class='hp'>
+            <div class='stat-text'>Health</div>
+            <img src='https://terrarp.com/db/tool/health.png'>
+          </div>
+        </div>
+        <div class="movementcontainer">
+          <div class='move'>
+            <div class='stat-text'>Movement</div>
+            <img src='https://terrarp.com/db/tool/movement.png'>
+          </div>
+        </div>
+        <div class="rangecontainer">
+          <div class='range'>
+            <div class='stat-text'>Range</div>
+            <img src='https://terrarp.com/db/tool/range.png'>
+          </div>
+        </div>
+        <div class="savecontainer">
+          <div><b>Saves</b></div>
+          <div>
+            <table class="stat-numbers">
+              <tr>
+                <td><i class="fas fa-heartbeat"></i></td>
+                <td>Fortitude</td>
+                <td id="fortitudesave">+0</td>
+              </tr>
+              <tr>
+                <td><i class="fas fa-shoe-prints"></i></td>
+                <td>Reflex</td>
+                <td id="reflexsave">+0</td>
+              </tr>
+              <tr>
+                <td><i class="fas fa-head-side-brain"></i></td>
+                <td>Will</td>
+                <td id="willsave">+0</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div class="expertisecontainer">
+          <b>Expertise</b>
+          <div>
+            <table class="stat-numbers">
+              <tr>
+                <td><i class="fas fa-walking"></i></td>
+                <td>Fitness</td>
+                <td id="skillfitness">+0</td>
+              </tr>
+              <tr>
+                <td><i class="fas fa-hand-paper"></i></td>
+                <td>Knack</td>
+                <td id="skillknack">+0</td>
+              </tr>
+              <tr>
+                <td><i class="fas fa-eye"></i></td>
+                <td>Awareness</td>
+                <td id="skillawareness">+0</td>
+              </tr>
+              <tr>
+                <td><i class="fas fa-book"></i></td>
+                <td>Knowledge</td>
+                <td id="skillknowledge">+0</td>
+              </tr>
+              <tr>
+                <td><i class="fas fa-users-crown"></i></td>
+                <td>Presence</td>
+                <td id="skillpresence">+0</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Equipment Display -->
+      <h3 class="selectorheader">Equipment</h3>
+      <div class="masterycategory" id="equipmentdisplay">
+        <div class="edisplay weaponrankdisplay">
+          <div class='displaycircle equipment'>
+            <img src='https://terrarp.com/db/tool/weapon-rank.png'>
+          </div>
+          <div class='displaytitle'>Weapon</div>
+        </div>
+        <div class="edisplay armorrankdisplay">
+          <div class='displaycircle equipment'>
+            <img id="armordisplay">
+          </div>
+          <div class='displaytitle'>
+            <span id='aweight'></span>Armor
+          </div>
+        </div>
+      </div>
+      <div class="masterycategory" id="equipmentdisplay" style="margin-top:0">
+        <div class="edisplay armorskilldisplay">
+          <div class="passivecontainer">
+            <span class='armorpassive'></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Saves and Checks -->
+      <h3 class="selectorheader" id="savechecklabel">Saves and Checks
+        <span class="ttip" data-tooltip="Click on the small icons at the bottom of the following cards to automatically apply the bonus and type name to the Discord roll code.">
+          <span class="ttip-info"></span><i class="far fa-question-circle tip"></i>
+        </span>
+      </h3>
+      <div class="masterycategory" id="saveschecks">
+        <div class="card">
+          <div class="cardtitle">Saves</div>
+          <div class="rollcode">?r save <span class='saveadv'></span><span class='savebonusreplace'>X</span> <span class='reflexmodifiers'></span> # <span class='savereplace'>Type</span> | Character Name | <span class="thrcode">Thread Code</span></div>
+          <div id="savesicons">
+            <div class='display masterycircle aci-fortitude' onclick='clickFortitude(this)'>
+              <img src='https://terrarp.com/db/tool/fortitude.png'>
+            </div>
+            <div class='display masterycircle aci-reflex' onclick='clickReflex(this)'>
+              <img src='https://terrarp.com/db/tool/reflex.png'>
+            </div>
+            <div class='display masterycircle aci-will' onclick='clickWill(this)'>
+              <img src='https://terrarp.com/db/tool/will.png'>
+            </div>
+          </div>
+          <div class="togglecontainer">
+            <div class="togglesavechecks" onclick="advantageSave()">Adv</div>
+            <div class="togglesavechecks" onclick="normalSave()">Normal</div>
+            <div class="togglesavechecks" onclick="disadvantageSave()">Dis</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="cardtitle">Expertise Check</div>
+          <div class="rollcode">?r expertise <span class='expertiseadv'></span><span class='expertisebonusreplace'>X</span> # <span class='expertisereplace'>Type</span> | Character Name | <span class="thrcode">Thread Code</span></div>
+          <div id="expertiseicons">
+            <div class='display masterycircle aci-fitness' onclick='clickFitness(this)'>
+              <img src='https://terrarp.com/db/tool/fitness.png'>
+            </div>
+            <div class='display masterycircle aci-knack' onclick='clickKnack(this)'>
+              <img src='https://terrarp.com/db/tool/knack.png'>
+            </div>
+            <div class='display masterycircle aci-awareness' onclick='clickAwareness(this)'>
+              <img src='https://terrarp.com/db/tool/awareness.png'>
+            </div>
+            <div class='display masterycircle aci-knowledge' onclick='clickKnowledge(this)'>
+              <img src='https://terrarp.com/db/tool/knowledge.png'>
+            </div>
+            <div class='display masterycircle aci-presence' onclick='clickPresence(this)'>
+              <img src='https://terrarp.com/db/tool/presence.png'>
+            </div>
+          </div>
+          <div class="togglecontainer">
+            <div class="togglesavechecks" onclick="advantageExpertise()">Adv</div>
+            <div class="togglesavechecks" onclick="normalExpertise()">Normal</div>
+            <div class="togglesavechecks" onclick="disadvantageExpertise()">Dis</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="cardtitle">Mastery Check</div>
+          <div class="rollcode">?r mastery <span class='masteryadv'></span><span class='masteryreplace'>MR</span> # <span class='mnamereplace'>Type</span> | Character Name | <span class="thrcode">Thread Code</span></div>
+          <div id="masterycheckicons"></div>
+          <div class="togglecontainer">
+            <div class="togglesavechecks" onclick="advantageMastery()">Adv</div>
+            <div class="togglesavechecks" onclick="normalMastery()">Normal</div>
+            <div class="togglesavechecks" onclick="disadvantageMastery()">Dis</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions Display -->
+      <h3 class="selectorheader">Actions</h3>
+      <div class="masterycategory" id="freeactiondisplay">
+        <!-- Free actions -->
+        <div class="card normal">
+          <div class="cardicon aci-attack"></div>
+          <div class="cardtitle">Attack</div>
+          <div class="cardinfo">
+            <p><em><b>Base</b><b>Offense</b><b>Attack</b></em></p>
+            <p>Perform a basic attack.</p>
+          </div>
+          <div class="cardroll"><b>Roll:</b> 1d100 + MR + WR + other bonuses</div>
+        </div>
+        <div class="card recover">
+          <div class="cardicon aci-recover"></div>
+          <div class="cardtitle">Recover</div>
+          <div class="cardinfo">
+            <p><em><b>Base</b><b>Action</b></em></p>
+            <p>Recover your HP by 1d20. Double your roll result on a nat-20.</p>
+          </div>
+          <div class="cardroll"><b>Roll:</b> 1d20</div>
+        </div>
+        <div class="card rushfinal">
+          <div class="cardicon aci-rush"></div>
+          <div class="cardtitle">Rush</div>
+          <div class="cardinfo">
+            <p><em><b>Base</b><b>Bonus</b></em></p>
+            <p><b>Bonus.</b> Double your total movement count this cycle.</p>
+          </div>
+          <div class="rollcode rushrc">?r barush # Character Name | <span class="thrcode">Code</span></div>
+        </div>
+      </div>
+      <div class="masterycategory" id="actionsdisplay"></div>
+
+      <!-- Build Code Display -->
+      <div class="masterycategory" id="buildcodedisplay">
+        <div class="build-sharing">
+          <h3 class="selectorheader">Share Your Build</h3>
+          <div class="share-options">
+            <div class="share-option">
+              <label>Build URL:</label>
+              <textarea id="build-url" readonly onclick="this.select()"></textarea>
+              <button class="copy-button" data-target="build-url">Copy</button>
+            </div>
+            <div class="share-option">
+              <label>Forum Code:</label>
+              <textarea id="forum-code" readonly onclick="this.select()"></textarea>  
+              <button class="copy-button" data-target="forum-code">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="button-container">
+      <div class="button" id="back-button">Back: Select Actions</div>
+      <div class="button" id="new-build-button">Create New Build</div>
+      <div class="button" id="edit-build-button">Edit This Build</div>
+    </div>
+  </div>
+
+  <div id="copyright">
+    <span class="cpr">TS2 Builder <span class="version">v2.0</span> © 2016-2024 Team Terrasphere</span>
+    <span class="cpr">All visuals and music belong to their respective owners.</span>
+  </div>
+
+  <script>
+    // Build Sheet Display Logic
+    class BuildSheet {
+      constructor() {
+        this.state = window.buildState;
+        this.dataLoader = window.DataLoader;
+        this.domUtils = window.DOMUtils;
+        this.calculations = window.CharacterCalculations;
+        this.buildEncoder = window.BuildEncoder;
+        
+        this.armorImages = {
+          heavy: 'https://terrarp.com/db/tool/armor-heavy.png',
+          medium: 'https://terrarp.com/db/tool/armor-medium.png',
+          light: 'https://terrarp.com/db/tool/armor-light.png'
+        };
+        
+        this.rankLabels = ['E', 'D', 'C', 'B', 'A', 'S'];
+        
+        this.init();
+      }
+      
+      init() {
+        try {
+          // Show the build display (it's hidden by default in app.css)
+          const buildDisplay = this.domUtils.getElementById('builddisplay');
+          if (buildDisplay) {
+            buildDisplay.style.display = 'block';
+          }
+          
+          // Load data
+          this.dataLoader.loadAll();
+          
+          // Load state from URL if present
+          this.state.loadFromURL();
+          
+          // Check for build code in URL hash
+          this.loadFromBuildCode();
+          
+          // Check if we have a complete build
+          if (!this.state.isValidForBuildSheet()) {
+            alert('Please complete all previous steps first.');
+            window.location.href = this.state.generateURL('mastery-selector.html');
+            return;
+          }
+          
+          // Calculate and display everything
+          this.displayBuild();
+          
+          // Set up event listeners
+          this.setupEventListeners();
+          
+        } catch (error) {
+          console.error('Failed to initialize build sheet:', error);
+          this.showError('Failed to load build data. Please refresh the page.');
+        }
+      }
+      
+      loadFromBuildCode() {
+        const hash = window.location.hash;
+        if (hash && (hash.includes('#load.') || hash.includes('#import.') || hash.includes('#sample.'))) {
+          const result = this.buildEncoder.loadFromURL();
+          if (result.success) {
+            this.state.updateState(result.data);
+          }
+        }
+      }
+      
+      displayBuild() {
+        const currentState = this.state.getState();
+        const masteries = this.dataLoader.cache.masteries;
+        const actions = this.dataLoader.cache.actions;
+        
+        // Display character name and banner
+        this.displayCharacterName(currentState.characterName);
+        this.displayBanner(currentState);
+        
+        // Display masteries
+        this.displayMasteries(currentState, masteries);
+        
+        // Calculate and display stats
+        const stats = this.calculations.getCompleteStats(currentState, masteries, actions);
+        this.displayStats(stats);
+        
+        // Display equipment
+        this.displayEquipment(currentState);
+        
+        // Display actions
+        this.displayActions(currentState, actions);
+        
+        // Generate build codes
+        this.generateBuildCodes(currentState);
+        
+        // Set up thread code functionality
+        this.setupThreadCode();
+      }
+      
+      displayCharacterName(name) {
+        const displayName = name || 'Character Build';
+        this.domUtils.setText(this.domUtils.getElementById('character-name-display'), displayName);
+        this.domUtils.setText(this.domUtils.getElementById('character-display-name'), displayName);
+      }
+      
+      displayBanner(state) {
+        const bannerContainer = this.domUtils.getElementsByClassName('banner')[0];
+        if (!bannerContainer) return;
+        
+        if (state.profileBannerUrl) {
+          // Show character banner if available
+          bannerContainer.style.display = 'flex';
+          bannerContainer.innerHTML = `<div class='charbanner' style='background-image: url(${state.profileBannerUrl})'><div class='banner-inner'></div></div>`;
+        } else {
+          // Hide banner if no image
+          bannerContainer.style.height = '0px';
+          bannerContainer.style.display = 'none';
+        }
+      }
+      
+      displayMasteries(state, masteries) {
+        const container = this.domUtils.getElementById('masterydisplay');
+        let html = '';
+        
+        state.chosenMasteries.forEach((masteryId, index) => {
+          const mastery = masteries.find(m => m.lookup === masteryId);
+          const rank = state.chosenMasteriesRanks[index] || 0;
+          
+          if (mastery) {
+            html += `
+              <div class="masterydisplay">
+                <div class="displaycircle ${mastery.lookup}">
+                  <img src="${mastery.image}">
+                </div>
+                <div class="displaytitle">${mastery.name}</div>
+                <div class="displayrank">${this.rankLabels[rank]}</div>
+              </div>
+            `;
+          }
+        });
+        
+        this.domUtils.setHTML(container, html);
+      }
+      
+      displayStats(stats) {
+        // HP
+        this.domUtils.appendHTML(
+          this.domUtils.querySelector('.hpcontainer'), 
+          `<div>${stats.hp}</div>`
+        );
+        
+        // Movement
+        this.domUtils.appendHTML(
+          this.domUtils.querySelector('.movementcontainer'),
+          `<div>${stats.movement}</div>`
+        );
+        
+        // Range (if > 0)
+        if (stats.range > 0) {
+          this.domUtils.appendHTML(
+            this.domUtils.querySelector('.rangecontainer'),
+            `<div>${stats.range}</div>`
+          );
+          this.domUtils.show(this.domUtils.querySelector('.rangecontainer'));
+        }
+        
+        // Saves
+        this.domUtils.setText(this.domUtils.getElementById('fortitudesave'), '+' + stats.saves.fortitude);
+        this.domUtils.setText(this.domUtils.getElementById('reflexsave'), '+' + stats.saves.reflex);
+        this.domUtils.setText(this.domUtils.getElementById('willsave'), '+' + stats.saves.will);
+        
+        // Expertise
+        this.domUtils.setText(this.domUtils.getElementById('skillfitness'), '+' + stats.expertise.fitness);
+        this.domUtils.setText(this.domUtils.getElementById('skillknack'), '+' + stats.expertise.knack);
+        this.domUtils.setText(this.domUtils.getElementById('skillawareness'), '+' + stats.expertise.awareness);
+        this.domUtils.setText(this.domUtils.getElementById('skillknowledge'), '+' + stats.expertise.knowledge);
+        this.domUtils.setText(this.domUtils.getElementById('skillpresence'), '+' + stats.expertise.presence);
+      }
+      
+      displayEquipment(state) {
+        const { armorType, weaponRank, armorRank } = state;
+        
+        // Set weapon rank display - exactly like original
+        this.domUtils.setHTML(
+          this.domUtils.querySelector('.weaponrankdisplay'),
+          `<div class="displaycircle equipment"><img src="https://terrarp.com/db/tool/weapon-rank.png"></div><div class="displaytitle">Weapon</div><div class="displayrank">${this.rankLabels[weaponRank]}</div>`
+        );
+        
+        // Set armor display - exactly like original
+        if (armorType && this.armorImages[armorType]) {
+          this.domUtils.setHTML(
+            this.domUtils.querySelector('.armorrankdisplay'),
+            `<div class="displaycircle equipment"><img id="armordisplay" src="${this.armorImages[armorType]}"></div><div class="displaytitle"><span id="aweight">${armorType.charAt(0).toUpperCase() + armorType.slice(1)} </span>Armor</div><div class="displayrank">${this.rankLabels[armorRank]}</div>`
+          );
+          
+          // Set armor ability
+          const armorAbility = this.getArmorAbility(armorType, armorRank);
+          this.domUtils.setText(this.domUtils.querySelector('.armorpassive'), armorAbility);
+        }
+        
+        // Populate mastery check icons
+        this.populateMasteryCheckIcons(state);
+      }
+      
+      getArmorAbility(armorType, armorRank) {
+        const abilities = {
+          'light': ['No ability', 'No ability', '+1 Movement Speed', '+1 Movement Speed, +2 Reflex', '+1 Movement Speed, +2 Reflex, Stealth and Lockpicking advantages', '+2 Movement Speed, +3 Reflex, Stealth and Lockpicking advantages'],
+          'medium': ['No ability', 'No ability', '+1 to all saves', '+1 to all saves, +1 max HP', '+1 to all saves, +2 max HP, immunity to fear', '+2 to all saves, +3 max HP, immunity to fear'],
+          'heavy': ['No ability', 'No ability', '+2 max HP', '+2 max HP, +1 Fortitude', '+3 max HP, +2 Fortitude, resistance to critical hits', '+4 max HP, +3 Fortitude, resistance to critical hits']
+        };
+        
+        return abilities[armorType]?.[armorRank] || 'No ability';
+      }
+      
+      populateMasteryCheckIcons(state) {
+        const container = this.domUtils.getElementById('masterycheckicons');
+        const masteries = this.dataLoader.cache.masteries;
+        let html = '';
+        
+        state.chosenMasteries.forEach(masteryId => {
+          const mastery = masteries.find(m => m.lookup === masteryId);
+          if (mastery) {
+            html += `<div class='display masterycircle ${mastery.lookup}' onclick='clickMastery(this)'><img src='${mastery.image}'></div>`;
+          }
+        });
+        
+        this.domUtils.setHTML(container, html);
+      }
+      
+      displayActions(state, actions) {
+        const container = this.domUtils.getElementById('actionsdisplay');
+        const masteries = this.dataLoader.cache.masteries;
+        let html = '';
+        
+        // Add base actions first (attack, recover, rush)
+        this.displayBaseActions(state, masteries);
+        
+        // Add chosen actions
+        state.chosenActions.forEach(actionId => {
+          const action = actions.find(a => a.lookup === actionId);
+          if (action && !['attack', 'recover', 'rush'].includes(action.lookup)) {
+            html += this.generateActionCard(action, state, masteries);
+          }
+        });
+        
+        this.domUtils.setHTML(container, html);
+      }
+      
+      displayBaseActions(state, masteries) {
+        const baseActions = ['attack', 'recover', 'rush'];
+        const actions = this.dataLoader.cache.actions;
+        
+        baseActions.forEach(actionId => {
+          const action = actions.find(a => a.lookup === actionId);
+          if (action) {
+            const container = this.domUtils.querySelector(`.card.${actionId}`);
+            if (container) {
+              this.domUtils.setHTML(container, this.generateActionCardContent(action, state, masteries));
+            }
+          }
+        });
+      }
+      
+      generateActionCard(action, state, masteries) {
+        return `<div class="card" id="${action.lookup}final" style="border-color: ${action.color}">
+          ${this.generateActionCardContent(action, state, masteries)}
+        </div>`;
+      }
+      
+      generateActionCardContent(action, state, masteries) {
+        const rollSection = action.dice && action.dice !== '-' ? 
+          `<div class="cardroll"><b>Roll:</b> ${action.dice}</div>` : '';
+        
+        const rollCodeSection = action.roll && action.roll !== '-' ? 
+          `<div class="rollcode">${action.roll}</div>` : '';
+        
+        // Generate mastery icons for this action
+        const masteryIcons = this.generateMasteryIcons(action, state, masteries);
+        
+        return `
+          <div class="cardicon aci-${action.lookup}" style="background-color: ${action.color}"></div>
+          <div class="cardtitle">${action.name}</div>
+          <div class="cardinfo">${action.description}</div>
+          ${rollSection}
+          ${rollCodeSection}
+          ${masteryIcons}
+        `;
+      }
+      
+      generateMasteryIcons(action, state, masteries) {
+        if (!action.masteries) return '';
+        
+        const actionMasteries = action.masteries.split(' ');
+        const applicableMasteries = state.chosenMasteries.filter(masteryId => 
+          actionMasteries.includes(masteryId)
+        );
+        
+        if (applicableMasteries.length === 0) return '';
+        
+        let html = '<div class="masteryicon">';
+        applicableMasteries.forEach(masteryId => {
+          const mastery = masteries.find(m => m.lookup === masteryId);
+          if (mastery) {
+            html += `<div class="display masterycircle ${masteryId}"><img onclick="clickMastery(this)" class="${masteryId}" src="${mastery.image}"></div>`;
+          }
+        });
+        html += '</div>';
+        
+        return html;
+      }
+      
+      generateBuildCodes(state) {
+        // Generate main build URL
+        const buildURL = this.buildEncoder.generateBuildCode(state);
+        this.domUtils.setValue(this.domUtils.getElementById('build-url'), buildURL);
+        
+        // Generate forum code
+        const forumCode = `[url=${buildURL}]${state.characterName || 'My Build'}[/url]`;
+        this.domUtils.setValue(this.domUtils.getElementById('forum-code'), forumCode);
+        
+        // Update final build display
+        const finalBuildContainer = this.domUtils.getElementById('finalbuild');
+        this.domUtils.setHTML(finalBuildContainer, 
+          `<textarea id='finalcode' autocomplete='off' cols='30' rows='5' readonly onclick='this.select()'>${buildURL}</textarea>`
+        );
+      }
+      
+      setupThreadCode() {
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('thrcodebutton'),
+          'click',
+          () => this.updateThreadCode()
+        );
+      }
+      
+      updateThreadCode() {
+        const newCode = this.domUtils.getValue(this.domUtils.getElementById('threadcodereplace'));
+        const elements = this.domUtils.querySelectorAll('.thrcode');
+        
+        elements.forEach(element => {
+          this.domUtils.setText(element, newCode || 'Thread Code');
+        });
+      }
+      
+      setupEventListeners() {
+        // Copy buttons
+        this.domUtils.querySelectorAll('.copy-button').forEach(button => {
+          this.domUtils.addEventListener(button, 'click', (e) => {
+            const targetId = e.target.dataset.target;
+            const textarea = this.domUtils.getElementById(targetId);
+            if (textarea) {
+              textarea.select();
+              document.execCommand('copy');
+              e.target.textContent = 'Copied!';
+              setTimeout(() => {
+                e.target.textContent = 'Copy';
+              }, 2000);
+            }
+          });
+        });
+        
+        // Navigation buttons
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('back-button'),
+          'click',
+          () => this.goToPreviousPage()
+        );
+        
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('new-build-button'),
+          'click',
+          () => this.createNewBuild()
+        );
+        
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('edit-build-button'),
+          'click',
+          () => this.editBuild()
+        );
+      }
+      
+      goToPreviousPage() {
+        const url = this.state.generateURL('action-selector.html');
+        window.location.href = url;
+      }
+      
+      createNewBuild() {
+        if (confirm('Are you sure you want to create a new build? This will clear your current progress.')) {
+          this.state.reset();
+          window.location.href = 'mastery-selector.html';
+        }
+      }
+      
+      editBuild() {
+        const url = this.state.generateURL('mastery-selector.html');
+        window.location.href = url;
+      }
+      
+      showError(message) {
+        const container = this.domUtils.getElementById('builddisplay');
+        this.domUtils.showError(container, message);
+      }
+    }
+    
+    // Initialize when page loads - use window.onload for data loading
+    window.onload = function() {
+      new BuildSheet();
+    };
+  </script>
+  
+  <style>
+    .character-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .build-sharing {
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 30px;
+    }
+    
+    .share-options {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .share-option {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    .share-option label {
+      font-weight: bold;
+      color: #495057;
+    }
+    
+    .share-option textarea {
+      min-height: 60px;
+      padding: 8px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      resize: vertical;
+    }
+    
+    .copy-button {
+      align-self: flex-start;
+      padding: 6px 12px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    
+    .copy-button:hover {
+      background-color: #0056b3;
+    }
+    
+    .mdisplay {
+      display: inline-block;
+      text-align: center;
+      margin: 10px;
+      vertical-align: top;
+    }
+    
+    .displaycircle {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 8px;
+    }
+    
+    .displaycircle img {
+      width: 48px;
+      height: 48px;
+    }
+    
+    .displaytitle {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    
+    .displayrank {
+      font-size: 0.9em;
+      color: #666;
+    }
+    
+    .edisplay {
+      display: inline-block;
+      text-align: center;
+      margin: 10px 20px;
+      vertical-align: top;
+    }
+    
+    .stat-numbers {
+      width: 100%;
+    }
+    
+    .stat-numbers td {
+      padding: 2px 8px;
+      text-align: left;
+    }
+    
+    .stat-numbers td:last-child {
+      text-align: right;
+      font-weight: bold;
+    }
+    
+    .rangecontainer {
+      display: none;
+    }
+  </style>
+</body>
+</html>

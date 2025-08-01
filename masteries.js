@@ -349,4 +349,7 @@ const masterylist = [
     actions: ["Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Overload", "Disruptive", "Damage", "Support", "Charge"],
     role: "alter"
   },
-]
+];
+
+// Make available globally
+window.masterylist = masterylist;

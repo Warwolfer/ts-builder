@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TerraSphere Build Editor - Mastery Selection</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="index.css">
+  <link rel="shortcut icon" href="https://www.terrarp.com//favicon.ico">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  
+  <!-- Shared modules -->
+  <script src="shared/state-manager.js"></script>
+  <script src="shared/dom-utils.js"></script>
+  <script src="shared/data-loader.js"></script>
+  <script src="shared/calculations.js"></script>
+  <script src="shared/build-encoder.js"></script>
+  
+  <!-- Data files -->
+  <script src="masteries.js"></script>
+  <script src="actions.js"></script>
+  <script src="safecharacters.js"></script>
+</head>
+
+<body>
+  <nav id="mw-navigation" class="fixed-top">
+    <div class="container">
+      <a href="https://terrarp.com/build/" class="navbar-brand">
+        <img src="https://terrarp.com/db/logo/logo-xs.png">
+      </a>
+      <div class="nav-left">
+        <div class="link"><a href="https://terrarp.com/build/index.html" style="color:#47cbdd">Build Planner</a></div>
+        <div class="link"><a href="https://terrarp.com/index.php">Forums</a></div>
+        <div class="link"><a href="https://terrarp.com/wiki/Main_Page">Wiki</a></div>
+        <div class="dropdown">
+          <button class="dropbtn">Important <i class="fa fa-caret-down"></i></button>
+          <div class="dropdown-content">
+            <a href="https://terrarp.com/wiki/Mastery">Mastery List</a>
+            <a href="https://terrarp.com/wiki/Races">Playable Races</a>
+            <a href="https://terrarp.com/wiki/RPG_Mechanics">RPG Mechanics</a>
+            <a href="https://terrarp.com/wiki/Actions">Action List</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="header-info">
+    <div class="header-info--content">
+      <div class="charimg2 left"><img id="pfp2"></div>
+      <div class="charcontainer left">
+        <h1 class="nameheader header-info--nameheader">
+          <span class="charname">Step 1: Select Masteries</span>
+        </h1><br>
+        <h2 class="charinfo">
+          <span class="chartitle">Choose up to 5 masteries and your armor type</span>
+          <span class="charrace"></span>
+        </h2>
+      </div>
+      <div class="header-info--functions right">
+        <div class="masterycategory" id="inputbox">
+          <div class="selection-info">
+            <div class="selection-count">
+              <span id="selected-count">0</span> / 5 masteries selected
+            </div>
+            <div class="selection-warnings" id="selection-warnings"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="bodyback">
+    <div id="masterycontainer">
+      <!-- Armor Type Selection -->
+      <div class="masterycategory">
+        <h1 class="selectorheader">Armor Type</h1>
+      </div>
+      <div id="equipment" class="mcontainer">
+        <div class="mbox">
+          <div class="mselector masterycircle armor" data-armor="heavy" id="heavy">
+            <img src="https://terrarp.com/db/tool/armor-heavy.png">
+          </div>
+          <div class="tooltip">Heavy</div>
+        </div>
+        <div class="mbox">
+          <div class="mselector masterycircle armor" data-armor="medium" id="medium">
+            <img src="https://terrarp.com/db/tool/armor-medium.png">
+          </div>
+          <div class="tooltip">Medium</div>
+        </div>
+        <div class="mbox">
+          <div class="mselector masterycircle armor" data-armor="light" id="light">
+            <img src="https://terrarp.com/db/tool/armor-light.png">
+          </div>
+          <div class="tooltip">Light</div>
+        </div>
+      </div>
+
+      <!-- Dynamic mastery containers will be populated by JavaScript -->
+      <div id="mastery-categories"></div>
+    </div>
+
+    <div class="button-container">
+      <div class="button" id="reset-button">Reset All</div>
+      <div class="button" id="next-button" disabled>Next: Assign Ranks</div>
+    </div>
+  </div>
+
+  <div id="copyright">
+    <span class="cpr">TS2 Builder <span class="version">v2.0</span> © 2016-2024 Team Terrasphere</span>
+    <span class="cpr">All visuals and music belong to their respective owners.</span>
+  </div>
+
+  <script>
+    // Mastery Selection Logic
+    class MasterySelector {
+      constructor() {
+        this.state = window.buildState;
+        this.dataLoader = window.DataLoader;
+        this.domUtils = window.DOMUtils;
+        this.calculations = window.CharacterCalculations;
+        
+        this.init();
+      }
+      
+      init() {
+        try {
+          // Load mastery data
+          this.dataLoader.loadMasteries();
+          
+          // Load state from URL if present
+          this.state.loadFromURL();
+          
+          // Render masteries
+          this.renderMasteries();
+          
+          // Set up event listeners
+          this.setupEventListeners();
+          
+          // Update UI with current state
+          this.updateUI();
+          
+        } catch (error) {
+          console.error('Failed to initialize mastery selector:', error);
+          this.showError(`Failed to load mastery data: ${error.message}. Please check the console for details and refresh the page.`);
+        }
+      }
+      
+      renderMasteries() {
+        const masteries = this.dataLoader.getMasteriesByCategory();
+        const categories = {};
+        
+        // Group masteries by role
+        masteries.forEach(mastery => {
+          if (!categories[mastery.role]) {
+            categories[mastery.role] = [];
+          }
+          categories[mastery.role].push(mastery);
+        });
+        
+        const container = this.domUtils.getElementById('mastery-categories');
+        let html = '';
+        
+        // Render each category
+        Object.keys(categories).forEach(role => {
+          const categoryName = this.formatCategoryName(role);
+          html += `
+            <div class="masterycategory">
+              <h1 class="selectorheader">${categoryName}</h1>
+            </div>
+            <div id="${role}masteries" class="mcontainer">
+          `;
+          
+          categories[role].forEach(mastery => {
+            const tooltip = mastery.name.replace(' ', '<br>').replace(' ', '<br>');
+            html += `
+              <div class="mbox">
+                <div class="mselector masterycircle mastery ${mastery.role} ${mastery.lookup}" 
+                     data-mastery="${mastery.lookup}" 
+                     id="${mastery.lookup}">
+                  <img src="${mastery.image}">
+                </div>
+                <div class="tooltip">${tooltip}</div>
+              </div>
+            `;
+          });
+          
+          html += '</div>';
+        });
+        
+        this.domUtils.setHTML(container, html);
+      }
+      
+      formatCategoryName(role) {
+        const names = {
+          'defense': 'Defense Mastery',
+          'offense': 'Offense Mastery', 
+          'support': 'Support Mastery',
+          'alter': 'Alter Mastery'
+        };
+        return names[role] || role;
+      }
+      
+      setupEventListeners() {
+        // Armor type selection
+        this.domUtils.querySelectorAll('.armor').forEach(element => {
+          this.domUtils.addEventListener(element, 'click', (e) => {
+            this.selectArmor(e.target.closest('.armor'));
+          });
+        });
+        
+        // Mastery selection
+        this.domUtils.querySelectorAll('.mastery').forEach(element => {
+          this.domUtils.addEventListener(element, 'click', (e) => {
+            this.selectMastery(e.target.closest('.mastery'));
+          });
+        });
+        
+        // Navigation buttons
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('next-button'), 
+          'click', 
+          () => this.goToNextPage()
+        );
+        
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('reset-button'), 
+          'click', 
+          () => this.resetSelection()
+        );
+      }
+      
+      selectArmor(element) {
+        if (!element) return;
+        
+        const armorType = element.dataset.armor;
+        
+        // Clear other armor selections
+        this.domUtils.clearSelection('#equipment', 'selected');
+        
+        // Select this armor
+        this.domUtils.addClass(element, 'selected');
+        
+        // Update state
+        this.state.updateState({ armorType });
+        this.updateUI();
+      }
+      
+      selectMastery(element) {
+        if (!element) return;
+        
+        const masteryId = element.dataset.mastery;
+        const currentState = this.state.getState();
+        let { chosenMasteries } = currentState;
+        
+        if (this.domUtils.hasClass(element, 'selected')) {
+          // Deselect mastery
+          chosenMasteries = chosenMasteries.filter(m => m !== masteryId);
+          this.domUtils.removeClass(element, 'selected');
+        } else {
+          // Check if we can select more masteries
+          if (chosenMasteries.length >= 5) {
+            alert('You may only select 5 masteries at maximum.');
+            return;
+          }
+          
+          // Handle alter mastery (only one allowed)
+          if (this.domUtils.hasClass(element, 'alter')) {
+            // Remove other alter masteries
+            const otherAlters = this.domUtils.querySelectorAll('.alter.selected');
+            otherAlters.forEach(other => {
+              if (other !== element) {
+                this.domUtils.removeClass(other, 'selected');
+                const otherMastery = other.dataset.mastery;
+                chosenMasteries = chosenMasteries.filter(m => m !== otherMastery);
+              }
+            });
+          }
+          
+          // Add this mastery
+          chosenMasteries.push(masteryId);
+          this.domUtils.addClass(element, 'selected');
+        }
+        
+        // Validate selection
+        const validation = this.calculations.validateMasterySelection(chosenMasteries);
+        if (!validation.valid) {
+          // Revert selection
+          chosenMasteries = chosenMasteries.filter(m => m !== masteryId);
+          this.domUtils.removeClass(element, 'selected');
+          alert(validation.error);
+          return;
+        }
+        
+        // Update state
+        this.state.updateState({ chosenMasteries });
+        this.updateUI();
+      }
+      
+      updateUI() {
+        const currentState = this.state.getState();
+        const { chosenMasteries, armorType } = currentState;
+        
+        // Update selection count
+        this.domUtils.setText(
+          this.domUtils.getElementById('selected-count'), 
+          chosenMasteries.length.toString()
+        );
+        
+        // Update next button state
+        const nextButton = this.domUtils.getElementById('next-button');
+        const canProceed = chosenMasteries.length > 0 && armorType;
+        
+        if (canProceed) {
+          nextButton.removeAttribute('disabled');
+          this.domUtils.removeClass(nextButton, 'disabled');
+        } else {
+          nextButton.setAttribute('disabled', 'true');
+          this.domUtils.addClass(nextButton, 'disabled');
+        }
+        
+        // Update visual selections based on state
+        this.syncUIWithState();
+      }
+      
+      syncUIWithState() {
+        const currentState = this.state.getState();
+        const { chosenMasteries, armorType } = currentState;
+        
+        // Clear all selections
+        this.domUtils.clearSelection('#masterycontainer', 'selected');
+        
+        // Restore armor selection
+        if (armorType) {
+          const armorElement = this.domUtils.querySelector(`.armor[data-armor="${armorType}"]`);
+          if (armorElement) {
+            this.domUtils.addClass(armorElement, 'selected');
+          }
+        }
+        
+        // Restore mastery selections
+        chosenMasteries.forEach(masteryId => {
+          const masteryElement = this.domUtils.querySelector(`.mastery[data-mastery="${masteryId}"]`);
+          if (masteryElement) {
+            this.domUtils.addClass(masteryElement, 'selected');
+          }
+        });
+      }
+      
+      resetSelection() {
+        if (confirm('Are you sure you want to reset all selections?')) {
+          this.state.updateState({
+            chosenMasteries: [],
+            armorType: null
+          });
+          this.updateUI();
+        }
+      }
+      
+      goToNextPage() {
+        const currentState = this.state.getState();
+        
+        if (currentState.chosenMasteries.length === 0) {
+          alert('Please select at least one mastery before proceeding.');
+          return;
+        }
+        
+        if (!currentState.armorType) {
+          alert('Please select an armor type before proceeding.');
+          return;
+        }
+        
+        // Navigate to rank selector
+        const url = this.state.generateURL('rank-selector.html');
+        window.location.href = url;
+      }
+      
+      showError(message) {
+        const container = this.domUtils.getElementById('mastery-categories');
+        this.domUtils.showError(container, message);
+      }
+    }
+    
+    // Initialize when page loads - use window.onload like app.js does
+    window.onload = function() {
+      new MasterySelector();
+    };
+  </script>
+</body>
+</html>

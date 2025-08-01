@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TerraSphere Build Editor</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="index.css">
+  <link rel="shortcut icon" href="https://www.terrarp.com//favicon.ico">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+</head>
+
+<body>
+  <nav id="mw-navigation" class="fixed-top">
+    <div class="container">
+      <a href="https://terrarp.com/build/" class="navbar-brand">
+        <img src="https://terrarp.com/db/logo/logo-xs.png">
+      </a>
+      <div class="nav-left">
+        <div class="link"><a href="https://terrarp.com/build/index.html" style="color:#47cbdd">Build Planner</a></div>
+        <div class="link"><a href="https://terrarp.com/index.php">Forums</a></div>
+        <div class="link"><a href="https://terrarp.com/wiki/Main_Page">Wiki</a></div>
+        <div class="dropdown">
+          <button class="dropbtn">Important <i class="fa fa-caret-down"></i></button>
+          <div class="dropdown-content">
+            <a href="https://terrarp.com/wiki/Mastery">Mastery List</a>
+            <a href="https://terrarp.com/wiki/Races">Playable Races</a>
+            <a href="https://terrarp.com/wiki/RPG_Mechanics">RPG Mechanics</a>
+            <a href="https://terrarp.com/wiki/Actions">Action List</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="header-info">
+    <div class="header-info--content">
+      <div class="charimg2 left">
+        <img src="https://terrarp.com/db/tool/logo-be-m.webp" alt="TerraSphere">
+      </div>
+      <div class="charcontainer left">
+        <h1 class="nameheader header-info--nameheader">
+          <span class="charname">TerraSphere Build Editor</span>
+        </h1><br>
+        <h2 class="charinfo">
+          <span class="chartitle">Create and share character builds</span>
+          <span class="charrace"></span>
+        </h2>
+      </div>
+    </div>
+  </div>
+
+  <div id="bodyback">
+    <div class="version-selector">
+      <h1 class="selectorheader">Choose Your Experience</h1>
+      
+      <div class="version-options">
+        <div class="version-option recommended" onclick="window.location.href='mastery-selector.html'">
+          <div class="version-badge">Recommended</div>
+          <div class="version-icon">🚀</div>
+          <h3>New Multi-Page Builder</h3>
+          <p>Step-by-step guided experience with improved performance and organization.</p>
+          <ul class="version-features">
+            <li>✓ Cleaner, focused interface</li>
+            <li>✓ Better mobile experience</li>
+            <li>✓ Improved state management</li>
+            <li>✓ Faster loading times</li>
+          </ul>
+          <div class="version-button">Start Building</div>
+        </div>
+
+        <div class="version-option" onclick="window.location.href='index.html'">
+          <div class="version-icon">📜</div>
+          <h3>Classic Single-Page Builder</h3>
+          <p>Original all-in-one interface for users familiar with the traditional workflow.</p>
+          <ul class="version-features">
+            <li>✓ Familiar interface</li>
+            <li>✓ All features on one page</li>
+            <li>✓ Compatible with old bookmarks</li>
+            <li>✓ Same build code format</li>
+          </ul>
+          <div class="version-button">Use Classic</div>
+        </div>
+      </div>
+
+      <div class="import-section">
+        <h2 class="selectorheader">Import Existing Build</h2>
+        <div class="import-form">
+          <input type="text" id="build-code-input" placeholder="Paste build code or URL here..." class="build-input">
+          <button id="import-button" class="import-btn">Import Build</button>
+        </div>
+        <p class="import-help">
+          Have a build code from a forum post or friend? Paste it above to load directly into the new builder.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div id="copyright">
+    <span class="cpr">TS2 Builder <span class="version">v2.0</span> © 2016-2024 Team Terrasphere</span>
+    <span class="cpr">All visuals and music belong to their respective owners.</span>
+  </div>
+
+  <script src="shared/build-encoder.js"></script>
+  <script>
+    document.getElementById('import-button').addEventListener('click', function() {
+      const input = document.getElementById('build-code-input').value.trim();
+      
+      if (!input) {
+        alert('Please enter a build code or URL.');
+        return;
+      }
+      
+      // Try to parse the build code
+      const result = window.BuildEncoder.validateBuildCode(input);
+      
+      if (result.success) {
+        // Redirect to build sheet with the code
+        const cleanCode = input.includes('#') ? input : '#import.' + btoa(input);
+        window.location.href = 'build-sheet.html' + cleanCode;
+      } else {
+        alert('Invalid build code: ' + result.error);
+      }
+    });
+
+    // Allow Enter key to trigger import
+    document.getElementById('build-code-input').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        document.getElementById('import-button').click();
+      }
+    });
+  </script>
+
+  <style>
+    .version-selector {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .version-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin: 30px 0;
+    }
+
+    .version-option {
+      background: white;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .version-option:hover {
+      border-color: #47cbdd;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+
+    .version-option.recommended {
+      border-color: #47cbdd;
+      background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+    }
+
+    .version-badge {
+      position: absolute;
+      top: -10px;
+      right: 20px;
+      background: #47cbdd;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .version-icon {
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+
+    .version-option h3 {
+      color: #2c3e50;
+      margin-bottom: 15px;
+      font-size: 24px;
+    }
+
+    .version-option p {
+      color: #6c757d;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .version-features {
+      list-style: none;
+      padding: 0;
+      margin: 20px 0;
+      text-align: left;
+    }
+
+    .version-features li {
+      padding: 5px 0;
+      color: #495057;
+    }
+
+    .version-button {
+      background: #47cbdd;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-weight: bold;
+      margin-top: 20px;
+      transition: background-color 0.3s ease;
+    }
+
+    .version-option:hover .version-button {
+      background: #3ba8c7;
+    }
+
+    .import-section {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 30px;
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    .import-form {
+      display: flex;
+      gap: 15px;
+      max-width: 600px;
+      margin: 20px auto;
+    }
+
+    .build-input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 2px solid #dee2e6;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .build-input:focus {
+      outline: none;
+      border-color: #47cbdd;
+    }
+
+    .import-btn {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .import-btn:hover {
+      background: #218838;
+    }
+
+    .import-help {
+      color: #6c757d;
+      font-size: 14px;
+      margin-top: 15px;
+    }
+
+    @media (max-width: 768px) {
+      .version-options {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .import-form {
+        flex-direction: column;
+      }
+
+      .version-option {
+        padding: 20px;
+      }
+    }
+  </style>
+</body>
+</html>

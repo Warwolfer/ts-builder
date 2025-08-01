@@ -697,4 +697,7 @@ pair: "P1"
       masteries: "weapon-arts",
       category: "normal"
     },
-]
+];
+
+// Make available globally
+window.actionlist = actionlist;

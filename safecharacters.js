@@ -247,4 +247,7 @@ const charlist = [
     text: "%C3%BF",
     character: "ÿ"
   }
-]
+];
+
+// Make available globally
+window.charlist = charlist;

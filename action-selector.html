@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TerraSphere Build Editor - Action Selection</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="index.css">
+  <link rel="shortcut icon" href="https://www.terrarp.com//favicon.ico">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  
+  <!-- Shared modules -->
+  <script src="shared/state-manager.js"></script>
+  <script src="shared/dom-utils.js"></script>
+  <script src="shared/data-loader.js"></script>
+  <script src="shared/calculations.js"></script>
+  <script src="shared/build-encoder.js"></script>
+  
+  <!-- Data files -->
+  <script src="masteries.js"></script>
+  <script src="actions.js"></script>
+  <script src="safecharacters.js"></script>
+</head>
+
+<body>
+  <nav id="mw-navigation" class="fixed-top">
+    <div class="container">
+      <a href="https://terrarp.com/build/" class="navbar-brand">
+        <img src="https://terrarp.com/db/logo/logo-xs.png">
+      </a>
+      <div class="nav-left">
+        <div class="link"><a href="https://terrarp.com/build/index.html" style="color:#47cbdd">Build Planner</a></div>
+        <div class="link"><a href="https://terrarp.com/index.php">Forums</a></div>
+        <div class="link"><a href="https://terrarp.com/wiki/Main_Page">Wiki</a></div>
+        <div class="dropdown">
+          <button class="dropbtn">Important <i class="fa fa-caret-down"></i></button>
+          <div class="dropdown-content">
+            <a href="https://terrarp.com/wiki/Mastery">Mastery List</a>
+            <a href="https://terrarp.com/wiki/Races">Playable Races</a>
+            <a href="https://terrarp.com/wiki/RPG_Mechanics">RPG Mechanics</a>
+            <a href="https://terrarp.com/wiki/Actions">Action List</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="header-info">
+    <div class="header-info--content">
+      <div class="charimg2 left"><img id="pfp2"></div>
+      <div class="charcontainer left">
+        <h1 class="nameheader header-info--nameheader">
+          <span class="charname">Step 3: Select Actions</span>
+        </h1><br>
+        <h2 class="charinfo">
+          <span class="chartitle">Choose your combat actions (6 slots maximum)</span>
+          <span class="charrace"></span>
+        </h2>
+      </div>
+      <div class="header-info--functions right">
+        <div class="masterycategory" id="inputbox">
+          <div class="action-info">
+            <div class="slot-usage" id="slot-usage">
+              <span id="used-slots">0</span> / 6 slots used
+            </div>
+            <div class="action-warnings" id="action-warnings"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="bodyback">
+    <div id="actionselector">
+      <div class="refresh-msg">
+        <i class="far fa-circle-question"></i> Actions are filtered based on your selected masteries
+      </div>
+
+      <!-- Free Actions (Always Available) -->
+      <h1 class="selectorheader">Free Actions</h1>
+      <div class="masterycategory freeactions">
+        <div class="card selected free-action" data-action="attack">
+          <div class="cardicon aci-attack"></div>
+          <div class="cardtitle">Attack</div>
+          <div class="cardinfo">
+            <p><em><b>Base</b><b>Offense</b><b>Attack</b></em></p>
+            <p>Perform a basic attack.</p>
+          </div>
+          <div class="cardroll"><b>Roll:</b> 1d100 + MR + WR + other bonuses</div>
+        </div>
+        <div class="card selected free-action" data-action="recover">
+          <div class="cardicon aci-recover"></div>
+          <div class="cardtitle">Recover</div>
+          <div class="cardinfo">
+            <p><em><b>Base</b><b>Action</b></em></p>
+            <p>Recover your HP by 1d20. Double your roll result on a nat-20.</p>
+          </div>
+          <div class="cardroll"><b>Roll:</b> 1d20</div>
+        </div>
+        <div class="card selected free-action" data-action="rush">
+          <div class="cardicon aci-rush"></div>
+          <div class="cardtitle">Rush</div>
+          <div class="cardinfo">
+            <p><em><b>Base</b><b>Bonus</b></em></p>
+            <p><b>Bonus.</b> Double your total movement count this cycle.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selectable Actions -->
+      <h1 class="selectorheader">Pick your actions...</h1>
+      <div class="masterycategory" id="pickactions">
+        <!-- Will be populated by JavaScript -->
+      </div>
+    </div>
+
+    <div class="button-container">
+      <div class="button" id="back-button">Back: Assign Ranks</div>
+      <div class="button" id="next-button" disabled>Next: Build Sheet</div>
+    </div>
+  </div>
+
+  <div id="copyright">
+    <span class="cpr">TS2 Builder <span class="version">v2.0</span> © 2016-2024 Team Terrasphere</span>
+    <span class="cpr">All visuals and music belong to their respective owners.</span>
+  </div>
+
+  <script>
+    // Action Selection Logic
+    class ActionSelector {
+      constructor() {
+        this.state = window.buildState;
+        this.dataLoader = window.DataLoader;
+        this.domUtils = window.DOMUtils;
+        this.calculations = window.CharacterCalculations;
+        
+        // Action selection constants
+        this.ACTION_SLOT_CAP = 6;
+        this.MIN_ACTION_PAIRS = 0;
+        this.MIN_MISC_ACTIONS = 0;
+        this.ALWAYS_SELECTED_ACTIONS = 3; // attack, recover, rush
+        
+        this.availableActions = [];
+        this.selectedActions = [];
+        
+        this.init();
+      }
+      
+      init() {
+        try {
+          // Show the action selector (it's hidden by default in app.css)
+          const actionSelector = this.domUtils.getElementById('actionselector');
+          if (actionSelector) {
+            actionSelector.style.display = 'block';
+          }
+          
+          // Load data
+          this.dataLoader.loadAll();
+          
+          // Load state from URL if present
+          this.state.loadFromURL();
+          
+          // Check if we have the required data from previous steps
+          if (!this.state.isValidForActionSelection()) {
+            alert('Please complete mastery and rank selection first.');
+            window.location.href = this.state.generateURL('rank-selector.html');
+            return;
+          }
+          
+          // Get available actions based on masteries
+          this.loadAvailableActions();
+          
+          // Render action cards
+          this.renderActionCards();
+          
+          // Set up event listeners
+          this.setupEventListeners();
+          
+          // Update UI with current state
+          this.updateUI();
+          
+        } catch (error) {
+          console.error('Failed to initialize action selector:', error);
+          this.showError('Failed to load action data. Please refresh the page.');
+        }
+      }
+      
+      loadAvailableActions() {
+        const currentState = this.state.getState();
+        const { chosenMasteries } = currentState;
+        
+        // Get all actions available to selected masteries
+        const allActions = this.dataLoader.cache.actions;
+        this.availableActions = [];
+        
+        // Build action pool from masteries
+        const actionPool = [];
+        const masteries = this.dataLoader.cache.masteries;
+        
+        chosenMasteries.forEach(masteryId => {
+          const mastery = masteries.find(m => m.lookup === masteryId);
+          if (mastery && mastery.actions) {
+            actionPool.push(...mastery.actions);
+          }
+        });
+        
+        // Get unique actions (excluding the first 3 which are free actions)
+        const uniqueActions = [...new Set(actionPool)].slice(3);
+        
+        // Convert action names to action objects
+        uniqueActions.forEach(actionName => {
+          const action = allActions.find(a => a.name === actionName);
+          if (action) {
+            this.availableActions.push(action);
+          }
+        });
+      }
+      
+      renderActionCards() {
+        const container = this.domUtils.getElementById('pickactions');
+        let html = '';
+        
+        this.availableActions.forEach(action => {
+          html += this.generateActionCardHTML(action);
+        });
+        
+        this.domUtils.setHTML(container, html);
+        
+        // Apply styling
+        this.availableActions.forEach(action => {
+          const element = this.domUtils.getElementById(action.lookup);
+          if (element) {
+            element.style.borderColor = action.color;
+            element.style.borderStyle = 'solid';
+            const icon = this.domUtils.querySelector(`.aci-${action.lookup}`);
+            if (icon) {
+              icon.style.backgroundColor = action.color;
+            }
+          }
+        });
+      }
+      
+      generateActionCardHTML(action) {
+        let classText = 'card choice';
+        if (action.pair) {
+          classText += ` pair-${action.pair}`;
+        }
+        
+        const hasRoll = action.roll && action.roll !== '-';
+        const rollSection = hasRoll ? 
+          `<div class='cardroll'><b>Roll:</b> ${action.dice}</div>` : '';
+        
+        return `
+          <div class='${classText}' 
+               id='${action.lookup}' 
+               data-action='${action.lookup}'
+               data-slot-cost='${action.slotcost || 1}'
+               data-pair='${action.pair || ''}'
+               style='border-color: ${action.color}'>
+            <div class='cardicon aci-${action.lookup}'></div>
+            <div class='cardtitle'>${action.name}</div>
+            <div class='cardinfo'>${action.description}</div>
+            ${rollSection}
+          </div>
+        `;
+      }
+      
+      setupEventListeners() {
+        // Action card selection
+        this.domUtils.querySelectorAll('.card.choice').forEach(card => {
+          this.domUtils.addEventListener(card, 'click', (e) => {
+            this.selectAction(e.target.closest('.card'));
+          });
+        });
+        
+        // Navigation buttons
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('back-button'),
+          'click',
+          () => this.goToPreviousPage()
+        );
+        
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('next-button'),
+          'click',
+          () => this.goToNextPage()
+        );
+      }
+      
+      selectAction(element) {
+        if (!element) return;
+        
+        const actionId = element.dataset.action;
+        const slotCost = parseInt(element.dataset.slotCost) || 1;
+        const pairId = element.dataset.pair;
+        
+        const currentState = this.state.getState();
+        let { chosenActions } = currentState;
+        
+        if (this.domUtils.hasClass(element, 'selected')) {
+          // Deselect action (and pair if applicable)
+          if (pairId) {
+            const pairActions = this.getAllActionsInPair(pairId);
+            pairActions.forEach(pairElement => {
+              this.domUtils.removeClass(pairElement, 'selected');
+              const pairActionId = pairElement.dataset.action;
+              chosenActions = chosenActions.filter(a => a !== pairActionId);
+            });
+          } else {
+            this.domUtils.removeClass(element, 'selected');
+            chosenActions = chosenActions.filter(a => a !== actionId);
+          }
+        } else {
+          // Check slot limits
+          const currentSlots = this.calculateUsedSlots();
+          
+          if (currentSlots + slotCost > this.ACTION_SLOT_CAP) {
+            alert(`This action exceeds your maximum of ${this.ACTION_SLOT_CAP} action slots.`);
+            return;
+          }
+          
+          // Select action (and pair if applicable)
+          if (pairId) {
+            const pairActions = this.getAllActionsInPair(pairId);
+            pairActions.forEach(pairElement => {
+              this.domUtils.addClass(pairElement, 'selected');
+              const pairActionId = pairElement.dataset.action;
+              if (!chosenActions.includes(pairActionId)) {
+                chosenActions.push(pairActionId);
+              }
+            });
+          } else {
+            this.domUtils.addClass(element, 'selected');
+            if (!chosenActions.includes(actionId)) {
+              chosenActions.push(actionId);
+            }
+          }
+        }
+        
+        // Update state
+        this.state.updateState({ chosenActions });
+        this.updateUI();
+      }
+      
+      getAllActionsInPair(pairId) {
+        if (!pairId) return [];
+        return this.domUtils.querySelectorAll(`[data-pair="${pairId}"]`);
+      }
+      
+      calculateUsedSlots() {
+        const selected = this.domUtils.querySelectorAll('.card.choice.selected');
+        const pairsFound = [];
+        let total = 0;
+        
+        selected.forEach(card => {
+          const pairId = card.dataset.pair;
+          const slotCost = parseInt(card.dataset.slotCost) || 1;
+          
+          if (pairId) {
+            if (!pairsFound.includes(pairId)) {
+              pairsFound.push(pairId);
+              total += slotCost;
+            }
+          } else {
+            total += slotCost;
+          }
+        });
+        
+        return total;
+      }
+      
+      updateUI() {
+        const currentState = this.state.getState();
+        const { chosenActions } = currentState;
+        
+        // Update slot usage display
+        const usedSlots = this.calculateUsedSlots();
+        this.domUtils.setText(
+          this.domUtils.getElementById('used-slots'),
+          usedSlots.toString()
+        );
+        
+        // Update next button state
+        const nextButton = this.domUtils.getElementById('next-button');
+        const canProceed = chosenActions.length > 0;
+        
+        if (canProceed) {
+          nextButton.removeAttribute('disabled');
+          this.domUtils.removeClass(nextButton, 'disabled');
+        } else {
+          nextButton.setAttribute('disabled', 'true');
+          this.domUtils.addClass(nextButton, 'disabled');
+        }
+        
+        // Sync UI with state
+        this.syncUIWithState();
+      }
+      
+      syncUIWithState() {
+        const currentState = this.state.getState();
+        const { chosenActions } = currentState;
+        
+        // Clear all selections
+        this.domUtils.querySelectorAll('.card.choice').forEach(card => {
+          this.domUtils.removeClass(card, 'selected');
+        });
+        
+        // Restore selections based on state
+        chosenActions.forEach(actionId => {
+          const element = this.domUtils.querySelector(`[data-action="${actionId}"]`);
+          if (element && this.domUtils.hasClass(element, 'choice')) {
+            this.domUtils.addClass(element, 'selected');
+          }
+        });
+      }
+      
+      goToPreviousPage() {
+        const url = this.state.generateURL('rank-selector.html');
+        window.location.href = url;
+      }
+      
+      goToNextPage() {
+        const currentState = this.state.getState();
+        
+        if (currentState.chosenActions.length === 0) {
+          alert('Please select at least one action before proceeding.');
+          return;
+        }
+        
+        // Navigate to build sheet
+        const url = this.state.generateURL('build-sheet.html');
+        window.location.href = url;
+      }
+      
+      showError(message) {
+        const container = this.domUtils.getElementById('pickactions');
+        this.domUtils.showError(container, message);
+      }
+    }
+    
+    // Initialize when page loads - use window.onload for data loading
+    window.onload = function() {
+      new ActionSelector();
+    };
+  </script>
+  
+  <style>
+    .action-info {
+      text-align: center;
+      padding: 10px;
+    }
+    
+    .slot-usage {
+      font-size: 1.1em;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .action-warnings {
+      font-size: 0.9em;
+      color: #d63384;
+    }
+    
+    .card.choice {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .card.choice:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .card.selected {
+      border-width: 3px !important;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    
+    .card.free-action {
+      opacity: 0.8;
+      pointer-events: none;
+    }
+    
+    .refresh-msg {
+      text-align: center;
+      padding: 10px;
+      background-color: #f8f9fa;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      color: #6c757d;
+    }
+    
+    .button[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
+</body>
+</html>
