@@ -246,7 +246,7 @@ ul{
 }
 
 .selected{
-/*border: 1px solid #ccc;a9357b*/
+  border: 2px solid white;
 }
 .selected.arcanamancy{
   background-color: #50cbe3;
@@ -1815,7 +1815,9 @@ color: #a9357b;
 margin: 0 0 5px 0!important;
 }
 }
-.header-info{background: #0e0c0f;display:flex;margin: 50px auto 0 auto;}
+.header-info{
+  display:flex;margin: 50px auto 0 auto;
+}
 .header-info--content{
 width: 900px;
 margin: 0 auto;
