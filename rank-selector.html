@@ -4,8 +4,8 @@
   <title>TerraSphere Build Editor - Rank Assignment</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="app.css">
-  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/index.css">
   <link rel="shortcut icon" href="https://www.terrarp.com//favicon.ico">
   <link rel="preconnect" href="https://fonts.gstatic.com">
   
@@ -165,9 +165,6 @@
           
           // Check if we have the required data from previous step
           const currentState = this.state.getState();
-          console.log('Debug - Current state:', currentState);
-          console.log('Debug - Chosen masteries:', currentState.chosenMasteries);
-          console.log('Debug - Is valid for rank selection:', this.state.isValidForRankSelection());
           
           if (!this.state.isValidForRankSelection()) {
             alert('Please complete mastery selection first. No masteries selected.');
@@ -188,7 +185,6 @@
           this.adjustNavigationForImportedCharacter();
           
         } catch (error) {
-          console.error('Failed to initialize rank selector:', error);
           this.showError('Failed to load data. Please refresh the page.');
         }
       }
@@ -197,26 +193,17 @@
         const currentState = this.state.getState();
         const { chosenMasteries, armorType } = currentState;
         
-        console.log('Debug - renderRankSelectors called');
-        console.log('Debug - chosenMasteries:', chosenMasteries);
-        console.log('Debug - armorType:', armorType);
-        
         // Update armor image based on selected type
         this.updateArmorDisplay(armorType);
         
         // Render mastery rank selectors
         const masteries = this.dataLoader.getMasteriesByCategory();
-        console.log('Debug - loaded masteries count:', masteries.length);
-        
         const container = this.domUtils.getElementById('masteryrankpick');
-        console.log('Debug - container found:', !!container);
         
         let html = '';
         
         chosenMasteries.forEach((masteryId, index) => {
-          console.log(`Debug - Processing mastery ${index}: ${masteryId}`);
           const mastery = masteries.find(m => m.lookup === masteryId);
-          console.log(`Debug - Found mastery data:`, mastery);
           
           if (mastery) {
             const masteryHtml = `
@@ -236,16 +223,9 @@
               </div>
             `;
             html += masteryHtml;
-            console.log(`Debug - Added HTML for ${mastery.name}`);
-          } else {
-            console.log(`Debug - No mastery found for ID: ${masteryId}`);
           }
         });
         
-        console.log(`Debug - Final HTML length: ${html.length}`);
-        console.log(`Debug - Final HTML:`, html);
-        
-        console.log(`Debug - About to set HTML on container:`, container);
         
         // Show the rank selector (it's hidden by default in app.css)
         const rankSelector = this.domUtils.getElementById('rankselector');
@@ -254,15 +234,9 @@
         }
         
         this.domUtils.setHTML(container, html);
-        console.log(`Debug - HTML set, container content now:`, container.innerHTML.length);
         
         // Initialize default ranks (all E = 0) if not already set
         this.initializeDefaultRanks();
-        
-        // Log the actual position and visibility of the container
-        const rect = container.getBoundingClientRect();
-        console.log(`Debug - Container position:`, rect);
-        console.log(`Debug - Container visible:`, rect.width > 0 && rect.height > 0);
       }
       
       initializeDefaultRanks() {
@@ -271,9 +245,8 @@
         
         // If ranks array doesn't match masteries length, initialize with default E (0) ranks
         if (chosenMasteriesRanks.length !== chosenMasteries.length) {
-          const defaultRanks = new Array(chosenMasteries.length).fill(0); // All E ranks
+          const defaultRanks = new Array(chosenMasteries.length).fill(0);
           this.state.updateState({ chosenMasteriesRanks: defaultRanks });
-          console.log('Debug - Initialized default ranks:', defaultRanks);
         }
       }
       
