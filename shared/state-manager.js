@@ -78,81 +78,32 @@ class BuildState {
   loadFromStorage() {
     try {
       const saved = localStorage.getItem('tsbuilder_state');
+      console.log('💾 StateManager: Loading from localStorage:', saved ? 'Found data' : 'No data');
       if (saved) {
         const parsedState = JSON.parse(saved);
+        console.log('💾 StateManager: Parsed localStorage data:', parsedState);
         this.state = { ...this.state, ...parsedState };
+        console.log('💾 StateManager: State after loading:', this.state);
       }
     } catch (e) {
-      // Silently handle localStorage load errors
+      console.error('💾 StateManager: Error loading from localStorage:', e);
     }
   }
   
-  // Load from URL parameters
+  // Load from URL parameters (deprecated - localStorage-first approach)
   loadFromURL() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const updates = {};
-    
-    if (urlParams.has('masteries')) {
-      updates.chosenMasteries = urlParams.get('masteries').split(',');
-    }
-    if (urlParams.has('ranks')) {
-      updates.chosenMasteriesRanks = urlParams.get('ranks').split(',').map(Number);
-    }
-    if (urlParams.has('armor')) {
-      updates.armorType = urlParams.get('armor');
-    }
-    if (urlParams.has('armorRank')) {
-      updates.armorRank = parseInt(urlParams.get('armorRank'));
-    }
-    if (urlParams.has('weaponRank')) {
-      updates.weaponRank = parseInt(urlParams.get('weaponRank'));
-    }
-    if (urlParams.has('actions')) {
-      updates.chosenActions = urlParams.get('actions').split(',');
-    }
-    if (urlParams.has('name')) {
-      updates.characterName = decodeURIComponent(urlParams.get('name'));
-    }
-    if (urlParams.has('threadCode')) {
-      updates.threadCode = decodeURIComponent(urlParams.get('threadCode'));
-    }
-    
-    if (Object.keys(updates).length > 0) {
-      this.updateState(updates);
-    }
+    // URL parameter loading is now disabled to avoid long, problematic URLs
+    // All character data is stored in localStorage and persists across page navigation
+    // Only build codes (in URL hash) are used for sharing complete builds
+    console.log('localStorage-first: URL parameter loading disabled for cleaner URLs');
   }
   
-  // Generate URL parameters from current state
+  // Generate clean URLs (localStorage-first approach)
   generateURL(basePath = '') {
-    const params = new URLSearchParams();
-    
-    if (this.state.chosenMasteries.length > 0) {
-      params.set('masteries', this.state.chosenMasteries.join(','));
-    }
-    if (this.state.chosenMasteriesRanks.length > 0) {
-      params.set('ranks', this.state.chosenMasteriesRanks.join(','));
-    }
-    if (this.state.armorType) {
-      params.set('armor', this.state.armorType);
-    }
-    if (this.state.armorRank > 0) {
-      params.set('armorRank', this.state.armorRank.toString());
-    }
-    if (this.state.weaponRank > 0) {
-      params.set('weaponRank', this.state.weaponRank.toString());
-    }
-    if (this.state.chosenActions.length > 0) {
-      params.set('actions', this.state.chosenActions.join(','));
-    }
-    if (this.state.characterName) {
-      params.set('name', encodeURIComponent(this.state.characterName));
-    }
-    if (this.state.threadCode) {
-      params.set('threadCode', encodeURIComponent(this.state.threadCode));
-    }
-    
-    const paramString = params.toString();
-    return basePath + (paramString ? '?' + paramString : '');
+    // No longer generates query parameters - all data is in localStorage
+    // This creates clean, shareable URLs between pages
+    // For sharing builds, use BuildEncoder.generateBuildCode() instead
+    return basePath;
   }
   
   // Event listeners for state changes
@@ -178,17 +129,31 @@ class BuildState {
   
   // Validation methods
   isValidForRankSelection() {
-    return this.state.chosenMasteries.length > 0;
+    const valid = this.state.chosenMasteries.length > 0;
+    console.log('🔍 StateManager: isValidForRankSelection =', valid, 'masteries:', this.state.chosenMasteries);
+    return valid;
   }
   
   isValidForActionSelection() {
-    return this.state.chosenMasteries.length > 0 && 
+    const valid = this.state.chosenMasteries.length > 0 && 
            this.state.chosenMasteriesRanks.length === this.state.chosenMasteries.length;
+    console.log('🔍 StateManager: isValidForActionSelection =', valid, {
+      masteries: this.state.chosenMasteries.length,
+      ranks: this.state.chosenMasteriesRanks.length
+    });
+    return valid;
   }
   
   isValidForBuildSheet() {
-    return this.isValidForActionSelection() && 
-           this.state.chosenActions.length > 0;
+    const actionValid = this.isValidForActionSelection();
+    const actionsValid = this.state.chosenActions.length > 0;
+    const valid = actionValid && actionsValid;
+    console.log('🔍 StateManager: isValidForBuildSheet =', valid, {
+      actionSelectionValid: actionValid,
+      hasActions: actionsValid,
+      actionsCount: this.state.chosenActions.length
+    });
+    return valid;
   }
 }
 

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug URL Loading</title>
+    <script src="shared/state-manager.js"></script>
+</head>
+<body>
+    <h1>Debug URL Loading</h1>
+    <button onclick="debugURL()">Debug Current URL</button>
+    <div id="results"></div>
+
+    <script>
+        function debugURL() {
+            const state = window.buildState;
+            
+            // Load from URL
+            state.loadFromURL();
+            
+            const currentState = state.getState();
+            
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <h3>State after loading from URL:</h3>
+                <p><strong>Masteries:</strong> ${JSON.stringify(currentState.chosenMasteries)}</p>
+                <p><strong>Ranks:</strong> ${JSON.stringify(currentState.chosenMasteriesRanks)}</p>
+                <p><strong>Armor:</strong> ${currentState.armorType}</p>
+                <p><strong>Actions:</strong> ${JSON.stringify(currentState.chosenActions)}</p>
+                <p><strong>Name:</strong> ${currentState.characterName}</p>
+                <p><strong>Race:</strong> ${currentState.characterRace}</p>
+                <p><strong>Title:</strong> ${currentState.characterTitle}</p>
+                <p><strong>Banner URL:</strong> ${currentState.profileBannerUrl}</p>
+                <hr>
+                <h4>Validation:</h4>
+                <p><strong>Valid for build sheet:</strong> ${state.isValidForBuildSheet()}</p>
+                <p><strong>Valid for action selection:</strong> ${state.isValidForActionSelection()}</p>
+                <p><strong>Actions count:</strong> ${currentState.chosenActions.length}</p>
+                <hr>
+                <h4>URL Parameters:</h4>
+                <pre>${window.location.search}</pre>
+            `;
+        }
+        
+        // Auto-run on page load
+        window.addEventListener('load', debugURL);
+    </script>
+</body>
+</html>

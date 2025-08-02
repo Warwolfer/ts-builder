@@ -11,6 +11,8 @@ const BuildEncoder = {
       weaponRank, 
       chosenActions, 
       characterName,
+      characterRace,
+      characterTitle,
       threadCode
     } = state;
     
@@ -19,9 +21,14 @@ const BuildEncoder = {
     const rankCode = chosenMasteriesRanks.join(',');
     const actionCode = chosenActions.join(',');
     
-    // Handle character name and thread code
+    // Handle character info fields
     const nameCode = characterName ? characterName.replace(/ /gi, '_') : '';
+    const raceCode = characterRace ? characterRace.replace(/ /gi, '_') : '';
+    const titleCode = characterTitle ? characterTitle.replace(/ /gi, '_') : '';
     const threadCodeParam = threadCode ? threadCode.replace(/ /gi, '_') : '';
+    
+    // URL encode the banner URL to handle special characters like dots
+    const bannerUrlEncoded = state.profileBannerUrl ? encodeURIComponent(state.profileBannerUrl) : '';
     
     // Create build details string
     const buildDetails = [
@@ -32,14 +39,17 @@ const BuildEncoder = {
       weaponRank.toString(),
       actionCode,
       nameCode,
-      threadCodeParam
-    ].join('.');
+      raceCode,
+      titleCode,
+      threadCodeParam,
+      bannerUrlEncoded
+    ].join('|');
     
     // Determine hash type - use import for imported characters, sample for manual builds
     const hashType = state.profileBannerUrl ? '#import.' : '#sample.';
     
-    // Encode and create full URL
-    const encodedBuild = btoa(buildDetails);
+    // Encode and create full URL (handle Unicode characters)
+    const encodedBuild = btoa(encodeURIComponent(buildDetails).replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode('0x' + p1)));
     return baseURL + 'build-sheet.html' + hashType + encodedBuild;
   },
   
@@ -49,27 +59,66 @@ const BuildEncoder = {
       // Remove hash and type prefixes if present
       let cleanEncoded = encodedString;
       if (cleanEncoded.includes('#')) {
-        cleanEncoded = cleanEncoded.split('.').pop();
+        // Handle different hash types: #import., #sample., #load.
+        const hashMatch = cleanEncoded.match(/#(?:import|sample|load)\.(.+)$/);
+        if (hashMatch) {
+          cleanEncoded = hashMatch[1];
+        } else {
+          // Fallback to old method
+          cleanEncoded = cleanEncoded.split('.').pop();
+        }
       }
       
-      // Decode base64
-      const decoded = atob(cleanEncoded);
-      const parts = decoded.split('.');
+      // Decode base64 (handle Unicode characters)
+      const decoded = decodeURIComponent(atob(cleanEncoded).replace(/./g, (char) => '%' + ('00' + char.charCodeAt(0).toString(16)).slice(-2)));
       
-      if (parts.length < 6) {
-        throw new Error('Invalid build code format');
+      // Try new format first (pipe-delimited), then fall back to old format (dot-delimited)
+      let parts = decoded.split('|');
+      let isNewFormat = parts.length >= 6;
+      
+      if (!isNewFormat) {
+        // Fall back to old format for backward compatibility
+        parts = decoded.split('.');
+        if (parts.length < 6) {
+          throw new Error('Invalid build code format');
+        }
       }
       
-      // Extract character name if present
+      // Extract character info fields based on format
       let characterName = '';
+      let characterRace = '';
+      let characterTitle = '';
       let threadCode = '';
+      let profileBannerUrl = '';
       
-      if (parts.length > 6 && parts[6]) {
-        characterName = parts[6].replace(/_/gi, ' ');
-      }
-      
-      if (parts.length > 7 && parts[7]) {
-        threadCode = parts[7].replace(/_/gi, ' ');
+      if (isNewFormat) {
+        // New format: 6=name, 7=race, 8=title, 9=threadCode, 10=bannerUrl
+        if (parts.length > 6 && parts[6]) {
+          characterName = parts[6].replace(/_/gi, ' ');
+        }
+        if (parts.length > 7 && parts[7]) {
+          characterRace = parts[7].replace(/_/gi, ' ');
+        }
+        if (parts.length > 8 && parts[8]) {
+          characterTitle = parts[8].replace(/_/gi, ' ');
+        }
+        if (parts.length > 9 && parts[9]) {
+          threadCode = parts[9].replace(/_/gi, ' ');
+        }
+        if (parts.length > 10 && parts[10]) {
+          profileBannerUrl = decodeURIComponent(parts[10]);
+        }
+      } else {
+        // Old format: 6=name, 7=threadCode, 8=bannerUrl (no race/title)
+        if (parts.length > 6 && parts[6]) {
+          characterName = parts[6].replace(/_/gi, ' ');
+        }
+        if (parts.length > 7 && parts[7]) {
+          threadCode = parts[7].replace(/_/gi, ' ');
+        }
+        if (parts.length > 8 && parts[8]) {
+          profileBannerUrl = decodeURIComponent(parts[8]);
+        }
       }
       
       const buildData = {
@@ -80,7 +129,10 @@ const BuildEncoder = {
         weaponRank: parseInt(parts[4]) || 0,
         chosenActions: parts[5] ? parts[5].split(',').filter(a => a) : [],
         characterName: characterName,
-        threadCode: threadCode
+        characterRace: characterRace,
+        characterTitle: characterTitle,
+        threadCode: threadCode,
+        profileBannerUrl: profileBannerUrl
       };
       
       return {

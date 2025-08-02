@@ -351,6 +351,8 @@
       
       init() {
         try {
+          console.log('🔄 BuildSheet: Starting initialization...');
+          
           // Show the build display (it's hidden by default in app.css)
           const buildDisplay = this.domUtils.getElementById('builddisplay');
           if (buildDisplay) {
@@ -358,20 +360,42 @@
           }
           
           // Load data
+          console.log('📚 BuildSheet: Loading data files...');
           this.dataLoader.loadAll();
           
           // Load state from URL if present
+          console.log('🔗 BuildSheet: Loading from URL...');
           this.state.loadFromURL();
           
           // Check for build code in URL hash
+          console.log('🔍 BuildSheet: Checking for build code...');
           this.loadFromBuildCode();
+          
+          // Debug current state
+          const currentState = this.state.getState();
+          console.log('📊 BuildSheet: Current state:', {
+            masteries: currentState.chosenMasteries,
+            ranks: currentState.chosenMasteriesRanks,
+            actions: currentState.chosenActions,
+            isValid: this.state.isValidForBuildSheet(),
+            isValidActions: this.state.isValidForActionSelection(),
+            actionsCount: currentState.chosenActions.length
+          });
           
           // Check if we have a complete build
           if (!this.state.isValidForBuildSheet()) {
+            console.warn('❌ BuildSheet: Build is not valid for build sheet');
+            console.log('🔧 BuildSheet: Validation details:', {
+              hasMasteries: currentState.chosenMasteries.length > 0,
+              hasRanks: currentState.chosenMasteriesRanks.length === currentState.chosenMasteries.length,
+              hasActions: currentState.chosenActions.length > 0
+            });
             alert('Please complete all previous steps first.');
             window.location.href = this.state.generateURL('mastery-selector.html');
             return;
           }
+          
+          console.log('✅ BuildSheet: Build is valid, displaying...');
           
           // Calculate and display everything
           this.displayBuild();
@@ -379,7 +403,10 @@
           // Set up event listeners
           this.setupEventListeners();
           
+          console.log('🎉 BuildSheet: Initialization complete!');
+          
         } catch (error) {
+          console.error('💥 BuildSheet: Initialization failed:', error);
           this.showError('Failed to load build data. Please refresh the page.');
         }
       }

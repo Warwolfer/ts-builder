@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Setup Build Data</title>
+    <script src="shared/state-manager.js"></script>
+</head>
+<body>
+    <h1>Setup Build Data</h1>
+    <p>This page will set up your build data in localStorage and redirect to the build sheet.</p>
+    <div id="status">Setting up...</div>
+
+    <script>
+        // Extract data from your problematic URL and store it in localStorage
+        function setupBuildData() {
+            const state = window.buildState;
+            
+            // Set up the data from your URL
+            state.updateState({
+                chosenMasteries: ['animancy', 'slash-weapons', 'astramancy', 'harmonic-magic', 'metamorph'],
+                chosenMasteriesRanks: [5, 5, 5, 5, 5],
+                armorType: 'heavy',
+                armorRank: 5,
+                weaponRank: 5,
+                chosenActions: ['versatile', 'protect', 'ultra-protect', 'torment', 'damage'],
+                characterName: 'Lune',
+                characterRace: 'Human',
+                characterTitle: '❮ Steel Reclaimer ❯'
+            });
+            
+            document.getElementById('status').innerHTML = 'Build data stored in localStorage!<br>Redirecting to build sheet...';
+            
+            setTimeout(() => {
+                window.location.href = 'build-sheet.html';
+            }, 2000);
+        }
+        
+        // Run on page load
+        window.addEventListener('load', setupBuildData);
+    </script>
+</body>
+</html>

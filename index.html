@@ -89,7 +89,15 @@
       try {
         document.getElementById('status').innerHTML = 'Loading character profile...';
 
-        const response = await fetch(`https://terrarp.com/api/terrasphere-charactermanager/?id=${charId}`, {
+        // const response = await fetch(`https://terrarp.com/api/terrasphere-charactermanager/?id=${charId}`, {
+        //   method: 'GET',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //     'Xf-Api-Key': 'nY3YHH7VMoIIVj8WgvmFfBG2tLeWyzUj'
+        //   }
+        // });
+
+        const response = await fetch(`http://localhost:3001/api/terrarp-user/${charId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -176,11 +184,13 @@
         document.getElementById('status').innerHTML = 'Loading build...';
 
         const buildEncoder = window.BuildEncoder;
-        const decodedBuild = buildEncoder.decodeBuild(buildCode);
+        const result = buildEncoder.decodeBuildCode(buildCode);
 
-        if (!decodedBuild) {
-          throw new Error('Invalid build code');
+        if (!result.success) {
+          throw new Error(result.error || 'Invalid build code');
         }
+
+        const decodedBuild = result.data;
 
         const state = window.buildState;
         state.updateState(decodedBuild);
