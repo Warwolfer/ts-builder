@@ -1,7 +1,5 @@
 const actionlist = [
 {
-
-  id: 1,
   lookup: "attack",
   name: "Normal Attack",
   color: "#b0b0b0",
@@ -13,8 +11,6 @@ const actionlist = [
   category: "normal"
 },
 {
-
-  id: 2,
   lookup: "recover",
   name: "Recover",
   color: "#b0b0b0",
@@ -26,8 +22,6 @@ const actionlist = [
   category: "normal"
 },
 {
-
-  id: 3,
   lookup: "rush",
   name: "Rush",
   color: "#b0b0b0",
@@ -40,8 +34,6 @@ const actionlist = [
 },
 /*SHARED BA*/
   {
-
-    id: 4,
     lookup: "healthy",
     name: "Healthy",
     color: "#272627",
@@ -56,8 +48,6 @@ const actionlist = [
     }
   },
   {
-
-    id: 5,
     lookup: "alert",
     name: "Alert",
     color: "#272627",
@@ -69,8 +59,6 @@ const actionlist = [
     category: "passive"
   },
   {
-
-    id: 6,
     lookup: "mobile",
     name: "Mobile",
     color: "#272627",
@@ -85,8 +73,6 @@ const actionlist = [
     }
   },
   {
-
-    id: 7,
     lookup: "consistent",
     name: "Consistent",
     color: "#d9bb2a",
@@ -98,8 +84,6 @@ const actionlist = [
     category: "Passive"
   },
   {
-
-    id: 8,
     lookup: "risky",
     name: "Risky",
     color: "#d9bb2a",
@@ -111,8 +95,6 @@ const actionlist = [
     category: "Passive"
   },
   {
-
-    id: 9,
     lookup: "auto-assist",
     name: "Auto Assist",
     color: "#d9bb2a",
@@ -129,8 +111,6 @@ const actionlist = [
   },
 /*DEFENSE MAIN*/
 {
-
-  id: 10,
   lookup: "counter",
   name: "Counter",
   color: "#da6c41",
@@ -143,8 +123,6 @@ const actionlist = [
   pair: "C1"
 },
 {
-
-  id: 11,
   lookup: "ultra-counter",
   name: "Ultra Counter",
   color: "#da6c41",
@@ -156,8 +134,6 @@ const actionlist = [
     pair: "C1"
 },
 {
-
-  id: 12,
   lookup: "protect",
   name: "Protect",
   color: "#da6c41",
@@ -169,8 +145,6 @@ const actionlist = [
   pair: "P1"
 },
 {
-
-  id: 13,
   lookup: "ultra-protect",
   name: "Ultra Protect",
   color: "#da6c41",
@@ -182,8 +156,6 @@ const actionlist = [
 pair: "P1"
 },
 {
-
-  id: 14,
   lookup: "hinder",
   name: "Hinder",
   color: "#da6c41",
@@ -196,8 +168,6 @@ pair: "P1"
   pair: "D1"
 },
 {
-
-  id: 15,
   lookup: "ultra-hinder",
   name: "Ultra Hinder",
   color: "#da6c41",
@@ -211,8 +181,6 @@ pair: "P1"
 },
 /*DEFENSE BA*/
 {
-
-  id: 16,
   lookup: "taunt",
   name: "Taunt",
   color: "#272627",
@@ -225,8 +193,6 @@ pair: "P1"
   slotcost: 0
 },
 {
-
-  id: 17,
   lookup: "torment",
   name: "Torment",
   color: "#272627",
@@ -238,8 +204,6 @@ pair: "P1"
   category: "normal"
 },
 {
-
-  id: 18,
   lookup: "alterhinder",
   name: "Alter Hinder",
   color: "#272627",
@@ -251,8 +215,6 @@ pair: "P1"
   category: "normal"
 },
 {
-
-  id: 19,
   lookup: "disruptive",
   name: "Disruptive",
   color: "#272627",
@@ -264,8 +226,6 @@ pair: "P1"
   category: "normal"
 },
 {
-
-  id: 20,
   lookup: "shield",
   name: "Shield",
   color: "#272627",
@@ -277,8 +237,6 @@ pair: "P1"
   category: "normal"
 },
 {
-
-  id: 21,
   lookup: "overload",
   name: "Overload",
   color: "#272627",
@@ -291,8 +249,6 @@ pair: "P1"
 },
 /*OFFENSE*/
 {
-
-  id: 22,
   lookup: "stable",
   name: "Stable Attack",
   color: "#c72828",
@@ -305,8 +261,6 @@ pair: "P1"
   pair: "S1"
 },
 {
-
-  id: 23,
   lookup: "burst",
   name: "Burst Attack",
   color: "#c72828",
@@ -319,8 +273,6 @@ pair: "P1"
   pair: "S1"
 },
 {
-
-  id: 24,
   lookup: "sharp",
   name: "Sharp Attack",
   color: "#c72828",
@@ -333,8 +285,6 @@ pair: "P1"
   pair: "M1"
 },
 {
-
-  id: 25,
   lookup: "multi",
   name: "Multi Attack",
   color: "#c72828",
@@ -347,8 +297,6 @@ pair: "P1"
   pair: "M1"
 },
 {
-
-  id: 26,
   lookup: "sneak",
   name: "Sneak Attack",
   color: "#c72828",
@@ -361,8 +309,6 @@ pair: "P1"
   pair: "T1"
 },
 {
-
-  id: 27,
   lookup: "critical",
   name: "Critical Attack",
   color: "#c72828",
@@ -375,8 +321,6 @@ pair: "P1"
   pair: "T1"
 },
 {
-
-  id: 28,
   lookup: "wild",
   name: "Wild Attack",
   color: "#c72828",
@@ -389,8 +333,6 @@ pair: "P1"
   pair: "R1"
 },
 {
-
-  id: 29,
   lookup: "reckless",
   name: "Reckless Attack",
   color: "#c72828",
@@ -404,8 +346,6 @@ pair: "P1"
 },
 /*OFFENSIVE BA*/
   {
-
-    id: 30,
     lookup: "area-effect",
     name: "Area Effect",
     color: "#272627",
@@ -417,8 +357,6 @@ pair: "P1"
     category: "normal",
   },
   {
-
-    id: 31,
     lookup: "duelist",
     name: "Duelist",
     color: "#272627",
@@ -430,8 +368,6 @@ pair: "P1"
     category: "normal",
   },
   {
-
-    id: 32,
     lookup: "sharpshooter",
     name: "Sharpshooter",
     color: "#272627",
@@ -444,8 +380,6 @@ pair: "P1"
   },
 /*SUPPORT ACTIONS*/
 {
-
-  id: 33,
 	lookup: "heal",
 	name: "Heal",
 	color: "#3460d0",
@@ -458,8 +392,6 @@ pair: "P1"
 	pair: "H1"
 },
 {
-
-  id: 34,
 	lookup: "power-heal",
 	name: "Power Heal",
 	color: "#3460d0",
@@ -472,8 +404,6 @@ pair: "P1"
 	pair: "H1"
 },
 {
-
-  id: 35,
 	lookup: "buff",
 	name: "Buff",
 	color: "#3460d0",
@@ -486,8 +416,6 @@ pair: "P1"
 	pair: "B1"
 },
 {
-
-  id: 36,
 	lookup: "power-buff",
 	name: "Power Buff",
 	color: "#3460d0",
@@ -500,8 +428,6 @@ pair: "P1"
 	pair: "B1"
 },
 {
-
-  id: 37,
 	lookup: "inspire",
 	name: "Inspire",
 	color: "#3460d0",
@@ -514,8 +440,6 @@ pair: "P1"
 	pair: "I1"
 },
 {
-
-  id: 38,
 	lookup: "haste",
 	name: "Haste",
 	color: "#3460d0",
@@ -529,8 +453,6 @@ pair: "P1"
 },
 /*SUPPORT BA*/
 {
-
-  id: 39,
   lookup: "revive",
   name: "Revive",
   color: "#272627",
@@ -543,8 +465,6 @@ pair: "P1"
   slotcost: 0
 },
 {
-
-  id: 40,
 	lookup: "overheal",
 	name: "Overheal",
 	color: "#272627",
@@ -556,8 +476,6 @@ pair: "P1"
 	category: "normal",
 },
 {
-
-  id: 41,
 	lookup: "versatile",
 	name: "Versatile",
 	color: "#272627",
@@ -569,8 +487,6 @@ pair: "P1"
 	category: "normal",
 },
 {
-
-  id: 42,
 	lookup: "cure",
 	name: "Cure",
 	color: "#272627",
@@ -582,8 +498,6 @@ pair: "P1"
 	category: "normal",
 },
 {
-
-  id: 43,
 	lookup: "boost",
 	name: "Boost",
 	color: "#272627",
@@ -596,8 +510,6 @@ pair: "P1"
 },
   /*ALTER PBA*/
     {
-
-      id: 44,
       lookup: "defense",
       name: "Defense",
       color: "#54299b",
@@ -612,8 +524,6 @@ pair: "P1"
       }
     },
     {
-
-      id: 45,
       lookup: "damage",
       name: "Damage",
       color: "#54299b",
@@ -625,8 +535,6 @@ pair: "P1"
       category: "passive"
     },
     {
-
-      id: 46,
       lookup: "support",
       name: "Support",
       color: "#54299b",
@@ -638,8 +546,6 @@ pair: "P1"
       category: "passive"
     },
     {
-
-      id: 47,
       lookup: "speed",
       name: "Speed",
       color: "#54299b",
@@ -655,8 +561,6 @@ pair: "P1"
       }
     },
     {
-
-      id: 48,
       lookup: "extension",
       name: "Extension",
       color: "#54299b",
@@ -671,8 +575,6 @@ pair: "P1"
       }
     },
     {
-
-      id: 49,
       lookup: "hyper-awareness",
       name: "Hyper Awareness",
       color: "#54299b",
@@ -683,8 +585,6 @@ pair: "P1"
       category: "normal"
     },
     {
-
-      id: 50,
       lookup: "momentum",
       name: "Momentum",
       color: "#54299b",
@@ -696,8 +596,6 @@ pair: "P1"
       category: "passive"
     },
     {
-
-      id: 51,
       lookup: "rover",
       name: "Rover",
       color: "#54299b",
@@ -709,8 +607,6 @@ pair: "P1"
       category: "normal"
     },
     {
-
-      id: 52,
       lookup: "maneuver",
       name: "Maneuver",
       color: "#54299b",
@@ -725,8 +621,6 @@ pair: "P1"
       }
     },
     {
-
-      id: 53,
       lookup: "regeneration",
       name: "Regeneration",
       color: "#54299b",
@@ -738,8 +632,6 @@ pair: "P1"
       category: "normal"
     },
     {
-
-      id: 54,
       lookup: "infuse",
       name: "Infuse",
       color: "#54299b",
@@ -751,8 +643,6 @@ pair: "P1"
       category: "normal"
     },
     {
-
-      id: 55,
       lookup: "coordinate",
       name: "Coordinate",
       color: "#54299b",
@@ -764,8 +654,6 @@ pair: "P1"
       category: "normal"
     },
   {
-
-    id: 56,
       lookup: "guardian",
       name: "Guardian",
       color: "#54299b",
@@ -777,8 +665,6 @@ pair: "P1"
       category: "normal"
     },
     {
-
-      id: 57,
       lookup: "savior",
       name: "Savior",
       color: "#54299b",
@@ -790,8 +676,6 @@ pair: "P1"
       category: "normal"
     },
     {
-
-      id: 58,
       lookup: "berserk",
       name: "Berserk",
       color: "#54299b",
@@ -803,8 +687,6 @@ pair: "P1"
       category: "normal"
     },
     {
-
-      id: 59,
       lookup: "corruption",
       name: "Corruption",
       color: "#54299b",
@@ -816,8 +698,6 @@ pair: "P1"
       category: "normal"
     },
     {
-
-      id: 60,
       lookup: "exceed",
       name: "Exceed",
       color: "#54299b",
@@ -829,8 +709,6 @@ pair: "P1"
       category: "normal"
     },
     {
-
-      id: 61,
       lookup: "charge",
       name: "Charge",
       color: "#54299b",

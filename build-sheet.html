@@ -413,7 +413,7 @@
       
       loadFromBuildCode() {
         const hash = window.location.hash;
-        if (hash && (hash.includes('#load.') || hash.includes('#import.') || hash.includes('#sample.'))) {
+        if (hash && (hash.includes('#load.') || hash.includes('#import.') || hash.includes('#sample.') || hash.includes('#compact-import.') || hash.includes('#compact.'))) {
           const result = this.buildEncoder.loadFromURL();
           if (result.success) {
             this.state.updateState(result.data);
@@ -701,8 +701,8 @@
       }
       
       generateBuildCodes(state) {
-        // Generate main build URL
-        const buildURL = this.buildEncoder.generateBuildCode(state);
+        // Generate compact build URL (much shorter!)
+        const buildURL = this.buildEncoder.generateCompactBuildCode(state);
         this.domUtils.setValue(this.domUtils.getElementById('build-url'), buildURL);
       }
       

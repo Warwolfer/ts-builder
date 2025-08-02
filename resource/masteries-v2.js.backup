@@ -1,8 +1,6 @@
 const masteriesV2 = [
   // Defense Masteries
   {
-
-    id: 1,
     lookup: "aeromancy",
     name: "Aeromancy",
     color: "#48d1c3",
@@ -14,8 +12,6 @@ const masteriesV2 = [
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload"]
   },
   {
-
-    id: 2,
     lookup: "arcanamancy",
     name: "Arcanamancy",
     color: "#50cbe3",
@@ -26,8 +22,6 @@ const masteriesV2 = [
     breakType: "construct",
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload"]  },
   {
-
-    id: 3,
     lookup: "beast-arts",
     name: "Beast Arts",
     color: "#db7233",
@@ -38,8 +32,6 @@ const masteriesV2 = [
     breakType: "order",
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload"]  },
   {
-
-    id: 4,
     lookup: "chronomancy",
     name: "Chronomancy",
     color: "#ec4a97",
@@ -50,8 +42,6 @@ const masteriesV2 = [
     breakType: "construct",
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload"]  },
   {
-
-    id: 5,
     lookup: "cryomancy",
     name: "Cryomancy",
     color: "#5fcadb",
@@ -62,8 +52,6 @@ const masteriesV2 = [
     breakType: "elemental",
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload"]  },
   {
-
-    id: 6,
     lookup: "geomancy",
     name: "Geomancy",
     color: "#a76a36",
@@ -75,8 +63,6 @@ const masteriesV2 = [
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload"],
   },
   {
-
-    id: 7,
     lookup: "guard-arts",
     name: "Guard Arts",
     color: "#f2bb36",
@@ -88,8 +74,6 @@ const masteriesV2 = [
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload"],
   },
   {
-
-    id: 8,
     lookup: "hemomancy",
     name: "Hemomancy",
     color: "#c32222",
@@ -101,8 +85,6 @@ const masteriesV2 = [
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload"],
   },
   {
-
-    id: 9,
     lookup: "illusion-magic",
     name: "Illusion Magic",
     color: "#ea5694",
@@ -114,8 +96,6 @@ const masteriesV2 = [
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload"],
   },
   {
-
-    id: 10,
     lookup: "spellbane",
     name: "Spellbane",
     color: "#8b4c99",
@@ -128,8 +108,6 @@ const masteriesV2 = [
 
   // Offense Masteries
   {
-
-    id: 11,
     lookup: "astramancy",
     name: "Astramancy",
     color: "#ae43c3",
@@ -141,8 +119,6 @@ const masteriesV2 = [
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive"],
   },
   {
-
-    id: 12,
     lookup: "dark-magic",
     name: "Dark Magic",
     color: "#883cca",
@@ -154,8 +130,6 @@ const masteriesV2 = [
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive"],
   },
   {
-
-    id: 13,
     lookup: "electromancy",
     name: "Electromancy",
     color: "#ecda2c",
@@ -167,8 +141,6 @@ const masteriesV2 = [
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive"],
   },
   {
-
-    id: 14,
     lookup: "power",
     name: "Power",
     color: "#ce5e32",
@@ -180,8 +152,6 @@ const masteriesV2 = [
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive"],
   },
   {
-
-    id: 15,
     lookup: "precision",
     name: "Precision",
     color: "#46bcc8",
@@ -192,8 +162,6 @@ const masteriesV2 = [
     breakType: "physical",
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive"]  },
   {
-
-    id: 16,
     lookup: "pyromancy",
     name: "Pyromancy",
     color: "#cb3739",
@@ -205,8 +173,6 @@ const masteriesV2 = [
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive"],
   },
   {
-
-    id: 17,
     lookup: "ranged",
     name: "Ranged",
     color: "#77b933",
@@ -218,8 +184,6 @@ const masteriesV2 = [
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive"],
   },
   {
-
-    id: 18,
     lookup: "speed",
     name: "Speed",
     color: "#4263cb",
@@ -231,8 +195,6 @@ const masteriesV2 = [
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive"],
   },
   {
-
-    id: 19,
     lookup: "subterfuge",
     name: "Subterfuge",
     color: "#383838",
@@ -243,8 +205,6 @@ const masteriesV2 = [
     breakType: "physical",
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive"]  },
   {
-
-    id: 20,
     lookup: "unarmed",
     name: "Unarmed",
     color: "#c9c9c9",
@@ -258,8 +218,6 @@ const masteriesV2 = [
 
   // Support Masteries
   {
-
-    id: 21,
     lookup: "alchemy",
     name: "Alchemy",
     color: "#53b159",
@@ -271,8 +229,6 @@ const masteriesV2 = [
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload"],
   },
   {
-
-    id: 22,
     lookup: "animancy",
     name: "Animancy",
     color: "#6c319d",
@@ -284,8 +240,6 @@ const masteriesV2 = [
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload"],
   },
   {
-
-    id: 23,
     lookup: "divine-magic",
     name: "Divine Magic",
     color: "#edb82a",
@@ -297,8 +251,6 @@ const masteriesV2 = [
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload"],
   },
   {
-
-    id: 24,
     lookup: "harmonic-magic",
     name: "Harmonic Magic",
     color: "#36a5e8",
@@ -310,8 +262,6 @@ const masteriesV2 = [
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload"],
   },
   {
-
-    id: 25,
     lookup: "hydromancy",
     name: "Hydromancy",
     color: "#66b8ea",
@@ -323,8 +273,6 @@ const masteriesV2 = [
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload"],
   },
   {
-
-    id: 26,
     lookup: "magitech",
     name: "Magitech",
     color: "#5c6779",
@@ -335,8 +283,6 @@ const masteriesV2 = [
     breakType: "dark",
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload"]  },
   {
-
-    id: 27,
     lookup: "nature-magic",
     name: "Nature Magic",
     color: "#91c023",
@@ -348,8 +294,6 @@ const masteriesV2 = [
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload"],
   },
   {
-
-    id: 28,
     lookup: "spirit-magic",
     name: "Spirit Magic",
     color: "#50c8cb",
@@ -361,8 +305,6 @@ const masteriesV2 = [
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload"],
   },
   {
-
-    id: 29,
     lookup: "tinker",
     name: "Tinker",
     color: "#9c7c45",
@@ -374,8 +316,6 @@ const masteriesV2 = [
     actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload"],
   },
   {
-
-    id: 30,
     lookup: "war-arts",
     name: "War Arts",
     color: "#8b4c3c",
@@ -388,8 +328,6 @@ const masteriesV2 = [
 
   // Alter Masteries
   {
-
-    id: 31,
     lookup: "aura",
     name: "Aura",
     color: "#e0b439",
@@ -401,8 +339,6 @@ const masteriesV2 = [
     actions: ["Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload", "defense", "Guardian", "Savior"],
   },
   {
-
-    id: 32,
     lookup: "battle-spirits",
     name: "Battle Spirits",
     color: "#b72c2c",
@@ -414,8 +350,6 @@ const masteriesV2 = [
     actions: ["Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive", "Damage", "Speed", "Berserk"],
   },
   {
-
-    id: 33,
     lookup: "corrupt",
     name: "Corrupt",
     color: "#813090",
@@ -427,8 +361,6 @@ const masteriesV2 = [
     actions: ["Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive", "Damage", "support", "Corruption"],
   },
   {
-
-    id: 34,
     lookup: "dynamism",
     name: "Dynamism",
     color: "#87ad3d",
@@ -440,8 +372,6 @@ const masteriesV2 = [
     actions: ["Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive", "Speed", "Rover", "Momentum"],
   },
   {
-
-    id: 35,
     lookup: "evoke",
     name: "Evoke",
     color: "#50c8cb",
@@ -453,8 +383,6 @@ const masteriesV2 = [
     actions: ["Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive", "Damage", "Extension", "Exceed"],
   },
   {
-
-    id: 36,
     lookup: "hyper-sense",
     name: "Hyper Sense",
     color: "#40883a",
@@ -466,8 +394,6 @@ const masteriesV2 = [
     actions: ["Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload", "defense", "Extension", "Hyper Awareness"],
   },
   {
-
-    id: 37,
     lookup: "mend",
     name: "Mend",
     color: "#2f8cc1",
@@ -479,8 +405,6 @@ const masteriesV2 = [
     actions: ["Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload", "support", "Infuse", "Regeneration"],
   },
   {
-
-    id: 38,
     lookup: "metamorph",
     name: "Metamorph",
     color: "#cc4e71",
@@ -492,8 +416,6 @@ const masteriesV2 = [
     actions: ["Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload", "Damage", "defense", "Maneuver"],
   },
   {
-
-    id: 39,
     lookup: "summon",
     name: "Summon",
     color: "#4a4da5",
@@ -505,8 +427,6 @@ const masteriesV2 = [
     actions: ["Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload", "support", "Extension", "Coordinate"],
   },
   {
-
-    id: 40,
     lookup: "weapon-arts",
     name: "Weapon Arts",
     color: "#cb5050",

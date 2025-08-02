@@ -1,0 +1,756 @@
+const actionlistV2 = [
+// Basic Actions
+{
+  id: 1,
+  lookup: "attack",
+  name: "Attack",
+  color: "#b0b0b0",
+  image: "https://terrarp.com/db/action/attack.png",
+  description: "<p><em><b>Basic</b></em></p><p>Perform a basic attack.</p>",
+  dice: "1d100 + MR + WR + other bonuses",
+  roll: "?r attack <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "all",
+  category: "basic"
+},
+{
+  id: 2,
+  lookup: "rush",
+  name: "Rush",
+  color: "#4a90e2",
+  image: "https://terrarp.com/db/action/rush.png",
+  description: "<p><em><b>Basic</b></em></p><p>Bonus Action: Gain 2 extra movements this cycle.</p>",
+  dice: "Bonus Action",
+  roll: "?r rush # Rush | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "all",
+  category: "basic"
+},
+
+// General Actions
+{
+  id: 3,
+  lookup: "range",
+  name: "Range",
+  color: "#7ed321",
+  image: "https://terrarp.com/db/action/range.png",
+  description: "<p><em><b>General</b></em></p><p>Passive: Gain 1 range</p><p>Bonus Action: Extend. Gain 1 additional range this cycle.</p>",
+  dice: "Passive/Bonus Action",
+  roll: "?r range # Range | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "all",
+  category: "general"
+},
+
+// Defense Actions
+{
+  id: 4,
+  lookup: "protect",
+  name: "Protect",
+  color: "#f5a623",
+  image: "https://terrarp.com/db/action/protect.png",
+  description: "<p><em><b>Defense</b></em></p><p>Protect: Grant yourself or an ally within range the Protected State. You do not have to attack to activate this effect.</p><p>Self-protect: If you protect yourself, the damage reduction can only be applied to the damage done by the enemy you are targeting.</p>",
+  dice: "1d100 + MR + WR + other bonuses",
+  roll: "?r protect <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "aeromancy arcanamancy beast-arts chronomancy cryomancy geomancy guard-arts hemomancy illusion-magic spellbane aura hyper-sense metamorph",
+  category: "defense"
+},
+{
+  id: 5,
+  lookup: "ultra-protect",
+  name: "Ultra Protect",
+  color: "#f5a623",
+  image: "https://terrarp.com/db/action/ultra-protect.png",
+  description: "<p><em><b>Defense</b></em></p><p>You are Vulnerable.</p><p>Protect: Grant up to 3 allies within range the Protected State. You do not have to attack to activate this effect.</p><p>Self-protect: You cannot self-protect</p>",
+  dice: "1d100 + MR + WR + other bonuses",
+  roll: "?r ultra-protect <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "aeromancy arcanamancy beast-arts chronomancy cryomancy geomancy guard-arts hemomancy illusion-magic spellbane aura hyper-sense metamorph",
+  category: "defense"
+},
+{
+  id: 6,
+  lookup: "counter",
+  name: "Counter",
+  color: "#bd10e0",
+  image: "https://terrarp.com/db/action/counter.png",
+  description: "<p><em><b>Defense</b></em></p><p>Mitigation: Distribute 10 (D), 15 (C), 20 (B), 25 (A), 30 (S) mitigation between up to 3 targets in multiples of 5s.</p>",
+  dice: "1d100 + MR + WR + other bonuses",
+  roll: "?r counter <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "aeromancy arcanamancy beast-arts chronomancy cryomancy geomancy guard-arts hemomancy illusion-magic spellbane aura hyper-sense metamorph",
+  category: "defense"
+},
+{
+  id: 7,
+  lookup: "ultra-counter",
+  name: "Ultra Counter",
+  color: "#bd10e0",
+  image: "https://terrarp.com/db/action/ultra-counter.png",
+  description: "<p><em><b>Defense</b></em></p><p>You are Vulnerable.</p><p>Success: Whenever you roll a 30 or higher, your attack gains 30 (D), 40 (B), 50 (S) extra damage and you negate the Vulnerability status from this attack.</p><p>Melee: If you are adjacent to or on the space as your attack target, gain 30 extra damage.</p>",
+  dice: "1d100 + [30*] + [ x ] + MR + WR + other bonuses",
+  roll: "?r ultra-counter <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "aeromancy arcanamancy beast-arts chronomancy cryomancy geomancy guard-arts hemomancy illusion-magic spellbane aura hyper-sense metamorph",
+  category: "defense"
+},
+{
+  id: 8,
+  lookup: "taunt",
+  name: "Taunt",
+  color: "#d0021b",
+  image: "https://terrarp.com/db/action/taunt.png",
+  description: "<p><em><b>Defense</b></em></p><p>Free Action. When you perform any attack action on a target, you taunt that target. DM* Taunt's effect depends on the enemy and/or encounter design.</p>",
+  dice: "Free Action",
+  roll: "?r taunt # Taunt | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "aeromancy arcanamancy beast-arts chronomancy cryomancy geomancy guard-arts hemomancy illusion-magic spellbane aura hyper-sense metamorph",
+  category: "defense"
+},
+{
+  id: 9,
+  lookup: "torment",
+  name: "Torment",
+  color: "#9013fe",
+  image: "https://terrarp.com/db/action/torment.png",
+  description: "<p><em><b>Defense</b></em></p><p>(D) Free Action. Deals an instance of damage to an enemy adjacent to you: 5 (D), 10 (C), 15 (B), 20 (A), 25 (S)</p><p>(D) Bonus Action: Ultra Torment. Double your Torment damage.</p><p>(D) Bonus Action: Radial Torment. Apply Torment damage to all enemies adjacent to you.</p>",
+  dice: "Free/Bonus Action",
+  roll: "?r torment # Torment | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "aeromancy arcanamancy beast-arts chronomancy cryomancy geomancy guard-arts hemomancy illusion-magic spellbane aura hyper-sense metamorph",
+  category: "defense"
+},
+{
+  id: 10,
+  lookup: "cover",
+  name: "Cover",
+  color: "#50e3c2",
+  image: "https://terrarp.com/db/action/cover.png",
+  description: "<p><em><b>Defense</b></em></p><p>Bonus Action: Partial. Take half of the damage dealt to your target after modifiers the next time they take damage. Your target takes half.</p><p>Bonus Action: Full. Take the full damage dealt to your target after modifiers the next time they take damage.</p>",
+  dice: "Bonus Action",
+  roll: "?r cover # Cover | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "aeromancy arcanamancy beast-arts chronomancy cryomancy geomancy guard-arts hemomancy illusion-magic spellbane aura hyper-sense metamorph",
+  category: "defense"
+},
+{
+  id: 11,
+  lookup: "sturdy",
+  name: "Sturdy",
+  color: "#8b572a",
+  image: "https://terrarp.com/db/action/sturdy.png",
+  description: "<p><em><b>Defense</b></em></p><p>(D) Passive. Gain 25 + 5 per MR: +30 (D), +35 (C), +40 (B), +45 (A), +50 (S). Maximum +50 HP.</p>",
+  dice: "Passive",
+  roll: "?r sturdy # Sturdy | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "aeromancy arcanamancy beast-arts chronomancy cryomancy geomancy guard-arts hemomancy illusion-magic spellbane aura hyper-sense metamorph",
+  category: "defense"
+},
+
+// Offense Actions
+{
+  id: 12,
+  lookup: "stable-attack",
+  name: "Stable Attack",
+  color: "#417505",
+  image: "https://terrarp.com/db/action/stable-attack.png",
+  description: "<p><em><b>Offense</b></em></p><p>Explosion: Whenever you roll a 17 or higher, roll an extra d20 (20% chance).</p>",
+  dice: "7d20 + MR + WR + other bonuses",
+  roll: "?r stable-attack <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "astramancy dark-magic electromancy power precision pyromancy ranged speed subterfuge unarmed battle-spirits corrupt dynamism evoke weapon-arts",
+  category: "offense"
+},
+{
+  id: 13,
+  lookup: "special-burst-attack",
+  name: "Special Burst Attack",
+  color: "#f8e71c",
+  image: "https://terrarp.com/db/action/burst-attack.png",
+  description: "<p><em><b>Offense</b></em></p><p>You are Vulnerable.</p><p>Explosion: Whenever you roll a 16 or higher, roll an extra d20 (25% chance).</p>",
+  dice: "12d20 + 1d20 per mastery rank + weapon rank modifier + other bonuses",
+  roll: "?r special-burst-attack <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "astramancy dark-magic electromancy power precision pyromancy ranged speed subterfuge unarmed battle-spirits corrupt dynamism evoke weapon-arts",
+  category: "offense"
+},
+{
+  id: 14,
+  lookup: "sneak-attack",
+  name: "Sneak Attack",
+  color: "#4a4a4a",
+  image: "https://terrarp.com/db/action/sneak-attack.png",
+  description: "<p><em><b>Offense</b></em></p><p>Success: On a roll of 30 or higher, gain 20 (D) 25 (C) 30 (B) 35 (A) 40 (S) extra damage, otherwise +10.</p>",
+  dice: "1d100 + [*] + MR + WR + other bonuses",
+  roll: "?r sneak-attack <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "astramancy dark-magic electromancy power precision pyromancy ranged speed subterfuge unarmed battle-spirits corrupt dynamism evoke weapon-arts",
+  category: "offense"
+},
+{
+  id: 15,
+  lookup: "critical-attack",
+  name: "Critical Attack",
+  color: "#d0021b",
+  image: "https://terrarp.com/db/action/critical-attack.png",
+  description: "<p><em><b>Offense</b></em></p><p>You are Vulnerable.</p><p>Crit: On a roll of 85 or higher, your damage multiplier becomes 1.5 (D), 1.6 (C), 1.7 (B), 1.8 (A), 2 (S).</p><p>Perfect Crit: Multiply your total damage by 3.</p>",
+  dice: "2d100 + (MR) + (WR) + other bonuses and then multiply the final damage by 1.2",
+  roll: "?r critical-attack <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "astramancy dark-magic electromancy power precision pyromancy ranged speed subterfuge unarmed battle-spirits corrupt dynamism evoke weapon-arts",
+  category: "offense"
+},
+{
+  id: 16,
+  lookup: "sharp-attack",
+  name: "Sharp Attack",
+  color: "#50e3c2",
+  image: "https://terrarp.com/db/action/sharp-attack.png",
+  description: "<p><em><b>Offense</b></em></p><p>Free Action: Convert other bonuses into more dice that may trigger crits. +1d100 for each 40 you spend. Leftover values are added as a modifier.</p>",
+  dice: "2d100kh1 + MR + WR + other bonuses",
+  roll: "?r sharp-attack <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "astramancy dark-magic electromancy power precision pyromancy ranged speed subterfuge unarmed battle-spirits corrupt dynamism evoke weapon-arts",
+  category: "offense"
+},
+{
+  id: 17,
+  lookup: "reckless-attack",
+  name: "Reckless Attack",
+  color: "#9013fe",
+  image: "https://terrarp.com/db/action/reckless-attack.png",
+  description: "<p><em><b>Offense</b></em></p><p>You are Vulnerable.</p><p>Free Action: Convert other bonuses into more dice that may trigger crits. +1d100 for each 40 you spend. Leftover values are added as a modifier.</p><p>(E, D, C) Main Action. Roll 1d200 + 1d100 + MR + WR + other bonuses.</p><p>(B, A, S) Main Action. Roll 1d200 + 1d100 + 1d100 + MR + WR + other bonuses.</p>",
+  dice: "1d200 + 1d100 (+1d100 at B+) + MR + WR + other bonuses",
+  roll: "?r reckless-attack <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "astramancy dark-magic electromancy power precision pyromancy ranged speed subterfuge unarmed battle-spirits corrupt dynamism evoke weapon-arts",
+  category: "offense"
+},
+{
+  id: 18,
+  lookup: "lethal",
+  name: "Lethal",
+  color: "#bd10e0",
+  image: "https://terrarp.com/db/action/lethal.png",
+  description: "<p><em><b>Offense</b></em></p><p>Passive: All attack actions gain +5 extra attack modifier per mastery rank: +5 (D), +10 (C), +15 (B), +20 (A), +25 (S).</p>",
+  dice: "Passive",
+  roll: "?r lethal # Lethal | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "astramancy dark-magic electromancy power precision pyromancy ranged speed subterfuge unarmed battle-spirits corrupt dynamism evoke weapon-arts",
+  category: "offense"
+},
+{
+  id: 19,
+  lookup: "area-effect",
+  name: "Area Effect",
+  color: "#f5a623",
+  image: "https://terrarp.com/db/action/area-effect.png",
+  description: "<p><em><b>Offense</b></em></p><p>Passive: Your attack's damage may be distributed in any amount to any enemies on or adjacent to the target. Take only the highest retaliation damage if any.</p><p>(D) Bonus Action: Splash Damage. Deal an instance of 15 (D), 20 (B), 25 (S) damage to all enemies adjacent to your attack target. Take only the highest retaliation damage if there are any.</p>",
+  dice: "Passive/Bonus Action",
+  roll: "?r area-effect # Area Effect | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "astramancy dark-magic electromancy power precision pyromancy ranged speed subterfuge unarmed battle-spirits corrupt dynamism evoke weapon-arts",
+  category: "offense"
+},
+{
+  id: 20,
+  lookup: "duelist",
+  name: "Duelist",
+  color: "#7ed321",
+  image: "https://terrarp.com/db/action/duelist.png",
+  description: "<p><em><b>Offense</b></em></p><p>If you attacked an enemy on their space or adjacent to, you may activate the following effects:</p><p>(D) Passive: Deals an instance of 10 (D), 15 (B), 20 (S) damage.</p><p>(D) Bonus Action: Dueling. Double the Duelist passive and turn it into damage modifier.</p>",
+  dice: "Passive/Bonus Action",
+  roll: "?r duelist # Duelist | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "astramancy dark-magic electromancy power precision pyromancy ranged speed subterfuge unarmed battle-spirits corrupt dynamism evoke weapon-arts",
+  category: "offense"
+},
+{
+  id: 21,
+  lookup: "sharpshooter",
+  name: "Sharpshooter",
+  color: "#417505",
+  image: "https://terrarp.com/db/action/sharpshooter.png",
+  description: "<p><em><b>Offense</b></em></p><p>If you attacked an enemy while not in their space, you may activate the following effects:</p><p>(D) Passive: Your main attack gains a +5 damage modifier.</p><p>(D) Bonus Action: Sharpshooting. Your main attack gains a 5 (D), 10 (C), 15 (B), 20 (A), 25 (S) damage modifier in addition to the passive amount.</p>",
+  dice: "Passive/Bonus Action",
+  roll: "?r sharpshooter # Sharpshooter | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "astramancy dark-magic electromancy power precision pyromancy ranged speed subterfuge unarmed battle-spirits corrupt dynamism evoke weapon-arts",
+  category: "offense"
+},
+{
+  id: 22,
+  lookup: "swift",
+  name: "Swift",
+  color: "#4a90e2",
+  image: "https://terrarp.com/db/action/swift.png",
+  description: "<p><em><b>Offense</b></em></p><p>(D) Passive: Gain 1 extra movement</p><p>(S) Upgrade: 1 → 2 extra movements.</p>",
+  dice: "Passive",
+  roll: "?r swift # Swift | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "astramancy dark-magic electromancy power precision pyromancy ranged speed subterfuge unarmed battle-spirits corrupt dynamism evoke weapon-arts",
+  category: "offense"
+},
+
+// Support Actions
+{
+  id: 23,
+  lookup: "heal",
+  name: "Heal",
+  color: "#7ed321",
+  image: "https://terrarp.com/db/action/heal.png",
+  description: "<p><em><b>Support</b></em></p><p>Explosion: Whenever you roll a 17 or higher, roll an extra d20 (20% chance).</p><p>Cleanse: Whenever you heal a target cleanse 1 curable condition after healing.</p>",
+  dice: "2d20 + MR + WR + other bonuses then divide by 3 if AoE",
+  roll: "?r heal <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "chronomancy alchemy animancy divine-magic harmonic-magic hydromancy magitech nature-magic spirit-magic tinker war-arts mend summon",
+  category: "support"
+},
+{
+  id: 24,
+  lookup: "power-heal",
+  name: "Power Heal",
+  color: "#50e3c2",
+  image: "https://terrarp.com/db/action/power-heal.png",
+  description: "<p><em><b>Support</b></em></p><p>Explosion: Whenever you roll a 15 or higher, roll an extra d20 (30% chance).</p><p>Cleanse: Whenever you heal a target cleanse 2 (D), 3 (B), 4 (S) after healing. Gain 5 HP to your heal per unused cleanse charge.</p>",
+  dice: "4d20 + MR + WR + other bonuses then divide by 3 if AoE",
+  roll: "?r power-heal <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "chronomancy alchemy animancy divine-magic harmonic-magic hydromancy magitech nature-magic spirit-magic tinker war-arts mend summon",
+  category: "support"
+},
+{
+  id: 25,
+  lookup: "buff",
+  name: "Buff",
+  color: "#f5a623",
+  image: "https://terrarp.com/db/action/buff.png",
+  description: "<p><em><b>Support</b></em></p><p>Single-target: Give 1 target a damage buff that lasts 3 actions</p><p>Multi-targets: Give 3 targets a damage buff that lasts 1 action</p><p>May only be affected by one buff at a time.</p>",
+  dice: "1d100 + MR + WR + other bonuses then divide by 3",
+  roll: "?r buff <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "chronomancy alchemy animancy divine-magic harmonic-magic hydromancy magitech nature-magic spirit-magic tinker war-arts mend summon",
+  category: "support"
+},
+{
+  id: 26,
+  lookup: "power-buff",
+  name: "Power Buff",
+  color: "#bd10e0",
+  image: "https://terrarp.com/db/action/power-buff.png",
+  description: "<p><em><b>Support</b></em></p><p>You are Vulnerable.</p><p>Single-target: Give 1 target a damage buff that lasts 3 actions</p><p>Multi-targets: Give 3 targets a damage buff that lasts 1 action</p><p>May only be affected by one buff at a time.</p>",
+  dice: "2d100 + MR + WR + other bonuses then divide by 3",
+  roll: "?r power-buff <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "chronomancy alchemy animancy divine-magic harmonic-magic hydromancy magitech nature-magic spirit-magic tinker war-arts mend summon",
+  category: "support"
+},
+{
+  id: 27,
+  lookup: "imbue",
+  name: "Imbue",
+  color: "#9013fe",
+  image: "https://terrarp.com/db/action/imbue.png",
+  description: "<p><em><b>Support</b></em></p><p>This action may be selected for free when you select any main support actions.</p><p>Free Action: If you have used a support action this cycle, tag an ally to add the damage type of one of your masteries to their attacks.</p><p>Limitations: Max target of 1, infinite duration. Target may be switched each round.</p>",
+  dice: "Free Action",
+  roll: "?r imbue # Imbue | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "chronomancy alchemy animancy divine-magic harmonic-magic hydromancy magitech nature-magic spirit-magic tinker war-arts mend summon",
+  category: "support"
+},
+{
+  id: 28,
+  lookup: "smite",
+  name: "Smite",
+  color: "#d0021b",
+  image: "https://terrarp.com/db/action/smite.png",
+  description: "<p><em><b>Support</b></em></p><p>This action may be selected for free when you select 'Heal'.</p><p>Passive: Whenever you target an ally with a Heal or Buff action, you may activate Torment or Area Effect from that ally's space. You must have those actions slotted to use them.</p>",
+  dice: "Passive",
+  roll: "?r smite # Smite | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "chronomancy alchemy animancy divine-magic harmonic-magic hydromancy magitech nature-magic spirit-magic tinker war-arts mend summon",
+  category: "support"
+},
+{
+  id: 29,
+  lookup: "revive",
+  name: "Revive",
+  color: "#50e3c2",
+  image: "https://terrarp.com/db/action/revive.png",
+  description: "<p><em><b>Support</b></em></p><p>This action may be selected for free when you select 'Heal'.</p><p>Bonus Action: Revive an ally within range. They regain 50% of their max HP.</p><p>Limitations: Lander characters cannot use this action card.</p>",
+  dice: "Bonus Action",
+  roll: "?r revive # Revive | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "chronomancy alchemy animancy divine-magic harmonic-magic hydromancy magitech nature-magic spirit-magic tinker war-arts mend summon",
+  category: "support"
+},
+{
+  id: 30,
+  lookup: "blessed",
+  name: "Blessed",
+  color: "#f8e71c",
+  image: "https://terrarp.com/db/action/blessed.png",
+  description: "<p><em><b>Support</b></em></p><p>Passive: All heal and buff actions gain +5 extra modifier per mastery rank: +5 (D), +10 (C), +15 (B), +20 (A), +25 (S).</p>",
+  dice: "Passive",
+  roll: "?r blessed # Blessed | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "chronomancy alchemy animancy divine-magic harmonic-magic hydromancy magitech nature-magic spirit-magic tinker war-arts mend summon",
+  category: "support"
+},
+{
+  id: 31,
+  lookup: "versatile",
+  name: "Versatile",
+  color: "#4a90e2",
+  image: "https://terrarp.com/db/action/versatile.png",
+  description: "<p><em><b>Support</b></em></p><p>Free Action: Apply the effects to 2 targets (instead of 3) and apply the last heal/buff amount to one of those targets.</p><p>Bonus Action: Roll both actions (both must be special or non-special) using the AoE command and choose if each target gets either the heal or buff.</p>",
+  dice: "Free/Bonus Action",
+  roll: "?r versatile # Versatile | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "chronomancy alchemy animancy divine-magic harmonic-magic hydromancy magitech nature-magic spirit-magic tinker war-arts mend summon",
+  category: "support"
+},
+{
+  id: 32,
+  lookup: "cleanse",
+  name: "Cleanse",
+  color: "#7ed321",
+  image: "https://terrarp.com/db/action/cleanse.png",
+  description: "<p><em><b>Support</b></em></p><p>(D) Passive: If you are afflicted with a curable condition, you may clear 1 stack from yourself each cycle before they take effect.</p><p>(D) Bonus Action: Distribute 2 (D), 4 (B), 6 (S) cleanses between up to 3 targets.</p>",
+  dice: "Passive/Bonus Action",
+  roll: "?r cleanse # Cleanse | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "chronomancy alchemy animancy divine-magic harmonic-magic hydromancy magitech nature-magic spirit-magic tinker war-arts mend summon",
+  category: "support"
+},
+{
+  id: 33,
+  lookup: "haste",
+  name: "Haste",
+  color: "#4a90e2",
+  image: "https://terrarp.com/db/action/haste.png",
+  description: "<p><em><b>Support</b></em></p><p>(D) Bonus Action: Distribute 2 (D), 3 (B), 4 (S) movements between up to 3 targets.</p><p>Limitations: Each target may gain a max of 2 movements from Haste.</p>",
+  dice: "Bonus Action",
+  roll: "?r haste # Haste | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "chronomancy alchemy animancy divine-magic harmonic-magic hydromancy magitech nature-magic spirit-magic tinker war-arts mend summon",
+  category: "support"
+},
+{
+  id: 34,
+  lookup: "inspire",
+  name: "Inspire",
+  color: "#f8e71c",
+  image: "https://terrarp.com/db/action/inspire.png",
+  description: "<p><em><b>Support</b></em></p><p>(D) Bonus Action: Distribute 5 (D), 10 (B), 15 (S) extra modifiers between up to 3 allies in multiple of 5s toward any mastery check or save rolls.</p><p>Limitations: This bonus cannot be stacked.</p>",
+  dice: "Bonus Action",
+  roll: "?r inspire # Inspire | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "chronomancy alchemy animancy divine-magic harmonic-magic hydromancy magitech nature-magic spirit-magic tinker war-arts mend summon",
+  category: "support"
+},
+
+// Alter Actions - Aura
+{
+  id: 35,
+  lookup: "savior",
+  name: "Savior",
+  color: "#f8e71c",
+  image: "https://terrarp.com/db/action/savior.png",
+  description: "<p><em><b>Alter - Aura</b></em></p><p>(D) Passive: Gain 15 (D), 20 (B), 25 (S) to a save roll in the next damage phase.</p><p>(D) Bonus Action: Share Aura. 1 ally within range gains your Passive. Save bonuses cannot stack.</p><p>(S) Upgrade: Share Aura. 1 → 2 allies.</p>",
+  dice: "Passive/Bonus Action",
+  roll: "?r savior # Savior | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "aura",
+  category: "alter"
+},
+{
+  id: 36,
+  lookup: "guardian",
+  name: "Guardian",
+  color: "#50e3c2",
+  image: "https://terrarp.com/db/action/guardian.png",
+  description: "<p><em><b>Alter - Aura</b></em></p><p>(C) Free Action: Distribute 15 (C) 20 (B) 25 (A) 30 (S) damage mitigation between and up to 3 targets in multiple of 5s.</p><p>(A) Bonus Action: Amplify Aura. Double the mitigation amount.</p>",
+  dice: "Free/Bonus Action",
+  roll: "?r guardian # Guardian | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "aura",
+  category: "alter"
+},
+
+// Alter Actions - Battle Spirits
+{
+  id: 37,
+  lookup: "overdrive",
+  name: "Overdrive",
+  color: "#d0021b",
+  image: "https://terrarp.com/db/action/overdrive.png",
+  description: "<p><em><b>Alter - Battle Spirits</b></em></p><p>(D) Passive: Divide the total amount of damage (from all sources) you dealt last cycle by 12 and gain the same amount of HP (max: 40 HP) when you are adjacent to or on the space as your attack target.</p><p>(S) Upgrade: Divide by 12 → Divide by 10 (maximum heal: 50 HP).</p>",
+  dice: "Passive",
+  roll: "?r overdrive # Overdrive | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "battle-spirits",
+  category: "alter"
+},
+{
+  id: 38,
+  lookup: "rage",
+  name: "Rage",
+  color: "#9013fe",
+  image: "https://terrarp.com/db/action/rage.png",
+  description: "<p><em><b>Alter - Battle Spirits</b></em></p><p>(C) Free Action. Deal an instance of damage to an enemy you are adjacent to or on the space of based on how much HP you lose in the last Damage Phase before statuses and mitigation. Maximum: 50 (C), 75 (B), 100 (A), 125 (S)</p><p>(B) Bonus Action: Frenzy. Double Rage damage. In addition, Rage has no maximum this cycle.</p>",
+  dice: "Free/Bonus Action",
+  roll: "?r rage # Rage | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "battle-spirits",
+  category: "alter"
+},
+
+// Alter Actions - Corrupt
+{
+  id: 39,
+  lookup: "exchange",
+  name: "Exchange",
+  color: "#bd10e0",
+  image: "https://terrarp.com/db/action/exchange.png",
+  description: "<p><em><b>Alter - Corrupt</b></em></p><p>Free Action: You may reduce 1d20 Save in the next damage phase and gain the same amount as extra modifier to attack, buff, or heal. (Note: the DM has the option to change Save to HP depending on the encounter).</p><p>(B) Upgrade: 1d20 → 2d20</p><p>(S) Upgrade: 2d20 → 3d20</p>",
+  dice: "Free Action",
+  roll: "?r exchange # Exchange | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "corrupt",
+  category: "alter"
+},
+{
+  id: 40,
+  lookup: "future-wager",
+  name: "Future Wager",
+  color: "#4a4a4a",
+  image: "https://terrarp.com/db/action/future-wager.png",
+  description: "<p><em><b>Alter - Corrupt</b></em></p><p>(C) Free Action: After rolling your main action, you may bank this action and roll result and instead perform a different action this cycle. In future cycles, you must use this banked action. If you have a banked action by the end of the thread or cycle 5 (whichever comes first), lose 200 current and max HP per banked action. Maximum 1 banked action.</p><p>(B) Upgrade: Max banked action: 1 → 2.</p>",
+  dice: "Free Action",
+  roll: "?r future-wager # Future Wager | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "corrupt",
+  category: "alter"
+},
+
+// Alter Actions - Dynamism
+{
+  id: 41,
+  lookup: "momentum",
+  name: "Momentum",
+  color: "#4a90e2",
+  image: "https://terrarp.com/db/action/momentum.png",
+  description: "<p><em><b>Alter - Dynamism</b></em></p><p>(D) Free Action: Gain 5 damage modifiers for each (used or unused) movement you have this cycle.</p><p>(D) Passive: +2 to all Saves for per unused movement in the next damage phase.</p>",
+  dice: "Free Action/Passive",
+  roll: "?r momentum # Momentum | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "dynamism",
+  category: "alter"
+},
+{
+  id: 42,
+  lookup: "rover",
+  name: "Rover",
+  color: "#7ed321",
+  image: "https://terrarp.com/db/action/rover.png",
+  description: "<p><em><b>Alter - Dynamism</b></em></p><p>(C) Bonus Action. Damage resulting from moving is halved.</p><p>(S) Upgrade: Bonus Action → Passive.</p>",
+  dice: "Bonus Action/Passive",
+  roll: "?r rover # Rover | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "dynamism",
+  category: "alter"
+},
+{
+  id: 43,
+  lookup: "maneuver",
+  name: "Maneuver",
+  color: "#50e3c2",
+  image: "https://terrarp.com/db/action/maneuver.png",
+  description: "<p><em><b>Alter - Dynamism/Metamorph</b></em></p><p>(D) Passive. Gain extra movement. 2 (D), 3 (B), 4 (S)</p><p>(C) Passive. You may split your movements, allowing you to move → act → move.</p>",
+  dice: "Passive",
+  roll: "?r maneuver # Maneuver | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "dynamism metamorph",
+  category: "alter"
+},
+
+// Alter Actions - Evoke
+{
+  id: 44,
+  lookup: "exceed",
+  name: "Exceed",
+  color: "#d0021b",
+  image: "https://terrarp.com/db/action/exceed.png",
+  description: "<p><em><b>Alter - Evoke</b></em></p><p>(D) Free Action. Reduce your maximum HP by [15 HP] to gain a [+10] bonus modifier on your next attacks, heals, or buffs.</p><p>(C) Upgrade. Bonus Modifier: +10 → +15</p><p>(B) Upgrade. Bonus Modifier: +15 → +20</p><p>(A) Upgrade. Bonus Modifier: +20 → +25</p><p>(S) Upgrade. Bonus Modifier: +25 → +30</p>",
+  dice: "Free Action",
+  roll: "?r exceed # Exceed | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "evoke",
+  category: "alter"
+},
+{
+  id: 45,
+  lookup: "engage",
+  name: "Engage",
+  color: "#bd10e0",
+  image: "https://terrarp.com/db/action/engage.png",
+  description: "<p><em><b>Alter - Evoke</b></em></p><p>(C) Bonus Action: Redo. Lose [50 HP] to reroll your main action, you must take the new result. Redo Critical Attack uses 1d100 instead of 2d100kh1.</p><p>(C) Bonus Action: Accretion. Lose [35 HP] to make your Save Roll with advantage.</p>",
+  dice: "Bonus Action",
+  roll: "?r engage # Engage | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "evoke",
+  category: "alter"
+},
+{
+  id: 46,
+  lookup: "empower",
+  name: "Empower",
+  color: "#f5a623",
+  image: "https://terrarp.com/db/action/empower.png",
+  description: "<p><em><b>Alter - Evoke</b></em></p><p>(A) Free Action: Once per cycle, reduce your HP by [50 HP] and gain 1 extra bonus action, you cannot use the same BA twice.</p>",
+  dice: "Free Action",
+  roll: "?r empower # Empower | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "evoke",
+  category: "alter"
+},
+{
+  id: 47,
+  lookup: "regalia",
+  name: "Regalia",
+  color: "#f8e71c",
+  image: "https://terrarp.com/db/action/regalia.png",
+  description: "<p><em><b>Alter - Evoke</b></em></p><p>(D) Passive: Light Armor reduces the health cost of Engage's Bonus Actions and Empower by 5 (D), 10 (B), 15 (S).</p>",
+  dice: "Passive",
+  roll: "?r regalia # Regalia | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "evoke",
+  category: "alter"
+},
+
+// Alter Actions - Hyper Sense
+{
+  id: 48,
+  lookup: "mark",
+  name: "Mark",
+  color: "#9013fe",
+  image: "https://terrarp.com/db/action/mark.png",
+  description: "<p><em><b>Alter - Hyper Sense</b></em></p><p>(D) Bonus Action: The next 2 attacks to your marked enemy gains a +10 (D) +15 (C) +20 (B) +25 (A) +30 (S) damage modifier. You cannot recast Death Mark until all charges are expended, if there are multiple Hyper Sense users, Marks may stack.</p><p>(A) Upgrade: 2 → 3 attacks.</p>",
+  dice: "Bonus Action",
+  roll: "?r mark # Mark | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "hyper-sense",
+  category: "alter"
+},
+{
+  id: 49,
+  lookup: "hyper-insight",
+  name: "Hyper Insight",
+  color: "#50e3c2",
+  image: "https://terrarp.com/db/action/hyper-insight.png",
+  description: "<p><em><b>Alter - Hyper Sense</b></em></p><p>(D) Free Action: Grant yourself or an ally within range an instance of 15 (D), 20 (B), 25 (S) Break damage and imbue the attack with one of your masteries this cycle.</p><p>(A) Bonus Action: Ultra Insight. Double Hyper Insight's damage.</p>",
+  dice: "Free/Bonus Action",
+  roll: "?r hyper-insight # Hyper Insight | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "hyper-sense",
+  category: "alter"
+},
+{
+  id: 50,
+  lookup: "hyper-instinct",
+  name: "Hyper Instinct",
+  color: "#7ed321",
+  image: "https://terrarp.com/db/action/hyper-instinct.png",
+  description: "<p><em><b>Alter - Hyper Sense</b></em></p><p>(D) Passive: Gain 5 (D), 10 (B), 15 (S) to a save roll in the next damage phase.</p><p>(A) Bonus Action: Ultra Instinct. Double your Hyper Instinct damage.</p>",
+  dice: "Passive/Bonus Action",
+  roll: "?r hyper-instinct # Hyper Instinct | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "hyper-sense",
+  category: "alter"
+},
+
+// Alter Actions - Mend
+{
+  id: 51,
+  lookup: "regenerate",
+  name: "Regenerate",
+  color: "#7ed321",
+  image: "https://terrarp.com/db/action/regenerate.png",
+  description: "<p><em><b>Alter - Mend</b></em></p><p>(D) Passive: Gain 5 (D) 10 (B) 15 (S) HP every cycle.</p><p>(A) Bonus Action: Power Regenerate. Gain the rolled HP and grant an ally the same amount, or forgo your own regeneration and grant an ally double the rolled HP.</p>",
+  dice: "Passive/Bonus Action",
+  roll: "?r regenerate # Regenerate | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "mend",
+  category: "alter"
+},
+{
+  id: 52,
+  lookup: "infuse",
+  name: "Infuse",
+  color: "#50e3c2",
+  image: "https://terrarp.com/db/action/infuse.png",
+  description: "<p><em><b>Alter - Mend</b></em></p><p>(D) Free Action. Heal up to 2 allies within range for 5 (D) 10 (C) 15 (B) 20 (A) 25 (S) HP. If AoE was used, distribute the heal in 5s.</p><p>(A) Upgrade. Heal up to 3 targets (instead of 2).</p>",
+  dice: "Free Action",
+  roll: "?r infuse # Infuse | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "mend",
+  category: "alter"
+},
+{
+  id: 53,
+  lookup: "bestowed",
+  name: "Bestowed",
+  color: "#f8e71c",
+  image: "https://terrarp.com/db/action/bestowed.png",
+  description: "<p><em><b>Alter - Mend</b></em></p><p>(D) Passive: Use the mastery and mastery rank of any non-support masteries to perform support actions. You must have at least 1 support mastery on your character sheet to access support actions.</p>",
+  dice: "Passive",
+  roll: "?r bestowed # Bestowed | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "mend",
+  category: "alter"
+},
+
+// Alter Actions - Metamorph
+{
+  id: 54,
+  lookup: "adapt",
+  name: "Adapt",
+  color: "#4a90e2",
+  image: "https://terrarp.com/db/action/adapt.png",
+  description: "<p><em><b>Alter - Metamorph</b></em></p><p>(D) Passive. On the first post of a thread, add 30 (D), 40 (B), 50 (S) to your current HP. This is not a heal nor does it expand your max HP.</p><p>(D) Bonus Action: Prowl. Ignore difficult terrain this cycle. (A-rank upgrade) And divide movement damage by 2.</p><p>(D) Bonus Action: Fend. +10 (D) +15 (B) +20 (S) to a save roll this cycle.</p>",
+  dice: "Passive/Bonus Action",
+  roll: "?r adapt # Adapt | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "metamorph",
+  category: "alter"
+},
+{
+  id: 55,
+  lookup: "evolve",
+  name: "Evolve",
+  color: "#7ed321",
+  image: "https://terrarp.com/db/action/evolve.png",
+  description: "<p><em><b>Alter - Metamorph</b></em></p><p>(D) Passive: At the beginning of the thread, +10 (D) +15 (B) +20 (S) bonus to main action rolls made with a mastery and one role. All attacks will now include that mastery's damage type. You must declare this on every post afterward in the combat log.</p><p>(A) Bonus Action: Shift. Change the Evolved mastery and role and gain its bonus this cycle onward.</p>",
+  dice: "Passive/Bonus Action",
+  roll: "?r evolve # Evolve | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "metamorph",
+  category: "alter"
+},
+
+// Alter Actions - Summon
+{
+  id: 56,
+  lookup: "coordinate",
+  name: "Coordinate",
+  color: "#f5a623",
+  image: "https://terrarp.com/db/action/coordinate.png",
+  description: "<p><em><b>Alter - Summon</b></em></p><p>(D) Free Action: Grant 2 targets a +5 (D) +10 (C) +15 (B) +20 (A) +25 (S) modifier to their next attack, heal, or buff action.</p><p>(S) Upgrade: 3 targets gain the coordinate bonus (instead of 2).</p>",
+  dice: "Free Action",
+  roll: "?r coordinate # Coordinate | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "summon",
+  category: "alter"
+},
+{
+  id: 57,
+  lookup: "assist",
+  name: "Assist",
+  color: "#50e3c2",
+  image: "https://terrarp.com/db/action/assist.png",
+  description: "<p><em><b>Alter - Summon</b></em></p><p>(D) Passive: Once per cycle, if your Coordinate target takes damage, they gain 5 HP. (B-rank upgrade) +5 for a total of 10 HP.</p><p>(D) Bonus Action: Aid. Grant 5 (D) 10 (B) 15 (S) modifier to the next mastery check made by any of your Coordinate targets.</p>",
+  dice: "Passive/Bonus Action",
+  roll: "?r assist # Assist | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "summon",
+  category: "alter"
+},
+
+// Alter Actions - Weapon Arts
+{
+  id: 58,
+  lookup: "charge",
+  name: "Charge",
+  color: "#d0021b",
+  image: "https://terrarp.com/db/action/charge.png",
+  description: "<p><em><b>Alter - Weapon Arts</b></em></p><p>(D) Passive: Add 1d20 (D), 2d20 (B), 3d20 (S) to your Charge Pool at the start of your turn when combat begins.</p><p>(D) Bonus Action: Charge. Add an extra 1d20 (D) or 2d20 (B) to your Charge Pool.</p><p>(D) Bonus Action: Release. Roll your entire Charge Pool and gain the roll result as a modifier for your attack, buff, heal, or mastery check involving your weapon.</p>",
+  dice: "Passive/Bonus Action",
+  roll: "?r charge # Charge | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "weapon-arts",
+  category: "alter"
+},
+{
+  id: 59,
+  lookup: "follow-up",
+  name: "Follow-up",
+  color: "#bd10e0",
+  image: "https://terrarp.com/db/action/follow-up.png",
+  description: "<p><em><b>Alter - Weapon Arts</b></em></p><p>(C) Free Action. Whenever an ally within range performs a special attack action, either you or your ally may use a 20 (D), 25 (C), 30 (B), 35 (A), 40 (S) damage modifier in either of your posts (which must narratively feature both).</p><p>If one follow-up partner crits, this value scales with the crit. Normal attacks may trigger combo at a reduced amount 15 (C), 20 (A), 25 (S).</p>",
+  dice: "Free Action",
+  roll: "?r follow-up # Follow-up | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "weapon-arts",
+  category: "alter"
+},
+
+// Dungeon Master Settings
+{
+  id: 60,
+  lookup: "carry",
+  name: "Carry",
+  color: "#4a4a4a",
+  image: "https://terrarp.com/db/action/carry.png",
+  description: "<p><em><b>DM Settings</b></em></p><p>Bonus Action. Pick up an ally anywhere along your path and drop them off at your destination.</p>",
+  dice: "Bonus Action",
+  roll: "?r carry # Carry | Character Name | <span class='thrcode'>Code</span>",
+  masteries: "all",
+  category: "dm"
+}
+];
+
+// Make available globally
+window.actionlistV2 = actionlistV2;

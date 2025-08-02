@@ -79,6 +79,12 @@
       } else if (hash.includes('#sample.')) {
         const buildCode = hash.slice(8);
         await importBuildCode(buildCode);
+      } else if (hash.includes('#compact-import.')) {
+        const buildCode = hash.slice(16);
+        await importBuildCode(buildCode, true);
+      } else if (hash.includes('#compact.')) {
+        const buildCode = hash.slice(9);
+        await importBuildCode(buildCode, true);
       } else {
         clearPreviousState();
         redirectToMasterySelector();
@@ -179,12 +185,14 @@
       }
     }
 
-    async function importBuildCode(buildCode) {
+    async function importBuildCode(buildCode, isCompact = false) {
       try {
         document.getElementById('status').innerHTML = 'Loading build...';
 
         const buildEncoder = window.BuildEncoder;
-        const result = buildEncoder.decodeBuildCode(buildCode);
+        const result = isCompact ? 
+          buildEncoder.decodeCompactBuildCode(buildCode) : 
+          buildEncoder.decodeBuildCode(buildCode);
 
         if (!result.success) {
           throw new Error(result.error || 'Invalid build code');

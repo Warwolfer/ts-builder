@@ -22,8 +22,6 @@ const masterylist = [
     role: "defense"
   },
   {
-
-    id: 1,
     lookup: "beast-arts",
     name: "Beast Arts",
     color: "#db7233",
@@ -34,8 +32,6 @@ const masterylist = [
     role: "defense"
   },
   {
-
-    id: 2,
     lookup: "geomancy",
     name: "Geomancy",
     color: "#a76a36",
@@ -46,8 +42,6 @@ const masterylist = [
     role: "defense"
   },
   {
-
-    id: 3,
     lookup: "guard-arts",
     name: "Guard Arts",
     color: "#f2bb36",
@@ -58,8 +52,6 @@ const masterylist = [
     role: "defense"
   },
   {
-
-    id: 4,
     lookup: "hemomancy",
     name: "Hemomancy",
     color: "#c32222",
@@ -70,8 +62,6 @@ const masterylist = [
     role: "defense"
   },
   {
-
-    id: 5,
     lookup: "hydromancy",
     name: "Hydromancy",
     color: "#66b8ea",
@@ -82,8 +72,6 @@ const masterylist = [
     role: "defense"
   },
   {
-
-    id: 6,
     lookup: "illusion-magic",
     name: "Illusion Magic",
     color: "#ea5694",
@@ -94,8 +82,6 @@ const masterylist = [
     role: "defense"
   },
   {
-
-    id: 7,
     lookup: "aeromancy",
     name: "Aeromancy",
     color: "#48d1c3",
@@ -106,8 +92,6 @@ const masterylist = [
     role: "offense"
   },
   {
-
-    id: 8,
     lookup: "crush-weapons",
     name: "Crush Weapons",
     color: "#ce5e32",
@@ -118,8 +102,6 @@ const masterylist = [
     role: "offense"
   },
   {
-
-    id: 9,
     lookup: "dark-magic",
     name: "Dark Magic",
     color: "#883cca",
@@ -130,8 +112,6 @@ const masterylist = [
     role: "offense"
   },
   {
-
-    id: 10,
     lookup: "martial-arts",
     name: "Martial Arts",
     color: "#c9c9c9",
@@ -142,8 +122,6 @@ const masterylist = [
     role: "offense"
   },
   {
-
-    id: 11,
     lookup: "pierce-weapons",
     name: "Pierce Weapons",
     color: "#46bcc8",
@@ -154,8 +132,6 @@ const masterylist = [
     role: "offense"
   },
   {
-
-    id: 12,
     lookup: "pyromancy",
     name: "Pyromancy",
     color: "#cb3739",
@@ -166,8 +142,6 @@ const masterylist = [
     role: "offense"
   },
   {
-
-    id: 13,
     lookup: "ranged-weapons",
     name: "Ranged Weapons",
     color: "#77b933",
@@ -178,8 +152,6 @@ const masterylist = [
     role: "offense"
   },
   {
-
-    id: 14,
     lookup: "shadow-arts",
     name: "Shadow Arts",
     color: "#383838",
@@ -190,8 +162,6 @@ const masterylist = [
     role: "offense"
   },
   {
-
-    id: 15,
     lookup: "slash-weapons",
     name: "Slash Weapons",
     color: "#4263cb",
@@ -202,8 +172,6 @@ const masterylist = [
     role: "offense"
   },
   {
-
-    id: 16,
     lookup: "alchemy",
     name: "Alchemy",
     color: "#53b159",
@@ -214,8 +182,6 @@ const masterylist = [
     role: "support"
   },
   {
-
-    id: 17,
     lookup: "animancy",
     name: "Animancy",
     color: "#6c319d",
@@ -226,8 +192,6 @@ const masterylist = [
     role: "support"
   },
   {
-
-    id: 18,
     lookup: "chronomancy",
     name: "Chronomancy",
     color: "#ec4a97",
@@ -238,8 +202,6 @@ const masterylist = [
     role: "support"
   },
   {
-
-    id: 19,
     lookup: "divine-magic",
     name: "Divine Magic",
     color: "#edb82a",
@@ -250,8 +212,6 @@ const masterylist = [
     role: "support"
   },
   {
-
-    id: 20,
     lookup: "harmonic-magic",
     name: "Harmonic Magic",
     color: "#36a5e8",
@@ -262,8 +222,6 @@ const masterylist = [
     role: "support"
   },
   {
-
-    id: 21,
     lookup: "magitech",
     name: "Magitech",
     color: "#5c6779",
@@ -274,8 +232,6 @@ const masterylist = [
     role: "support"
   },
   {
-
-    id: 22,
     lookup: "nature-magic",
     name: "Nature Magic",
     color: "#91c023",
@@ -286,8 +242,6 @@ const masterylist = [
     role: "support"
   },
   {
-
-    id: 23,
     lookup: "spirit-magic",
     name: "Spirit Magic",
     color: "#50c8cb",
@@ -298,8 +252,6 @@ const masterylist = [
     role: "support"
   },
   {
-
-    id: 24,
     lookup: "aura",
     name: "Aura",
     color: "#e0b439",
@@ -310,8 +262,6 @@ const masterylist = [
     role: "alter"
   },
   {
-
-    id: 25,
     lookup: "battle-spirits",
     name: "Battle Spirits",
     color: "#b72c2c",
@@ -322,8 +272,6 @@ const masterylist = [
     role: "alter"
   },
   {
-
-    id: 26,
     lookup: "corrupt",
     name: "Corrupt",
     color: "#813090",
@@ -334,8 +282,6 @@ const masterylist = [
     role: "alter"
   },
   {
-
-    id: 27,
     lookup: "dynamism",
     name: "Dynamism",
     color: "#87ad3d",
@@ -346,8 +292,6 @@ const masterylist = [
     role: "alter"
   },
   {
-
-    id: 28,
     lookup: "evoke",
     name: "Evoke",
     color: "#50c8cb",
@@ -358,8 +302,6 @@ const masterylist = [
     role: "alter"
   },
   {
-
-    id: 29,
     lookup: "hyper-sense",
     name: "Hyper Sense",
     color: "#40883a",
@@ -370,8 +312,6 @@ const masterylist = [
     role: "alter"
   },
   {
-
-    id: 30,
     lookup: "mend",
     name: "Mend",
     color: "#2f8cc1",
@@ -382,8 +322,6 @@ const masterylist = [
     role: "alter"
   },
   {
-
-    id: 31,
     lookup: "metamorph",
     name: "Metamorph",
     color: "#cc4e71",
@@ -394,8 +332,6 @@ const masterylist = [
     role: "alter"
   },
   {
-
-    id: 32,
     lookup: "summon",
     name: "Summon",
     color: "#4a4da5",
@@ -406,8 +342,6 @@ const masterylist = [
     role: "alter"
   },
   {
-
-    id: 33,
     lookup: "weapon-arts",
     name: "Weapon Arts",
     color: "#cb5050",
