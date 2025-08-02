@@ -78,7 +78,7 @@
       </div>
 
       <!-- Free Actions (Always Available) -->
-      <h1 class="selectorheader">Free Actions</h1>
+      <h1 class="selectorheader">Basic Actions</h1>
       <div class="masterycategory freeactions">
         <div class="card selected free-action" data-action="attack">
           <div class="cardicon aci-attack"></div>
@@ -109,7 +109,7 @@
       </div>
 
       <!-- Selectable Actions -->
-      <h1 class="selectorheader">Pick your actions...</h1>
+      <h1 class="selectorheader">Pick your actions</h1>
       <div class="masterycategory" id="pickactions">
         <!-- Will be populated by JavaScript -->
       </div>
@@ -179,6 +179,9 @@
           
           // Update UI with current state
           this.updateUI();
+          
+          // Adjust UI for imported characters
+          this.adjustUIForImportedCharacter();
           
         } catch (error) {
           console.error('Failed to initialize action selector:', error);
@@ -431,6 +434,25 @@
         // Navigate to build sheet
         const url = this.state.generateURL('build-sheet.html');
         window.location.href = url;
+      }
+      
+      adjustUIForImportedCharacter() {
+        const currentState = this.state.getState();
+        
+        // If character has profileBannerUrl, it was imported from Terrarp
+        if (currentState.profileBannerUrl) {
+          // Hide "Back: Assign Ranks" button
+          const backButton = this.domUtils.getElementById('back-button');
+          if (backButton) {
+            backButton.style.display = 'none';
+          }
+          
+          // Change "Step 3: Select Actions" to just "Select Actions"
+          const charNameElement = this.domUtils.querySelector('.charname');
+          if (charNameElement && charNameElement.textContent.includes('Step 3:')) {
+            charNameElement.textContent = 'Select Actions';
+          }
+        }
       }
       
       showError(message) {

@@ -19,7 +19,7 @@ const BuildEncoder = {
     const actionCode = chosenActions.join(',');
     
     // Handle character name
-    const nameCode = characterName ? '.' + characterName.replace(/ /gi, '_') : '';
+    const nameCode = characterName ? characterName.replace(/ /gi, '_') : '';
     
     // Create build details string
     const buildDetails = [
@@ -32,8 +32,8 @@ const BuildEncoder = {
       nameCode
     ].join('.');
     
-    // Determine hash type
-    const hashType = window.location.href.includes('#load.') ? '#import.' : '#sample.';
+    // Determine hash type - use import for imported characters, sample for manual builds
+    const hashType = state.profileBannerUrl ? '#import.' : '#sample.';
     
     // Encode and create full URL
     const encodedBuild = btoa(buildDetails);

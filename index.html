@@ -22,7 +22,6 @@
       font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
       text-align: center;
       margin-top: 100px;
-      background: #111;
       color: white;
     }
     .loading {
@@ -51,6 +50,26 @@
   <div id="status">Loading...</div>
   
   <script>
+    function clearPreviousState() {
+      // Clear any previous state from localStorage to start fresh
+      try {
+        if (window.buildState) {
+          window.buildState.reset();
+        } else {
+          // If buildState isn't available, manually clear localStorage
+          const keys = Object.keys(localStorage);
+          keys.forEach(key => {
+            if (key.startsWith('terrasphere-build-')) {
+              localStorage.removeItem(key);
+            }
+          });
+        }
+        console.log('Previous build state cleared');
+      } catch (error) {
+        console.error('Failed to clear previous state:', error);
+      }
+    }
+    
     async function handleBuildCode() {
       const hash = window.location.hash;
       
@@ -68,7 +87,8 @@
         const buildCode = hash.slice(8); // Remove '#sample.'
         await importBuildCode(buildCode);
       } else {
-        // No build code - redirect to mastery selector
+        // No build code - starting fresh build, clear any previous state
+        clearPreviousState();
         redirectToMasterySelector();
       }
     }
@@ -206,6 +226,11 @@
     window.onload = function() {
       handleBuildCode();
     };
+    
+    // Handle browser back/forward navigation
+    window.addEventListener('hashchange', function() {
+      handleBuildCode();
+    });
   </script>
 </body>
 </html>

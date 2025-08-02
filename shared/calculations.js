@@ -126,9 +126,9 @@ const CharacterCalculations = {
   
   // Calculate range
   calculateRange(state, chosenActions) {
-    let range = 0;
+    let range = 1; // Default range is now 1
     
-    // Extension passive
+    // Extension passive adds +1
     if (chosenActions.includes('extension')) {
       range += 1;
     }

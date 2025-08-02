@@ -20,6 +20,9 @@ class BuildState {
       characterTitle: '',
       threadCode: '',
       
+      // Imported Character Data
+      profileBannerUrl: '',
+      
       // Build Metadata
       buildId: null,
       lastModified: new Date()
@@ -54,6 +57,7 @@ class BuildState {
       characterRace: '',
       characterTitle: '',
       threadCode: '',
+      profileBannerUrl: '',
       buildId: null,
       lastModified: new Date()
     };

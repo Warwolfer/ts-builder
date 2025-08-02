@@ -186,6 +186,9 @@
           // Update UI with current state
           this.updateUI();
           
+          // Hide navigation for imported characters
+          this.adjustNavigationForImportedCharacter();
+          
         } catch (error) {
           console.error('Failed to initialize rank selector:', error);
           this.showError('Failed to load data. Please refresh the page.');
@@ -255,10 +258,25 @@
         this.domUtils.setHTML(container, html);
         console.log(`Debug - HTML set, container content now:`, container.innerHTML.length);
         
+        // Initialize default ranks (all E = 0) if not already set
+        this.initializeDefaultRanks();
+        
         // Log the actual position and visibility of the container
         const rect = container.getBoundingClientRect();
         console.log(`Debug - Container position:`, rect);
         console.log(`Debug - Container visible:`, rect.width > 0 && rect.height > 0);
+      }
+      
+      initializeDefaultRanks() {
+        const currentState = this.state.getState();
+        const { chosenMasteries, chosenMasteriesRanks } = currentState;
+        
+        // If ranks array doesn't match masteries length, initialize with default E (0) ranks
+        if (chosenMasteriesRanks.length !== chosenMasteries.length) {
+          const defaultRanks = new Array(chosenMasteries.length).fill(0); // All E ranks
+          this.state.updateState({ chosenMasteriesRanks: defaultRanks });
+          console.log('Debug - Initialized default ranks:', defaultRanks);
+        }
       }
       
       updateArmorDisplay(armorType) {
@@ -446,6 +464,18 @@
         // Navigate to action selector
         const url = this.state.generateURL('action-selector.html');
         window.location.href = url;
+      }
+      
+      adjustNavigationForImportedCharacter() {
+        const currentState = this.state.getState();
+        
+        // If character has profileBannerUrl, it was imported from Terrarp
+        if (currentState.profileBannerUrl) {
+          const backButton = this.domUtils.getElementById('back-button');
+          if (backButton) {
+            backButton.style.display = 'none';
+          }
+        }
       }
       
       showError(message) {
