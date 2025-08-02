@@ -6,6 +6,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="app.css">
   <link rel="stylesheet" href="index.css">
+  <style>
+    /* Thread code input styling */
+    .header-info--functions {
+      display: block !important;
+      float: right;
+      width: 250px;
+    }
+    
+    #inputbox {
+      display: block !important;
+      padding: 15px;
+    }
+    
+    #threadcodereplace {
+      width: 100% !important;
+      height: 40px !important;
+      padding: 10px !important;
+      font-size: 14px !important;
+      border: 2px solid #a9357b !important;
+      border-radius: 6px !important;
+      background: linear-gradient(0deg, rgba(17,20,28,0.95) 0%, rgba(17,20,28,0.85) 100%) !important;
+      color: #fff !important;
+      box-sizing: border-box !important;
+      display: block !important;
+    }
+    
+    #threadcodereplace:focus {
+      outline: none !important;
+      border-color: #3ba8b8 !important;
+      box-shadow: 0 0 5px rgba(71, 203, 221, 0.3) !important;
+    }
+  </style>
   <link rel="shortcut icon" href="https://www.terrarp.com//favicon.ico">
   <link rel="preconnect" href="https://fonts.gstatic.com">
   
@@ -17,10 +49,10 @@
   <script src="shared/build-encoder.js"></script>
   
   <!-- Data files -->
-  <script src="masteries.js"></script>
-  <script src="actions.js"></script>
-  <script src="safecharacters.js"></script>
-  <script src="armor-abilities.js"></script>
+  <script src="resource/masteries.js"></script>
+  <script src="resource/actions.js"></script>
+  <script src="resource/safecharacters.js"></script>
+  <script src="resource/armor-abilities.js"></script>
 </head>
 
 <body>
@@ -59,16 +91,7 @@
       </div>
       <div class="header-info--functions right">
         <div class="masterycategory" id="inputbox">
-          <table class="typebox">
-            <tr>
-              <td id="threadcodeinput">
-                <input type="text" id="threadcodereplace" autocomplete="off" placeholder="Thread code (510C5)...">
-              </td>
-              <td id="threadcodebutton">
-                <div id="thrcodebutton" class="threadcodeinput">Update</div>
-              </td>
-            </tr>
-          </table>
+          <input type="text" id="threadcodereplace" autocomplete="off" placeholder="Thread code (510C5)...">
         </div>
         <div id="finalbuild"></div>
       </div>
@@ -298,16 +321,13 @@
 
     <div class="button-container">
       <div class="button" id="back-button">< Select Actions</div>
-      <div class="button" id="new-build-button">Create New Build</div>
       <div class="button" id="edit-build-button">Edit This Build</div>
     </div>
   </div>
 
-  <div id="copyright">
-    <span class="cpr">TS2 Builder <span class="version">v2.0</span> © 2016-2024 Team Terrasphere</span>
-    <span class="cpr">All visuals and music belong to their respective owners.</span>
-  </div>
+  <!-- Copyright will be inserted here by shared component -->
 
+  <script src="shared/copyright-component.js"></script>
   <script>
     // Build Sheet Display Logic
     class BuildSheet {
@@ -411,6 +431,7 @@
         
         // Set up thread code functionality
         this.setupThreadCode();
+        this.restoreThreadCode();
         
         // Hide navigation for imported characters
         this.adjustNavigationForImportedCharacter();
@@ -720,20 +741,52 @@
       }
       
       setupThreadCode() {
-        this.domUtils.addEventListener(
-          this.domUtils.getElementById('thrcodebutton'),
-          'click',
-          () => this.updateThreadCode()
-        );
+        const threadCodeInput = this.domUtils.getElementById('threadcodereplace');
+        
+        if (threadCodeInput) {
+          // Update in real-time as user types
+          this.domUtils.addEventListener(threadCodeInput, 'input', () => this.updateThreadCode());
+          
+          // Also update on enter key
+          this.domUtils.addEventListener(threadCodeInput, 'keypress', (e) => {
+            if (e.key === 'Enter') {
+              this.updateThreadCode();
+            }
+          });
+        }
+      }
+      
+      restoreThreadCode() {
+        const currentState = this.state.getState();
+        const savedThreadCode = currentState.threadCode;
+        
+        if (savedThreadCode) {
+          // Restore the input value
+          const threadCodeInput = this.domUtils.getElementById('threadcodereplace');
+          if (threadCodeInput) {
+            this.domUtils.setValue(threadCodeInput, savedThreadCode);
+          }
+          
+          // Update all thread code displays
+          this.updateThreadCode();
+        }
       }
       
       updateThreadCode() {
         const newCode = this.domUtils.getValue(this.domUtils.getElementById('threadcodereplace'));
         const elements = this.domUtils.querySelectorAll('.thrcode');
         
+        // Update all thread code elements
         elements.forEach(element => {
           this.domUtils.setText(element, newCode || 'Thread Code');
         });
+        
+        // Save thread code to state for persistence
+        this.state.updateState({ threadCode: newCode });
+        
+        // Regenerate build codes with new thread code
+        const currentState = this.state.getState();
+        this.generateBuildCodes(currentState);
       }
       
       setupEventListeners() {
@@ -759,12 +812,7 @@
           'click',
           () => this.goToPreviousPage()
         );
-        
-        this.domUtils.addEventListener(
-          this.domUtils.getElementById('new-build-button'),
-          'click',
-          () => this.createNewBuild()
-        );
+
         
         this.domUtils.addEventListener(
           this.domUtils.getElementById('edit-build-button'),
@@ -809,12 +857,6 @@
           const backButton = this.domUtils.getElementById('back-button');
           if (backButton) {
             backButton.style.display = 'none';
-          }
-          
-          // Hide "Create New Build" button  
-          const newBuildButton = this.domUtils.getElementById('new-build-button');
-          if (newBuildButton) {
-            newBuildButton.style.display = 'none';
           }
         } else {
           // For manual builds (no banner), add top padding to prevent cut-off appearance
@@ -899,10 +941,7 @@
           } else {
             console.log('mnameReplace element not found');
           }
-          
-          // Don't replace command names - mastery check should stay "?r mastery"
-          // Only the rank (MR) and mastery name (Type) get updated
-          
+
           console.log('Full rollCode HTML after all changes:', rollCodeElement ? rollCodeElement.innerHTML : 'null');
         }
       }
@@ -1073,6 +1112,8 @@
       min-height: 60px;
       padding: 8px;
       border: 1px solid #ced4da;
+      background-color: #232937;
+      color: #FFF;
       border-radius: 4px;
       font-family: monospace;
       font-size: 12px;

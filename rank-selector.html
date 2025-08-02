@@ -17,10 +17,10 @@
   <script src="shared/build-encoder.js"></script>
   
   <!-- Data files -->
-  <script src="masteries.js"></script>
-  <script src="actions.js"></script>
-  <script src="safecharacters.js"></script>
-  <script src="armor-abilities.js"></script>
+  <script src="resource/masteries.js"></script>
+  <script src="resource/actions.js"></script>
+  <script src="resource/safecharacters.js"></script>
+  <script src="resource/armor-abilities.js"></script>
 </head>
 
 <body>
@@ -127,16 +127,14 @@
     </div>
 
     <div class="button-container">
-      <div class="button" id="back-button">< Select Masteries</div>
-      <div class="button" id="next-button" disabled>Choose Actions ></div>
+      <div class="button" id="back-button">Back</div>
+      <div class="button" id="next-button" disabled>Next</div>
     </div>
   </div>
 
-  <div id="copyright">
-    <span class="cpr">TS2 Builder <span class="version">v2.0</span> © 2016-2024 Team Terrasphere</span>
-    <span class="cpr">All visuals and music belong to their respective owners.</span>
-  </div>
+  <!-- Copyright will be inserted here by shared component -->
 
+  <script src="shared/copyright-component.js"></script>
   <script>
     // Rank Selection Logic
     class RankSelector {

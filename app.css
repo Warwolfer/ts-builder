@@ -578,7 +578,7 @@ margin: 10px 0 5px 0;
     /*border-bottom: 1px solid #444;*/
 }
 .card.choice.selected{
-  background-color: #050505;
+  background-color: #0d0f16;
   color: #bbb;
   border-color: #aaa;
 }

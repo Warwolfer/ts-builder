@@ -25,20 +25,20 @@ const CharacterCalculations = {
       totalHP += parseInt(armorRank) * armorMultiplier;
     }
     
-    // Defense passive bonus (if alter mastery selected)
-    if (chosenActions.includes('defense') && chosenMasteriesRanks.length > 0) {
-      const alterRank = parseInt(chosenMasteriesRanks[chosenMasteriesRanks.length - 1]);
-      totalHP += alterRank * 10;
-    }
-    
-    // Healthy action bonus
-    if (chosenActions.includes('healthy')) {
-      totalHP += 25;
-    }
-    
-    // Auto-assist action bonus
-    if (chosenActions.includes('auto-assist')) {
-      totalHP += 15;
+    // Action bonuses from actions.js
+    for (const actionName of chosenActions) {
+      const action = actionList.find(a => a.lookup === actionName);
+      if (action && action.bonuses && action.bonuses.hp) {
+        if (action.bonuses.hp === "rank-based" && actionName === "defense") {
+          // Defense passive - 10 HP per alter mastery rank
+          if (chosenMasteriesRanks.length > 0) {
+            const alterRank = parseInt(chosenMasteriesRanks[chosenMasteriesRanks.length - 1]);
+            totalHP += alterRank * 10;
+          }
+        } else if (typeof action.bonuses.hp === 'number') {
+          totalHP += action.bonuses.hp;
+        }
+      }
     }
     
     return totalHP;
@@ -101,36 +101,40 @@ const CharacterCalculations = {
   },
   
   // Calculate movement
-  calculateMovement(state, chosenActions) {
+  calculateMovement(state, chosenActions, actionList) {
     let movement = this.BASE_MOVEMENT;
     
-    // Check for movement-affecting actions
-    if (chosenActions.includes('mobile')) {
-      movement += 1;
-    }
-    
-    if (chosenActions.includes('maneuver')) {
-      movement += 1;
-    }
-    
-    // Speed passive effects
-    if (chosenActions.includes('speed')) {
-      const speedRank = this.getAlterMasteryRank(state);
-      if (speedRank >= 1) movement += 1;
-      if (speedRank >= 3) movement += 1;
-      if (speedRank >= 5) movement += 1;
+    // Action bonuses from actions.js
+    for (const actionName of chosenActions) {
+      const action = actionList.find(a => a.lookup === actionName);
+      if (action && action.bonuses && action.bonuses.movement) {
+        if (action.bonuses.movement === "rank-based" && actionName === "speed") {
+          // Speed passive effects - rank-based movement bonuses
+          const speedRank = this.getAlterMasteryRank(state);
+          if (speedRank >= 1) movement += 1;
+          if (speedRank >= 3) movement += 1;
+          if (speedRank >= 5) movement += 1;
+        } else if (typeof action.bonuses.movement === 'number') {
+          movement += action.bonuses.movement;
+        }
+      }
     }
     
     return movement;
   },
   
   // Calculate range
-  calculateRange(state, chosenActions) {
+  calculateRange(state, chosenActions, actionList) {
     let range = 1; // Default range is now 1
     
-    // Extension passive adds +1
-    if (chosenActions.includes('extension')) {
-      range += 1;
+    // Action bonuses from actions.js
+    for (const actionName of chosenActions) {
+      const action = actionList.find(a => a.lookup === actionName);
+      if (action && action.bonuses && action.bonuses.range) {
+        if (typeof action.bonuses.range === 'number') {
+          range += action.bonuses.range;
+        }
+      }
     }
     
     return range;
@@ -177,8 +181,8 @@ const CharacterCalculations = {
       hp: this.calculateHP(state, masteryList, actionList),
       saves: this.calculateSaves(state, masteryList),
       expertise: this.calculateExpertise(state, masteryList),
-      movement: this.calculateMovement(state, state.chosenActions),
-      range: this.calculateRange(state, state.chosenActions),
+      movement: this.calculateMovement(state, state.chosenActions, actionList),
+      range: this.calculateRange(state, state.chosenActions, actionList),
       damageModifiers: this.calculateDamageModifiers(state, state.chosenActions),
       supportModifiers: this.calculateSupportModifiers(state, state.chosenActions)
     };
@@ -193,32 +197,32 @@ const CharacterCalculations = {
     }
     
     // Check weapon-arts compatibility
-    if (masteries.includes('weapon-arts')) {
-      const incompatible = ['beast-arts', 'shadow-arts', 'alchemy', 'magitech'];
-      const hasIncompatible = masteries.some(m => incompatible.includes(m));
-      if (hasIncompatible) {
-        return { 
-          valid: false, 
-          error: 'Weapon Arts is not compatible with Beast Arts, Shadow Arts, Alchemy, and Magitech.' 
-        };
-      }
-    }
-    
-    // Check evoke compatibility
-    if (masteries.includes('evoke')) {
-      const magicMasteries = [
-        'arcanamancy', 'astramancy', 'geomancy', 'hemomancy', 'hydromancy', 
-        'illusion-magic', 'aeromancy', 'dark-magic', 'pyromancy', 'animancy', 
-        'chronomancy', 'divine-magic', 'harmonic-magic', 'nature-magic', 'spirit-magic'
-      ];
-      const hasMagic = masteries.some(m => magicMasteries.includes(m));
-      if (!hasMagic) {
-        return { 
-          valid: false, 
-          error: 'Evoke requires at least one magic mastery to be selected.' 
-        };
-      }
-    }
+    // if (masteries.includes('weapon-arts')) {
+    //   const incompatible = ['beast-arts', 'shadow-arts', 'alchemy', 'magitech'];
+    //   const hasIncompatible = masteries.some(m => incompatible.includes(m));
+    //   if (hasIncompatible) {
+    //     return {
+    //       valid: false,
+    //       error: 'Weapon Arts is not compatible with Beast Arts, Shadow Arts, Alchemy, and Magitech.'
+    //     };
+    //   }
+    // }
+    //
+    // // Check evoke compatibility
+    // if (masteries.includes('evoke')) {
+    //   const magicMasteries = [
+    //     'arcanamancy', 'astramancy', 'geomancy', 'hemomancy', 'hydromancy',
+    //     'illusion-magic', 'aeromancy', 'dark-magic', 'pyromancy', 'animancy',
+    //     'chronomancy', 'divine-magic', 'harmonic-magic', 'nature-magic', 'spirit-magic'
+    //   ];
+    //   const hasMagic = masteries.some(m => magicMasteries.includes(m));
+    //   if (!hasMagic) {
+    //     return {
+    //       valid: false,
+    //       error: 'Evoke requires at least one magic mastery to be selected.'
+    //     };
+    //   }
+    // }
     
     return { valid: true };
   }

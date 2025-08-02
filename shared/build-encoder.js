@@ -10,7 +10,8 @@ const BuildEncoder = {
       armorRank, 
       weaponRank, 
       chosenActions, 
-      characterName 
+      characterName,
+      threadCode
     } = state;
     
     // Create build parts
@@ -18,8 +19,9 @@ const BuildEncoder = {
     const rankCode = chosenMasteriesRanks.join(',');
     const actionCode = chosenActions.join(',');
     
-    // Handle character name
+    // Handle character name and thread code
     const nameCode = characterName ? characterName.replace(/ /gi, '_') : '';
+    const threadCodeParam = threadCode ? threadCode.replace(/ /gi, '_') : '';
     
     // Create build details string
     const buildDetails = [
@@ -29,7 +31,8 @@ const BuildEncoder = {
       armorRank.toString(),
       weaponRank.toString(),
       actionCode,
-      nameCode
+      nameCode,
+      threadCodeParam
     ].join('.');
     
     // Determine hash type - use import for imported characters, sample for manual builds
@@ -59,8 +62,14 @@ const BuildEncoder = {
       
       // Extract character name if present
       let characterName = '';
+      let threadCode = '';
+      
       if (parts.length > 6 && parts[6]) {
         characterName = parts[6].replace(/_/gi, ' ');
+      }
+      
+      if (parts.length > 7 && parts[7]) {
+        threadCode = parts[7].replace(/_/gi, ' ');
       }
       
       const buildData = {
@@ -70,7 +79,8 @@ const BuildEncoder = {
         armorRank: parseInt(parts[3]) || 0,
         weaponRank: parseInt(parts[4]) || 0,
         chosenActions: parts[5] ? parts[5].split(',').filter(a => a) : [],
-        characterName: characterName
+        characterName: characterName,
+        threadCode: threadCode
       };
       
       return {

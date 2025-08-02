@@ -12,10 +12,10 @@
   <script src="shared/build-encoder.js"></script>
   
   <!-- Data files -->
-  <script src="masteries.js"></script>
-  <script src="actions.js"></script>
-  <script src="safecharacters.js"></script>
-  <script src="armor-abilities.js"></script>
+  <script src="resource/masteries.js"></script>
+  <script src="resource/actions.js"></script>
+  <script src="resource/safecharacters.js"></script>
+  <script src="resource/armor-abilities.js"></script>
   
   <style>
     body {
@@ -144,6 +144,16 @@
           const weaponRankLetter = Object.values(characterData.equipment[0]).toString();
           const armorRankLetter = Object.values(characterData.equipment[1]).toString();
           
+          // Determine armor type from equipment key
+          const armorKey = Object.keys(characterData.equipment[1])[0];
+          if (armorKey === 'Heavy Armor') {
+            armorType = 'heavy';
+          } else if (armorKey === 'Medium Armor') {
+            armorType = 'medium';
+          } else if (armorKey === 'Light Armor') {
+            armorType = 'light';
+          }
+          
           const rankMap = {'E': 0, 'D': 1, 'C': 2, 'B': 3, 'A': 4, 'S': 5};
           weaponRank = rankMap[weaponRankLetter] || 0;
           armorRank = rankMap[armorRankLetter] || 0;
@@ -161,7 +171,8 @@
           chosenMasteriesRanks: chosenMasteriesRanks,
           weaponRank: weaponRank,
           armorRank: armorRank,
-          armorType: armorType
+          armorType: armorType,
+          chosenActions: [] // Clear any existing actions when importing character
         });
         
         // Redirect to action selector (skipping mastery/rank selection)

@@ -42,7 +42,10 @@ const actionlist = [
     dice: "-",
     roll: "-",
     masteries: "arcanamancy astramancy beast-arts geomancy guard-arts hemomancy hydromancy illusion-magic aeromancy crush-weapons dark-magic martial-arts pierce-weapons pyromancy ranged-weapons shadow-arts slash-weapons",
-    category: "passive"
+    category: "passive",
+    bonuses: {
+      hp: 25
+    }
   },
   {
     lookup: "alert",
@@ -64,7 +67,10 @@ const actionlist = [
     dice: "-",
     roll: "-",
     masteries: "arcanamancy astramancy beast-arts geomancy guard-arts hemomancy hydromancy illusion-magic aeromancy crush-weapons dark-magic martial-arts pierce-weapons pyromancy ranged-weapons shadow-arts slash-weapons",
-    category: "passive"
+    category: "passive",
+    bonuses: {
+      movement: 1
+    }
   },
   {
     lookup: "consistent",
@@ -98,7 +104,10 @@ const actionlist = [
     roll: "?r baautoassist # Character Name",
     masteries: "arcanamancy astramancy beast-arts geomancy guard-arts hemomancy hydromancy illusion-magic aeromancy crush-weapons dark-magic martial-arts pierce-weapons pyromancy ranged-weapons shadow-arts slash-weapons",
     category: "Passive",
-    slotcost: 3
+    slotcost: 3,
+    bonuses: {
+      hp: 15
+    }
   },
 /*DEFENSE MAIN*/
 {
@@ -509,7 +518,10 @@ pair: "P1"
       dice: "-",
       roll: "-",
       masteries: "aura hyper-sense metamorph",
-      category: "passive"
+      category: "passive",
+      bonuses: {
+        hp: "rank-based" // 10 HP per alter mastery rank
+      }
     },
     {
       lookup: "damage",
@@ -542,7 +554,11 @@ pair: "P1"
       dice: "-",
       roll: "-",
       masteries: "battle-spirits dynamism",
-      category: "passive"
+      category: "passive",
+      bonuses: {
+        movement: "rank-based",
+        saves: "rank-based"
+      }
     },
     {
       lookup: "extension",
@@ -553,7 +569,10 @@ pair: "P1"
       dice: "Use the command below",
       roll: "?r baextension # Character Name",
       masteries: "hyper-sense evoke summon",
-      category: "normal"
+      category: "normal",
+      bonuses: {
+        range: 1
+      }
     },
     {
       lookup: "hyper-awareness",
@@ -596,7 +615,10 @@ pair: "P1"
       dice: "Use the command below",
       roll: "?r bamaneuver # Metamoprh | Character Name",
       masteries: "metamorph",
-      category: "normal"
+      category: "normal",
+      bonuses: {
+        movement: 1
+      }
     },
     {
       lookup: "regeneration",

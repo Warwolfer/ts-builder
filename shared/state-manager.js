@@ -113,6 +113,9 @@ class BuildState {
     if (urlParams.has('name')) {
       updates.characterName = decodeURIComponent(urlParams.get('name'));
     }
+    if (urlParams.has('threadCode')) {
+      updates.threadCode = decodeURIComponent(urlParams.get('threadCode'));
+    }
     
     if (Object.keys(updates).length > 0) {
       this.updateState(updates);
@@ -143,6 +146,9 @@ class BuildState {
     }
     if (this.state.characterName) {
       params.set('name', encodeURIComponent(this.state.characterName));
+    }
+    if (this.state.threadCode) {
+      params.set('threadCode', encodeURIComponent(this.state.threadCode));
     }
     
     const paramString = params.toString();
