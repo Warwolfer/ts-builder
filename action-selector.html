@@ -4,8 +4,8 @@
   <title>TerraSphere Build Editor - Action Selection</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="app.css">
-  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/index.css">
   <link rel="shortcut icon" href="https://www.terrarp.com//favicon.ico">
   <link rel="preconnect" href="https://fonts.gstatic.com">
   
@@ -182,7 +182,6 @@
           this.adjustUIForImportedCharacter();
           
         } catch (error) {
-          console.error('Failed to initialize action selector:', error);
           this.showError('Failed to load action data. Please refresh the page.');
         }
       }

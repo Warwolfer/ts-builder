@@ -4,8 +4,8 @@
   <title>TerraSphere Build Editor - Character Build</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="app.css">
-  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/index.css">
   <style>
     /* Thread code input styling */
     .header-info--functions {
@@ -380,7 +380,6 @@
           this.setupEventListeners();
           
         } catch (error) {
-          console.error('Failed to initialize build sheet:', error);
           this.showError('Failed to load build data. Please refresh the page.');
         }
       }
@@ -403,8 +402,6 @@
         // Display character name and banner
         this.displayCharacterName(currentState.characterName);
         this.displayBanner(currentState);
-
-        console.log(currentState)
         this.displayCharacterRace(currentState.characterRace);
         
         // Display masteries
@@ -885,7 +882,6 @@
       
       // Find the mastery ID from the element's class
       const classList = element.classList.toString();
-      console.log('Clicked mastery classList:', classList);
       
       // The classList might contain multiple classes, need to find the mastery one
       const classArray = classList.split(' ');
@@ -901,7 +897,6 @@
         }
       }
       
-      console.log('Found masteryId:', masteryId, 'at index:', masteryIndex);
       
       if (masteryIndex !== -1) {
         // Get rank letter
@@ -912,7 +907,6 @@
         const mastery = masteries.find(m => m.lookup === masteryId);
         const masteryName = mastery ? mastery.name : 'Mastery';
         
-        console.log('Mastery:', mastery, 'Rank:', rankLetter, 'Name:', masteryName);
         
         // Find the roll code container and update
         const cardElement = element.closest('.card');
@@ -921,28 +915,14 @@
           const masteryReplace = cardElement.querySelector('.masteryreplace');
           const mnameReplace = cardElement.querySelector('.mnamereplace');
           
-          console.log('Found elements:', { rollCodeElement, masteryReplace, mnameReplace });
-          console.log('Full rollCode HTML before changes:', rollCodeElement ? rollCodeElement.innerHTML : 'null');
           
           // Update the spans FIRST, then update the command
           if (masteryReplace) {
-            console.log('masteryReplace element before:', masteryReplace.innerHTML);
             masteryReplace.innerHTML = rankLetter;
-            console.log('masteryReplace element after:', masteryReplace.innerHTML);
-            console.log('Set mastery rank to:', rankLetter);
-          } else {
-            console.log('masteryReplace element not found');
           }
           if (mnameReplace) {
-            console.log('mnameReplace element before:', mnameReplace.innerHTML);
             mnameReplace.innerHTML = masteryName;
-            console.log('mnameReplace element after:', mnameReplace.innerHTML);
-            console.log('Set mastery name to:', masteryName);
-          } else {
-            console.log('mnameReplace element not found');
           }
-
-          console.log('Full rollCode HTML after all changes:', rollCodeElement ? rollCodeElement.innerHTML : 'null');
         }
       }
     }
