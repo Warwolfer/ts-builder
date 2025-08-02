@@ -735,20 +735,6 @@ const actionlistV2 = [
   roll: "?r follow-up # Follow-up | Character Name | <span class='thrcode'>Code</span>",
   masteries: "weapon-arts",
   category: "alter"
-},
-
-// Dungeon Master Settings
-{
-  id: 60,
-  lookup: "carry",
-  name: "Carry",
-  color: "#4a4a4a",
-  image: "https://terrarp.com/db/action/carry.png",
-  description: "<p><em><b>DM Settings</b></em></p><p>Bonus Action. Pick up an ally anywhere along your path and drop them off at your destination.</p>",
-  dice: "Bonus Action",
-  roll: "?r carry # Carry | Character Name | <span class='thrcode'>Code</span>",
-  masteries: "all",
-  category: "dm"
 }
 ];
 
