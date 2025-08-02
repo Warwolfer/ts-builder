@@ -70,7 +70,7 @@ class BuildState {
     try {
       localStorage.setItem('tsbuilder_state', JSON.stringify(this.state));
     } catch (e) {
-      console.warn('Could not save state to localStorage:', e);
+      // Silently handle localStorage save errors
     }
   }
   
@@ -83,7 +83,7 @@ class BuildState {
         this.state = { ...this.state, ...parsedState };
       }
     } catch (e) {
-      console.warn('Could not load state from localStorage:', e);
+      // Silently handle localStorage load errors
     }
   }
   
@@ -171,7 +171,7 @@ class BuildState {
       try {
         callback(this.state);
       } catch (e) {
-        console.error('Error in state listener:', e);
+        // Silently handle listener errors
       }
     });
   }
