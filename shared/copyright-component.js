@@ -26,7 +26,7 @@ class CopyrightComponent {
     if (container) {
       container.innerHTML = this.render();
     } else {
-      console.warn(`Copyright: Container with id '${containerId}' not found`);
+      // Silently handle missing container
     }
   }
 

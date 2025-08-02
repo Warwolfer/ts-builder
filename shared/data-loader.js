@@ -148,7 +148,7 @@ const DataLoader = {
         characters: characters
       };
     } catch (error) {
-      console.error('Failed to load all data:', error);
+      // Silently handle data loading errors
       throw error;
     }
   },

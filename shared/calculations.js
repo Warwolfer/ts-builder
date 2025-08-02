@@ -196,33 +196,7 @@ const CharacterCalculations = {
       return { valid: false, error: 'You may only select 5 masteries at maximum.' };
     }
     
-    // Check weapon-arts compatibility
-    // if (masteries.includes('weapon-arts')) {
-    //   const incompatible = ['beast-arts', 'shadow-arts', 'alchemy', 'magitech'];
-    //   const hasIncompatible = masteries.some(m => incompatible.includes(m));
-    //   if (hasIncompatible) {
-    //     return {
-    //       valid: false,
-    //       error: 'Weapon Arts is not compatible with Beast Arts, Shadow Arts, Alchemy, and Magitech.'
-    //     };
-    //   }
-    // }
-    //
-    // // Check evoke compatibility
-    // if (masteries.includes('evoke')) {
-    //   const magicMasteries = [
-    //     'arcanamancy', 'astramancy', 'geomancy', 'hemomancy', 'hydromancy',
-    //     'illusion-magic', 'aeromancy', 'dark-magic', 'pyromancy', 'animancy',
-    //     'chronomancy', 'divine-magic', 'harmonic-magic', 'nature-magic', 'spirit-magic'
-    //   ];
-    //   const hasMagic = masteries.some(m => magicMasteries.includes(m));
-    //   if (!hasMagic) {
-    //     return {
-    //       valid: false,
-    //       error: 'Evoke requires at least one magic mastery to be selected.'
-    //     };
-    //   }
-    // }
+    // Additional compatibility checks can be added here if needed
     
     return { valid: true };
   }
