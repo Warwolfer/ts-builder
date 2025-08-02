@@ -1,6 +1,7 @@
 // Build encoding/decoding for TerraSphere Build Editor
 
 const BuildEncoder = {
+  
   // Generate compact build code using mastery IDs (much shorter format)
   generateCompactBuildCode(state, baseURL = 'https://terrarp.com/build/') {
     // Load mastery data to get ID mappings
@@ -327,6 +328,7 @@ const BuildEncoder = {
       };
     }
   },
+
 
   // Load build from current URL hash
   loadFromURL() {
