@@ -4,6 +4,10 @@ const BuildEncoder = {
   
   // Generate compact build code using mastery IDs (much shorter format)
   generateCompactBuildCode(state, baseURL = 'https://terrarp.com/build/') {
+    // Detect if we're currently on index.html to determine target page
+    const currentPath = window.location.pathname;
+    const isOnIndexPage = currentPath.includes('index.html') || currentPath.endsWith('/') || currentPath.includes('/v2/');
+    const targetPage = isOnIndexPage ? 'index.html' : 'build-sheet.html';
     // Load mastery data to get ID mappings
     if (!window.masterylist) {
       console.warn('Mastery data not loaded, using regular format');
@@ -75,12 +79,12 @@ const BuildEncoder = {
     
     const compactDetails = compactParts.join('|');
     
-    // Add version indicator for compact format
-    const hashType = state.profileBannerUrl ? '#compact-import.' : '#compact.';
+    // Always use #import for V2 system
+    const hashType = '#import.';
     
     // Encode (handle Unicode)
     const encodedBuild = btoa(encodeURIComponent(compactDetails).replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode('0x' + p1)));
-    return baseURL + 'build-sheet.html' + hashType + encodedBuild;
+    return baseURL + targetPage + hashType + encodedBuild;
   },
 
   // Generate build code from state (original format for compatibility)
@@ -127,12 +131,17 @@ const BuildEncoder = {
       bannerUrlEncoded
     ].join('|');
     
-    // Determine hash type - use import for imported characters, sample for manual builds
-    const hashType = state.profileBannerUrl ? '#import.' : '#sample.';
+    // Always use #import for V2 system
+    const hashType = '#import.';
+    
+    // Detect if we're currently on index.html to determine target page
+    const currentPath = window.location.pathname;
+    const isOnIndexPage = currentPath.includes('index.html') || currentPath.endsWith('/') || currentPath.includes('/v2/');
+    const targetPage = isOnIndexPage ? 'index.html' : 'build-sheet.html';
     
     // Encode and create full URL (handle Unicode characters)
     const encodedBuild = btoa(encodeURIComponent(buildDetails).replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode('0x' + p1)));
-    return baseURL + 'build-sheet.html' + hashType + encodedBuild;
+    return baseURL + targetPage + hashType + encodedBuild;
   },
   
   // Decode build code from URL hash or encoded string
@@ -141,8 +150,8 @@ const BuildEncoder = {
       // Remove hash and type prefixes if present
       let cleanEncoded = encodedString;
       if (cleanEncoded.includes('#')) {
-        // Handle different hash types: #import., #sample., #load.
-        const hashMatch = cleanEncoded.match(/#(?:import|sample|load)\.(.+)$/);
+        // Handle different hash types: #import., #sample., #load., #compact.
+        const hashMatch = cleanEncoded.match(/#(?:import|sample|load|compact)\.(.+)$/);
         if (hashMatch) {
           cleanEncoded = hashMatch[1];
         } else {
@@ -335,7 +344,7 @@ const BuildEncoder = {
     const hash = window.location.hash;
     if (hash.includes('#compact-import.') || hash.includes('#compact.')) {
       return this.decodeCompactBuildCode(hash);
-    } else if (hash.includes('#load.') || hash.includes('#sample.') || hash.includes('#import.')) {
+    } else if (hash.includes('#load.') || hash.includes('#sample.') || hash.includes('#import.') || hash.includes('#compact.')) {
       return this.decodeBuildCode(hash);
     }
     return { success: false, error: 'No build code found in URL' };
@@ -354,7 +363,7 @@ const BuildEncoder = {
     
     return {
       full: baseCode,
-      direct: baseCode.replace('#sample.', '#import.'),
+      direct: baseCode.replace(/^(.*\/build\/)(?:index\.html)?(#\w+\..*)$/, '$1build-sheet.html$2'),
       forum: `[url=${baseCode}]My Build[/url]`,
       discord: `Check out my build: ${baseCode}`
     };

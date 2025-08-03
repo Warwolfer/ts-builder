@@ -6,8 +6,12 @@ class BuildState {
       chosenMasteries: [],
       armorType: null, // 'heavy', 'medium', 'light'
       
+      // Expertise Selection Phase
+      chosenExpertise: [],
+      
       // Rank Assignment Phase  
       chosenMasteriesRanks: [],
+      chosenExpertiseRanks: [],
       weaponRank: 0,
       armorRank: 0,
       
@@ -49,7 +53,9 @@ class BuildState {
     this.state = {
       chosenMasteries: [],
       armorType: null,
+      chosenExpertise: [],
       chosenMasteriesRanks: [],
+      chosenExpertiseRanks: [],
       weaponRank: 0,
       armorRank: 0,
       chosenActions: [],
@@ -129,23 +135,27 @@ class BuildState {
   
   // Validation methods
   isValidForRankSelection() {
-    const valid = this.state.chosenMasteries.length > 0;
-    console.log('🔍 StateManager: isValidForRankSelection =', valid, 'masteries:', this.state.chosenMasteries);
+    const valid = this.state.chosenMasteries.length > 0 && this.state.chosenExpertise.length > 0;
+    console.log('🔍 StateManager: isValidForRankSelection =', valid, 'masteries:', this.state.chosenMasteries, 'expertise:', this.state.chosenExpertise);
     return valid;
   }
   
   isValidForActionSelection() {
-    const basicValid = this.state.chosenMasteries.length > 0 && 
+    const masteryValid = this.state.chosenMasteries.length > 0 && 
            this.state.chosenMasteriesRanks.length === this.state.chosenMasteries.length;
     
-    // V2: Also validate rank caps
+    const expertiseValid = this.state.chosenExpertise.length > 0 && 
+           this.state.chosenExpertiseRanks.length === this.state.chosenExpertise.length;
+    
+    // V2: Also validate rank caps for both masteries and expertise
     let rankCapsValid = true;
     if (window.CharacterCalculations) {
-      const rankValidation = window.CharacterCalculations.validateMasteryRanks(this.state.chosenMasteriesRanks);
-      rankCapsValid = rankValidation.valid;
+      const masteryRankValidation = window.CharacterCalculations.validateMasteryRanks(this.state.chosenMasteriesRanks);
+      const expertiseRankValidation = window.CharacterCalculations.validateMasteryRanks(this.state.chosenExpertiseRanks);
+      rankCapsValid = masteryRankValidation.valid && expertiseRankValidation.valid;
     }
     
-    const valid = basicValid && rankCapsValid;
+    const valid = masteryValid && expertiseValid && rankCapsValid;
     console.log('🔍 StateManager: isValidForActionSelection =', valid, {
       masteries: this.state.chosenMasteries.length,
       ranks: this.state.chosenMasteriesRanks.length,

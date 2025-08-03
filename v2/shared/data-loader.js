@@ -105,8 +105,7 @@ const DataLoader = {
       if (!action.masteries) return false;
       
       // Check if action is available for any of the selected masteries
-      const masteryList = action.masteries.split(' ');
-      return masteryList.some(mastery => selectedMasteries.includes(mastery));
+      return action.masteries.some(mastery => selectedMasteries.includes(mastery));
     });
   },
   

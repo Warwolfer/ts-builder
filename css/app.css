@@ -1965,10 +1965,6 @@ margin-bottom: 15px;
 .actionselector .cardroll{
 display: none;
 }
-#torment,#revive,#versatile,#overheal,#cure,#boost,#healthy,#alert,#mobile,#duel,#aim,#area-of-effect,#taunt,#agonize,#alterhinder,#disrupt,#shield,#overload{border-color: transparent!important;}
-#agonize .cardroll, #alterhinder .cardroll, #disrupt .cardroll, #shield .cardroll, #overload .cardroll, #torment .cardroll{
-display:none;
-}
 .cardinfo p b u {
 text-decoration:none;
 }

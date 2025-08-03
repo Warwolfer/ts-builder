@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TerraSphere Build Editor V2</title>
+  <meta charset="UTF-8">  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="shortcut icon" href="https://www.terrarp.com//favicon.ico">
+
+  <!-- Shared modules -->
+  <script src="shared/state-manager.js"></script>
+  <script src="shared/build-encoder.js"></script>
+
+  <!-- Data files -->
+  <script src="resource/masteries.js"></script>
+  <script src="resource/expertise.js"></script>
+  <script src="resource/actions.js"></script>
+  <script src="resource/safecharacters.js"></script>
+  <script src="resource/armor-abilities.js"></script>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+      text-align: center;
+      margin-top: 100px;
+      color: white;
+    }
+    .loading {
+      font-size: 18px;
+      margin: 20px 0;
+    }
+    .redirect-link {
+      color: #47cbdd;
+      text-decoration: none;
+    }
+    .redirect-link:hover {
+      text-decoration: underline;
+    }
+    .error {
+      color: #ff6b6b;
+      margin: 20px;
+      padding: 20px;
+      background: rgba(255, 107, 107, 0.1);
+      border-radius: 5px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <h1>TerraSphere Build Editor V2</h1>
+  <div id="status">Loading...</div>
+
+  <script>
+    // Initialize global objects for V2
+    window.buildState = window.buildState || new BuildState();
+    
+    function clearPreviousState() {
+      try {
+        if (window.buildState) {
+          window.buildState.reset();
+        } else {
+          localStorage.removeItem('tsbuilder_state');
+        }
+      } catch (error) {
+        console.error('Failed to clear previous state:', error);
+      }
+    }
+
+    async function handleBuildCode() {
+      const hash = window.location.hash;
+      console.log('🔗 V2 Index: Processing hash:', hash);
+
+      if (hash.includes('#load.')) {
+        const charId = hash.slice(6);
+        await loadCharacterProfile(charId);
+      } else if (hash.includes('#import.')) {
+        const buildCode = hash.slice(8);
+        await importBuildCode(buildCode);
+      } else if (hash.includes('#sample.')) {
+        const buildCode = hash.slice(8);
+        await importBuildCode(buildCode);
+      } else if (hash.includes('#compact.')) {
+        const buildCode = hash.slice(9);
+        await importBuildCode(buildCode, true);
+      } else {
+        clearPreviousState();
+        redirectToMasterySelector();
+      }
+    }
+
+    async function loadCharacterProfile(charId) {
+      try {
+        document.getElementById('status').innerHTML = 'Loading character profile...';
+        console.log('📥 V2 Index: Loading character profile:', charId);
+
+        // TODO: TerraSphere API integration for V2 system
+        // For now, show error message
+        document.getElementById('status').innerHTML = `
+          <div class="error">
+            <h3>Character Import Not Available</h3>
+            <p>V2 character import from TerraSphere API is not yet implemented.</p>
+            <p><a href="mastery-selector.html" class="redirect-link">Start New Build →</a></p>
+          </div>
+        `;
+      } catch (error) {
+        console.error('❌ V2 Index: Error loading character:', error);
+        document.getElementById('status').innerHTML = `
+          <div class="error">
+            <h3>Import Failed</h3>
+            <p>Failed to load character profile.</p>
+            <p><a href="mastery-selector.html" class="redirect-link">Start New Build →</a></p>
+          </div>
+        `;
+      }
+    }
+
+    async function importBuildCode(buildCode, isCompact = false) {
+      try {
+        document.getElementById('status').innerHTML = 'Importing build...';
+        console.log('📥 V2 Index: Importing build code:', buildCode.substring(0, 20) + '...');
+
+        if (!window.BuildEncoder) {
+          throw new Error('Build encoder not loaded');
+        }
+
+        // Load V2 data
+        if (!window.masteriesV2) {
+          console.error('❌ V2 Index: masteriesV2 not loaded');
+          throw new Error('V2 mastery data not loaded');
+        }
+        if (!window.expertiseV2) {
+          console.error('❌ V2 Index: expertiseV2 not loaded');
+          throw new Error('V2 expertise data not loaded');
+        }
+        if (!window.actionlistV2) {
+          console.error('❌ V2 Index: actionlistV2 not loaded');
+          throw new Error('V2 action data not loaded');
+        }
+
+        // Decode the build
+        const result = window.BuildEncoder.loadFromURL();
+        
+        if (result.success && result.data) {
+          console.log('✅ V2 Index: Build imported successfully:', result.data);
+          
+          // Update state with imported data
+          window.buildState.updateState(result.data);
+          
+          // Redirect to build sheet to display the imported build
+          window.location.href = 'build-sheet.html';
+        } else {
+          throw new Error(result.error || 'Failed to decode build code');
+        }
+      } catch (error) {
+        console.error('❌ V2 Index: Import failed:', error);
+        
+        document.getElementById('status').innerHTML = `
+          <div class="error">
+            <h3>Import Failed</h3>
+            <p>Unable to import the build code: ${error.message}</p>
+            <p>The build code may be invalid or from an incompatible version.</p>
+            <p><a href="mastery-selector.html" class="redirect-link">Start New Build →</a></p>
+          </div>
+        `;
+      }
+    }
+
+    function redirectToMasterySelector() {
+      document.getElementById('status').innerHTML = `
+        <div class="loading">
+          <p>Redirecting to build creator...</p>
+          <p><a href="mastery-selector.html" class="redirect-link">Click here if not redirected automatically</a></p>
+        </div>
+      `;
+      
+      setTimeout(() => {
+        window.location.href = 'mastery-selector.html';
+      }, 1000);
+    }
+
+    // Wait for page to load, then handle build codes
+    window.addEventListener('load', function() {
+      console.log('🚀 V2 Index: Page loaded, processing...');
+      
+      // Small delay to ensure all scripts are loaded
+      setTimeout(() => {
+        handleBuildCode();
+      }, 100);
+    });
+
+    // Handle hash changes (if user manually changes URL)
+    window.addEventListener('hashchange', function() {
+      console.log('🔄 V2 Index: Hash changed, reprocessing...');
+      handleBuildCode();
+    });
+  </script>
+</body>
+</html>

@@ -395,10 +395,10 @@ const masteriesV2 = [
     color: "#e0b439",
     image: "https://terrarp.com/db/mastery/w-aura.png",
     primaryRole: "alter",
-    secondaryRole: "defense",
+    secondaryRole: "alter",
     save: null,
-    breakType: "tank/support",
-    actions: ["Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload", "defense", "Guardian", "Savior"],
+    breakType: null,
+    actions: [],
   },
   {
 
@@ -408,10 +408,10 @@ const masteriesV2 = [
     color: "#b72c2c",
     image: "https://terrarp.com/db/mastery/w-battle-spirits.png",
     primaryRole: "alter",
-    secondaryRole: "offense",
+    secondaryRole: "alter",
     save: null,
-    breakType: "dps",
-    actions: ["Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive", "Damage", "Speed", "Berserk"],
+    breakType: null,
+    actions: [],
   },
   {
 
@@ -421,10 +421,10 @@ const masteriesV2 = [
     color: "#813090",
     image: "https://terrarp.com/db/mastery/w-corrupt.png",
     primaryRole: "alter",
-    secondaryRole: "versatile",
+    secondaryRole: "alter",
     save: null,
-    breakType: "dps/support",
-    actions: ["Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive", "Damage", "support", "Corruption"],
+    breakType: null,
+    actions: [],
   },
   {
 
@@ -434,10 +434,10 @@ const masteriesV2 = [
     color: "#87ad3d",
     image: "https://terrarp.com/db/mastery/w-dynamism.png",
     primaryRole: "alter",
-    secondaryRole: "offense",
+    secondaryRole: "alter",
     save: null,
-    breakType: "dps/utility",
-    actions: ["Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive", "Speed", "Rover", "Momentum"],
+    breakType: null,
+    actions: [],
   },
   {
 
@@ -447,10 +447,10 @@ const masteriesV2 = [
     color: "#50c8cb",
     image: "https://terrarp.com/db/mastery/w-evoke.png",
     primaryRole: "alter",
-    secondaryRole: "versatile",
+    secondaryRole: "alter",
     save: null,
-    breakType: "dps/support",
-    actions: ["Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive", "Damage", "Extension", "Exceed"],
+    breakType: null,
+    actions: [],
   },
   {
 
@@ -460,10 +460,10 @@ const masteriesV2 = [
     color: "#40883a",
     image: "https://terrarp.com/db/mastery/w-hyper-sense.png",
     primaryRole: "alter",
-    secondaryRole: "offense",
+    secondaryRole: "alter",
     save: null,
-    breakType: "amplifier",
-    actions: ["Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload", "defense", "Extension", "Hyper Awareness"],
+    breakType: null,
+    actions: [],
   },
   {
 
@@ -473,10 +473,10 @@ const masteriesV2 = [
     color: "#2f8cc1",
     image: "https://terrarp.com/db/mastery/w-mend.png",
     primaryRole: "alter",
-    secondaryRole: "support",
+    secondaryRole: "alter",
     save: null,
-    breakType: "support/tank",
-    actions: ["Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload", "support", "Infuse", "Regeneration"],
+    breakType: null,
+    actions: [],
   },
   {
 
@@ -486,10 +486,10 @@ const masteriesV2 = [
     color: "#cc4e71",
     image: "https://terrarp.com/db/mastery/w-metamorph.png",
     primaryRole: "alter",
-    secondaryRole: "defense",
+    secondaryRole: "alter",
     save: null,
-    breakType: "tank/utility",
-    actions: ["Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload", "Damage", "defense", "Maneuver"],
+    breakType: null,
+    actions: [],
   },
   {
 
@@ -499,10 +499,10 @@ const masteriesV2 = [
     color: "#4a4da5",
     image: "https://terrarp.com/db/mastery/w-summon.png",
     primaryRole: "alter",
-    secondaryRole: "versatile",
+    secondaryRole: "alter",
     save: null,
-    breakType: "amplifier/utility",
-    actions: ["Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload", "support", "Extension", "Coordinate"],
+    breakType: null,
+    actions: [],
   },
   {
 
@@ -512,10 +512,10 @@ const masteriesV2 = [
     color: "#cb5050",
     image: "https://terrarp.com/db/mastery/w-weapon-arts.png",
     primaryRole: "alter",
-    secondaryRole: "offense",
+    secondaryRole: "alter",
     save: null,
-    breakType: "dps/amplifier",
-    actions: ["Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive", "Damage", "support", "Charge"],
+    breakType: null,
+    actions: [],
   }
 ];
 

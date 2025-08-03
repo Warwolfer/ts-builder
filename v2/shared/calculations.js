@@ -89,29 +89,7 @@ const CharacterCalculations = {
     return saves;
   },
   
-  // Calculate expertise bonuses
-  calculateExpertise(state, masteryList) {
-    const { chosenMasteries, chosenMasteriesRanks } = state;
-    const expertise = { fitness: 0, awareness: 0, knack: 0, knowledge: 0, presence: 0 };
-    
-    // Mastery expertise bonuses
-    for (let i = 0; i < chosenMasteries.length; i++) {
-      const mastery = masteryList.find(m => m.lookup === chosenMasteries[i]);
-      if (mastery && mastery.expertise) {
-        const bonus = this.getRankBonus(chosenMasteriesRanks[i]);
-        expertise[mastery.expertise] += bonus;
-      }
-    }
-    
-    // Apply multiplier
-    expertise.fitness *= this.EXPERTISE_MULTIPLIER;
-    expertise.awareness *= this.EXPERTISE_MULTIPLIER;
-    expertise.knack *= this.EXPERTISE_MULTIPLIER;
-    expertise.knowledge *= this.EXPERTISE_MULTIPLIER;
-    expertise.presence *= this.EXPERTISE_MULTIPLIER;
-    
-    return expertise;
-  },
+  // V2 system doesn't have expertise bonuses
   
   // Calculate movement
   calculateMovement(state, chosenActions, actionList) {
@@ -187,11 +165,10 @@ const CharacterCalculations = {
   },
   
   // Get complete character stats
-  getCompleteStats(state, masteryList, actionList) {
+  getCompleteStats(state, masteryList, actionList, expertiseList) {
     const stats = {
       hp: this.calculateHP(state, masteryList, actionList),
       saves: this.calculateSaves(state, masteryList),
-      expertise: this.calculateExpertise(state, masteryList),
       movement: this.calculateMovement(state, state.chosenActions, actionList),
       range: this.calculateRange(state, state.chosenActions, actionList),
       damageModifiers: this.calculateDamageModifiers(state, state.chosenActions),

@@ -203,8 +203,7 @@ ul{
 
 .tooltip{
   z-index: 1;
-  visibility: hidden;
-  background-color: #444;
+  visibility: visible;
   color: #fff;
   font-size: 0.8rem;
   padding: 5px 10px;
@@ -219,6 +218,29 @@ ul{
 .mbox:hover .tooltip{
   visibility: visible;
 }
+
+.picker {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: stretch;
+  align-content: flex-end;
+  flex-flow: row wrap;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+
+@media (max-width: 421px){
+  .picker {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) and (min-width: 422px){
+  .picker{
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 
 .selectorheader{
   font-weight: 500;
@@ -476,15 +498,18 @@ ul{
 }
 
 .card{
+  .cardtitle {
+    color: #fff;
+  }
   margin: 5px;
   font-size: 13px;
   border-radius: 7px;
   padding: 0 5px 10px 5px;
   border-top: 2px solid transparent!important;
-  background-color: #23293775;
+  background-color: #0d0f16;
   align-content: flex-start;
   flex: 1 1 300px;
-  color: #ccc;
+  color: #7a8695;
   border-bottom: 2px solid transparent;
   border-left: 2px solid transparent!important;
   border-right: 2px solid transparent!important;
@@ -544,7 +569,7 @@ margin: 10px 0 5px 0;
 
 @media (min-width: 768px){
 .card{
-    flex: 0 1 29.5%;
+    flex: 1 29.5%!important;
 }
 .test{
     flex: 1 1 60%!important;
@@ -580,9 +605,19 @@ margin: 10px 0 5px 0;
     /*border-bottom: 1px solid #444;*/
 }
 .card.choice.selected{
-  background-color: #0d0f16;
-  color: #bbb;
-  border-color: #aaa;
+  background-color: #14171d;
+  border-top-width: 2px !important;
+  border-top-style: solid !important;
+  border-top-color: #2ba37d !important;
+  border-right-width: 2px !important;
+  border-right-style: solid !important;
+  border-right-color: #2ba37d !important;
+  border-bottom-width: 2px !important;
+  border-bottom-style: solid !important;
+  border-bottom-color: #2ba37d !important;
+  border-left-width: 2px !important;
+  border-left-style: solid !important;
+  border-left-color: #2ba37d !important;
 }
 
 .cardtitle{
@@ -1247,9 +1282,9 @@ background-repeat: no-repeat;
 }
 
 .display.masterycircle{
-  width: 35px;
-  height: 35px;
-  margin: 5px;
+  width: 33px;
+  height: 33px;
+  margin: 4px;
 }
 .togglesavechecks, .display.masterycircle{
   transition: all .1s ease-in-out;
@@ -1267,6 +1302,13 @@ background-repeat: no-repeat;
 }
 
 #masterydisplay{
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: nowrap;
+  text-align: center;
+}
+
+#expertisedisplay{
   display: flex;
   justify-content: space-around;
   flex-wrap: nowrap;
@@ -1560,6 +1602,11 @@ margin: 10px 0 0 0;
   }
 
   #masterydisplay{
+    font-size: 0.94rem;
+    flex-wrap: wrap;
+  }
+
+  #expertisedisplay{
     font-size: 0.94rem;
     flex-wrap: wrap;
   }
@@ -1959,17 +2006,23 @@ background-repeat: no-repeat;
 .bapad{
 margin-top: 5px;
 }
-.cardinfo p em b{display:inline-block;font-weight:normal;margin-right: 15px;padding: 2px 5px;background-color: #323232;border-radius: 3px;font-style: normal;color: #777;margin-left: -10px;}
+.cardinfo p em b{
+  display:inline-block;
+  font-weight:normal;
+  margin-right: 15px;
+  padding: 2px 5px;
+  background-color: #1a1c29;
+  border-radius: 3px;
+  font-style: normal;
+  color: #556175;
+  margin-left: -10px;
+}
 .cardinfo p:first-child{
 margin-bottom: 15px;
 }
 .cardinfo p{margin-bottom: 10px;margin: 0 10px 10px 10px;}
 .actionselector .cardroll{
 display: none;
-}
-#torment,#revive,#versatile,#overheal,#cure,#boost,#healthy,#alert,#mobile,#duel,#aim,#area-of-effect,#taunt,#agonize,#alterhinder,#disrupt,#shield,#overload{border-color: transparent!important;}
-#agonize .cardroll, #alterhinder .cardroll, #disrupt .cardroll, #shield .cardroll, #overload .cardroll, #torment .cardroll{
-display:none;
 }
 .cardinfo p b u {
 text-decoration:none;
@@ -1978,8 +2031,6 @@ text-decoration:none;
 display: inline-block!important;
 }
 .selected p em b{
-background-color: #0d0d0d!important;
-color: #666!important;
 }
 /*
 .savecontainer.div b{
@@ -2006,6 +2057,10 @@ border-color:#6436b1!important;
 #masterydisplay {
   position: relative;
   top: -30px;
+}
+#expertisedisplay {
+  position: relative;
+  top: -20px;
 }
 .mastery-margin {
   margin: 0 auto 0 auto !important;

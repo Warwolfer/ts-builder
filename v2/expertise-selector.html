@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TerraSphere Build Editor - Expertise Selection V2</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="shortcut icon" href="https://www.terrarp.com//favicon.ico">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  
+  <!-- Shared modules -->
+  <script src="shared/state-manager.js"></script>
+  <script src="shared/dom-utils.js"></script>
+  <script src="shared/data-loader.js"></script>
+  <script src="shared/calculations.js"></script>
+  <script src="shared/build-encoder.js"></script>
+  
+  <!-- Data files -->
+  <script src="resource/expertise.js"></script>
+  <script src="resource/masteries.js"></script>
+  <script src="resource/actions.js"></script>
+  <script src="resource/safecharacters.js"></script>
+  <script src="resource/armor-abilities.js"></script>
+</head>
+
+<body>
+  <nav id="mw-navigation" class="fixed-top">
+    <div class="container">
+      <a href="https://terrarp.com/build/" class="navbar-brand">
+        <img src="https://terrarp.com/db/logo/logo-xs.png">
+      </a>
+      <div class="nav-left">
+        <div class="link"><a href="https://terrarp.com/build/index.html" style="color:#47cbdd">Build Planner</a></div>
+        <div class="link"><a href="https://terrarp.com/index.php">Forums</a></div>
+        <div class="link"><a href="https://terrarp.com/wiki/Main_Page">Wiki</a></div>
+        <div class="dropdown">
+          <button class="dropbtn">Important <i class="fa fa-caret-down"></i></button>
+          <div class="dropdown-content">
+            <a href="https://terrarp.com/wiki/Mastery">Mastery List</a>
+            <a href="https://terrarp.com/wiki/Races">Playable Races</a>
+            <a href="https://terrarp.com/wiki/RPG_Mechanics">RPG Mechanics</a>
+            <a href="https://terrarp.com/wiki/Actions">Action List</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="header-info">
+    <div class="header-info--content">
+      <div class="charimg2 left"><img id="pfp2"></div>
+      <div class="charcontainer left">
+        <h1 class="nameheader header-info--nameheader">
+          <span class="charname">Step 2: Select Expertise (V2)</span>
+        </h1><br>
+        <h2 class="charinfo">
+          <span class="chartitle">Choose up to 6 expertise specializations</span>
+          <span class="charrace"></span>
+        </h2>
+      </div>
+      <div class="header-info--functions right">
+        <div class="masterycategory" id="inputbox">
+          <div class="selection-info">
+            <div class="selection-count">
+              <span id="selected-count">0</span> / 6 expertise selected
+            </div>
+            <div class="rank-caps">
+              Rank caps: S×1, A×2, B×3
+            </div>
+            <div class="selection-warnings" id="selection-warnings"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="bodyback">
+    <div id="masterycontainer">
+      <!-- Expertise Categories will be rendered here -->
+      <div id="expertise-categories"></div>
+    </div>
+
+    <div class="button-container">
+      <div class="button" id="back-button">Back</div>
+      <div class="button" id="reset-button">Reset All</div>
+      <div class="button" id="next-button" disabled>Next</div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize global objects
+    window.buildState = window.buildState || new BuildState();
+    window.DataLoader = window.DataLoader || new DataLoader();
+    window.DOMUtils = window.DOMUtils || new DOMUtils();
+    
+    class ExpertiseSelector {
+      constructor() {
+        this.state = window.buildState;
+        this.dataLoader = window.DataLoader;
+        this.domUtils = window.DOMUtils;
+        this.calculations = window.CharacterCalculations;
+        
+        this.init();
+      }
+      
+      init() {
+        try {
+          // Load expertise data - use expertiseV2
+          this.loadExpertiseV2();
+          
+          // Load state from URL if present
+          this.state.loadFromURL();
+          
+          // Render expertise
+          this.renderExpertise();
+          
+          // Set up event listeners
+          this.setupEventListeners();
+          
+          // Update UI with current state
+          this.updateUI();
+          
+        } catch (error) {
+          console.error('Error initializing expertise selector:', error);
+          this.showError('Failed to load expertise data: ' + error.message);
+        }
+      }
+      
+      loadExpertiseV2() {
+        // Load expertiseV2 data and cache it in DataLoader format
+        if (window.expertiseV2) {
+          this.dataLoader.cache.expertise = window.expertiseV2;
+        } else {
+          throw new Error('expertiseV2 not found');
+        }
+      }
+      
+      renderExpertise() {
+        const expertise = this.dataLoader.cache.expertise;
+        const categories = {};
+        
+        // Group expertise by category (Physical, Artistic, Crafting, Discipline)
+        expertise.forEach(exp => {
+          const category = this.getExpertiseCategory(exp);
+          if (!categories[category]) {
+            categories[category] = [];
+          }
+          categories[category].push(exp);
+        });
+        
+        const container = this.domUtils.getElementById('expertise-categories');
+        let html = '';
+        
+        // Render each category
+        Object.keys(categories).forEach(category => {
+          const categoryName = this.formatCategoryName(category);
+          html += `
+            <div class="masterycategory">
+              <h1 class="selectorheader">${categoryName}</h1>
+            </div>
+            <div id="${category}expertise" class="mcontainer">
+          `;
+          
+          categories[category].forEach(exp => {
+            html += `
+              <div class="mbox">
+                <div class="mselector masterycircle expertise ${category} ${exp.lookup}" 
+                     data-expertise="${exp.lookup}" 
+                     id="${exp.lookup}">
+                  <img src="${exp.image}">
+                </div>
+                <div class="tooltip">${exp.name}</div>
+              </div>
+            `;
+          });
+          
+          html += '</div>';
+        });
+        
+        this.domUtils.setHTML(container, html);
+      }
+      
+      getExpertiseCategory(expertise) {
+        // Determine category based on ID ranges or types
+        if (expertise.id <= 4) return 'physical';
+        if (expertise.id <= 8) return 'artistic';
+        if (expertise.id <= 16) return 'crafting';
+        return 'discipline';
+      }
+      
+      formatCategoryName(category) {
+        const names = {
+          'physical': 'Physical Expertise',
+          'artistic': 'Artistic Expertise', 
+          'crafting': 'Crafting Expertise',
+          'discipline': 'Discipline Expertise'
+        };
+        return names[category] || category;
+      }
+      
+      setupEventListeners() {
+        // Expertise selection
+        this.domUtils.querySelectorAll('.expertise').forEach(element => {
+          this.domUtils.addEventListener(element, 'click', (e) => {
+            this.selectExpertise(e.target.closest('.expertise'));
+          });
+        });
+        
+        // Navigation buttons
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('back-button'), 
+          'click', 
+          () => this.goToPreviousPage()
+        );
+        
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('next-button'), 
+          'click', 
+          () => this.goToNextPage()
+        );
+        
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('reset-button'), 
+          'click', 
+          () => this.resetSelection()
+        );
+      }
+      
+      selectExpertise(element) {
+        if (!element) return;
+        
+        const expertiseId = element.dataset.expertise;
+        const currentState = this.state.getState();
+        const { chosenExpertise } = currentState;
+        
+        const isSelected = this.domUtils.hasClass(element, 'selected');
+        
+        if (isSelected) {
+          // Deselect expertise
+          this.domUtils.removeClass(element, 'selected');
+          this.removeExpertiseColor(element);
+          
+          const updatedExpertise = chosenExpertise.filter(id => id !== expertiseId);
+          this.state.updateState({ chosenExpertise: updatedExpertise });
+        } else {
+          // Check if we can add more expertise (max 6)
+          if (chosenExpertise.length >= 6) {
+            alert('You can only select up to 6 expertise. Please deselect one first.');
+            return;
+          }
+          
+          // Select expertise
+          this.domUtils.addClass(element, 'selected');
+          this.applyExpertiseColor(element, expertiseId);
+          
+          const updatedExpertise = [...chosenExpertise, expertiseId];
+          this.state.updateState({ chosenExpertise: updatedExpertise });
+        }
+        
+        this.updateUI();
+      }
+      
+      applyExpertiseColor(element, expertiseId) {
+        const expertise = this.dataLoader.cache.expertise.find(exp => exp.lookup === expertiseId);
+        if (expertise && expertise.color) {
+          element.style.backgroundColor = expertise.color;
+          element.style.border = '3px solid white';
+        }
+      }
+      
+      removeExpertiseColor(element) {
+        element.style.backgroundColor = '';
+        element.style.border = '';
+      }
+      
+      updateUI() {
+        const currentState = this.state.getState();
+        const { chosenExpertise } = currentState;
+        
+        // Update selection count
+        const countElement = this.domUtils.getElementById('selected-count');
+        this.domUtils.setHTML(countElement, chosenExpertise.length.toString());
+        
+        // Update next button state
+        const nextButton = this.domUtils.getElementById('next-button');
+        const canProceed = chosenExpertise.length > 0;
+        
+        if (canProceed) {
+          nextButton.removeAttribute('disabled');
+          this.domUtils.removeClass(nextButton, 'disabled');
+        } else {
+          nextButton.setAttribute('disabled', 'true');
+          this.domUtils.addClass(nextButton, 'disabled');
+        }
+        
+        // Update visual selections based on state
+        this.syncUIWithState();
+      }
+      
+      syncUIWithState() {
+        const currentState = this.state.getState();
+        const { chosenExpertise } = currentState;
+        
+        // Clear all selections and colors
+        this.domUtils.clearSelection('#masterycontainer', 'selected');
+        this.domUtils.querySelectorAll('.expertise').forEach(element => {
+          this.removeExpertiseColor(element);
+        });
+        
+        // Restore expertise selections with colors
+        chosenExpertise.forEach(expertiseId => {
+          const expertiseElement = this.domUtils.querySelector(`.expertise[data-expertise="${expertiseId}"]`);
+          if (expertiseElement) {
+            this.domUtils.addClass(expertiseElement, 'selected');
+            this.applyExpertiseColor(expertiseElement, expertiseId);
+          }
+        });
+      }
+      
+      resetSelection() {
+        if (confirm('Are you sure you want to reset all expertise selections?')) {
+          this.state.updateState({
+            chosenExpertise: []
+          });
+          this.updateUI();
+        }
+      }
+      
+      goToPreviousPage() {
+        const url = this.state.generateURL('mastery-selector.html');
+        window.location.href = url;
+      }
+      
+      goToNextPage() {
+        const currentState = this.state.getState();
+        
+        if (currentState.chosenExpertise.length === 0) {
+          alert('Please select at least one expertise before proceeding.');
+          return;
+        }
+        
+        // Navigate to rank selector
+        const url = this.state.generateURL('rank-selector.html');
+        window.location.href = url;
+      }
+      
+      showError(message) {
+        const container = this.domUtils.getElementById('expertise-categories');
+        this.domUtils.showError(container, message);
+      }
+    }
+    
+    // Initialize when page loads
+    window.onload = function() {
+      new ExpertiseSelector();
+    };
+  </script>
+</body>
+</html>

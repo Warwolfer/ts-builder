@@ -193,7 +193,7 @@
                      id="${mastery.lookup}">
                   <img src="${mastery.image}">
                 </div>
-                <div class="tooltip">${tooltip}</div>
+                <div class="tooltip">${mastery.name}</div>
               </div>
             `;
           });
@@ -407,8 +407,8 @@
           return;
         }
         
-        // Navigate to rank selector
-        const url = this.state.generateURL('rank-selector.html');
+        // Navigate to expertise selector
+        const url = this.state.generateURL('expertise-selector.html');
         window.location.href = url;
       }
       
