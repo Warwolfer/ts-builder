@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TerraSphere Build Editor - Rank Assignment</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="shortcut icon" href="https://www.terrarp.com//favicon.ico">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  
+  <!-- Shared modules -->
+  <script src="shared/state-manager.js"></script>
+  <script src="shared/dom-utils.js"></script>
+  <script src="shared/data-loader.js"></script>
+  <script src="shared/calculations.js"></script>
+  <script src="shared/build-encoder.js"></script>
+  
+  <!-- Data files -->
+  <script src="resource/masteries.js"></script>
+  <script src="resource/actions.js"></script>
+  <script src="resource/safecharacters.js"></script>
+  <script src="resource/armor-abilities.js"></script>
+</head>
+
+<body>
+  <nav id="mw-navigation" class="fixed-top">
+    <div class="container">
+      <a href="https://terrarp.com/build/" class="navbar-brand">
+        <img src="https://terrarp.com/db/logo/logo-xs.png">
+      </a>
+      <div class="nav-left">
+        <div class="link"><a href="https://terrarp.com/build/index.html" style="color:#47cbdd">Build Planner</a></div>
+        <div class="link"><a href="https://terrarp.com/index.php">Forums</a></div>
+        <div class="link"><a href="https://terrarp.com/wiki/Main_Page">Wiki</a></div>
+        <div class="dropdown">
+          <button class="dropbtn">Important <i class="fa fa-caret-down"></i></button>
+          <div class="dropdown-content">
+            <a href="https://terrarp.com/wiki/Mastery">Mastery List</a>
+            <a href="https://terrarp.com/wiki/Races">Playable Races</a>
+            <a href="https://terrarp.com/wiki/RPG_Mechanics">RPG Mechanics</a>
+            <a href="https://terrarp.com/wiki/Actions">Action List</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="header-info">
+    <div class="header-info--content">
+      <div class="charimg2 left"><img id="pfp2"></div>
+      <div class="charcontainer left">
+        <h1 class="nameheader header-info--nameheader">
+          <span class="charname">Step 2: Assign Ranks</span>
+        </h1><br>
+        <h2 class="charinfo">
+          <span class="chartitle">Assign ranks to your selected masteries and equipment</span>
+          <span class="charrace"></span>
+        </h2>
+      </div>
+      <div class="header-info--functions right">
+        <div class="masterycategory" id="inputbox">
+          <div class="rank-info">
+            <div class="rank-summary" id="rank-summary">
+              <!-- Will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="bodyback">
+    <div id="rankselector">
+      <!-- Equipment Ranks -->
+      <div class="masterycategory">
+        <h1 class="selectorheader">Equipment</h1>
+        <div class="rankpick">
+          <div class="rankcontainer">
+            <div class="masterycircle">
+              <img src="https://terrarp.com/db/tool/weapon-rank.png">
+            </div>
+            Weapon
+            <select id="weaponrank" autocomplete="off" class="droplist">
+              <option value="0">E</option>
+              <option value="1">D</option>
+              <option value="2">C</option>
+              <option value="3">B</option>
+              <option value="4">A</option>
+              <option value="5">S</option>
+            </select>
+          </div>
+          <div class="rankcontainer">
+            <div class="masterycircle">
+              <img id="armorimage" src="https://terrarp.com/db/tool/armor-medium.png">
+            </div>
+            <span id="armor-type-label">Armor</span>
+            <select id="armorrank" autocomplete="off" class="droplist">
+              <option value="0">E</option>
+              <option value="1">D</option>
+              <option value="2">C</option>
+              <option value="3">B</option>
+              <option value="4">A</option>
+              <option value="5">S</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Mastery Ranks -->
+      <div class="masterycategory">
+        <h1 class="selectorheader">Masteries</h1>
+        <!-- V2 Rank Availability Display -->
+        <div class="masterycategory">
+          <div id="rank-availability-main" style="margin-bottom: 20px;">
+            <!-- V2 rank caps display will be inserted here -->
+          </div>
+        </div>
+        <div class="rankpick" id="masteryrankpick">
+          <!-- Will be populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Character Information (Optional) -->
+      <div class="masterycategory">
+        <div class="char-info-form">
+          <div class="form-group">
+            <label for="character-name">Character Name:</label>
+            <input type="text" id="character-name" placeholder="Enter character name" maxlength="50">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="button-container">
+      <div class="button" id="back-button">Back</div>
+      <div class="button" id="next-button" disabled>Next</div>
+    </div>
+  </div>
+
+  <!-- Copyright will be inserted here by shared component -->
+
+  <script src="shared/copyright-component.js"></script>
+  <script>
+    // Rank Selection Logic
+    class RankSelector {
+      constructor() {
+        this.state = window.buildState;
+        this.dataLoader = window.DataLoader;
+        this.domUtils = window.DOMUtils;
+        this.calculations = window.CharacterCalculations;
+        
+        this.armorImages = {
+          heavy: 'https://terrarp.com/db/tool/armor-heavy.png',
+          medium: 'https://terrarp.com/db/tool/armor-medium.png',
+          light: 'https://terrarp.com/db/tool/armor-light.png'
+        };
+        
+        this.rankLabels = ['E', 'D', 'C', 'B', 'A', 'S'];
+        
+        this.init();
+      }
+      
+      loadMasteriesV2() {
+        // Load masteriesV2 data and cache it in DataLoader format
+        if (window.masteriesV2) {
+          this.dataLoader.cache.masteries = window.masteriesV2;
+        } else {
+          throw new Error('masteriesV2 not found');
+        }
+      }
+      
+      init() {
+        try {
+          // Load mastery data - use v2 masteries
+          this.loadMasteriesV2();
+          
+          // Load state from URL if present
+          this.state.loadFromURL();
+          
+          // Check if we have the required data from previous step
+          const currentState = this.state.getState();
+          
+          if (!this.state.isValidForRankSelection()) {
+            alert('Please complete mastery selection first. No masteries selected.');
+            window.location.href = this.state.generateURL('mastery-selector.html');
+            return;
+          }
+          
+          // Render rank selectors
+          this.renderRankSelectors();
+          
+          // Set up event listeners
+          this.setupEventListeners();
+          
+          // Update UI with current state
+          this.updateUI();
+          
+          // Hide navigation for imported characters
+          this.adjustNavigationForImportedCharacter();
+          
+        } catch (error) {
+          this.showError('Failed to load data. Please refresh the page.');
+        }
+      }
+      
+      renderRankSelectors() {
+        const currentState = this.state.getState();
+        const { chosenMasteries, armorType } = currentState;
+        
+        // Update armor image based on selected type
+        this.updateArmorDisplay(armorType);
+        
+        // Render mastery rank selectors
+        const masteries = this.dataLoader.getMasteriesByCategory();
+        const container = this.domUtils.getElementById('masteryrankpick');
+        
+        let html = '';
+        
+        chosenMasteries.forEach((masteryId, index) => {
+          const mastery = masteries.find(m => m.lookup === masteryId);
+          
+          if (mastery) {
+            const masteryHtml = `
+              <div class="rankcontainer">
+                <div class="masterycircle" style="background-color: ${mastery.color}">
+                  <img src="${mastery.image}">
+                </div>
+                ${mastery.name}
+                <select id="mastery-rank-${index}" data-mastery="${masteryId}" class="droplist mastery-rank">
+                  <option value="0">E</option>
+                  <option value="1">D</option>
+                  <option value="2">C</option>
+                  <option value="3">B</option>
+                  <option value="4">A</option>
+                  <option value="5">S</option>
+                </select>
+              </div>
+            `;
+            html += masteryHtml;
+          }
+        });
+        
+        
+        // Show the rank selector (it's hidden by default in app.css)
+        const rankSelector = this.domUtils.getElementById('rankselector');
+        if (rankSelector) {
+          rankSelector.style.display = 'block';
+        }
+        
+        this.domUtils.setHTML(container, html);
+        
+        // Initialize default ranks (all E = 0) if not already set
+        this.initializeDefaultRanks();
+      }
+      
+      initializeDefaultRanks() {
+        const currentState = this.state.getState();
+        const { chosenMasteries, chosenMasteriesRanks } = currentState;
+        
+        // If ranks array doesn't match masteries length, initialize with default E (0) ranks
+        if (chosenMasteriesRanks.length !== chosenMasteries.length) {
+          const defaultRanks = new Array(chosenMasteries.length).fill(0);
+          this.state.updateState({ chosenMasteriesRanks: defaultRanks });
+        }
+      }
+      
+      updateArmorDisplay(armorType) {
+        const armorImage = this.domUtils.getElementById('armorimage');
+        const armorLabel = this.domUtils.getElementById('armor-type-label');
+        
+        if (armorType && this.armorImages[armorType]) {
+          armorImage.src = this.armorImages[armorType];
+          this.domUtils.setText(armorLabel, armorType.charAt(0).toUpperCase() + armorType.slice(1) + ' Armor');
+        }
+      }
+      
+      setupEventListeners() {
+        // Equipment rank selectors
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('weaponrank'),
+          'change',
+          (e) => this.updateWeaponRank(parseInt(e.target.value))
+        );
+        
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('armorrank'),
+          'change',
+          (e) => this.updateArmorRank(parseInt(e.target.value))
+        );
+        
+        // Mastery rank selectors
+        this.domUtils.querySelectorAll('.mastery-rank').forEach(select => {
+          this.domUtils.addEventListener(select, 'change', (e) => {
+            this.updateMasteryRanks();
+          });
+        });
+        
+        // Character name input
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('character-name'),
+          'input',
+          (e) => this.updateCharacterName(e.target.value)
+        );
+        
+        // Navigation buttons
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('back-button'),
+          'click',
+          () => this.goToPreviousPage()
+        );
+        
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('next-button'),
+          'click',
+          () => this.goToNextPage()
+        );
+      }
+      
+      updateWeaponRank(rank) {
+        this.state.updateState({ weaponRank: rank });
+        this.updateUI();
+      }
+      
+      updateArmorRank(rank) {
+        this.state.updateState({ armorRank: rank });
+        this.updateUI();
+      }
+      
+      updateMasteryRanks() {
+        const ranks = [];
+        const selects = this.domUtils.querySelectorAll('.mastery-rank');
+        
+        selects.forEach(select => {
+          ranks.push(parseInt(select.value) || 0);
+        });
+        
+        // V2: Validate rank caps (S×1, A×2, B×3)
+        if (window.CharacterCalculations) {
+          const validation = window.CharacterCalculations.validateMasteryRanks(ranks);
+          if (!validation.valid) {
+            alert(validation.error);
+            // Revert to previous state
+            this.updateUI();
+            return;
+          }
+        }
+        
+        this.state.updateState({ chosenMasteriesRanks: ranks });
+        this.updateUI();
+      }
+      
+      updateCharacterName(name) {
+        this.state.updateState({ characterName: name.trim() });
+      }
+      
+      updateUI() {
+        const currentState = this.state.getState();
+        const { weaponRank, armorRank, chosenMasteriesRanks, characterName } = currentState;
+        
+        // Update equipment rank selectors
+        this.domUtils.setValue(this.domUtils.getElementById('weaponrank'), weaponRank.toString());
+        this.domUtils.setValue(this.domUtils.getElementById('armorrank'), armorRank.toString());
+        
+        // Update mastery rank selectors
+        this.domUtils.querySelectorAll('.mastery-rank').forEach((select, index) => {
+          if (chosenMasteriesRanks[index] !== undefined) {
+            this.domUtils.setValue(select, chosenMasteriesRanks[index].toString());
+          }
+        });
+        
+        // Update character name input
+        this.domUtils.setValue(this.domUtils.getElementById('character-name'), characterName || '');
+        
+        // Update rank summary
+        this.updateRankSummary();
+
+        this.updateDropdownOptions();
+        
+        // Update next button state
+        this.updateNextButtonState();
+        
+        // Sync all UI elements with state
+        this.syncUIWithState();
+      }
+      
+      updateRankSummary() {
+        const currentState = this.state.getState();
+        const { chosenMasteries, chosenMasteriesRanks, weaponRank, armorRank } = currentState;
+        
+        let html = '<div class="rank-summary-content">';
+        
+        // V2: Show rank cap status
+        if (chosenMasteriesRanks.length > 0) {
+          const rankCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0, 0: 0 };
+          chosenMasteriesRanks.forEach(rank => {
+            const r = parseInt(rank) || 0;
+            if (rankCounts.hasOwnProperty(r)) rankCounts[r]++;
+          });
+          
+          html += `<div class="rank-caps-status">`;
+          html += `<div class="caps-title">V2 Rank Caps:</div>`;
+          html += `<div class="caps-breakdown">`;
+          html += `<span class="${rankCounts[5] > 1 ? 'over-cap' : ''}">S: ${rankCounts[5]}/1</span> `;
+          html += `<span class="${rankCounts[4] > 2 ? 'over-cap' : ''}">A: ${rankCounts[4]}/2</span> `;
+          html += `<span class="${rankCounts[3] > 3 ? 'over-cap' : ''}">B: ${rankCounts[3]}/3</span>`;
+          html += `</div>`;
+          html += `</div>`;
+        }
+        
+        // Show total ranks assigned
+        const totalMasteryRanks = chosenMasteriesRanks.reduce((sum, rank) => sum + rank, 0);
+        const totalEquipmentRanks = weaponRank + armorRank;
+        const totalRanks = totalMasteryRanks + totalEquipmentRanks;
+        
+        html += `<div class="total-ranks">Total Ranks: ${totalRanks}</div>`;
+        
+        // Show breakdown
+        html += `<div class="rank-breakdown">`;
+        html += `<div>Masteries: ${totalMasteryRanks}</div>`;
+        html += `<div>Equipment: ${totalEquipmentRanks}</div>`;
+        html += `</div>`;
+        
+        html += '</div>';
+        
+        this.domUtils.setHTML(this.domUtils.getElementById('rank-summary'), html);
+      }
+      
+      updateNextButtonState() {
+        const currentState = this.state.getState();
+        const { chosenMasteries, chosenMasteriesRanks } = currentState;
+        
+        const nextButton = this.domUtils.getElementById('next-button');
+        const canProceed = chosenMasteriesRanks.length === chosenMasteries.length &&
+                          chosenMasteriesRanks.length > 0;
+        
+        if (canProceed) {
+          nextButton.removeAttribute('disabled');
+          this.domUtils.removeClass(nextButton, 'disabled');
+        } else {
+          nextButton.setAttribute('disabled', 'true');
+          this.domUtils.addClass(nextButton, 'disabled');
+        }
+      }
+      
+      // V2: Calculate rank availability based on current selections
+      calculateRankAvailability() {
+        const currentState = this.state.getState();
+        const { chosenMasteriesRanks } = currentState;
+        
+        // Count currently used ranks
+        const rankCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0, 0: 0 };
+        chosenMasteriesRanks.forEach(rank => {
+          const r = parseInt(rank) || 0;
+          if (rankCounts.hasOwnProperty(r)) rankCounts[r]++;
+        });
+        
+        // V2 caps: S×1, A×2, B×3
+        const maxCaps = { 5: 1, 4: 2, 3: 3 };
+        const available = { 5: 0, 4: 0, 3: 0 };
+        
+        for (const [rank, max] of Object.entries(maxCaps)) {
+          available[rank] = Math.max(0, max - rankCounts[rank]);
+        }
+        
+        return { used: rankCounts, available };
+      }
+
+      
+      // V2: Update dropdown options based on rank availability
+      updateDropdownOptions() {
+        const { available } = this.calculateRankAvailability();
+        const dropdowns = this.domUtils.querySelectorAll('.mastery-rank');
+        
+        dropdowns.forEach(dropdown => {
+          const currentValue = dropdown.value;
+          const options = dropdown.querySelectorAll('option');
+          
+          options.forEach(option => {
+            const rank = parseInt(option.value);
+            const isCurrentSelection = rank.toString() === currentValue;
+            
+            // Enable/disable based on availability (always allow current selection)
+            if (rank >= 3 && rank <= 5) { // Only restrict S, A, B ranks
+              if (available[rank] === 0 && !isCurrentSelection) {
+                option.disabled = true;
+                option.textContent = option.textContent.split(' ')[0] + ' (unavailable)';
+              } else {
+                option.disabled = false;
+                option.textContent = ['E', 'D', 'C', 'B', 'A', 'S'][rank];
+              }
+            }
+          });
+        });
+      }
+      
+      syncUIWithState() {
+        // This method ensures UI matches the current state
+        // Useful for when loading from URL or returning from another page
+        const currentState = this.state.getState();
+        
+        // Update all form elements to match state
+        this.domUtils.setValue(
+          this.domUtils.getElementById('weaponrank'), 
+          currentState.weaponRank.toString()
+        );
+        
+        this.domUtils.setValue(
+          this.domUtils.getElementById('armorrank'), 
+          currentState.armorRank.toString()
+        );
+        
+        this.domUtils.setValue(
+          this.domUtils.getElementById('character-name'), 
+          currentState.characterName || ''
+        );
+      }
+      
+      goToPreviousPage() {
+        const url = this.state.generateURL('mastery-selector.html');
+        window.location.href = url;
+      }
+      
+      goToNextPage() {
+        const currentState = this.state.getState();
+        
+        if (!this.state.isValidForActionSelection()) {
+          alert('Please assign ranks to all selected masteries before proceeding.');
+          return;
+        }
+        
+        // Navigate to action selector
+        const url = this.state.generateURL('action-selector.html');
+        window.location.href = url;
+      }
+      
+      adjustNavigationForImportedCharacter() {
+        const currentState = this.state.getState();
+        
+        // If character has profileBannerUrl, it was imported from Terrarp
+        if (currentState.profileBannerUrl) {
+          const backButton = this.domUtils.getElementById('back-button');
+          if (backButton) {
+            backButton.style.display = 'none';
+          }
+        }
+      }
+      
+      showError(message) {
+        const container = this.domUtils.getElementById('rankselector');
+        this.domUtils.showError(container, message);
+      }
+    }
+    
+    // Initialize when page loads - use window.onload for data loading
+    window.onload = function() {
+      new RankSelector();
+    };
+  </script>
+  
+  <style>
+    .rank-caps-display{
+      background-color: #23293775;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    .rank-summary-content {
+      text-align: center;
+      padding: 10px;
+    }
+    
+    .total-ranks {
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .rank-breakdown {
+      font-size: 0.9em;
+      color: #666;
+    }
+    
+    .char-info-form {
+      padding: 20px;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      color: white;
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    .button[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
+</body>
+</html>

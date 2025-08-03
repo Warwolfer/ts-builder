@@ -17,7 +17,7 @@
   <script src="shared/build-encoder.js"></script>
   
   <!-- Data files -->
-  <script src="resource/masteries-v2.js"></script>
+  <script src="resource/masteries.js"></script>
   <script src="resource/actions.js"></script>
   <script src="resource/safecharacters.js"></script>
   <script src="resource/armor-abilities.js"></script>
@@ -54,7 +54,7 @@
           <span class="charname">Step 1: Select Masteries (V2)</span>
         </h1><br>
         <h2 class="charinfo">
-          <span class="chartitle">Choose up to 5 masteries and your armor type</span>
+          <span class="chartitle">Choose up to 6 masteries and your armor type</span>
           <span class="charrace"></span>
         </h2>
       </div>
@@ -62,7 +62,10 @@
         <div class="masterycategory" id="inputbox">
           <div class="selection-info">
             <div class="selection-count">
-              <span id="selected-count">0</span> / 5 masteries selected
+              <span id="selected-count">0</span> / 6 masteries selected
+            </div>
+            <div class="rank-caps">
+              Rank caps: S×1, A×2, B×3
             </div>
             <div class="selection-warnings" id="selection-warnings"></div>
           </div>
@@ -256,6 +259,23 @@
         this.updateUI();
       }
       
+      // Apply mastery color from v2 data
+      applyMasteryColor(element, masteryId) {
+        const masteries = window.masteriesV2 || [];
+        const mastery = masteries.find(m => m.lookup === masteryId);
+        if (mastery && mastery.color) {
+          element.style.backgroundColor = mastery.color;
+          // Keep white outline for selected state
+          element.style.borderColor = 'white';
+        }
+      }
+      
+      // Remove mastery color styling
+      removeMasteryColor(element) {
+        element.style.backgroundColor = '';
+        element.style.borderColor = '';
+      }
+      
       selectMastery(element) {
         if (!element) return;
         
@@ -267,10 +287,11 @@
           // Deselect mastery
           chosenMasteries = chosenMasteries.filter(m => m !== masteryId);
           this.domUtils.removeClass(element, 'selected');
+          this.removeMasteryColor(element);
         } else {
           // Check if we can select more masteries
-          if (chosenMasteries.length >= 5) {
-            alert('You may only select 5 masteries at maximum.');
+          if (chosenMasteries.length >= 6) {
+            alert('You may only select 6 masteries at maximum.');
             return;
           }
           
@@ -281,6 +302,7 @@
             otherAlters.forEach(other => {
               if (other !== element) {
                 this.domUtils.removeClass(other, 'selected');
+                this.removeMasteryColor(other);
                 const otherMastery = other.dataset.mastery;
                 chosenMasteries = chosenMasteries.filter(m => m !== otherMastery);
               }
@@ -290,6 +312,7 @@
           // Add this mastery
           chosenMasteries.push(masteryId);
           this.domUtils.addClass(element, 'selected');
+          this.applyMasteryColor(element, masteryId);
         }
         
         // Validate selection
@@ -337,8 +360,11 @@
         const currentState = this.state.getState();
         const { chosenMasteries, armorType } = currentState;
         
-        // Clear all selections
+        // Clear all selections and colors
         this.domUtils.clearSelection('#masterycontainer', 'selected');
+        this.domUtils.querySelectorAll('.mastery').forEach(element => {
+          this.removeMasteryColor(element);
+        });
         
         // Restore armor selection
         if (armorType) {
@@ -348,11 +374,12 @@
           }
         }
         
-        // Restore mastery selections
+        // Restore mastery selections with colors
         chosenMasteries.forEach(masteryId => {
           const masteryElement = this.domUtils.querySelector(`.mastery[data-mastery="${masteryId}"]`);
           if (masteryElement) {
             this.domUtils.addClass(masteryElement, 'selected');
+            this.applyMasteryColor(masteryElement, masteryId);
           }
         });
       }
