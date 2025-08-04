@@ -114,7 +114,19 @@
       <!-- Expertise Display -->
       <div class="masterycategory mastery-margin" id="expertisedisplay"></div>
 
-      <br/><br/>
+      <!-- Equipment Display -->
+      <h1 class="statheader">Equipment</h1>
+      <div class="masterycategory mastery-margin" id="equipmentdisplay">
+        <div class="weaponrankdisplay"></div>
+        <div class="armorrankdisplay"></div>
+      </div>
+      <div class="masterycategory" id="equipmentpassive" style="margin-top:0">
+        <div class="edisplay armorskilldisplay">
+          <div class="passivecontainer">
+            <span class='armorpassive'></span>
+          </div>
+        </div>
+      </div>
 
       <!-- Stats Display -->
       <div class="masterycategory first" id="statsdisplay">
@@ -159,32 +171,6 @@
           </div>
         </div>
         <!-- V2 has no expertise bonuses -->
-      </div>
-
-      <!-- Equipment Display -->
-      <h3 class="selectorheader">Equipment</h3>
-      <div class="masterycategory" id="equipmentdisplay">
-        <div class="edisplay weaponrankdisplay">
-          <div class='displaycircle equipment'>
-            <img src='https://terrarp.com/db/tool/weapon-rank.png'>
-          </div>
-          <div class='displaytitle'>Weapon</div>
-        </div>
-        <div class="edisplay armorrankdisplay">
-          <div class='displaycircle equipment'>
-            <img id="armordisplay">
-          </div>
-          <div class='displaytitle'>
-            <span id='aweight'></span>Armor
-          </div>
-        </div>
-      </div>
-      <div class="masterycategory" id="equipmentdisplay" style="margin-top:0">
-        <div class="edisplay armorskilldisplay">
-          <div class="passivecontainer">
-            <span class='armorpassive'></span>
-          </div>
-        </div>
       </div>
 
       <!-- Saves and Checks -->
@@ -552,7 +538,7 @@
           
           if (expertiseData) {
             html += `
-              <div class="mastery-rank-display">
+              <div class="expertise-rank-display">
                 <span class="mastery-with-icon">
                   <img src="${expertiseData.image}" class="mastery-icon"> ${expertiseData.alt || expertiseData.name}
                 </span>&nbsp;<span class="rank-badge ${this.getRankColorClass(this.rankLabels[rank])}">${this.rankLabels[rank]}</span>
@@ -617,7 +603,7 @@
         if (armorType && this.armorImages[armorType]) {
           this.domUtils.setHTML(
             this.domUtils.querySelector('.armorrankdisplay'),
-            `<div class="equipment-rank-display"><span class="mastery-with-icon"><img src="${this.armorImages[armorType]}" class="mastery-icon"> <span id="aweight">${armorType.charAt(0).toUpperCase() + armorType.slice(1)} </span>Armor</span><span class="rank-badge ${this.getRankColorClass(this.rankLabels[armorRank])}">${this.rankLabels[armorRank]}</span></div>`
+            `<div class="equipment-rank-display"><span class="mastery-with-icon"><img src="${this.armorImages[armorType]}" class="mastery-icon"> ${armorType.charAt(0).toUpperCase() + armorType.slice(1)} Armor</span><span class="rank-badge ${this.getRankColorClass(this.rankLabels[armorRank])}">${this.rankLabels[armorRank]}</span></div>`
           );
           
           // Set armor ability
@@ -1225,9 +1211,10 @@
       margin-bottom: 4px;
     }
 
-    /* Grid containers for masteries and expertise */
+    /* Grid containers for masteries, expertise, and equipment */
     #masterydisplay,
-    #expertisedisplay {
+    #expertisedisplay,
+    #equipmentdisplay {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
       gap: 8px;
@@ -1238,13 +1225,15 @@
 
     @media (max-width: 768px) {
       #masterydisplay,
-      #expertisedisplay {
+      #expertisedisplay,
+      #equipmentdisplay {
         grid-template-columns: repeat(3, 1fr);
       }
     }
 
     /* New rank display styles matching dice-roller-frontend */
     .mastery-rank-display,
+    .expertise-rank-display,
     .equipment-rank-display {
       display: flex;
       justify-content: space-between;
@@ -1257,10 +1246,14 @@
       font-size: 12px;
     }
 
+    .expertise-rank-display {
+      background-color: rgb(13, 15, 22);
+      border: 1px solid rgba(38, 38, 220, 0.3);
+    }
+
     .equipment-rank-display {
-      background-color: #6335a7; /* Purple background for equipment */
+      background-color: rgb(13, 15, 22);
       border: 1px solid rgba(220, 38, 38, 0.3);
-      margin-top: 4px;
     }
 
     .rank-badge {
