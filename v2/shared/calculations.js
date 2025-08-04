@@ -59,10 +59,10 @@ const CharacterCalculations = {
   
   // Calculate save bonuses
   calculateSaves(state, masteryList) {
-    const { chosenMasteries, chosenMasteriesRanks, armorType, armorRank } = state;
+    const { chosenMasteries, chosenMasteriesRanks } = state;
     const saves = { fortitude: 0, reflex: 0, will: 0 };
     
-    // Mastery save bonuses
+    // Mastery save bonuses only
     for (let i = 0; i < chosenMasteries.length; i++) {
       const mastery = masteryList.find(m => m.lookup === chosenMasteries[i]);
       if (mastery && mastery.save) {
@@ -71,21 +71,7 @@ const CharacterCalculations = {
       }
     }
     
-    // Armor save bonuses
-    const armorBonus = this.getRankBonus(armorRank);
-    if (armorType === 'light') {
-      saves.will += armorBonus;
-    } else if (armorType === 'heavy') {
-      saves.fortitude += armorBonus;
-    } else if (armorType === 'medium') {
-      saves.reflex += armorBonus;
-    }
-    
-    // Apply multiplier
-    saves.fortitude *= this.SAVE_MULTIPLIER;
-    saves.reflex *= this.SAVE_MULTIPLIER;
-    saves.will *= this.SAVE_MULTIPLIER;
-    
+    // V2: No armor bonuses, no multiplier
     return saves;
   },
   

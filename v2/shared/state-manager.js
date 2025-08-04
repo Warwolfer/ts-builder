@@ -23,6 +23,7 @@ class BuildState {
       characterRace: '',
       characterTitle: '',
       threadCode: '',
+      note: '',
       
       // Imported Character Data
       profileBannerUrl: '',

@@ -3,13 +3,14 @@
 const BuildEncoder = {
   
   // Generate compact build code using mastery IDs (much shorter format)
-  generateCompactBuildCode(state, baseURL = 'https://terrarp.com/build/') {
+  generateCompactBuildCode(state, baseURL = 'https://terrarp.com/build/v2/') {
     // Detect if we're currently on index.html to determine target page
     const currentPath = window.location.pathname;
     const isOnIndexPage = currentPath.includes('index.html') || currentPath.endsWith('/') || currentPath.includes('/v2/');
     const targetPage = isOnIndexPage ? 'index.html' : 'build-sheet.html';
-    // Load mastery data to get ID mappings
-    if (!window.masterylist) {
+    // Load mastery data to get ID mappings (V2 uses masteriesV2)
+    const masteryData = window.masteriesV2 || window.masterylist;
+    if (!masteryData) {
       console.warn('Mastery data not loaded, using regular format');
       return this.generateBuildCode(state, baseURL);
     }
@@ -17,6 +18,8 @@ const BuildEncoder = {
     const { 
       chosenMasteries, 
       chosenMasteriesRanks, 
+      chosenExpertise,
+      chosenExpertiseRanks,
       armorType, 
       armorRank, 
       weaponRank, 
@@ -29,21 +32,32 @@ const BuildEncoder = {
     
     // Convert mastery names to IDs (huge space savings!)
     const masteryIds = chosenMasteries.map(masteryName => {
-      const mastery = window.masterylist.find(m => m.lookup === masteryName);
+      const mastery = masteryData.find(m => m.lookup === masteryName);
       return mastery ? mastery.id : 0;
     }).join(',');
     
     // Pack ranks into single string (55555 instead of 5,5,5,5,5)
     const rankString = chosenMasteriesRanks.join('');
     
+    // Convert expertise names to IDs
+    const expertiseData = window.expertiseV2 || window.expertiselist;
+    const expertiseIds = chosenExpertise ? chosenExpertise.map(expertiseName => {
+      const expertise = expertiseData ? expertiseData.find(e => e.lookup === expertiseName) : null;
+      return expertise ? expertise.id : 0;
+    }).join(',') : '';
+    
+    // Pack expertise ranks into single string
+    const expertiseRankString = chosenExpertiseRanks ? chosenExpertiseRanks.join('') : '';
+    
     // Single letter for armor type (h/m/l instead of heavy/medium/light)
     const armorShort = armorType ? armorType.charAt(0) : '';
     
     // Convert action names to IDs for even more space savings
     let actionCode = chosenActions.join(','); // fallback
-    if (window.actionlist) {
+    const actionData = window.actionlistV2 || window.actionlist;
+    if (actionData) {
       const actionIds = chosenActions.map(actionName => {
-        const action = window.actionlist.find(a => a.lookup === actionName);
+        const action = actionData.find(a => a.lookup === actionName);
         return action ? action.id : 0;
       }).join(',');
       actionCode = actionIds;
@@ -55,6 +69,7 @@ const BuildEncoder = {
     if (characterRace) charParts.push('r:' + characterRace.replace(/ /gi, '_'));
     if (characterTitle) charParts.push('t:' + characterTitle.replace(/ /gi, '_'));
     if (threadCode) charParts.push('c:' + threadCode.replace(/ /gi, '_'));
+    if (state.note) charParts.push('note:' + encodeURIComponent(state.note));
     if (state.profileBannerUrl) {
       // Extract just the unique part from terrarp banner URLs to save space
       // From: https://terrarp.com/data/profile_banners/l/0/135.jpg?1718997316
@@ -66,15 +81,17 @@ const BuildEncoder = {
     
     const charData = charParts.join('&');
     
-    // Create ultra-compact build string
+    // Create ultra-compact build string (V2 format with expertise)
     const compactParts = [
-      masteryIds,              // "17,15,5,20,31" instead of "animancy,slash-weapons,astramancy,harmonic-magic,metamorph"
-      rankString,              // "55555" instead of "5,5,5,5,5"  
-      armorShort,              // "h" instead of "heavy"
-      armorRank,               // "5"
-      weaponRank,              // "5"
-      actionCode,              // Keep action names for now
-      charData                 // "n:Lune&r:Human&t:Steel_Reclaimer"
+      masteryIds,              // "17,15,5,20,31" - mastery IDs
+      rankString,              // "55555" - mastery ranks  
+      expertiseIds,            // "1,2,3,4,5,6" - expertise IDs
+      expertiseRankString,     // "555555" - expertise ranks
+      armorShort,              // "h" - armor type
+      armorRank,               // "5" - armor rank
+      weaponRank,              // "5" - weapon rank
+      actionCode,              // action IDs or names
+      charData                 // "n:Lune&r:Human&t:Steel_Reclaimer&note:..."
     ].filter(part => part !== '');
     
     const compactDetails = compactParts.join('|');
@@ -223,7 +240,8 @@ const BuildEncoder = {
         characterRace: characterRace,
         characterTitle: characterTitle,
         threadCode: threadCode,
-        profileBannerUrl: profileBannerUrl
+        profileBannerUrl: profileBannerUrl,
+        note: '' // Old format doesn't support notes
       };
       
       return {
@@ -256,49 +274,80 @@ const BuildEncoder = {
       const decoded = decodeURIComponent(atob(cleanEncoded).replace(/./g, (char) => '%' + ('00' + char.charCodeAt(0).toString(16)).slice(-2)));
       const parts = decoded.split('|');
       
+      // Determine format based on parts count
+      const isV2Format = parts.length >= 8; // V2 has expertise fields
+      
       if (parts.length < 6) {
         throw new Error('Invalid compact build code format');
       }
       
       // Convert mastery IDs back to names
       let chosenMasteries = [];
-      if (window.masterylist && parts[0]) {
+      const masteryData = window.masteriesV2 || window.masterylist;
+      if (masteryData && parts[0]) {
         const masteryIds = parts[0].split(',').map(id => parseInt(id));
         chosenMasteries = masteryIds.map(id => {
-          const mastery = window.masterylist.find(m => m.id === id);
+          const mastery = masteryData.find(m => m.id === id);
           return mastery ? mastery.lookup : '';
         }).filter(name => name);
       }
       
+      // Unpack mastery ranks from single string
+      const chosenMasteriesRanks = parts[1] ? parts[1].split('').map(r => parseInt(r) || 0) : [];
+      
+      // Handle expertise (V2 format only)
+      let chosenExpertise = [];
+      let chosenExpertiseRanks = [];
+      if (isV2Format) {
+        // Convert expertise IDs back to names
+        const expertiseData = window.expertiseV2 || window.expertiselist;
+        if (expertiseData && parts[2]) {
+          const expertiseIds = parts[2].split(',').map(id => parseInt(id));
+          chosenExpertise = expertiseIds.map(id => {
+            const expertise = expertiseData.find(e => e.id === id);
+            return expertise ? expertise.lookup : '';
+          }).filter(name => name);
+        }
+        
+        // Unpack expertise ranks from single string
+        chosenExpertiseRanks = parts[3] ? parts[3].split('').map(r => parseInt(r) || 0) : [];
+      }
+      
+      // Adjust part indices based on format
+      const armorTypeIndex = isV2Format ? 4 : 2;
+      const armorRankIndex = isV2Format ? 5 : 3;
+      const weaponRankIndex = isV2Format ? 6 : 4;
+      const actionIndex = isV2Format ? 7 : 5;
+      const charDataIndex = isV2Format ? 8 : 6;
+      
+      // Expand armor type
+      const armorTypeMap = { 'h': 'heavy', 'm': 'medium', 'l': 'light' };
+      const armorType = armorTypeMap[parts[armorTypeIndex]] || parts[armorTypeIndex] || null;
+      
       // Convert action IDs back to names
       let chosenActions = [];
-      if (window.actionlist && parts[5]) {
-        const actionIds = parts[5].split(',').map(id => parseInt(id));
+      const actionData = window.actionlistV2 || window.actionlist;
+      if (actionData && parts[actionIndex]) {
+        const actionIds = parts[actionIndex].split(',').map(id => parseInt(id));
         chosenActions = actionIds.map(id => {
-          const action = window.actionlist.find(a => a.id === id);
+          const action = actionData.find(a => a.id === id);
           return action ? action.lookup : '';
         }).filter(name => name);
       } else {
         // Fallback for non-ID format
-        chosenActions = parts[5] ? parts[5].split(',').filter(a => a) : [];
+        chosenActions = parts[actionIndex] ? parts[actionIndex].split(',').filter(a => a) : [];
       }
       
-      // Unpack ranks from single string
-      const chosenMasteriesRanks = parts[1] ? parts[1].split('').map(r => parseInt(r) || 0) : [];
-      
-      // Expand armor type
-      const armorTypeMap = { 'h': 'heavy', 'm': 'medium', 'l': 'light' };
-      const armorType = armorTypeMap[parts[2]] || parts[2] || null;
-      
       // Parse character data
-      let characterName = '', characterRace = '', characterTitle = '', threadCode = '', profileBannerUrl = '';
-      if (parts[6]) {
-        const charParts = parts[6].split('&');
+      let characterName = '', characterRace = '', characterTitle = '', threadCode = '', profileBannerUrl = '', note = '';
+      if (parts[charDataIndex]) {
+        const charParts = parts[charDataIndex].split('&');
         charParts.forEach(part => {
           if (part.startsWith('n:')) characterName = part.substring(2).replace(/_/gi, ' ');
           if (part.startsWith('r:')) characterRace = part.substring(2).replace(/_/gi, ' ');
           if (part.startsWith('t:')) characterTitle = part.substring(2).replace(/_/gi, ' ');
           if (part.startsWith('c:')) threadCode = part.substring(2).replace(/_/gi, ' ');
+          if (part.startsWith('note:')) note = decodeURIComponent(part.substring(5));
           if (part.startsWith('b:')) {
             const shortBanner = part.substring(2);
             // Reconstruct full terrarp banner URL from shortened form
@@ -319,15 +368,18 @@ const BuildEncoder = {
         data: {
           chosenMasteries,
           chosenMasteriesRanks,
+          chosenExpertise,
+          chosenExpertiseRanks,
           armorType,
-          armorRank: parseInt(parts[3]) || 0,
-          weaponRank: parseInt(parts[4]) || 0,
+          armorRank: parseInt(parts[armorRankIndex]) || 0,
+          weaponRank: parseInt(parts[weaponRankIndex]) || 0,
           chosenActions,
           characterName,
           characterRace,
           characterTitle,
           threadCode,
-          profileBannerUrl
+          profileBannerUrl,
+          note
         }
       };
     } catch (error) {

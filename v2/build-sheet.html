@@ -11,12 +11,11 @@
     .header-info--functions {
       display: block !important;
       float: right;
-      width: 250px;
+      width: 160px;
     }
     
     #inputbox {
       display: block !important;
-      padding: 15px;
     }
     
     #threadcodereplace {
@@ -79,17 +78,22 @@
     </div>
   </nav>
 
+  <br/>
+  <br/>
+  <br/>
+<!-- I'm too lazy to do actual padding -->
   <div class="header-info">
     <div class="header-info--content">
       <div class="charimg2 left"><img id="pfp2"></div>
       <div class="charcontainer left">
-        <h1 class="nameheader header-info--nameheader">
-          <span class="charname" id="character-name-display">Character Build</span>
-        </h1><br>
-        <h2 class="charinfo">
-          <span class="charrace" id="character-race-display"></span>
-        </h2>
+            <span class="nameheader header-info--nameheader">
+              <span class="charname" id="character-name-display">Character Build</span> <span class="chartitle" id="character-title-display"></span>
+            </span><br>
+        <span class="charinfo">
+              <span class="charrace" id="character-race-display"></span>
+            </span>
       </div>
+      <div class="filler"></div>
       <div class="header-info--functions right">
         <div class="masterycategory" id="inputbox">
           <input type="text" id="threadcodereplace" autocomplete="off" placeholder="Thread code (510C5)...">
@@ -103,10 +107,14 @@
     <div id="builddisplay">
       <!-- Masteries Display -->
       <div class="banner"></div>
+      <h1 class="statheader">Mastery</h1>
       <div class="masterycategory mastery-margin" id="masterydisplay"></div>
 
+      <h1 class="statheader">Expertise</h1>
       <!-- Expertise Display -->
       <div class="masterycategory mastery-margin" id="expertisedisplay"></div>
+
+      <br/><br/>
 
       <!-- Stats Display -->
       <div class="masterycategory first" id="statsdisplay">
@@ -255,13 +263,25 @@
       </div>
       <div class="masterycategory" id="actionsdisplay"></div>
 
+      <!-- Note -->
+      <div class="masterycategory" id="notedisplay">
+        <div class="build-sharing">
+          <div class="share-options">
+            <div class="share-option">
+              <label>Note:</label>
+              <textarea id="note"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Build Code Display -->
       <div class="masterycategory" id="buildcodedisplay">
         <div class="build-sharing">
           <div class="share-options">
             <div class="share-option">
               <label>Build URL:</label>
-              <textarea id="build-url" readonly onclick="this.select()"></textarea>
+              <textarea id="build-url" readonly></textarea>
               <button class="copy-button" data-target="build-url">Copy</button>
             </div>
           </div>
@@ -299,6 +319,18 @@
         this.rankLabels = ['E', 'D', 'C', 'B', 'A', 'S'];
         
         this.init();
+      }
+      
+      getRankColorClass(rank) {
+        switch (rank.toUpperCase()) {
+          case 'S': return 'rank-s'; // Gold
+          case 'A': return 'rank-a'; // Orange  
+          case 'B': return 'rank-b'; // Pink
+          case 'C': return 'rank-c'; // Green
+          case 'D': return 'rank-d'; // Blue
+          case 'E': return 'rank-e'; // Grey
+          default: return 'rank-s';  // Default to gold
+        }
       }
       
       init() {
@@ -389,8 +421,13 @@
         
         // Display character name and banner
         this.displayCharacterName(currentState.characterName);
+        this.displayCharacterTitle(currentState.characterTitle);
         this.displayBanner(currentState);
         this.displayCharacterRace(currentState.characterRace);
+        this.displayAvatar(currentState.avatarUrl);
+        
+        // Display note
+        this.displayNote(currentState.note);
         
         // Display masteries (6 instead of 5)
         this.displayMasteries(currentState, masteries);
@@ -399,7 +436,15 @@
         this.displayExpertise(currentState, expertise);
         
         // Calculate and display stats
+        console.log('🔍 Build sheet calculating stats with:', {
+          masteries: masteries ? masteries.length : 'no data',
+          chosenMasteries: currentState.chosenMasteries,
+          chosenRanks: currentState.chosenMasteriesRanks,
+          armorType: currentState.armorType,
+          armorRank: currentState.armorRank
+        });
         const stats = this.calculations.getCompleteStats(currentState, masteries, actions, expertise);
+        console.log('🔍 Build sheet calculated saves:', stats.saves);
         this.displayStats(stats);
         
         // Display equipment
@@ -431,8 +476,30 @@
       }
 
       displayCharacterRace(race) {
-        const displayRace = race || 'Character Race';
+        const displayRace = race || '';
         this.domUtils.setText(this.domUtils.getElementById('character-race-display'), displayRace);
+      }
+
+      displayCharacterTitle(title) {
+        const displayTitle = title || '';
+        this.domUtils.setText(this.domUtils.getElementById('character-title-display'), displayTitle);
+      }
+      
+      displayNote(note) {
+        const noteTextarea = this.domUtils.getElementById('note');
+        if (noteTextarea) {
+          noteTextarea.value = note || '';
+        }
+      }
+
+      displayAvatar(avatarUrl) {
+        const avatarImg = this.domUtils.getElementById('pfp2');
+        if (avatarImg && avatarUrl) {
+          avatarImg.src = avatarUrl;
+          avatarImg.style.display = 'block';
+        } else if (avatarImg) {
+          avatarImg.style.display = 'none';
+        }
       }
       
       displayBanner(state) {
@@ -461,12 +528,11 @@
           
           if (mastery) {
             html += `
-              <div class="masterydisplay">
-                <div class="displaycircle ${mastery.lookup}">
-                  <img src="${mastery.image}">
-                </div>
-                <div class="displaytitle">${mastery.name}</div>
-                <div class="displayrank">${this.rankLabels[rank]}</div>
+              <div class="mastery-rank-display">
+                <span class="mastery-with-icon">
+                  <img src="${mastery.image}" class="mastery-icon"> ${mastery.alt || mastery.name}
+                </span>&nbsp;
+                <span class="rank-badge ${this.getRankColorClass(this.rankLabels[rank])}"> ${this.rankLabels[rank]}</span>
               </div>
             `;
           }
@@ -486,12 +552,10 @@
           
           if (expertiseData) {
             html += `
-              <div class="masterydisplay">
-                <div class="displaycircle ${expertiseData.lookup}">
-                  <img src="${expertiseData.image}">
-                </div>
-                <div class="displaytitle">${expertiseData.name}</div>
-                <div class="displayrank">${this.rankLabels[rank]}</div>
+              <div class="mastery-rank-display">
+                <span class="mastery-with-icon">
+                  <img src="${expertiseData.image}" class="mastery-icon"> ${expertiseData.alt || expertiseData.name}
+                </span>&nbsp;<span class="rank-badge ${this.getRankColorClass(this.rankLabels[rank])}">${this.rankLabels[rank]}</span>
               </div>
             `;
           }
@@ -523,9 +587,21 @@
         }
         
         // Saves
-        this.domUtils.setText(this.domUtils.getElementById('fortitudesave'), '+' + stats.saves.fortitude);
-        this.domUtils.setText(this.domUtils.getElementById('reflexsave'), '+' + stats.saves.reflex);
-        this.domUtils.setText(this.domUtils.getElementById('willsave'), '+' + stats.saves.will);
+        console.log('🔍 Displaying saves:', stats.saves);
+        const fortElement = this.domUtils.getElementById('fortitudesave');
+        const reflexElement = this.domUtils.getElementById('reflexsave');
+        const willElement = this.domUtils.getElementById('willsave');
+        console.log('🔍 Save elements found:', { fortElement: !!fortElement, reflexElement: !!reflexElement, willElement: !!willElement });
+        
+        this.domUtils.setText(fortElement, '+' + stats.saves.fortitude);
+        this.domUtils.setText(reflexElement, '+' + stats.saves.reflex);
+        this.domUtils.setText(willElement, '+' + stats.saves.will);
+        
+        console.log('🔍 Save values set to:', {
+          fortitude: '+' + stats.saves.fortitude,
+          reflex: '+' + stats.saves.reflex,
+          will: '+' + stats.saves.will
+        });
         
         // V2 has no expertise bonuses to display
       }
@@ -535,13 +611,13 @@
 
         this.domUtils.setHTML(
           this.domUtils.querySelector('.weaponrankdisplay'),
-          `<div class="displaycircle equipment"><img src="https://terrarp.com/db/tool/weapon-rank.png"></div><div class="displaytitle">Weapon</div><div class="displayrank">${this.rankLabels[weaponRank]}</div>`
+          `<div class="equipment-rank-display"><span class="mastery-with-icon"><img src="https://terrarp.com/db/tool/weapon-rank.png" class="mastery-icon"> Weapon</span><span class="rank-badge ${this.getRankColorClass(this.rankLabels[weaponRank])}">${this.rankLabels[weaponRank]}</span></div>`
         );
 
         if (armorType && this.armorImages[armorType]) {
           this.domUtils.setHTML(
             this.domUtils.querySelector('.armorrankdisplay'),
-            `<div class="displaycircle equipment"><img id="armordisplay" src="${this.armorImages[armorType]}"></div><div class="displaytitle"><span id="aweight">${armorType.charAt(0).toUpperCase() + armorType.slice(1)} </span>Armor</div><div class="displayrank">${this.rankLabels[armorRank]}</div>`
+            `<div class="equipment-rank-display"><span class="mastery-with-icon"><img src="${this.armorImages[armorType]}" class="mastery-icon"> <span id="aweight">${armorType.charAt(0).toUpperCase() + armorType.slice(1)} </span>Armor</span><span class="rank-badge ${this.getRankColorClass(this.rankLabels[armorRank])}">${this.rankLabels[armorRank]}</span></div>`
           );
           
           // Set armor ability
@@ -815,6 +891,21 @@
         this.generateBuildCodes(currentState);
       }
       
+      updateNote() {
+        const noteTextarea = this.domUtils.getElementById('note');
+        if (!noteTextarea) return;
+        
+        const newNote = noteTextarea.value;
+        
+        // Save note to state for persistence
+        this.state.updateState({ note: newNote });
+        
+        // Regenerate build codes with new note
+        const currentState = this.state.getState();
+        this.generateBuildCodes(currentState);
+      }
+
+      
       setupEventListeners() {
         // Copy buttons
         this.domUtils.querySelectorAll('.copy-button').forEach(button => {
@@ -845,6 +936,13 @@
           'click',
           () => this.editBuild()
         );
+        
+        // Note textarea - save on input and update build URL
+        const noteTextarea = this.domUtils.getElementById('note');
+        if (noteTextarea) {
+          this.domUtils.addEventListener(noteTextarea, 'input', () => this.updateNote());
+        }
+
       }
       
       goToPreviousPage() {
@@ -1106,6 +1204,7 @@
       resize: vertical;
     }
 
+
     .copy-button {
       align-self: flex-start;
       padding: 6px 12px;
@@ -1123,6 +1222,88 @@
 
     .displaytitle {
       font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    /* Grid containers for masteries and expertise */
+    #masterydisplay,
+    #expertisedisplay {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+      top: -90px;
+      position: relative;
+    }
+
+    @media (max-width: 768px) {
+      #masterydisplay,
+      #expertisedisplay {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    /* New rank display styles matching dice-roller-frontend */
+    .mastery-rank-display,
+    .equipment-rank-display {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background-color: rgb(13, 15, 22);
+      color: white;
+      border-radius: 6px;
+      border: 1px solid rgba(147, 51, 234, 0.3);
+      font-size: 12px;
+    }
+
+    .equipment-rank-display {
+      background-color: #6335a7; /* Purple background for equipment */
+      border: 1px solid rgba(220, 38, 38, 0.3);
+      margin-top: 4px;
+    }
+
+    .rank-badge {
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    /* Rank color classes */
+    .rank-s { color: #fbbf24 !important; } /* Yellow/Gold */
+    .rank-a { color: #fb923c !important; } /* Orange */
+    .rank-b { color: #f472b6 !important; } /* Pink */
+    .rank-c { color: #4ade80 !important; } /* Green */
+    .rank-d { color: #60a5fa !important; } /* Blue */
+    .rank-e { color: #9ca3af !important; } /* Gray */
+
+    /* Hide old display styles */
+    .displaytitle,
+    .displayrank,
+    .displaycircle {
+      display: none;
+    }
+
+    /* Inline mastery icons */
+    .mastery-with-icon {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mastery-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .statheader {
+      top: -90px;
+      position: relative;
+      padding: 0 8px 4px 8px;
+      color: #fff;
+      font-size: 20px;
+      font-weight: 700;
       margin-bottom: 4px;
     }
   </style>

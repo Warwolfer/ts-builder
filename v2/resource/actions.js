@@ -555,7 +555,7 @@ const actionlistV2 = [
   description: "<p><em><b>Alter - Dynamism/Metamorph</b></em></p><p>(D) Passive. Gain extra movement. 2 (D), 3 (B), 4 (S)</p><p>(C) Passive. You may split your movements, allowing you to move → act → move.</p>",
   dice: "Passive",
   roll: "?r maneuver # Maneuver | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["dynamism", "metamorph"],
+  masteries: ["dynamism"],
   category: "alter",
   pair: "O1"
 },

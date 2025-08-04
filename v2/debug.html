@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>V2 Build Code Debug Tool</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/index.css">
+  
+  <!-- Shared modules -->
+  <script src="shared/state-manager.js"></script>
+  <script src="shared/dom-utils.js"></script>
+  <script src="shared/data-loader.js"></script>
+  <script src="shared/calculations.js"></script>
+  <script src="shared/build-encoder.js"></script>
+  
+  <!-- Data files -->
+  <script src="resource/masteries.js"></script>
+  <script src="resource/expertise.js"></script>
+  <script src="resource/actions.js"></script>
+  <script src="resource/safecharacters.js"></script>
+  <script src="resource/armor-abilities.js"></script>
+</head>
+
+<body>
+  <nav id="mw-navigation" class="fixed-top">
+    <div class="container">
+      <a href="https://terrarp.com/build/" class="navbar-brand">
+        <img src="https://terrarp.com/db/logo/logo-xs.png">
+      </a>
+      <div class="nav-left">
+        <div class="link"><a href="https://terrarp.com/build/index.html" style="color:#47cbdd">Build Planner</a></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="header-info">
+    <div class="header-info--content">
+      <div class="charcontainer left">
+        <h1 class="nameheader header-info--nameheader">
+          <span class="charname">V2 Build Code Debug Tool</span>
+        </h1><br>
+        <h2 class="charinfo">
+          <span class="chartitle">Debug build code parsing and validation</span>
+        </h2>
+      </div>
+    </div>
+  </div>
+
+  <div id="bodyback">
+    <div class="masterycategory">
+      <h2>Build Code Input</h2>
+      <div class="build-sharing">
+        <div class="share-options">
+          <div class="share-option">
+            <label>Paste build code or URL here:</label>
+            <textarea id="build-code-input" placeholder="Paste your build code here..." style="height: 100px; width: 100%;"></textarea>
+            <button id="parse-button" class="button">Parse Build Code</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="masterycategory" id="results" style="display: none;">
+      <h2>Parse Results</h2>
+      <div id="parse-output"></div>
+    </div>
+
+    <div class="masterycategory" id="validation" style="display: none;">
+      <h2>Validation Results</h2>
+      <div id="validation-output"></div>
+    </div>
+
+    <div class="masterycategory" id="raw-data" style="display: none;">
+      <h2>Raw Parsed Data</h2>
+      <pre id="raw-data-output" style="background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto;"></pre>
+    </div>
+  </div>
+
+  <script>
+    // Initialize global objects
+    window.buildState = window.buildState || new BuildState();
+    window.DataLoader = window.DataLoader || new DataLoader();
+    window.DOMUtils = window.DOMUtils || new DOMUtils();
+    
+    class BuildDebugger {
+      constructor() {
+        this.domUtils = window.DOMUtils;
+        this.buildEncoder = window.BuildEncoder;
+        this.state = window.buildState;
+        
+        this.init();
+      }
+      
+      init() {
+        // Load V2 data
+        this.loadData();
+        
+        // Set up event listeners
+        this.setupEventListeners();
+      }
+      
+      loadData() {
+        try {
+          if (window.masteriesV2) {
+            console.log('✅ masteriesV2 loaded:', window.masteriesV2.length, 'masteries');
+          } else {
+            console.log('❌ masteriesV2 not found');
+          }
+          
+          if (window.actionlistV2) {
+            console.log('✅ actionlistV2 loaded:', window.actionlistV2.length, 'actions');
+          } else {
+            console.log('❌ actionlistV2 not found');
+          }
+          
+          if (window.expertiseListV2) {
+            console.log('✅ expertiseListV2 loaded:', window.expertiseListV2.length, 'expertise');
+          } else {
+            console.log('❌ expertiseListV2 not found');
+          }
+        } catch (error) {
+          console.error('Error loading data:', error);
+        }
+      }
+      
+      setupEventListeners() {
+        const parseButton = this.domUtils.getElementById('parse-button');
+        const buildCodeInput = this.domUtils.getElementById('build-code-input');
+        
+        this.domUtils.addEventListener(parseButton, 'click', () => {
+          this.parseBuildCode();
+        });
+        
+        // Also parse on Enter key
+        this.domUtils.addEventListener(buildCodeInput, 'keypress', (e) => {
+          if (e.key === 'Enter' && e.ctrlKey) {
+            this.parseBuildCode();
+          }
+        });
+      }
+      
+      parseBuildCode() {
+        const input = this.domUtils.getElementById('build-code-input').value.trim();
+        
+        if (!input) {
+          this.showError('Please enter a build code or URL');
+          return;
+        }
+        
+        console.log('🔍 Parsing build code:', input);
+        
+        // Clear previous results
+        this.clearResults();
+        
+        try {
+          // Try to parse the build code
+          let result;
+          
+          if (input.includes('#compact') || input.includes('#import')) {
+            console.log('🔍 Detected compact/import format');
+            result = this.buildEncoder.decodeCompactBuildCode(input);
+          } else if (input.includes('#load') || input.includes('#sample')) {
+            console.log('🔍 Detected load/sample format');
+            result = this.buildEncoder.decodeBuildCode(input);
+          } else {
+            console.log('🔍 Trying auto-detection');
+            result = this.buildEncoder.loadFromURL();
+            
+            // If auto-detection fails, try direct parsing
+            if (!result.success) {
+              // Try compact first
+              result = this.buildEncoder.decodeCompactBuildCode(input);
+              if (!result.success) {
+                // Try regular format
+                result = this.buildEncoder.decodeBuildCode(input);
+              }
+            }
+          }
+          
+          console.log('🔍 Parse result:', result);
+          
+          if (result.success) {
+            this.displayResults(result.data, input);
+            this.validateBuild(result.data);
+          } else {
+            this.showError('Failed to parse build code: ' + result.error);
+          }
+          
+        } catch (error) {
+          console.error('Parse error:', error);
+          this.showError('Parse error: ' + error.message);
+        }
+      }
+      
+      displayResults(data, originalInput) {
+        const resultsDiv = this.domUtils.getElementById('results');
+        const outputDiv = this.domUtils.getElementById('parse-output');
+        
+        let html = `
+          <div class="debug-section">
+            <h3>Build Overview</h3>
+            <p><strong>Character Name:</strong> ${data.characterName || 'Not set'}</p>
+            <p><strong>Character Race:</strong> ${data.characterRace || 'Not set'}</p>
+            <p><strong>Character Title:</strong> ${data.characterTitle || 'Not set'}</p>
+            <p><strong>Thread Code:</strong> ${data.threadCode || 'Not set'}</p>
+            <p><strong>Note:</strong> ${data.note || 'Not set'}</p>
+            <p><strong>Profile Banner:</strong> ${data.profileBannerUrl || 'Not set'}</p>
+          </div>
+          
+          <div class="debug-section">
+            <h3>Masteries (${data.chosenMasteries.length})</h3>
+            <p><strong>Selected:</strong> ${data.chosenMasteries.join(', ') || 'None'}</p>
+            <p><strong>Ranks:</strong> ${data.chosenMasteriesRanks.join(', ') || 'None'}</p>
+          </div>
+          
+          <div class="debug-section">
+            <h3>Expertise (${data.chosenExpertise ? data.chosenExpertise.length : 0})</h3>
+            <p><strong>Selected:</strong> ${data.chosenExpertise ? data.chosenExpertise.join(', ') : 'None'}</p>
+            <p><strong>Ranks:</strong> ${data.chosenExpertiseRanks ? data.chosenExpertiseRanks.join(', ') : 'None'}</p>
+          </div>
+          
+          <div class="debug-section">
+            <h3>Equipment</h3>
+            <p><strong>Armor Type:</strong> ${data.armorType || 'Not set'}</p>
+            <p><strong>Armor Rank:</strong> ${data.armorRank || 0}</p>
+            <p><strong>Weapon Rank:</strong> ${data.weaponRank || 0}</p>
+          </div>
+          
+          <div class="debug-section">
+            <h3>Actions (${data.chosenActions ? data.chosenActions.length : 0})</h3>
+            <p><strong>Selected:</strong> ${data.chosenActions ? data.chosenActions.join(', ') : 'None'}</p>
+          </div>
+        `;
+        
+        // Calculate and display stats if we have the calculation module
+        if (window.CharacterCalculations) {
+          try {
+            const masteries = window.masteriesV2 || [];
+            const actions = window.actionlistV2 || [];
+            const expertise = window.expertiseV2 || [];
+            
+            const stats = window.CharacterCalculations.getCompleteStats(data, masteries, actions, expertise);
+            
+            html += `
+              <div class="debug-section">
+                <h3>Calculated Stats</h3>
+                <p><strong>HP:</strong> ${stats.hp || 'Error calculating HP'}</p>
+                <p><strong>Fortitude Save:</strong> ${stats.saves ? stats.saves.fortitude : 'Error calculating saves'}</p>
+                <p><strong>Reflex Save:</strong> ${stats.saves ? stats.saves.reflex : 'Error calculating saves'}</p>
+                <p><strong>Will Save:</strong> ${stats.saves ? stats.saves.will : 'Error calculating saves'}</p>
+                <p><strong>Movement:</strong> ${stats.movement || 'Error calculating movement'}</p>
+                <p><strong>Range:</strong> ${stats.range || 'Error calculating range'}</p>
+              </div>
+            `;
+            
+            // Get detailed save breakdown
+            const saveBreakdown = this.calculateSaveBreakdown(data, masteries);
+            
+            // Add breakdown table HTML directly
+            html += `
+              <div class="debug-section">
+                <h3>Save Calculation Breakdown</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr style="background-color: #f0f0f0;">
+                    <th style="border: 1px solid #ddd; padding: 8px;">Save</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">Base</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">Mastery+Armor</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">×5 Multiplier</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">Final Total</th>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>Fortitude</strong></td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${saveBreakdown.fortitude.base}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${saveBreakdown.fortitude.masteryBonus + saveBreakdown.fortitude.armorBonus}<br><small>${saveBreakdown.fortitude.details.join('<br>')}</small></td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${saveBreakdown.fortitude.base + saveBreakdown.fortitude.masteryBonus + saveBreakdown.fortitude.armorBonus} × 5</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>${saveBreakdown.fortitude.total}</strong></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>Reflex</strong></td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${saveBreakdown.reflex.base}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${saveBreakdown.reflex.masteryBonus + saveBreakdown.reflex.armorBonus}<br><small>${saveBreakdown.reflex.details.join('<br>')}</small></td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${saveBreakdown.reflex.base + saveBreakdown.reflex.masteryBonus + saveBreakdown.reflex.armorBonus} × 5</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>${saveBreakdown.reflex.total}</strong></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>Will</strong></td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${saveBreakdown.will.base}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${saveBreakdown.will.masteryBonus + saveBreakdown.will.armorBonus}<br><small>${saveBreakdown.will.details.join('<br>')}</small></td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${saveBreakdown.will.base + saveBreakdown.will.masteryBonus + saveBreakdown.will.armorBonus} × 5</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>${saveBreakdown.will.total}</strong></td>
+                  </tr>
+                </table>
+              </div>
+            `;
+            
+          } catch (error) {
+            html += `
+              <div class="debug-section">
+                <h3 style="color: red;">Stats Calculation Error</h3>
+                <p style="color: red;">${error.message}</p>
+              </div>
+            `;
+          }
+        }
+        
+        this.domUtils.setHTML(outputDiv, html);
+        resultsDiv.style.display = 'block';
+        
+        // Show raw data
+        const rawDataDiv = this.domUtils.getElementById('raw-data');
+        const rawDataOutput = this.domUtils.getElementById('raw-data-output');
+        rawDataOutput.textContent = JSON.stringify(data, null, 2);
+        rawDataDiv.style.display = 'block';
+      }
+      
+      validateBuild(data) {
+        const validationDiv = this.domUtils.getElementById('validation');
+        const outputDiv = this.domUtils.getElementById('validation-output');
+        
+        const issues = [];
+        const warnings = [];
+        
+        // Check masteries
+        if (!data.chosenMasteries || data.chosenMasteries.length === 0) {
+          issues.push('No masteries selected');
+        } else if (data.chosenMasteries.length > 5) {
+          issues.push(`Too many masteries selected (${data.chosenMasteries.length}/5)`);
+        }
+        
+        // Check mastery ranks
+        if (!data.chosenMasteriesRanks || data.chosenMasteriesRanks.length === 0) {
+          issues.push('No mastery ranks assigned');
+        } else if (data.chosenMasteriesRanks.length !== data.chosenMasteries.length) {
+          issues.push(`Mastery rank count (${data.chosenMasteriesRanks.length}) doesn't match mastery count (${data.chosenMasteries.length})`);
+        }
+        
+        // Check expertise
+        if (!data.chosenExpertise || data.chosenExpertise.length === 0) {
+          issues.push('No expertise selected');
+        }
+        
+        // Check expertise ranks
+        if (!data.chosenExpertiseRanks || data.chosenExpertiseRanks.length === 0) {
+          issues.push('No expertise ranks assigned');
+        } else if (data.chosenExpertise && data.chosenExpertiseRanks.length !== data.chosenExpertise.length) {
+          issues.push(`Expertise rank count (${data.chosenExpertiseRanks.length}) doesn't match expertise count (${data.chosenExpertise.length})`);
+        }
+        
+        // Check armor type
+        if (!data.armorType) {
+          issues.push('No armor type selected');
+        }
+        
+        // Check actions
+        if (!data.chosenActions || data.chosenActions.length === 0) {
+          warnings.push('No actions selected');
+        }
+        
+        // Use state manager validation
+        this.state.updateState(data);
+        const isMasteryValid = this.state.isValidForRankSelection();
+        const isActionValid = this.state.isValidForActionSelection();
+        const isBuildValid = this.state.isValidForBuildSheet();
+        
+        let html = `
+          <div class="debug-section">
+            <h3>Validation Status</h3>
+            <p><strong>Valid for Rank Selection:</strong> <span style="color: ${isMasteryValid ? 'green' : 'red'}">${isMasteryValid ? 'YES' : 'NO'}</span></p>
+            <p><strong>Valid for Action Selection:</strong> <span style="color: ${isActionValid ? 'green' : 'red'}">${isActionValid ? 'YES' : 'NO'}</span></p>
+            <p><strong>Valid for Build Sheet:</strong> <span style="color: ${isBuildValid ? 'green' : 'red'}">${isBuildValid ? 'YES' : 'NO'}</span></p>
+          </div>
+        `;
+        
+        if (issues.length > 0) {
+          html += `
+            <div class="debug-section">
+              <h3 style="color: red;">Issues Found</h3>
+              <ul>
+                ${issues.map(issue => `<li style="color: red;">${issue}</li>`).join('')}
+              </ul>
+            </div>
+          `;
+        }
+        
+        if (warnings.length > 0) {
+          html += `
+            <div class="debug-section">
+              <h3 style="color: orange;">Warnings</h3>
+              <ul>
+                ${warnings.map(warning => `<li style="color: orange;">${warning}</li>`).join('')}
+              </ul>
+            </div>
+          `;
+        }
+        
+        if (issues.length === 0 && warnings.length === 0) {
+          html += `
+            <div class="debug-section">
+              <p style="color: green; font-weight: bold;">✅ No issues found!</p>
+            </div>
+          `;
+        }
+        
+        this.domUtils.setHTML(outputDiv, html);
+        validationDiv.style.display = 'block';
+      }
+      
+      showError(message) {
+        const resultsDiv = this.domUtils.getElementById('results');
+        const outputDiv = this.domUtils.getElementById('parse-output');
+        
+        const html = `
+          <div class="debug-section">
+            <h3 style="color: red;">Error</h3>
+            <p style="color: red;">${message}</p>
+          </div>
+        `;
+        
+        this.domUtils.setHTML(outputDiv, html);
+        resultsDiv.style.display = 'block';
+      }
+      
+      calculateSaveBreakdown(data, masteries) {
+        const breakdown = {
+          fortitude: { base: 0, masteryBonus: 0, armorBonus: 0, total: 0, details: [] },
+          reflex: { base: 0, masteryBonus: 0, armorBonus: 0, total: 0, details: [] },
+          will: { base: 0, masteryBonus: 0, armorBonus: 0, total: 0, details: [] }
+        };
+        
+        // V2 rank bonuses: E=0, D=10, C=15, B=25, A=30, S=40
+        const RANK_BONUSES = { 0: 0, 1: 10, 2: 15, 3: 25, 4: 30, 5: 40 };
+        const SAVE_MULTIPLIER = 5;
+        
+        console.log('🔍 V2 Save breakdown - masteries data:', masteries ? masteries.length : 'no data');
+        console.log('🔍 V2 Save breakdown - chosen masteries:', data.chosenMasteries);
+        console.log('🔍 V2 Save breakdown - chosen ranks:', data.chosenMasteriesRanks);
+        
+        // Calculate mastery bonuses for saves (V2 system)
+        if (data.chosenMasteries && data.chosenMasteriesRanks && masteries) {
+          data.chosenMasteries.forEach((masteryId, index) => {
+            const mastery = masteries.find(m => m.lookup === masteryId);
+            const rank = data.chosenMasteriesRanks[index] || 0;
+            
+            console.log(`🔍 Processing mastery: ${masteryId}, rank: ${rank}, found:`, !!mastery);
+            
+            if (mastery && mastery.save) {
+              const rawBonus = RANK_BONUSES[rank] || 0;
+              const saveType = mastery.save; // "fortitude", "reflex", or "will"
+              
+              breakdown[saveType].masteryBonus += rawBonus;
+              breakdown[saveType].details.push(`${mastery.name} rank ${rank}: +${rawBonus}`);
+              console.log(`🔍 ${saveType} bonus from ${mastery.name} rank ${rank}: +${rawBonus}`);
+            }
+          });
+        }
+        
+        // Calculate armor bonuses (V2 system)
+        if (data.armorType && data.armorRank) {
+          const armorBonus = RANK_BONUSES[data.armorRank] || 0;
+          if (data.armorType === 'light') {
+            breakdown.will.armorBonus += armorBonus;
+            breakdown.will.details.push(`Light Armor rank ${data.armorRank}: +${armorBonus}`);
+          } else if (data.armorType === 'heavy') {
+            breakdown.fortitude.armorBonus += armorBonus;
+            breakdown.fortitude.details.push(`Heavy Armor rank ${data.armorRank}: +${armorBonus}`);
+          } else if (data.armorType === 'medium') {
+            breakdown.reflex.armorBonus += armorBonus;
+            breakdown.reflex.details.push(`Medium Armor rank ${data.armorRank}: +${armorBonus}`);
+          }
+        }
+        
+        // Calculate totals with multiplier (V2 system multiplies by 5)
+        breakdown.fortitude.total = (breakdown.fortitude.base + breakdown.fortitude.masteryBonus + breakdown.fortitude.armorBonus) * SAVE_MULTIPLIER;
+        breakdown.reflex.total = (breakdown.reflex.base + breakdown.reflex.masteryBonus + breakdown.reflex.armorBonus) * SAVE_MULTIPLIER;
+        breakdown.will.total = (breakdown.will.base + breakdown.will.masteryBonus + breakdown.will.armorBonus) * SAVE_MULTIPLIER;
+        
+        return breakdown;
+      }
+      
+      displaySaveBreakdown(breakdown) {
+        const saveBreakdownDiv = this.domUtils.getElementById('save-breakdown');
+        if (!saveBreakdownDiv) return;
+        
+        const html = `
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr style="background-color: #f0f0f0;">
+              <th style="border: 1px solid #ddd; padding: 8px;">Save</th>
+              <th style="border: 1px solid #ddd; padding: 8px;">Base</th>
+              <th style="border: 1px solid #ddd; padding: 8px;">Mastery Bonus</th>
+              <th style="border: 1px solid #ddd; padding: 8px;">Total</th>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #ddd; padding: 8px;"><strong>Fortitude</strong></td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${breakdown.fortitude.base}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${breakdown.fortitude.masteryBonus >= 0 ? '+' : ''}${breakdown.fortitude.masteryBonus}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;"><strong>${breakdown.fortitude.total}</strong></td>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #ddd; padding: 8px;"><strong>Reflex</strong></td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${breakdown.reflex.base}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${breakdown.reflex.masteryBonus >= 0 ? '+' : ''}${breakdown.reflex.masteryBonus}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;"><strong>${breakdown.reflex.total}</strong></td>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #ddd; padding: 8px;"><strong>Will</strong></td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${breakdown.will.base}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${breakdown.will.masteryBonus >= 0 ? '+' : ''}${breakdown.will.masteryBonus}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;"><strong>${breakdown.will.total}</strong></td>
+            </tr>
+          </table>
+        `;
+        
+        this.domUtils.setHTML(saveBreakdownDiv, html);
+      }
+      
+      clearResults() {
+        const containers = ['results', 'validation', 'raw-data'];
+        containers.forEach(id => {
+          const div = this.domUtils.getElementById(id);
+          if (div) div.style.display = 'none';
+        });
+      }
+    }
+    
+    // Initialize when page loads
+    window.onload = function() {
+      new BuildDebugger();
+    };
+  </script>
+  
+  <style>
+    .debug-section {
+      margin: 15px 0;
+      padding: 10px;
+      border-left: 3px solid #47cbdd;
+      background-color: rgba(71, 203, 221, 0.1);
+    }
+    
+    .debug-section h3 {
+      margin-top: 0;
+      color: #47cbdd;
+    }
+    
+    .debug-section p {
+      margin: 5px 0;
+    }
+    
+    .debug-section ul {
+      margin: 5px 0;
+      padding-left: 20px;
+    }
+    
+    #build-code-input {
+      font-family: monospace;
+      font-size: 12px;
+    }
+    
+    button.button {
+      background-color: #47cbdd;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    
+    button.button:hover {
+      background-color: #3ba0b3;
+    }
+  </style>
+</body>
+</html>

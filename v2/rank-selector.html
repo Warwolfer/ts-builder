@@ -138,6 +138,22 @@
             <label for="character-name">Character Name:</label>
             <input type="text" id="character-name" placeholder="Enter character name" maxlength="50">
           </div>
+          <div class="form-group">
+            <label for="character-title">Title:</label>
+            <input type="text" id="character-title" placeholder="Enter character title" maxlength="50">
+          </div>
+          <div class="form-group">
+            <label for="character-race">Race:</label>
+            <input type="text" id="character-race" placeholder="Enter character race" maxlength="30">
+          </div>
+          <div class="form-group">
+            <label for="background-image-url">Background Image URL:</label>
+            <input type="url" id="background-image-url" placeholder="https://example.com/background.jpg">
+          </div>
+          <div class="form-group">
+            <label for="avatar-url">Avatar URL:</label>
+            <input type="url" id="avatar-url" placeholder="https://example.com/avatar.jpg">
+          </div>
         </div>
       </div>
     </div>
@@ -360,11 +376,35 @@
           });
         });
         
-        // Character name input
+        // Character information inputs
         this.domUtils.addEventListener(
           this.domUtils.getElementById('character-name'),
           'input',
-          (e) => this.updateCharacterName(e.target.value)
+          (e) => this.updateCharacterInfo()
+        );
+
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('character-title'),
+          'input',
+          (e) => this.updateCharacterInfo()
+        );
+
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('character-race'),
+          'input',
+          (e) => this.updateCharacterInfo()
+        );
+
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('background-image-url'),
+          'input',
+          (e) => this.updateCharacterInfo()
+        );
+
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('avatar-url'),
+          'input',
+          (e) => this.updateCharacterInfo()
         );
         
         // Navigation buttons
@@ -437,8 +477,20 @@
         this.updateUI();
       }
       
-      updateCharacterName(name) {
-        this.state.updateState({ characterName: name.trim() });
+      updateCharacterInfo() {
+        const characterName = this.domUtils.getElementById('character-name').value.trim();
+        const characterTitle = this.domUtils.getElementById('character-title').value.trim();
+        const characterRace = this.domUtils.getElementById('character-race').value.trim();
+        const profileBannerUrl = this.domUtils.getElementById('background-image-url').value.trim();
+        const avatarUrl = this.domUtils.getElementById('avatar-url').value.trim();
+
+        this.state.updateState({ 
+          characterName,
+          characterTitle,
+          characterRace,
+          profileBannerUrl,
+          avatarUrl
+        });
       }
       
       updateUI() {
@@ -463,8 +515,12 @@
           }
         });
         
-        // Update character name input
-        this.domUtils.setValue(this.domUtils.getElementById('character-name'), characterName || '');
+        // Update character information inputs
+        this.domUtils.setValue(this.domUtils.getElementById('character-name'), currentState.characterName || '');
+        this.domUtils.setValue(this.domUtils.getElementById('character-title'), currentState.characterTitle || '');
+        this.domUtils.setValue(this.domUtils.getElementById('character-race'), currentState.characterRace || '');
+        this.domUtils.setValue(this.domUtils.getElementById('background-image-url'), currentState.profileBannerUrl || '');
+        this.domUtils.setValue(this.domUtils.getElementById('avatar-url'), currentState.avatarUrl || '');
         
         // Update rank summary
         this.updateRankSummary();
@@ -648,6 +704,22 @@
         this.domUtils.setValue(
           this.domUtils.getElementById('character-name'), 
           currentState.characterName || ''
+        );
+        this.domUtils.setValue(
+          this.domUtils.getElementById('character-title'), 
+          currentState.characterTitle || ''
+        );
+        this.domUtils.setValue(
+          this.domUtils.getElementById('character-race'), 
+          currentState.characterRace || ''
+        );
+        this.domUtils.setValue(
+          this.domUtils.getElementById('background-image-url'), 
+          currentState.profileBannerUrl || ''
+        );
+        this.domUtils.setValue(
+          this.domUtils.getElementById('avatar-url'), 
+          currentState.avatarUrl || ''
         );
       }
       

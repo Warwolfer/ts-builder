@@ -301,6 +301,7 @@ const masteriesV2 = [
     id: 24,
     lookup: "harmonic-magic",
     name: "Harmonic Magic",
+    alt: "Harmonic",
     color: "#36a5e8",
     image: "https://terrarp.com/db/mastery/w-harmonic.png",
     primaryRole: "support",
@@ -398,7 +399,7 @@ const masteriesV2 = [
     secondaryRole: "alter",
     save: null,
     breakType: null,
-    actions: [],
+    actions: ["Savior", "Guardian"],
   },
   {
 
@@ -411,7 +412,7 @@ const masteriesV2 = [
     secondaryRole: "alter",
     save: null,
     breakType: null,
-    actions: [],
+    actions: ["Overdrive", "Rage"],
   },
   {
 
@@ -424,7 +425,7 @@ const masteriesV2 = [
     secondaryRole: "alter",
     save: null,
     breakType: null,
-    actions: [],
+    actions: ["Exchange", "Future Wager"],
   },
   {
 
@@ -437,7 +438,7 @@ const masteriesV2 = [
     secondaryRole: "alter",
     save: null,
     breakType: null,
-    actions: [],
+    actions: ["Momentum", "Rover", "Maneuver"],
   },
   {
 
@@ -450,7 +451,7 @@ const masteriesV2 = [
     secondaryRole: "alter",
     save: null,
     breakType: null,
-    actions: [],
+    actions: ["Exceed", "Engage", "Empower", "Regalia"],
   },
   {
 
@@ -463,7 +464,7 @@ const masteriesV2 = [
     secondaryRole: "alter",
     save: null,
     breakType: null,
-    actions: [],
+    actions: ["Mark", "Hyper Insight", "Hyper Instinct"],
   },
   {
 
@@ -476,7 +477,7 @@ const masteriesV2 = [
     secondaryRole: "alter",
     save: null,
     breakType: null,
-    actions: [],
+    actions: ["Regenerate", "Infuse", "Bestowed"],
   },
   {
 
@@ -489,7 +490,7 @@ const masteriesV2 = [
     secondaryRole: "alter",
     save: null,
     breakType: null,
-    actions: [],
+    actions: ["Adapt", "Evolve"],
   },
   {
 
@@ -502,9 +503,9 @@ const masteriesV2 = [
     secondaryRole: "alter",
     save: null,
     breakType: null,
-    actions: [],
+    actions: ["Coordinate", "Assist"],
   },
-  {
+{
 
     id: 40,
     lookup: "weapon-arts",
@@ -515,7 +516,7 @@ const masteriesV2 = [
     secondaryRole: "alter",
     save: null,
     breakType: null,
-    actions: [],
+    actions: ["Charge", "Follow-up"],
   }
 ];
 

@@ -141,6 +141,9 @@
           // Load available actions based on masteries
           this.loadAvailableActions();
           
+          // Clean up invalid actions from previous state
+          this.validateAndCleanActions();
+          
           // Render action cards
           this.renderActionCards();
           
@@ -206,6 +209,46 @@
           }
           return a.id - b.id;
         });
+      }
+      
+      validateAndCleanActions() {
+        const currentState = this.state.getState();
+        const { chosenActions } = currentState;
+        
+        console.log('🔍 Validating actions. Current selected:', chosenActions);
+        console.log('🔍 Available action IDs:', this.availableActions.map(a => a.lookup));
+        
+        // Get all action IDs that are currently available (including general actions)
+        const availableActionIds = new Set();
+        
+        // Add general actions (always available)
+        const allActions = this.dataLoader.cache.actions;
+        const generalActions = allActions.filter(action => 
+          action.category === 'general' || (action.masteries && action.masteries.includes('all'))
+        );
+        generalActions.forEach(action => availableActionIds.add(action.lookup));
+        
+        // Add mastery-specific actions
+        this.availableActions.forEach(action => availableActionIds.add(action.lookup));
+        
+        console.log('🔍 All available action IDs:', Array.from(availableActionIds));
+        
+        // Filter out invalid actions
+        const validActions = chosenActions.filter(actionId => {
+          const isValid = availableActionIds.has(actionId);
+          if (!isValid) {
+            console.log(`🔍 Removing invalid action: ${actionId}`);
+          }
+          return isValid;
+        });
+        
+        console.log('🔍 Valid actions after filtering:', validActions);
+        
+        // Update state if actions were removed
+        if (validActions.length !== chosenActions.length) {
+          console.log(`🔍 Cleaned ${chosenActions.length - validActions.length} invalid actions`);
+          this.state.updateState({ chosenActions: validActions });
+        }
       }
       
       renderActionCards() {
