@@ -105,6 +105,20 @@
               <option value="5">S</option>
             </select>
           </div>
+          <div class="rankcontainer">
+            <div class="masterycircle">
+              <img id="accessoryimage" src="https://terrarp.com/db/tool/armor-medium.png">
+            </div>
+            <span id="accessory-type-label">Accessory</span>
+            <select id="accessoryrank" autocomplete="off" class="droplist">
+              <option value="0">E</option>
+              <option value="1">D</option>
+              <option value="2">C</option>
+              <option value="3">B</option>
+              <option value="4">A</option>
+              <option value="5">S</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -181,6 +195,13 @@
           medium: 'https://terrarp.com/db/tool/armor-medium.png',
           light: 'https://terrarp.com/db/tool/armor-light.png'
         };
+
+        // Using armor images as placeholders for accessories
+        this.accessoryImages = {
+          combat: 'https://terrarp.com/db/tool/armor-heavy.png',
+          utility: 'https://terrarp.com/db/tool/armor-medium.png',
+          magic: 'https://terrarp.com/db/tool/armor-light.png'
+        };
         
         this.rankLabels = ['E', 'D', 'C', 'B', 'A', 'S'];
         
@@ -242,10 +263,13 @@
       
       renderRankSelectors() {
         const currentState = this.state.getState();
-        const { chosenMasteries, chosenExpertise, armorType } = currentState;
+        const { chosenMasteries, chosenExpertise, armorType, accessoryType = null } = currentState;
         
         // Update armor image based on selected type
         this.updateArmorDisplay(armorType);
+        
+        // Update accessory image based on selected type
+        this.updateAccessoryDisplay(accessoryType);
         
         // Render mastery rank selectors
         const masteries = this.dataLoader.getMasteriesByCategory();
@@ -347,6 +371,16 @@
           this.domUtils.setText(armorLabel, armorType.charAt(0).toUpperCase() + armorType.slice(1) + ' Armor');
         }
       }
+
+      updateAccessoryDisplay(accessoryType) {
+        const accessoryImage = this.domUtils.getElementById('accessoryimage');
+        const accessoryLabel = this.domUtils.getElementById('accessory-type-label');
+        
+        if (accessoryType && this.accessoryImages[accessoryType]) {
+          accessoryImage.src = this.accessoryImages[accessoryType];
+          this.domUtils.setText(accessoryLabel, accessoryType.charAt(0).toUpperCase() + accessoryType.slice(1) + ' Accessory');
+        }
+      }
       
       setupEventListeners() {
         // Equipment rank selectors
@@ -360,6 +394,12 @@
           this.domUtils.getElementById('armorrank'),
           'change',
           (e) => this.updateArmorRank(parseInt(e.target.value))
+        );
+
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('accessoryrank'),
+          'change',
+          (e) => this.updateAccessoryRank(parseInt(e.target.value))
         );
         
         // Mastery rank selectors
@@ -430,6 +470,11 @@
         this.state.updateState({ armorRank: rank });
         this.updateUI();
       }
+
+      updateAccessoryRank(rank) {
+        this.state.updateState({ accessoryRank: rank });
+        this.updateUI();
+      }
       
       updateMasteryRanks() {
         const ranks = [];
@@ -495,11 +540,12 @@
       
       updateUI() {
         const currentState = this.state.getState();
-        const { weaponRank, armorRank, chosenMasteriesRanks, chosenExpertiseRanks, characterName } = currentState;
+        const { weaponRank, armorRank, accessoryRank = 0, chosenMasteriesRanks, chosenExpertiseRanks, characterName } = currentState;
         
         // Update equipment rank selectors
         this.domUtils.setValue(this.domUtils.getElementById('weaponrank'), weaponRank.toString());
         this.domUtils.setValue(this.domUtils.getElementById('armorrank'), armorRank.toString());
+        this.domUtils.setValue(this.domUtils.getElementById('accessoryrank'), accessoryRank.toString());
         
         // Update mastery rank selectors
         this.domUtils.querySelectorAll('.mastery-rank').forEach((select, index) => {
@@ -699,6 +745,11 @@
         this.domUtils.setValue(
           this.domUtils.getElementById('armorrank'), 
           currentState.armorRank.toString()
+        );
+
+        this.domUtils.setValue(
+          this.domUtils.getElementById('accessoryrank'), 
+          (currentState.accessoryRank || 0).toString()
         );
         
         this.domUtils.setValue(

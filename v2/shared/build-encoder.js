@@ -21,7 +21,9 @@ const BuildEncoder = {
       chosenExpertise,
       chosenExpertiseRanks,
       armorType, 
-      armorRank, 
+      armorRank,
+      accessoryType = null,
+      accessoryRank = 0,
       weaponRank, 
       chosenActions, 
       characterName,
@@ -52,6 +54,9 @@ const BuildEncoder = {
     // Single letter for armor type (h/m/l instead of heavy/medium/light)
     const armorShort = armorType ? armorType.charAt(0) : '';
     
+    // Single letter for accessory type (c/u/m for combat/utility/magic)
+    const accessoryShort = accessoryType ? accessoryType.charAt(0) : '';
+    
     // Convert action names to IDs for even more space savings
     let actionCode = chosenActions.join(','); // fallback
     const actionData = window.actionlistV2 || window.actionlist;
@@ -81,7 +86,7 @@ const BuildEncoder = {
     
     const charData = charParts.join('&');
     
-    // Create ultra-compact build string (V2 format with expertise)
+    // Create ultra-compact build string (V2 format with expertise and accessory)
     const compactParts = [
       masteryIds,              // "17,15,5,20,31" - mastery IDs
       rankString,              // "55555" - mastery ranks  
@@ -89,6 +94,8 @@ const BuildEncoder = {
       expertiseRankString,     // "555555" - expertise ranks
       armorShort,              // "h" - armor type
       armorRank,               // "5" - armor rank
+      accessoryShort,          // "c" - accessory type
+      accessoryRank,           // "5" - accessory rank
       weaponRank,              // "5" - weapon rank
       actionCode,              // action IDs or names
       charData                 // "n:Lune&r:Human&t:Steel_Reclaimer&note:..."
@@ -276,6 +283,7 @@ const BuildEncoder = {
       
       // Determine format based on parts count
       const isV2Format = parts.length >= 8; // V2 has expertise fields
+      const hasAccessory = parts.length >= 10; // V2 with accessory has even more parts
       
       if (parts.length < 6) {
         throw new Error('Invalid compact build code format');
@@ -316,13 +324,20 @@ const BuildEncoder = {
       // Adjust part indices based on format
       const armorTypeIndex = isV2Format ? 4 : 2;
       const armorRankIndex = isV2Format ? 5 : 3;
-      const weaponRankIndex = isV2Format ? 6 : 4;
-      const actionIndex = isV2Format ? 7 : 5;
-      const charDataIndex = isV2Format ? 8 : 6;
+      const accessoryTypeIndex = hasAccessory ? 6 : -1;
+      const accessoryRankIndex = hasAccessory ? 7 : -1;
+      const weaponRankIndex = hasAccessory ? 8 : (isV2Format ? 6 : 4);
+      const actionIndex = hasAccessory ? 9 : (isV2Format ? 7 : 5);
+      const charDataIndex = hasAccessory ? 10 : (isV2Format ? 8 : 6);
       
       // Expand armor type
       const armorTypeMap = { 'h': 'heavy', 'm': 'medium', 'l': 'light' };
       const armorType = armorTypeMap[parts[armorTypeIndex]] || parts[armorTypeIndex] || null;
+
+      // Expand accessory type
+      const accessoryTypeMap = { 'c': 'combat', 'u': 'utility', 'm': 'magic' };
+      const accessoryType = hasAccessory && accessoryTypeIndex >= 0 ? 
+        (accessoryTypeMap[parts[accessoryTypeIndex]] || parts[accessoryTypeIndex] || null) : null;
       
       // Convert action IDs back to names
       let chosenActions = [];
@@ -372,6 +387,8 @@ const BuildEncoder = {
           chosenExpertiseRanks,
           armorType,
           armorRank: parseInt(parts[armorRankIndex]) || 0,
+          accessoryType,
+          accessoryRank: hasAccessory && accessoryRankIndex >= 0 ? (parseInt(parts[accessoryRankIndex]) || 0) : 0,
           weaponRank: parseInt(parts[weaponRankIndex]) || 0,
           chosenActions,
           characterName,

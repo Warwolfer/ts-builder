@@ -101,6 +101,31 @@
         </div>
       </div>
 
+      <!-- Accessory Type -->
+      <div class="masterycategory">
+        <h1 class="selectorheader">Accessory Type</h1>
+      </div>
+      <div id="accessory" class="mcontainer">
+        <div class="mbox">
+          <div class="mselector masterycircle accessory" data-accessory="combat" id="combat">
+            <img src="https://terrarp.com/db/tool/armor-heavy.png">
+          </div>
+          <div class="tooltip">Combat</div>
+        </div>
+        <div class="mbox">
+          <div class="mselector masterycircle accessory" data-accessory="utility" id="utility">
+            <img src="https://terrarp.com/db/tool/armor-medium.png">
+          </div>
+          <div class="tooltip">Utility</div>
+        </div>
+        <div class="mbox">
+          <div class="mselector masterycircle accessory" data-accessory="magic" id="magic">
+            <img src="https://terrarp.com/db/tool/armor-light.png">
+          </div>
+          <div class="tooltip">Magic</div>
+        </div>
+      </div>
+
       <!-- Dynamic mastery containers will be populated by JavaScript -->
       <div id="mastery-categories"></div>
     </div>
@@ -221,6 +246,13 @@
             this.selectArmor(e.target.closest('.armor'));
           });
         });
+
+        // Accessory type selection
+        this.domUtils.querySelectorAll('.accessory').forEach(element => {
+          this.domUtils.addEventListener(element, 'click', (e) => {
+            this.selectAccessory(e.target.closest('.accessory'));
+          });
+        });
         
         // Mastery selection
         this.domUtils.querySelectorAll('.mastery').forEach(element => {
@@ -256,6 +288,22 @@
         
         // Update state
         this.state.updateState({ armorType });
+        this.updateUI();
+      }
+
+      selectAccessory(element) {
+        if (!element) return;
+        
+        const accessoryType = element.dataset.accessory;
+        
+        // Clear other accessory selections
+        this.domUtils.clearSelection('#accessory', 'selected');
+        
+        // Select this accessory
+        this.domUtils.addClass(element, 'selected');
+        
+        // Update state
+        this.state.updateState({ accessoryType });
         this.updateUI();
       }
       
@@ -332,7 +380,7 @@
       
       updateUI() {
         const currentState = this.state.getState();
-        const { chosenMasteries, armorType } = currentState;
+        const { chosenMasteries, armorType, accessoryType } = currentState;
         
         // Update selection count
         this.domUtils.setText(
@@ -342,7 +390,7 @@
         
         // Update next button state
         const nextButton = this.domUtils.getElementById('next-button');
-        const canProceed = chosenMasteries.length > 0 && armorType;
+        const canProceed = chosenMasteries.length > 0 && armorType && accessoryType;
         
         if (canProceed) {
           nextButton.removeAttribute('disabled');
@@ -358,7 +406,7 @@
       
       syncUIWithState() {
         const currentState = this.state.getState();
-        const { chosenMasteries, armorType } = currentState;
+        const { chosenMasteries, armorType, accessoryType } = currentState;
         
         // Clear all selections and colors
         this.domUtils.clearSelection('#masterycontainer', 'selected');
@@ -371,6 +419,14 @@
           const armorElement = this.domUtils.querySelector(`.armor[data-armor="${armorType}"]`);
           if (armorElement) {
             this.domUtils.addClass(armorElement, 'selected');
+          }
+        }
+
+        // Restore accessory selection
+        if (accessoryType) {
+          const accessoryElement = this.domUtils.querySelector(`.accessory[data-accessory="${accessoryType}"]`);
+          if (accessoryElement) {
+            this.domUtils.addClass(accessoryElement, 'selected');
           }
         }
         
@@ -388,7 +444,8 @@
         if (confirm('Are you sure you want to reset all selections?')) {
           this.state.updateState({
             chosenMasteries: [],
-            armorType: null
+            armorType: null,
+            accessoryType: null
           });
           this.updateUI();
         }
@@ -404,6 +461,11 @@
         
         if (!currentState.armorType) {
           alert('Please select an armor type before proceeding.');
+          return;
+        }
+
+        if (!currentState.accessoryType) {
+          alert('Please select an accessory type before proceeding.');
           return;
         }
         

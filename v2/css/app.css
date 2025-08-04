@@ -32,7 +32,7 @@ html{
   border-radius: 10px;
   box-sizing: border-box;
   margin: auto;
-  margin-top: 40px;
+  margin-top: 20px;
   margin-bottom: 20px;
   padding-bottom: 20px;
   max-width: 900px;
@@ -159,7 +159,6 @@ ul{
 .masterycategory{
   text-align: left;
   font-size: 1.35rem;
-  padding: 0 5px;
 }
 
 #inputbox{
@@ -251,7 +250,6 @@ ul{
   color: #fff;
   border-radius: 4px;
   margin: 20px auto 5px auto;
-  padding-left: 15px;
 }
 
 .mselector:hover{
@@ -554,6 +552,12 @@ margin: 10px 0 5px 0;
   width: 20%;
 }
 
+@media (max-width: 421px){
+  .passivecontainer{
+    padding: 20px 5px 10px 5px !important;
+  }
+}
+
 @media (max-width: 768px) and (min-width: 422px){
 .passivecontainer{
   width: 720px;
@@ -669,6 +673,7 @@ margin: 10px 0 5px 0;
   text-align: center;
 }
 #pfp, #pfp2{
+  height: 120px;
   border-radius: 50%;
 }
 .nameheader{
@@ -1370,7 +1375,7 @@ max-width: 840px;*/
   border-radius: 4px;
   font-size: 0.9rem;
   max-width: 98.5%;
-  padding: 10px 15px;
+  padding: 10px 5px 10px 5px;
   color: #eee;
 }
 
@@ -1384,6 +1389,8 @@ max-width: 840px;*/
   /* margin-bottom: 32px; */
   margin: 0 12px;
   border-radius: 7px;
+  z-index: 9998;
+  position: relative;
 }
 
 #statsdisplay > div{
@@ -1435,8 +1442,8 @@ max-width: 840px;*/
 }
 
 .rangecontainer{
+  font-weight: bold;
   color: #9746bb!important;
-  background: #9802d9;
   display: none;
 }
 
@@ -1454,9 +1461,6 @@ max-width: 840px;*/
   /* border: 2px solid #000; */
 }
 
-.move img, .hp img, .range img{
-  width: 60px;
-}
 
 .stat-text{
   font-weight: 700;
@@ -1473,7 +1477,6 @@ max-width: 840px;*/
 }
 #builddisplay .first{
   align-items: stretch;
-  background: #23293775;
 }
 
 table{
@@ -1540,7 +1543,7 @@ td{
 @media (min-width: 800px){
 .passivecontainer{
 margin: 10px 0 0 0;
-}
+  }
 }
 @media (max-width: 1000px){
   #bodyback{
@@ -1554,8 +1557,6 @@ margin: 10px 0 0 0;
     background-color: transparent;
   }
   html{
-    background-image: none!important;
-    background-color: #0e0c0f;
   }
 }
 
@@ -1568,12 +1569,11 @@ margin: 10px 0 0 0;
   #statsdisplay{
     font-size: 0.8rem;
     margin: 0;
-    margin-bottom: 3vh;
     flex-wrap: wrap;
   }
 
   #statsdisplay > div{
-    margin-bottom: 2vh;
+    /*margin-bottom: 2vh;*/
   }
 
   .expertcontainer{
@@ -1631,7 +1631,7 @@ margin: 10px 0 0 0;
 #mw-navigation{
     background: #090909;
     display: block;
-
+   z-index: 9999;
 }
 .fixed-top{
     position: fixed;
@@ -1806,10 +1806,8 @@ span.ttip:hover::before{
   user-select: all;
   text-decoration: none;
   background-color: #090909;
-  padding: 0 5px;
   border-radius: 2px;
   display: inline-block;
-  padding: 5px 7px;
   border-bottom: 1px solid #222;
 }
 #threadcodereplace, #charnamereplace{
@@ -1846,7 +1844,6 @@ background-color: #521e3e;
 .button-container{margin: 10px 0 20px 0;}
 .armorskilldisplay{
 display:block!important;
-margin: 0 auto;
 border-radius: 4px;
 max-width: 850px;
 }
@@ -1862,6 +1859,13 @@ margin: 0 0 5px 0!important;
 .header-info{
   display:flex;
 }
+
+@media (min-width: 576px){
+  .header-info {
+    padding-top: 60px;
+  }
+}
+
 .header-info--content{
 width: 900px;
 margin: 0 auto;
@@ -1881,8 +1885,8 @@ padding: 10px 8px;
 .charcontainer, .nameheader, .charimg2, .header-info--functions{float: none!important}
 .nameheader{width: 100%;text-align: center;margin: 0;}
 .charinfo{display:block!important;text-align:center;}
-.banner-inner, .banner, .charbanner{width:100%!important;height:250px!important}
-.charbanner{margin:108px -10px 0 -10px!important}
+.banner-inner, .banner, .charbanner{height:250px!important}
+.charbanner{}
 .banner-inner{margin:0!important}
 .mastery-margin{top: 10px}
 .charimg, .charimg2{margin-top:0}
@@ -2068,7 +2072,7 @@ border-color:#6436b1!important;
   /*top: -20px;*/
 }
 .mastery-margin {
-  margin: 0 auto 0 auto !important;
+  margin: 0 5px 0 5px !important;
 }
 @media (min-width: 692px){
 /*.card{margin: 10px 0 10px 0!important}*/
@@ -2077,9 +2081,11 @@ border-color:#6436b1!important;
 color: #eee!important;
 }
 .hpcontainer{
+  font-weight: bold;
 color: #4ba3b5;
 }
 .movementcontainer{
+  font-weight: bold;
 color: #69b54b;
 }
 @media (max-width: 800px){

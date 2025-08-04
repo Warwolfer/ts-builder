@@ -5,6 +5,7 @@ class BuildState {
       // Mastery Selection Phase
       chosenMasteries: [],
       armorType: null, // 'heavy', 'medium', 'light'
+      accessoryType: null, // 'combat', 'utility', 'magic'
       
       // Expertise Selection Phase
       chosenExpertise: [],
@@ -14,6 +15,7 @@ class BuildState {
       chosenExpertiseRanks: [],
       weaponRank: 0,
       armorRank: 0,
+      accessoryRank: 0,
       
       // Action Selection Phase
       chosenActions: [],

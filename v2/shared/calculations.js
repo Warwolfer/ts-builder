@@ -59,7 +59,7 @@ const CharacterCalculations = {
   
   // Calculate save bonuses
   calculateSaves(state, masteryList) {
-    const { chosenMasteries, chosenMasteriesRanks } = state;
+    const { chosenMasteries, chosenMasteriesRanks, accessoryType, accessoryRank } = state;
     const saves = { fortitude: 0, reflex: 0, will: 0 };
     
     // Mastery save bonuses only
@@ -68,6 +68,23 @@ const CharacterCalculations = {
       if (mastery && mastery.save) {
         const bonus = this.getRankBonus(chosenMasteriesRanks[i]);
         saves[mastery.save] += bonus;
+      }
+    }
+    
+    // Accessory save bonuses (+10 per rank)
+    if (accessoryType && accessoryRank !== undefined) {
+      const accessoryBonus = (accessoryRank + 1) * 10; // E=10, D=20, C=30, B=40, A=50, S=60
+      
+      switch (accessoryType) {
+        case 'combat':
+          saves.fortitude += accessoryBonus;
+          break;
+        case 'utility':
+          saves.reflex += accessoryBonus;
+          break;
+        case 'magic':
+          saves.will += accessoryBonus;
+          break;
       }
     }
     

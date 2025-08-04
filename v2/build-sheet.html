@@ -78,10 +78,6 @@
     </div>
   </nav>
 
-  <br/>
-  <br/>
-  <br/>
-<!-- I'm too lazy to do actual padding -->
   <div class="header-info">
     <div class="header-info--content">
       <div class="charimg2 left"><img id="pfp2"></div>
@@ -107,6 +103,52 @@
     <div id="builddisplay">
       <!-- Masteries Display -->
       <div class="banner"></div>
+
+      <!-- Stats Display -->
+      <div class="masterycategory first" id="statsdisplay">
+        <div class="hpcontainer">
+          <div class='hp'>
+            <div class="displaycircle">
+              <img src='https://terrarp.com/db/tool/health.png'>
+            </div>
+            <div class='stat-text'>Health</div>
+          </div>
+        </div>
+        <div class="movementcontainer">
+          <div class='move'>
+            <div class="displaycircle">
+              <img src='https://terrarp.com/db/tool/movement.png'>
+            </div>
+            <div class='stat-text'>Movement</div>
+          </div>
+        </div>
+        <div class="rangecontainer">
+          <div class='range'>
+            <div class="displaycircle">
+              <img src='https://terrarp.com/db/tool/range.png'>
+            </div>
+            <div class='stat-text'>Range</div>
+          </div>
+        </div>
+        <!-- V2 has no expertise bonuses -->
+      </div>
+
+      <!-- Saves Display -->
+      <h1 class="statheader">Saves</h1>
+      <div class="masterycategory mastery-margin" id="savesdisplay">
+        <div class="fortitudesavedisplay"></div>
+        <div class="reflexsavedisplay"></div>
+        <div class="willsavedisplay"></div>
+      </div>
+
+      <!-- Equipment Display -->
+      <h1 class="statheader">Equipment</h1>
+      <div class="masterycategory mastery-margin" id="equipmentdisplay">
+        <div class="weaponrankdisplay"></div>
+        <div class="armorrankdisplay"></div>
+        <div class="accessoryrankdisplay"></div>
+      </div>
+
       <h1 class="statheader">Mastery</h1>
       <div class="masterycategory mastery-margin" id="masterydisplay"></div>
 
@@ -114,63 +156,13 @@
       <!-- Expertise Display -->
       <div class="masterycategory mastery-margin" id="expertisedisplay"></div>
 
-      <!-- Equipment Display -->
-      <h1 class="statheader">Equipment</h1>
-      <div class="masterycategory mastery-margin" id="equipmentdisplay">
-        <div class="weaponrankdisplay"></div>
-        <div class="armorrankdisplay"></div>
-      </div>
+
       <div class="masterycategory" id="equipmentpassive" style="margin-top:0">
         <div class="edisplay armorskilldisplay">
           <div class="passivecontainer">
             <span class='armorpassive'></span>
           </div>
         </div>
-      </div>
-
-      <!-- Stats Display -->
-      <div class="masterycategory first" id="statsdisplay">
-        <div class="hpcontainer">
-          <div class='hp'>
-            <div class='stat-text'>Health</div>
-            <img src='https://terrarp.com/db/tool/health.png'>
-          </div>
-        </div>
-        <div class="movementcontainer">
-          <div class='move'>
-            <div class='stat-text'>Movement</div>
-            <img src='https://terrarp.com/db/tool/movement.png'>
-          </div>
-        </div>
-        <div class="rangecontainer">
-          <div class='range'>
-            <div class='stat-text'>Range</div>
-            <img src='https://terrarp.com/db/tool/range.png'>
-          </div>
-        </div>
-        <div class="savecontainer">
-          <div><b>Saves</b></div>
-          <div>
-            <table class="stat-numbers">
-              <tr>
-                <td><i class="fas fa-heartbeat"></i></td>
-                <td>Fortitude</td>
-                <td id="fortitudesave">+0</td>
-              </tr>
-              <tr>
-                <td><i class="fas fa-shoe-prints"></i></td>
-                <td>Reflex</td>
-                <td id="reflexsave">+0</td>
-              </tr>
-              <tr>
-                <td><i class="fas fa-head-side-brain"></i></td>
-                <td>Will</td>
-                <td id="willsave">+0</td>
-              </tr>
-            </table>
-          </div>
-        </div>
-        <!-- V2 has no expertise bonuses -->
       </div>
 
       <!-- Saves and Checks -->
@@ -251,11 +243,10 @@
 
       <!-- Note -->
       <div class="masterycategory" id="notedisplay">
-        <div class="build-sharing">
+        <div class="note">
           <div class="share-options">
             <div class="share-option">
-              <label>Note:</label>
-              <textarea id="note"></textarea>
+              <textarea id="note" placeholder="Enter any note here..."></textarea>
             </div>
           </div>
         </div>
@@ -300,6 +291,13 @@
           heavy: 'https://terrarp.com/db/tool/armor-heavy.png',
           medium: 'https://terrarp.com/db/tool/armor-medium.png',
           light: 'https://terrarp.com/db/tool/armor-light.png'
+        };
+
+        // Using armor images as placeholders for accessories
+        this.accessoryImages = {
+          combat: 'https://terrarp.com/db/tool/armor-heavy.png',
+          utility: 'https://terrarp.com/db/tool/armor-medium.png',
+          magic: 'https://terrarp.com/db/tool/armor-light.png'
         };
         
         this.rankLabels = ['E', 'D', 'C', 'B', 'A', 'S'];
@@ -572,28 +570,33 @@
           this.domUtils.show(this.domUtils.querySelector('.rangecontainer'));
         }
         
-        // Saves
+        // Saves - display like equipment
         console.log('🔍 Displaying saves:', stats.saves);
-        const fortElement = this.domUtils.getElementById('fortitudesave');
-        const reflexElement = this.domUtils.getElementById('reflexsave');
-        const willElement = this.domUtils.getElementById('willsave');
-        console.log('🔍 Save elements found:', { fortElement: !!fortElement, reflexElement: !!reflexElement, willElement: !!willElement });
-        
-        this.domUtils.setText(fortElement, '+' + stats.saves.fortitude);
-        this.domUtils.setText(reflexElement, '+' + stats.saves.reflex);
-        this.domUtils.setText(willElement, '+' + stats.saves.will);
-        
-        console.log('🔍 Save values set to:', {
-          fortitude: '+' + stats.saves.fortitude,
-          reflex: '+' + stats.saves.reflex,
-          will: '+' + stats.saves.will
-        });
+        this.displaySaves(stats.saves);
         
         // V2 has no expertise bonuses to display
       }
       
+      displaySaves(saves) {
+        // Display saves like equipment items
+        this.domUtils.setHTML(
+          this.domUtils.querySelector('.fortitudesavedisplay'),
+          `<div class="saves-rank-display"><span class="mastery-with-icon"><img src="https://terrarp.com/db/tool/fortitude.png" class="mastery-icon"> Fortitude</span><span class="rank-badge save-bonus">${saves.fortitude}</span></div>`
+        );
+
+        this.domUtils.setHTML(
+          this.domUtils.querySelector('.reflexsavedisplay'),
+          `<div class="saves-rank-display"><span class="mastery-with-icon"><img src="https://terrarp.com/db/tool/reflex.png" class="mastery-icon"> Reflex</span><span class="rank-badge save-bonus">${saves.reflex}</span></div>`
+        );
+
+        this.domUtils.setHTML(
+          this.domUtils.querySelector('.willsavedisplay'),
+          `<div class="saves-rank-display"><span class="mastery-with-icon"><img src="https://terrarp.com/db/tool/will.png" class="mastery-icon"> Will</span><span class="rank-badge save-bonus">${saves.will}</span></div>`
+        );
+      }
+      
       displayEquipment(state) {
-        const { armorType, weaponRank, armorRank } = state;
+        const { armorType, weaponRank, armorRank, accessoryType = null, accessoryRank = 0 } = state;
 
         this.domUtils.setHTML(
           this.domUtils.querySelector('.weaponrankdisplay'),
@@ -610,6 +613,13 @@
           const armorAbilityData = this.getArmorAbility(armorType, armorRank);
           this.displayArmorAbility(armorAbilityData, armorType, armorRank);
         }
+
+        if (accessoryType && this.accessoryImages[accessoryType]) {
+          this.domUtils.setHTML(
+            this.domUtils.querySelector('.accessoryrankdisplay'),
+            `<div class="equipment-rank-display"><span class="mastery-with-icon"><img src="${this.accessoryImages[accessoryType]}" class="mastery-icon"> ${accessoryType.charAt(0).toUpperCase() + accessoryType.slice(1)}</span><span class="rank-badge ${this.getRankColorClass(this.rankLabels[accessoryRank])}">${this.rankLabels[accessoryRank]}</span></div>`
+          );
+        }
         
         // Populate mastery check icons
         this.populateMasteryCheckIcons(state);
@@ -619,18 +629,42 @@
       }
       
       getArmorAbility(armorType, armorRank) {
-        if (!window.armorAbilities) return { name: 'No ability', description: '', rollCode: '' };
+        // Use V2 armor abilities data
+        const armorAbilities = window.armorAbilitiesV2;
+        console.log('🔍 getArmorAbility debug:', {
+          armorType,
+          armorRank,
+          rankLetter: this.rankLabels[armorRank],
+          hasArmorAbilities: !!armorAbilities,
+          hasArmorType: !!armorAbilities?.[armorType],
+          armorTypeData: armorAbilities?.[armorType],
+          allArmorTypes: Object.keys(armorAbilities || {})
+        });
+        
+        if (!armorAbilities) return { name: 'No ability', description: '', rollCode: '' };
         
         const rankLetter = this.rankLabels[armorRank];
-        return window.armorAbilities[armorType]?.[rankLetter] || { name: 'No ability', description: '', rollCode: '' };
+        const result = armorAbilities[armorType]?.[rankLetter] || { name: 'No ability', description: '', rollCode: '' };
+        console.log('🔍 getArmorAbility result:', result);
+        return result;
       }
 
       displayArmorAbility(abilityData, armorType, armorRank) {
+        console.log('🔍 displayArmorAbility called with:', {abilityData, armorType, armorRank});
+        console.log('🔍 abilityData details:', {
+          name: abilityData?.name,
+          hasName: !!abilityData?.name,
+          nameEquals: abilityData?.name === 'No ability',
+          rankZero: armorRank === 0
+        });
         const container = this.domUtils.querySelector('.passivecontainer');
-        const armorSkillDisplay = container.closest('#equipmentdisplay');
+        console.log('🔍 Passive container found:', !!container);
+        const armorSkillDisplay = container ? container.closest('#equipmentpassive') : null;
+        console.log('🔍 Armor skill display found:', !!armorSkillDisplay);
         
         if (!abilityData.name || abilityData.name === 'No ability' || armorRank === 0) {
-          container.innerHTML = '<span class="armorpassive"></span>';
+          console.log('🔍 No armor ability or rank 0, hiding display');
+          if (container) container.innerHTML = '<span class="armorpassive"></span>';
           // Hide the entire armor skill display div when no armor ability
           if (armorSkillDisplay) {
             armorSkillDisplay.style.display = 'none';
@@ -638,6 +672,7 @@
           return;
         }
 
+        console.log('🔍 Showing armor ability:', abilityData.name);
         // Show the armor skill display div when there is an ability
         if (armorSkillDisplay) {
           armorSkillDisplay.style.display = 'block';
@@ -645,12 +680,15 @@
 
         const armorTypeName = armorType.charAt(0).toUpperCase() + armorType.slice(1);
         
-        container.innerHTML = `
-          <span class="armorpassive"></span>
-          <p><b>${abilityData.name}.</b> (${armorTypeName} Armor Ability)</p>
-          <p>${abilityData.description}</p>
-          <p><u class="charpassive">${abilityData.rollCode}</u></p>
-        `;
+        if (container) {
+          container.innerHTML = `
+            <span class="armorpassive"></span>
+            <p><b>${abilityData.name}.</b> (${armorTypeName} Armor Ability)</p>
+            <p>${abilityData.description}</p>
+            <p><u class="charpassive">${abilityData.rollCode}</u></p>
+          `;
+          console.log('🔍 Armor ability HTML set to container');
+        }
       }
       
       populateMasteryCheckIcons(state) {
@@ -1154,6 +1192,13 @@
   </script>
 
   <style>
+    .note {
+      background-color: rgb(13, 15, 22);
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 30px;
+    }
+
     .build-sharing {
       background-color: #23293775;
       border-radius: 8px;
@@ -1211,7 +1256,8 @@
       margin-bottom: 4px;
     }
 
-    /* Grid containers for masteries, expertise, and equipment */
+    /* Grid containers for saves, masteries, expertise, and equipment */
+    #savesdisplay,
     #masterydisplay,
     #expertisedisplay,
     #equipmentdisplay {
@@ -1219,11 +1265,22 @@
       grid-template-columns: repeat(6, 1fr);
       gap: 8px;
       margin-bottom: 16px;
-      top: -90px;
+      /*top: -90px;*/
       position: relative;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 575px) {
+      #savesdisplay,
+      #masterydisplay,
+      #expertisedisplay,
+      #equipmentdisplay {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+
+    @media (max-width: 768px) and (min-width: 576px) {
+      #savesdisplay,
       #masterydisplay,
       #expertisedisplay,
       #equipmentdisplay {
@@ -1234,6 +1291,7 @@
     /* New rank display styles matching dice-roller-frontend */
     .mastery-rank-display,
     .expertise-rank-display,
+    .saves-rank-display,
     .equipment-rank-display {
       display: flex;
       justify-content: space-between;
@@ -1256,6 +1314,11 @@
       border: 1px solid rgba(220, 38, 38, 0.3);
     }
 
+    .saves-rank-display {
+      background-color: rgb(13, 15, 22);
+      border: 1px solid rgba(38, 220, 38, 0.3);
+    }
+
     .rank-badge {
       font-weight: bold;
       font-size: 12px;
@@ -1268,13 +1331,6 @@
     .rank-c { color: #4ade80 !important; } /* Green */
     .rank-d { color: #60a5fa !important; } /* Blue */
     .rank-e { color: #9ca3af !important; } /* Gray */
-
-    /* Hide old display styles */
-    .displaytitle,
-    .displayrank,
-    .displaycircle {
-      display: none;
-    }
 
     /* Inline mastery icons */
     .mastery-with-icon {
@@ -1291,13 +1347,27 @@
     }
 
     .statheader {
-      top: -90px;
+      /*top: -90px;*/
       position: relative;
       padding: 0 8px 4px 8px;
       color: #fff;
       font-size: 20px;
       font-weight: 700;
       margin-bottom: 4px;
+    }
+
+    @media (min-width: 900px){
+      #bodyback  {
+        width: 900px;
+      }
+    }
+
+    .banner {
+      margin-bottom: -90px;
+    }
+
+    .selectorheader {
+      margin-top: 10px;
     }
   </style>
 </body>
