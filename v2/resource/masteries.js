@@ -11,7 +11,7 @@ const masteriesV2 = [
     secondaryRole: "offense",
     save: "reflex",
     breakType: "elemental",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload"]
+    actions: ["Rush", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Taunt", "Torment", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect"]
   },
   {
 
@@ -24,7 +24,7 @@ const masteriesV2 = [
     secondaryRole: "offense",
     save: "will",
     breakType: "construct",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload"]  },
+    actions: ["Rush", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Taunt", "Torment", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect"]  },
   {
 
     id: 3,
@@ -36,7 +36,7 @@ const masteriesV2 = [
     secondaryRole: "offense",
     save: "reflex",
     breakType: "order",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload"]  },
+    actions: ["Rush", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Taunt", "Torment", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect"]  },
   {
 
     id: 4,
@@ -48,7 +48,7 @@ const masteriesV2 = [
     secondaryRole: "support",
     save: "reflex",
     breakType: "construct",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload"]  },
+    actions: ["Rush", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Taunt", "Torment", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "Versatile"]  },
   {
 
     id: 5,
@@ -60,7 +60,7 @@ const masteriesV2 = [
     secondaryRole: "offense",
     save: "fortitude",
     breakType: "elemental",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload"]  },
+    actions: ["Rush", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Taunt", "Torment", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect"]  },
   {
 
     id: 6,
@@ -72,7 +72,7 @@ const masteriesV2 = [
     secondaryRole: "offense",
     save: "fortitude",
     breakType: "elemental",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload"],
+    actions: ["Rush", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Taunt", "Torment", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect"],
   },
   {
 
@@ -85,7 +85,7 @@ const masteriesV2 = [
     secondaryRole: "support",
     save: "fortitude",
     breakType: "physical",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload"],
+    actions: ["Rush", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Taunt", "Torment", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "Versatile"],
   },
   {
 
@@ -98,7 +98,7 @@ const masteriesV2 = [
     secondaryRole: "support",
     save: "fortitude",
     breakType: "dark",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload"],
+    actions: ["Rush", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Taunt", "Torment", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "Versatile"],
   },
   {
 
@@ -111,7 +111,7 @@ const masteriesV2 = [
     secondaryRole: "offense",
     save: "will",
     breakType: "construct",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload"],
+    actions: ["Rush", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Taunt", "Torment", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect"],
   },
   {
 
@@ -124,7 +124,7 @@ const masteriesV2 = [
     secondaryRole: "offense",
     save: "will",
     breakType: "dark",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Hinder", "Ultra Hinder", "Taunt", "Torment", "Alter Hinder", "Disruptive", "Shield", "Overload"]  },
+    actions: ["Rush", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Taunt", "Torment", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect"]  },
 
   // Offense Masteries
   {
@@ -138,7 +138,7 @@ const masteriesV2 = [
     secondaryRole: "defense",
     save: "will",
     breakType: "dark",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive"],
+    actions: ["Rush", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Taunt", "Torment"],
   },
   {
 
@@ -151,7 +151,7 @@ const masteriesV2 = [
     secondaryRole: "support",
     save: "will",
     breakType: "dark",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive"],
+    actions: ["Rush", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "Versatile"],
   },
   {
 
@@ -164,7 +164,7 @@ const masteriesV2 = [
     secondaryRole: "defense",
     save: "reflex",
     breakType: "elemental",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive"],
+    actions: ["Rush", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Taunt", "Torment"],
   },
   {
 
@@ -177,7 +177,7 @@ const masteriesV2 = [
     secondaryRole: "defense",
     save: "fortitude",
     breakType: "physical",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive"],
+    actions: ["Rush", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Taunt", "Torment"],
   },
   {
 
@@ -190,7 +190,7 @@ const masteriesV2 = [
     secondaryRole: "support",
     save: "reflex",
     breakType: "physical",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive"]  },
+    actions: ["Rush", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "Versatile"]  },
   {
 
     id: 16,
@@ -202,7 +202,7 @@ const masteriesV2 = [
     secondaryRole: "defense",
     save: "will",
     breakType: "elemental",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive"],
+    actions: ["Rush", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Taunt", "Torment"],
   },
   {
 
@@ -215,7 +215,7 @@ const masteriesV2 = [
     secondaryRole: "defense",
     save: "reflex",
     breakType: "physical",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive"],
+    actions: ["Rush", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Taunt", "Torment"],
   },
   {
 
@@ -228,7 +228,7 @@ const masteriesV2 = [
     secondaryRole: "defense",
     save: "reflex",
     breakType: "physical",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive"],
+    actions: ["Rush", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Taunt", "Torment"],
   },
   {
 
@@ -241,7 +241,7 @@ const masteriesV2 = [
     secondaryRole: "support",
     save: "reflex",
     breakType: "physical",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive"]  },
+    actions: ["Rush", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "Versatile"]  },
   {
 
     id: 20,
@@ -253,7 +253,7 @@ const masteriesV2 = [
     secondaryRole: "defense",
     save: "fortitude",
     breakType: "physical",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Stable Attack", "Burst Attack", "Sharp Attack", "Multi Attack", "Sneak Attack", "Critical Attack", "Wild Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Overload", "Area Effect", "Disruptive"],
+    actions: ["Rush", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Taunt", "Torment"],
   },
 
   // Support Masteries
@@ -268,7 +268,7 @@ const masteriesV2 = [
     secondaryRole: "offense",
     save: "fortitude",
     breakType: "construct",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload"],
+    actions: ["Rush", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "Versatile", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect"],
   },
   {
 
@@ -281,7 +281,7 @@ const masteriesV2 = [
     secondaryRole: "defense",
     save: "fortitude",
     breakType: "dark",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload"],
+    actions: ["Rush", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "Versatile", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Taunt", "Torment"],
   },
   {
 
@@ -294,7 +294,7 @@ const masteriesV2 = [
     secondaryRole: "offense",
     save: "will",
     breakType: "order",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload"],
+    actions: ["Rush", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "Versatile", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect"],
   },
   {
 
@@ -308,7 +308,7 @@ const masteriesV2 = [
     secondaryRole: "offense",
     save: "fortitude",
     breakType: "order",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload"],
+    actions: ["Rush", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "Versatile", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect"],
   },
   {
 
@@ -321,7 +321,7 @@ const masteriesV2 = [
     secondaryRole: "defense",
     save: "will",
     breakType: "elemental",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload"],
+    actions: ["Rush", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "Versatile", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Taunt", "Torment"],
   },
   {
 
@@ -334,7 +334,7 @@ const masteriesV2 = [
     secondaryRole: "offense",
     save: "will",
     breakType: "dark",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload"]  },
+    actions: ["Rush", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "Versatile", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect"]  },
   {
 
     id: 27,
@@ -346,7 +346,7 @@ const masteriesV2 = [
     secondaryRole: "defense",
     save: "reflex",
     breakType: "order",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload"],
+    actions: ["Rush", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "Versatile", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Taunt", "Torment"],
   },
   {
 
@@ -359,7 +359,7 @@ const masteriesV2 = [
     secondaryRole: "offense",
     save: "will",
     breakType: "order",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload"],
+    actions: ["Rush", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "Versatile", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect"],
   },
   {
 
@@ -372,7 +372,7 @@ const masteriesV2 = [
     secondaryRole: "defense",
     save: "reflex",
     breakType: "construct",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload"],
+    actions: ["Rush", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "Versatile", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Taunt", "Torment"],
   },
   {
 
@@ -385,7 +385,7 @@ const masteriesV2 = [
     secondaryRole: "defense",
     save: "fortitude",
     breakType: "order",
-    actions: ["Normal Attack", "Recover", "Rush", "Healthy", "Alert", "Mobile", "Auto Assist", "Consistent", "Risky", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "versatile", "Overheal", "Cure", "Boost", "Overload"]  },
+    actions: ["Rush", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "Versatile", "Protect", "Ultra Protect", "Counter", "Ultra Counter", "Taunt", "Torment"]  },
 
   // Alter Masteries
   {

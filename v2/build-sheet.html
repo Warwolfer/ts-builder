@@ -78,83 +78,77 @@
     </div>
   </nav>
 
-  <div class="header-info">
-    <div class="header-info--content">
-      <div class="charimg2 left"><img id="pfp2"></div>
-      <div class="charcontainer left">
-            <span class="nameheader header-info--nameheader">
-              <span class="charname" id="character-name-display">Character Build</span> <span class="chartitle" id="character-title-display"></span>
-            </span><br>
-        <span class="charinfo">
-              <span class="charrace" id="character-race-display"></span>
-            </span>
-      </div>
-      <div class="filler"></div>
-      <div class="header-info--functions right">
-        <div class="masterycategory" id="inputbox">
-          <input type="text" id="threadcodereplace" autocomplete="off" placeholder="Thread code (510C5)...">
-        </div>
-        <div id="finalbuild"></div>
-      </div>
-    </div>
-  </div>
-
   <div id="bodyback">
     <div id="builddisplay">
       <!-- Masteries Display -->
-      <div class="banner"></div>
+      <div class="banner">
+        <div class="bannerstuff">
+          <div class="bannercontent">
+            <div class="charimg2 left"><img id="pfp2"></div>
+            <div class="charcontainer left">
+            <span class="nameheader header-info--nameheader characterstuff">
+              <span class="chartitle" id="character-title-display"></span>
+              <span class="charname" id="character-name-display">Character Build</span>
+              <span class="charrace" id="character-race-display"></span>
+            </span>
+            </div>
+<!--            <div class="filler"></div>-->
+<!--            <div class="header-info&#45;&#45;functions right">-->
+<!--              <div class="masterycategory" id="inputbox">-->
+<!--                <input type="text" id="threadcodereplace" autocomplete="off" placeholder="Thread code (510C5)...">-->
+<!--              </div>-->
+<!--              <div id="finalbuild"></div>-->
+<!--            </div>-->
+          </div>
+        </div>
+      </div>
+
+
+
+
 
       <!-- Stats Display -->
-      <div class="masterycategory first" id="statsdisplay">
-        <div class="hpcontainer">
-          <div class='hp'>
-            <div class="displaycircle">
-              <img src='https://terrarp.com/db/tool/health.png'>
-            </div>
-            <div class='stat-text'>Health</div>
-          </div>
-        </div>
-        <div class="movementcontainer">
-          <div class='move'>
-            <div class="displaycircle">
-              <img src='https://terrarp.com/db/tool/movement.png'>
-            </div>
-            <div class='stat-text'>Movement</div>
-          </div>
-        </div>
-        <div class="rangecontainer">
-          <div class='range'>
-            <div class="displaycircle">
-              <img src='https://terrarp.com/db/tool/range.png'>
-            </div>
-            <div class='stat-text'>Range</div>
-          </div>
-        </div>
+<!--      <h1 class="statheader">Stats</h1>-->
+      <div class="masterycategory" id="statsdisplay">
+        <div class="hpdisplay"></div>
+        <div class="movementdisplay"></div>
+        <div class="rangedisplay"></div>
         <!-- V2 has no expertise bonuses -->
       </div>
 
-      <!-- Saves Display -->
-      <h1 class="statheader">Saves</h1>
-      <div class="masterycategory mastery-margin" id="savesdisplay">
-        <div class="fortitudesavedisplay"></div>
-        <div class="reflexsavedisplay"></div>
-        <div class="willsavedisplay"></div>
+      <!-- Equipment and Saves Display -->
+      <div class="equipment-saves-container">
+        <div class="equipment-section">
+          <h1 class="statheader">Equipment</h1>
+          <div class="masterycategory mastery-margin" id="equipmentdisplay">
+            <div class="weaponrankdisplay"></div>
+            <div class="armorrankdisplay"></div>
+            <div class="accessoryrankdisplay"></div>
+          </div>
+        </div>
+        
+        <div class="saves-section">
+          <h1 class="statheader">Saves</h1>
+          <div class="masterycategory mastery-margin" id="savesdisplay">
+            <div class="fortitudesavedisplay"></div>
+            <div class="reflexsavedisplay"></div>
+            <div class="willsavedisplay"></div>
+          </div>
+        </div>
       </div>
 
-      <!-- Equipment Display -->
-      <h1 class="statheader">Equipment</h1>
-      <div class="masterycategory mastery-margin" id="equipmentdisplay">
-        <div class="weaponrankdisplay"></div>
-        <div class="armorrankdisplay"></div>
-        <div class="accessoryrankdisplay"></div>
+      <!-- Mastery and Expertise Display -->
+      <div class="mastery-expertise-container">
+        <div class="mastery-section">
+          <h1 class="statheader">Mastery</h1>
+          <div class="masterycategory mastery-margin" id="masterydisplay"></div>
+        </div>
+        
+        <div class="expertise-section">
+          <h1 class="statheader">Expertise</h1>
+          <div class="masterycategory mastery-margin" id="expertisedisplay"></div>
+        </div>
       </div>
-
-      <h1 class="statheader">Mastery</h1>
-      <div class="masterycategory mastery-margin" id="masterydisplay"></div>
-
-      <h1 class="statheader">Expertise</h1>
-      <!-- Expertise Display -->
-      <div class="masterycategory mastery-margin" id="expertisedisplay"></div>
 
 
       <div class="masterycategory" id="equipmentpassive" style="margin-top:0">
@@ -491,13 +485,38 @@
         if (!bannerContainer) return;
         
         if (state.profileBannerUrl) {
-          // Show character banner if available
+          // Show character banner if available - add background image but preserve existing content
           bannerContainer.style.display = 'flex';
-          bannerContainer.innerHTML = `<div class='charbanner' style='background-image: url(${state.profileBannerUrl})'></div>`;
+          bannerContainer.style.position = 'relative';
+          
+          // Create or update pseudo-element for blurred background
+          const style = document.getElementById('banner-blur-style') || document.createElement('style');
+          style.id = 'banner-blur-style';
+          style.textContent = `
+            .banner::before {
+              content: '';
+              position: absolute;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              background-image: url(${state.profileBannerUrl});
+              background-size: cover;
+              background-position: center;
+              background-repeat: no-repeat;
+              filter: blur(3px);
+              z-index: 10;
+            }
+          `;
+          if (!document.getElementById('banner-blur-style')) {
+            document.head.appendChild(style);
+          }
         } else {
-          // Hide banner if no image
-          bannerContainer.style.height = '0px';
-          bannerContainer.style.display = 'none';
+          // Remove banner background if no image
+          const style = document.getElementById('banner-blur-style');
+          if (style) {
+            style.remove();
+          }
         }
       }
       
@@ -550,24 +569,26 @@
       
       displayStats(stats) {
         // HP
-        this.domUtils.appendHTML(
-          this.domUtils.querySelector('.hpcontainer'), 
-          `<div>${stats.hp}</div>`
+        this.domUtils.setHTML(
+          this.domUtils.querySelector('.hpdisplay'),
+          `<div class="stats-display"><span class="mastery-with-icon"><img src="https://terrarp.com/db/tool/health.png" class="mastery-icon"> Health</span><span class="rank-badge stat-value">${stats.hp}</span></div>`
         );
         
         // Movement
-        this.domUtils.appendHTML(
-          this.domUtils.querySelector('.movementcontainer'),
-          `<div>${stats.movement}</div>`
+        this.domUtils.setHTML(
+          this.domUtils.querySelector('.movementdisplay'),
+          `<div class="stats-display"><span class="mastery-with-icon"><img src="https://terrarp.com/db/tool/movement.png" class="mastery-icon"> Movement</span><span class="rank-badge stat-value">${stats.movement}</span></div>`
         );
         
         // Range (if > 0)
         if (stats.range > 0) {
-          this.domUtils.appendHTML(
-            this.domUtils.querySelector('.rangecontainer'),
-            `<div>${stats.range}</div>`
+          this.domUtils.setHTML(
+            this.domUtils.querySelector('.rangedisplay'),
+            `<div class="stats-display"><span class="mastery-with-icon"><img src="https://terrarp.com/db/tool/range.png" class="mastery-icon"> Range</span><span class="rank-badge stat-value">${stats.range}</span></div>`
           );
-          this.domUtils.show(this.domUtils.querySelector('.rangecontainer'));
+          this.domUtils.show(this.domUtils.querySelector('.rangedisplay'));
+        } else {
+          this.domUtils.hide(this.domUtils.querySelector('.rangedisplay'));
         }
         
         // Saves - display like equipment
@@ -1256,14 +1277,15 @@
       margin-bottom: 4px;
     }
 
-    /* Grid containers for saves, masteries, expertise, and equipment */
+    /* Grid containers for saves, masteries, expertise, equipment, and stats */
     #savesdisplay,
     #masterydisplay,
     #expertisedisplay,
-    #equipmentdisplay {
+    #equipmentdisplay,
+    #statsdisplay {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 8px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0px;
       margin-bottom: 16px;
       /*top: -90px;*/
       position: relative;
@@ -1276,6 +1298,9 @@
       #equipmentdisplay {
         grid-template-columns: repeat(2, 1fr);
       }
+      #statsdisplay {
+        grid-template-columns: repeat(3, 1fr);
+      }
     }
 
 
@@ -1283,7 +1308,8 @@
       #savesdisplay,
       #masterydisplay,
       #expertisedisplay,
-      #equipmentdisplay {
+      #equipmentdisplay,
+      #statsdisplay {
         grid-template-columns: repeat(3, 1fr);
       }
     }
@@ -1304,6 +1330,18 @@
       font-size: 12px;
     }
 
+    .stats-display {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background-color: rgb(13, 15, 22);
+      color: white;
+      border: 1px solid rgba(147, 51, 234, 0.3);
+      font-size: 12px;
+    }
+
     .expertise-rank-display {
       background-color: rgb(13, 15, 22);
       border: 1px solid rgba(38, 38, 220, 0.3);
@@ -1317,6 +1355,11 @@
     .saves-rank-display {
       background-color: rgb(13, 15, 22);
       border: 1px solid rgba(38, 220, 38, 0.3);
+    }
+
+    .stats-display {
+      background-color: rgb(13, 15, 22);
+      border: 1px solid #191e28;
     }
 
     .rank-badge {
@@ -1359,15 +1402,95 @@
     @media (min-width: 900px){
       #bodyback  {
         width: 900px;
+        margin-top: 120px;
       }
     }
 
-    .banner {
-      margin-bottom: -90px;
-    }
 
     .selectorheader {
       margin-top: 10px;
+    }
+
+    /* Equipment and Saves side-by-side layout */
+    .equipment-saves-container {
+      display: flex;
+      gap: 0px;
+      margin-bottom: 16px;
+    }
+
+    .equipment-section,
+    .saves-section {
+      flex: 1;
+    }
+
+    .equipment-section #equipmentdisplay,
+    .saves-section #savesdisplay {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    /* Mobile: stack vertically */
+    @media (max-width: 768px) {
+      .equipment-saves-container {
+        flex-direction: column;
+        gap: 0;
+      }
+    }
+
+    /* Mastery and Expertise side-by-side layout */
+    .mastery-expertise-container {
+      display: flex;
+      gap: 0px;
+      margin-bottom: 16px;
+    }
+
+    .mastery-section,
+    .expertise-section {
+      flex: 1;
+    }
+
+    .mastery-section #masterydisplay,
+    .expertise-section #expertisedisplay {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    /* Mobile: stack vertically */
+    @media (max-width: 768px) {
+      .mastery-expertise-container {
+        flex-direction: column;
+        gap: 0;
+      }
+      
+      .mastery-section #masterydisplay,
+      .expertise-section #expertisedisplay {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .stat-value {
+      font-weight: bold;
+      font-size: 24px;
+    }
+
+    .bannercontent {
+      justify-content: center;
+      align-items: center;
+      width: 900px;
+      padding: 10px 20px;
+      display: flex;
+      box-sizing: border-box;
+      z-index: 500;
+    }
+
+    .characterstuff {
+      padding-right: 120px;
+    }
+
+    .charcontainer {
+      padding-left: 0;
     }
   </style>
 </body>

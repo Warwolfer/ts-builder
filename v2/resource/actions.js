@@ -49,7 +49,7 @@ const actionlistV2 = [
   description: "<p><em><b>Defense</b></em></p><p>Protect: Grant yourself or an ally within range the Protected State. You do not have to attack to activate this effect.</p><p>Self-protect: If you protect yourself, the damage reduction can only be applied to the damage done by the enemy you are targeting.</p>",
   dice: "1d100 + MR + WR + other bonuses",
   roll: "?r protect <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["aeromancy", "arcanamancy", "beast-arts", "chronomancy", "cryomancy", "geomancy", "guard-arts", "hemomancy", "illusion-magic", "spellbane"],
+  masteries: ["aeromancy", "arcanamancy", "beast-arts", "chronomancy", "cryomancy", "geomancy", "guard-arts", "hemomancy", "illusion-magic", "spellbane", "astramancy", "electromancy", "power", "pyromancy", "ranged", "speed", "unarmed", "animancy", "hydromancy", "nature-magic", "tinker", "war-arts"],
   category: "defense",
   pair: "P1"
 },
@@ -62,7 +62,7 @@ const actionlistV2 = [
   description: "<p><em><b>Defense</b></em></p><p>You are Vulnerable.</p><p>Protect: Grant up to 3 allies within range the Protected State. You do not have to attack to activate this effect.</p><p>Self-protect: You cannot self-protect</p>",
   dice: "1d100 + MR + WR + other bonuses",
   roll: "?r ultra-protect <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["aeromancy", "arcanamancy", "beast-arts", "chronomancy", "cryomancy", "geomancy", "guard-arts", "hemomancy", "illusion-magic", "spellbane"],
+  masteries: ["aeromancy", "arcanamancy", "beast-arts", "chronomancy", "cryomancy", "geomancy", "guard-arts", "hemomancy", "illusion-magic", "spellbane", "astramancy", "electromancy", "power", "pyromancy", "ranged", "speed", "unarmed", "animancy", "hydromancy", "nature-magic", "tinker", "war-arts"],
   category: "defense",
   pair: "P1"
 },
@@ -75,7 +75,7 @@ const actionlistV2 = [
   description: "<p><em><b>Defense</b></em></p><p>Mitigation: Distribute 10 (D), 15 (C), 20 (B), 25 (A), 30 (S) mitigation between up to 3 targets in multiples of 5s.</p>",
   dice: "1d100 + MR + WR + other bonuses",
   roll: "?r counter <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["aeromancy", "arcanamancy", "beast-arts", "chronomancy", "cryomancy", "geomancy", "guard-arts", "hemomancy", "illusion-magic", "spellbane"],
+  masteries: ["aeromancy", "arcanamancy", "beast-arts", "chronomancy", "cryomancy", "geomancy", "guard-arts", "hemomancy", "illusion-magic", "spellbane", "astramancy", "electromancy", "power", "pyromancy", "ranged", "speed", "unarmed", "animancy", "hydromancy", "nature-magic", "tinker", "war-arts"],
   category: "defense",
   pair: "C1"
 },
@@ -88,7 +88,7 @@ const actionlistV2 = [
   description: "<p><em><b>Defense</b></em></p><p>You are Vulnerable.</p><p>Success: Whenever you roll a 30 or higher, your attack gains 30 (D), 40 (B), 50 (S) extra damage and you negate the Vulnerability status from this attack.</p><p>Melee: If you are adjacent to or on the space as your attack target, gain 30 extra damage.</p>",
   dice: "1d100 + [30*] + [ x ] + MR + WR + other bonuses",
   roll: "?r ultra-counter <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["aeromancy", "arcanamancy", "beast-arts", "chronomancy", "cryomancy", "geomancy", "guard-arts", "hemomancy", "illusion-magic", "spellbane"],
+  masteries: ["aeromancy", "arcanamancy", "beast-arts", "chronomancy", "cryomancy", "geomancy", "guard-arts", "hemomancy", "illusion-magic", "spellbane", "astramancy", "electromancy", "power", "pyromancy", "ranged", "speed", "unarmed", "animancy", "hydromancy", "nature-magic", "tinker", "war-arts"],
   category: "defense",
   pair: "C1"
 },
@@ -101,7 +101,7 @@ const actionlistV2 = [
   description: "<p><em><b>Defense</b></em></p><p>Free Action. When you perform any attack action on a target, you taunt that target. DM* Taunt's effect depends on the enemy and/or encounter design.</p>",
   dice: "Free Action",
   roll: "?r taunt # Taunt | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["aeromancy", "arcanamancy", "beast-arts", "chronomancy", "cryomancy", "geomancy", "guard-arts", "hemomancy", "illusion-magic", "spellbane"],
+  masteries: ["aeromancy", "arcanamancy", "beast-arts", "chronomancy", "cryomancy", "geomancy", "guard-arts", "hemomancy", "illusion-magic", "spellbane", "astramancy", "electromancy", "power", "pyromancy", "ranged", "speed", "unarmed", "animancy", "hydromancy", "nature-magic", "tinker", "war-arts"],
   category: "defense",
   slotCost: 0
 },
@@ -114,7 +114,7 @@ const actionlistV2 = [
   description: "<p><em><b>Defense</b></em></p><p>(D) Free Action. Deals an instance of damage to an enemy adjacent to you: 5 (D), 10 (C), 15 (B), 20 (A), 25 (S)</p><p>(D) Bonus Action: Ultra Torment. Double your Torment damage.</p><p>(D) Bonus Action: Radial Torment. Apply Torment damage to all enemies adjacent to you.</p>",
   dice: "Free/Bonus Action",
   roll: "?r torment # Torment | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["aeromancy", "arcanamancy", "beast-arts", "chronomancy", "cryomancy", "geomancy", "guard-arts", "hemomancy", "illusion-magic", "spellbane"],
+  masteries: ["aeromancy", "arcanamancy", "beast-arts", "chronomancy", "cryomancy", "geomancy", "guard-arts", "hemomancy", "illusion-magic", "spellbane", "astramancy", "electromancy", "power", "pyromancy", "ranged", "speed", "unarmed", "animancy", "hydromancy", "nature-magic", "tinker", "war-arts"],
   category: "defense"
 },
 {
@@ -126,7 +126,7 @@ const actionlistV2 = [
   description: "<p><em><b>Defense</b></em></p><p>Bonus Action: Partial. Take half of the damage dealt to your target after modifiers the next time they take damage. Your target takes half.</p><p>Bonus Action: Full. Take the full damage dealt to your target after modifiers the next time they take damage.</p>",
   dice: "Bonus Action",
   roll: "?r cover # Cover | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["aeromancy", "arcanamancy", "beast-arts", "chronomancy", "cryomancy", "geomancy", "guard-arts", "hemomancy", "illusion-magic", "spellbane"],
+  masteries: ["aeromancy", "arcanamancy", "beast-arts", "chronomancy", "cryomancy", "geomancy", "guard-arts", "hemomancy", "illusion-magic", "spellbane", "astramancy", "electromancy", "power", "pyromancy", "ranged", "speed", "unarmed", "animancy", "hydromancy", "nature-magic", "tinker", "war-arts"],
   category: "defense"
 },
 {
@@ -138,7 +138,7 @@ const actionlistV2 = [
   description: "<p><em><b>Defense</b></em></p><p>(D) Passive. Gain 25 + 5 per MR: +30 (D), +35 (C), +40 (B), +45 (A), +50 (S). Maximum +50 HP.</p>",
   dice: "Passive",
   roll: "?r sturdy # Sturdy | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["aeromancy", "arcanamancy", "beast-arts", "chronomancy", "cryomancy", "geomancy", "guard-arts", "hemomancy", "illusion-magic", "spellbane"],
+  masteries: ["aeromancy", "arcanamancy", "beast-arts", "chronomancy", "cryomancy", "geomancy", "guard-arts", "hemomancy", "illusion-magic", "spellbane", "astramancy", "electromancy", "power", "pyromancy", "ranged", "speed", "unarmed", "animancy", "hydromancy", "nature-magic", "tinker", "war-arts"],
   category: "defense"
 },
 
@@ -152,7 +152,7 @@ const actionlistV2 = [
   description: "<p><em><b>Offense</b></em></p><p>Explosion: Whenever you roll a 17 or higher, roll an extra d20 (20% chance).</p>",
   dice: "7d20 + MR + WR + other bonuses",
   roll: "?r stable-attack <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["astramancy", "dark-magic", "electromancy", "power", "precision", "pyromancy", "ranged", "speed", "subterfuge", "unarmed"],
+  masteries: ["astramancy", "dark-magic", "electromancy", "power", "precision", "pyromancy", "ranged", "speed", "subterfuge", "unarmed", "aeromancy", "arcanamancy", "beast-arts", "cryomancy", "geomancy", "illusion-magic", "spellbane", "alchemy", "divine-magic", "harmonic-magic", "magitech", "spirit-magic"],
   category: "offense",
   pair: "S1"
 },
@@ -165,7 +165,7 @@ const actionlistV2 = [
   description: "<p><em><b>Offense</b></em></p><p>You are Vulnerable.</p><p>Explosion: Whenever you roll a 16 or higher, roll an extra d20 (25% chance).</p>",
   dice: "12d20 + 1d20 per mastery rank + weapon rank modifier + other bonuses",
   roll: "?r burst-attack <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["astramancy", "dark-magic", "electromancy", "power", "precision", "pyromancy", "ranged", "speed", "subterfuge", "unarmed"],
+  masteries: ["astramancy", "dark-magic", "electromancy", "power", "precision", "pyromancy", "ranged", "speed", "subterfuge", "unarmed", "aeromancy", "arcanamancy", "beast-arts", "cryomancy", "geomancy", "illusion-magic", "spellbane", "alchemy", "divine-magic", "harmonic-magic", "magitech", "spirit-magic"],
   category: "offense",
   pair: "S1"
 },
@@ -178,7 +178,7 @@ const actionlistV2 = [
   description: "<p><em><b>Offense</b></em></p><p>Success: On a roll of 30 or higher, gain 20 (D) 25 (C) 30 (B) 35 (A) 40 (S) extra damage, otherwise +10.</p>",
   dice: "1d100 + [*] + MR + WR + other bonuses",
   roll: "?r sneak-attack <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["astramancy", "dark-magic", "electromancy", "power", "precision", "pyromancy", "ranged", "speed", "subterfuge", "unarmed"],
+  masteries: ["astramancy", "dark-magic", "electromancy", "power", "precision", "pyromancy", "ranged", "speed", "subterfuge", "unarmed", "aeromancy", "arcanamancy", "beast-arts", "cryomancy", "geomancy", "illusion-magic", "spellbane", "alchemy", "divine-magic", "harmonic-magic", "magitech", "spirit-magic"],
   category: "offense",
   pair: "M1"
 },
@@ -191,7 +191,7 @@ const actionlistV2 = [
   description: "<p><em><b>Offense</b></em></p><p>You are Vulnerable.</p><p>Crit: On a roll of 85 or higher, your damage multiplier becomes 1.5 (D), 1.6 (C), 1.7 (B), 1.8 (A), 2 (S).</p><p>Perfect Crit: Multiply your total damage by 3.</p>",
   dice: "2d100 + (MR) + (WR) + other bonuses and then multiply the final damage by 1.2",
   roll: "?r critical-attack <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["astramancy", "dark-magic", "electromancy", "power", "precision", "pyromancy", "ranged", "speed", "subterfuge", "unarmed"],
+  masteries: ["astramancy", "dark-magic", "electromancy", "power", "precision", "pyromancy", "ranged", "speed", "subterfuge", "unarmed", "aeromancy", "arcanamancy", "beast-arts", "cryomancy", "geomancy", "illusion-magic", "spellbane", "alchemy", "divine-magic", "harmonic-magic", "magitech", "spirit-magic"],
   category: "offense",
   pair: "M1"
 },
@@ -204,7 +204,7 @@ const actionlistV2 = [
   description: "<p><em><b>Offense</b></em></p><p>Free Action: Convert other bonuses into more dice that may trigger crits. +1d100 for each 40 you spend. Leftover values are added as a modifier.</p>",
   dice: "2d100kh1 + MR + WR + other bonuses",
   roll: "?r sharp-attack <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["astramancy", "dark-magic", "electromancy", "power", "precision", "pyromancy", "ranged", "speed", "subterfuge", "unarmed"],
+  masteries: ["astramancy", "dark-magic", "electromancy", "power", "precision", "pyromancy", "ranged", "speed", "subterfuge", "unarmed", "aeromancy", "arcanamancy", "beast-arts", "cryomancy", "geomancy", "illusion-magic", "spellbane", "alchemy", "divine-magic", "harmonic-magic", "magitech", "spirit-magic"],
   category: "offense",
   pair: "T1"
 },
@@ -217,7 +217,7 @@ const actionlistV2 = [
   description: "<p><em><b>Offense</b></em></p><p>You are Vulnerable.</p><p>Free Action: Convert other bonuses into more dice that may trigger crits. +1d100 for each 40 you spend. Leftover values are added as a modifier.</p><p>(E, D, C) Main Action. Roll 1d200 + 1d100 + MR + WR + other bonuses.</p><p>(B, A, S) Main Action. Roll 1d200 + 1d100 + 1d100 + MR + WR + other bonuses.</p>",
   dice: "1d200 + 1d100 (+1d100 at B+) + MR + WR + other bonuses",
   roll: "?r reckless-attack <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["astramancy", "dark-magic", "electromancy", "power", "precision", "pyromancy", "ranged", "speed", "subterfuge", "unarmed"],
+  masteries: ["astramancy", "dark-magic", "electromancy", "power", "precision", "pyromancy", "ranged", "speed", "subterfuge", "unarmed", "aeromancy", "arcanamancy", "beast-arts", "cryomancy", "geomancy", "illusion-magic", "spellbane", "alchemy", "divine-magic", "harmonic-magic", "magitech", "spirit-magic"],
   category: "offense",
   pair: "T1"
 },
@@ -242,7 +242,7 @@ const actionlistV2 = [
   description: "<p><em><b>Offense</b></em></p><p>Passive: Your attack's damage may be distributed in any amount to any enemies on or adjacent to the target. Take only the highest retaliation damage if any.</p><p>(D) Bonus Action: Splash Damage. Deal an instance of 15 (D), 20 (B), 25 (S) damage to all enemies adjacent to your attack target. Take only the highest retaliation damage if there are any.</p>",
   dice: "Passive/Bonus Action",
   roll: "?r area-effect # Area Effect | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["astramancy", "dark-magic", "electromancy", "power", "precision", "pyromancy", "ranged", "speed", "subterfuge", "unarmed"],
+  masteries: ["astramancy", "dark-magic", "electromancy", "power", "precision", "pyromancy", "ranged", "speed", "subterfuge", "unarmed", "aeromancy", "arcanamancy", "beast-arts", "cryomancy", "geomancy", "illusion-magic", "spellbane", "alchemy", "divine-magic", "harmonic-magic", "magitech", "spirit-magic"],
   category: "offense"
 },
 {
@@ -254,7 +254,7 @@ const actionlistV2 = [
   description: "<p><em><b>Offense</b></em></p><p>If you attacked an enemy on their space or adjacent to, you may activate the following effects:</p><p>(D) Passive: Deals an instance of 10 (D), 15 (B), 20 (S) damage.</p><p>(D) Bonus Action: Dueling. Double the Duelist passive and turn it into damage modifier.</p>",
   dice: "Passive/Bonus Action",
   roll: "?r duelist # Duelist | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["astramancy", "dark-magic", "electromancy", "power", "precision", "pyromancy", "ranged", "speed", "subterfuge", "unarmed"],
+  masteries: ["astramancy", "dark-magic", "electromancy", "power", "precision", "pyromancy", "ranged", "speed", "subterfuge", "unarmed", "aeromancy", "arcanamancy", "beast-arts", "cryomancy", "geomancy", "illusion-magic", "spellbane", "alchemy", "divine-magic", "harmonic-magic", "magitech", "spirit-magic"],
   category: "offense"
 },
 {
@@ -266,7 +266,7 @@ const actionlistV2 = [
   description: "<p><em><b>Offense</b></em></p><p>If you attacked an enemy while not in their space, you may activate the following effects:</p><p>(D) Passive: Your main attack gains a +5 damage modifier.</p><p>(D) Bonus Action: Sharpshooting. Your main attack gains a 5 (D), 10 (C), 15 (B), 20 (A), 25 (S) damage modifier in addition to the passive amount.</p>",
   dice: "Passive/Bonus Action",
   roll: "?r sharpshooter # Sharpshooter | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["astramancy", "dark-magic", "electromancy", "power", "precision", "pyromancy", "ranged", "speed", "subterfuge", "unarmed"],
+  masteries: ["astramancy", "dark-magic", "electromancy", "power", "precision", "pyromancy", "ranged", "speed", "subterfuge", "unarmed", "aeromancy", "arcanamancy", "beast-arts", "cryomancy", "geomancy", "illusion-magic", "spellbane", "alchemy", "divine-magic", "harmonic-magic", "magitech", "spirit-magic"],
   category: "offense"
 },
 {
@@ -292,7 +292,7 @@ const actionlistV2 = [
   description: "<p><em><b>Support</b></em></p><p>Explosion: Whenever you roll a 17 or higher, roll an extra d20 (20% chance).</p><p>Cleanse: Whenever you heal a target cleanse 1 curable condition after healing.</p>",
   dice: "2d20 + MR + WR + other bonuses then divide by 3 if AoE",
   roll: "?r heal <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts"],
+  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts", "guard-arts", "hemomancy", "dark-magic", "precision", "subterfuge"],
   category: "support",
   pair: "H1"
 },
@@ -305,7 +305,7 @@ const actionlistV2 = [
   description: "<p><em><b>Support</b></em></p><p>Explosion: Whenever you roll a 15 or higher, roll an extra d20 (30% chance).</p><p>Cleanse: Whenever you heal a target cleanse 2 (D), 3 (B), 4 (S) after healing. Gain 5 HP to your heal per unused cleanse charge.</p>",
   dice: "4d20 + MR + WR + other bonuses then divide by 3 if AoE",
   roll: "?r power-heal <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts"],
+  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts", "guard-arts", "hemomancy", "dark-magic", "precision", "subterfuge"],
   category: "support",
   pair: "H1"
 },
@@ -318,7 +318,7 @@ const actionlistV2 = [
   description: "<p><em><b>Support</b></em></p><p>Single-target: Give 1 target a damage buff that lasts 3 actions</p><p>Multi-targets: Give 3 targets a damage buff that lasts 1 action</p><p>May only be affected by one buff at a time.</p>",
   dice: "1d100 + MR + WR + other bonuses then divide by 3",
   roll: "?r buff <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts"],
+  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts", "guard-arts", "hemomancy", "dark-magic", "precision", "subterfuge"],
   category: "support",
   pair: "B1"
 },
@@ -331,7 +331,7 @@ const actionlistV2 = [
   description: "<p><em><b>Support</b></em></p><p>You are Vulnerable.</p><p>Single-target: Give 1 target a damage buff that lasts 3 actions</p><p>Multi-targets: Give 3 targets a damage buff that lasts 1 action</p><p>May only be affected by one buff at a time.</p>",
   dice: "2d100 + MR + WR + other bonuses then divide by 3",
   roll: "?r power-buff <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts"],
+  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts", "guard-arts", "hemomancy", "dark-magic", "precision", "subterfuge"],
   category: "support",
   pair: "B1"
 },
@@ -344,7 +344,7 @@ const actionlistV2 = [
   description: "<p><em><b>Support</b></em></p><p>This action may be selected for free when you select any main support actions.</p><p>Free Action: If you have used a support action this cycle, tag an ally to add the damage type of one of your masteries to their attacks.</p><p>Limitations: Max target of 1, infinite duration. Target may be switched each round.</p>",
   dice: "Free Action",
   roll: "?r imbue # Imbue | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts"],
+  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts", "guard-arts", "hemomancy", "dark-magic", "precision", "subterfuge"],
   category: "support",
   conditionalFree: "support"
 },
@@ -357,7 +357,7 @@ const actionlistV2 = [
   description: "<p><em><b>Support</b></em></p><p>This action may be selected for free when you select 'Heal'.</p><p>Passive: Whenever you target an ally with a Heal or Buff action, you may activate Torment or Area Effect from that ally's space. You must have those actions slotted to use them.</p>",
   dice: "Passive",
   roll: "?r smite # Smite | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts"],
+  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts", "guard-arts", "hemomancy", "dark-magic", "precision", "subterfuge"],
   category: "support",
   conditionalFree: "heal"
 },
@@ -370,7 +370,7 @@ const actionlistV2 = [
   description: "<p><em><b>Support</b></em></p><p>This action may be selected for free when you select 'Heal'.</p><p>Bonus Action: Revive an ally within range. They regain 50% of their max HP.</p><p>Limitations: Lander characters cannot use this action card.</p>",
   dice: "Bonus Action",
   roll: "?r revive # Revive | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts"],
+  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts", "guard-arts", "hemomancy", "dark-magic", "precision", "subterfuge"],
   category: "support",
   conditionalFree: "heal"
 },
@@ -383,7 +383,7 @@ const actionlistV2 = [
   description: "<p><em><b>Support</b></em></p><p>Passive: All heal and buff actions gain +5 extra modifier per mastery rank: +5 (D), +10 (C), +15 (B), +20 (A), +25 (S).</p>",
   dice: "Passive",
   roll: "?r blessed # Blessed | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts"],
+  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts", "guard-arts", "hemomancy", "dark-magic", "precision", "subterfuge"],
   category: "support"
 },
 {
@@ -395,7 +395,7 @@ const actionlistV2 = [
   description: "<p><em><b>Support</b></em></p><p>Free Action: Apply the effects to 2 targets (instead of 3) and apply the last heal/buff amount to one of those targets.</p><p>Bonus Action: Roll both actions (both must be special or non-special) using the AoE command and choose if each target gets either the heal or buff.</p>",
   dice: "Free/Bonus Action",
   roll: "?r versatile # Versatile | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts"],
+  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts", "guard-arts", "hemomancy", "dark-magic", "precision", "subterfuge"],
   category: "support"
 },
 {
@@ -407,7 +407,7 @@ const actionlistV2 = [
   description: "<p><em><b>Support</b></em></p><p>(D) Passive: If you are afflicted with a curable condition, you may clear 1 stack from yourself each cycle before they take effect.</p><p>(D) Bonus Action: Distribute 2 (D), 4 (B), 6 (S) cleanses between up to 3 targets.</p>",
   dice: "Passive/Bonus Action",
   roll: "?r cleanse # Cleanse | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts"],
+  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts", "guard-arts", "hemomancy", "dark-magic", "precision", "subterfuge"],
   category: "support"
 },
 {
@@ -419,7 +419,7 @@ const actionlistV2 = [
   description: "<p><em><b>Support</b></em></p><p>(D) Bonus Action: Distribute 2 (D), 3 (B), 4 (S) movements between up to 3 targets.</p><p>Limitations: Each target may gain a max of 2 movements from Haste.</p>",
   dice: "Bonus Action",
   roll: "?r haste # Haste | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts"],
+  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts", "guard-arts", "hemomancy", "dark-magic", "precision", "subterfuge"],
   category: "support"
 },
 {
@@ -431,7 +431,7 @@ const actionlistV2 = [
   description: "<p><em><b>Support</b></em></p><p>(D) Bonus Action: Distribute 5 (D), 10 (B), 15 (S) extra modifiers between up to 3 allies in multiple of 5s toward any mastery check or save rolls.</p><p>Limitations: This bonus cannot be stacked.</p>",
   dice: "Bonus Action",
   roll: "?r inspire # Inspire | Character Name | <span class='thrcode'>Code</span>",
-  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts"],
+  masteries: ["chronomancy", "alchemy", "animancy", "divine-magic", "harmonic-magic", "hydromancy", "magitech", "nature-magic", "spirit-magic", "tinker", "war-arts", "guard-arts", "hemomancy", "dark-magic", "precision", "subterfuge"],
   category: "support"
 },
 

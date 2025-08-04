@@ -53,7 +53,7 @@
       <div class="charcontainer left">
         <h1 class="nameheader header-info--nameheader">
           <span class="charname">Step 3: Assign Ranks</span>
-        </h1><br>
+        </h1>
         <h2 class="charinfo">
           <span class="chartitle">Assign ranks to your selected masteries, expertise, and equipment</span>
           <span class="charrace"></span>
@@ -775,7 +775,7 @@
       }
       
       goToPreviousPage() {
-        const url = this.state.generateURL('expertise-selector.html');
+        const url = this.state.generateURL('mastery-selector.html');
         window.location.href = url;
       }
       
@@ -799,7 +799,7 @@
         if (currentState.profileBannerUrl) {
           const backButton = this.domUtils.getElementById('back-button');
           if (backButton) {
-            backButton.style.display = 'none';
+            // backButton.style.display = 'none';
           }
         }
       }
