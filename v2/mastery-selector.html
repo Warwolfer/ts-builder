@@ -131,6 +131,7 @@
     </div>
 
     <div class="button-container">
+      <div class="button" id="debug-state-button">Show Current State</div>
       <div class="button" id="reset-button">Reset All</div>
       <div class="button" id="next-button" disabled>Next</div>
     </div>
@@ -272,6 +273,12 @@
           this.domUtils.getElementById('reset-button'), 
           'click', 
           () => this.resetSelection()
+        );
+        
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('debug-state-button'), 
+          'click', 
+          () => this.showDebugState()
         );
       }
       
@@ -449,6 +456,35 @@
           });
           this.updateUI();
         }
+      }
+      
+      showDebugState() {
+        const currentState = this.state.getState();
+        const debugInfo = `
+DEBUG STATE INFORMATION:
+
+Selected Masteries (${currentState.chosenMasteries.length}/6):
+${currentState.chosenMasteries.map((m, i) => `  ${i+1}. ${m}`).join('\n') || '  (none)'}
+
+Mastery Ranks (${currentState.chosenMasteriesRanks?.length || 0}):
+${currentState.chosenMasteriesRanks?.map((r, i) => `  ${i+1}. ${r}`).join('\n') || '  (none)'}
+
+Selected Expertise (${currentState.chosenExpertise?.length || 0}):
+${currentState.chosenExpertise?.map((e, i) => `  ${i+1}. ${e}`).join('\n') || '  (none)'}
+
+Armor Type: ${currentState.armorType || '(none)'}
+Accessory Type: ${currentState.accessoryType || '(none)'}
+
+Actions (${currentState.chosenActions?.length || 0}):
+${currentState.chosenActions?.map((a, i) => `  ${i+1}. ${a}`).join('\n') || '  (none)'}
+
+Character Info:
+  Name: ${currentState.characterName || '(none)'}
+  Race: ${currentState.characterRace || '(none)'}
+  Title: ${currentState.characterTitle || '(none)'}
+        `;
+        
+        alert(debugInfo);
       }
       
       goToNextPage() {

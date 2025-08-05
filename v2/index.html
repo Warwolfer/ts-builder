@@ -137,20 +137,15 @@
           throw new Error('V2 action data not loaded');
         }
 
-        // Decode the build
-        const result = window.BuildEncoder.loadFromURL();
+        // Decode the V2 build using unified decode method
+        const buildData = window.BuildEncoder.decodeBuildString(buildCode);
+        console.log('✅ V2 Index: Build imported successfully:', buildData);
         
-        if (result.success && result.data) {
-          console.log('✅ V2 Index: Build imported successfully:', result.data);
-          
-          // Update state with imported data
-          window.buildState.updateState(result.data);
-          
-          // Redirect to build sheet to display the imported build
-          window.location.href = 'build-sheet.html';
-        } else {
-          throw new Error(result.error || 'Failed to decode build code');
-        }
+        // Update state with imported data
+        window.buildState.updateState(buildData);
+        
+        // Redirect to build sheet to display the imported build
+        window.location.href = 'build-sheet.html';
       } catch (error) {
         console.error('❌ V2 Index: Import failed:', error);
         

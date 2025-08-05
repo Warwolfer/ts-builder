@@ -111,157 +111,74 @@ const BuildEncoder = {
     return baseURL + targetPage + hashType + encodedBuild;
   },
 
-  // Generate build code from state (original format for compatibility)
-  generateBuildCode(state, baseURL = 'https://terrarp.com/build/') {
-    const { 
-      chosenMasteries, 
-      chosenMasteriesRanks, 
-      armorType, 
-      armorRank, 
-      weaponRank, 
-      chosenActions, 
-      characterName,
-      characterRace,
-      characterTitle,
-      threadCode
-    } = state;
+  // Generate JSON-based build code (most compact and reliable)
+  generateJSONBuildCode(state, baseURL = 'https://terrarp.com/build/v2/') {
+    // Create clean build object with only necessary data
+    const buildData = {
+      chosenMasteries: state.chosenMasteries || [],
+      chosenMasteriesRanks: state.chosenMasteriesRanks || [],
+      chosenExpertise: state.chosenExpertise || [],
+      chosenExpertiseRanks: state.chosenExpertiseRanks || [],
+      armorType: state.armorType || null,
+      armorRank: state.armorRank || 0,
+      accessoryType: state.accessoryType || null,
+      accessoryRank: state.accessoryRank || 0,
+      weaponRank: state.weaponRank || 0,
+      chosenActions: state.chosenActions || [],
+      characterName: state.characterName || '',
+      characterRace: state.characterRace || '',
+      characterTitle: state.characterTitle || '',
+      threadCode: state.threadCode || '',
+      profileBannerUrl: state.profileBannerUrl || '',
+      note: state.note || ''
+    };
     
-    // Create build parts
-    const masteryCode = chosenMasteries.join(',');
-    const rankCode = chosenMasteriesRanks.join(',');
-    const actionCode = chosenActions.join(',');
+    // JSON stringify and base64 encode
+    const jsonString = JSON.stringify(buildData);
+    const encodedBuild = btoa(jsonString);
     
-    // Handle character info fields
-    const nameCode = characterName ? characterName.replace(/ /gi, '_') : '';
-    const raceCode = characterRace ? characterRace.replace(/ /gi, '_') : '';
-    const titleCode = characterTitle ? characterTitle.replace(/ /gi, '_') : '';
-    const threadCodeParam = threadCode ? threadCode.replace(/ /gi, '_') : '';
-    
-    // URL encode the banner URL to handle special characters like dots
-    const bannerUrlEncoded = state.profileBannerUrl ? encodeURIComponent(state.profileBannerUrl) : '';
-    
-    // Create build details string
-    const buildDetails = [
-      masteryCode,
-      rankCode,
-      armorType || '',
-      armorRank.toString(),
-      weaponRank.toString(),
-      actionCode,
-      nameCode,
-      raceCode,
-      titleCode,
-      threadCodeParam,
-      bannerUrlEncoded
-    ].join('|');
-    
-    // Always use #import for V2 system
-    const hashType = '#import.';
-    
-    // Detect if we're currently on index.html to determine target page
+    // Detect target page
     const currentPath = window.location.pathname;
     const isOnIndexPage = currentPath.includes('index.html') || currentPath.endsWith('/') || currentPath.includes('/v2/');
     const targetPage = isOnIndexPage ? 'index.html' : 'build-sheet.html';
     
-    // Encode and create full URL (handle Unicode characters)
-    const encodedBuild = btoa(encodeURIComponent(buildDetails).replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode('0x' + p1)));
-    return baseURL + targetPage + hashType + encodedBuild;
+    return baseURL + targetPage + '#import.' + encodedBuild;
   },
+
   
-  // Decode build code from URL hash or encoded string
-  decodeBuildCode(encodedString) {
+  // V2 Decode build string (JSON or Compact format only)
+  decodeBuildString(encodedString) {
+    // First try JSON format (most efficient)
     try {
-      // Remove hash and type prefixes if present
-      let cleanEncoded = encodedString;
-      if (cleanEncoded.includes('#')) {
-        // Handle different hash types: #import., #sample., #load., #compact.
-        const hashMatch = cleanEncoded.match(/#(?:import|sample|load|compact)\.(.+)$/);
-        if (hashMatch) {
-          cleanEncoded = hashMatch[1];
-        } else {
-          // Fallback to old method
-          cleanEncoded = cleanEncoded.split('.').pop();
-        }
+      const decoded = atob(encodedString);
+      const buildData = JSON.parse(decoded);
+      
+      // Validate that it's a proper build object
+      if (buildData && typeof buildData === 'object' && buildData.chosenMasteries) {
+        return buildData;
       }
-      
-      // Decode base64 (handle Unicode characters)
-      const decoded = decodeURIComponent(atob(cleanEncoded).replace(/./g, (char) => '%' + ('00' + char.charCodeAt(0).toString(16)).slice(-2)));
-      
-      // Try new format first (pipe-delimited), then fall back to old format (dot-delimited)
-      let parts = decoded.split('|');
-      let isNewFormat = parts.length >= 6;
-      
-      if (!isNewFormat) {
-        // Fall back to old format for backward compatibility
-        parts = decoded.split('.');
-        if (parts.length < 6) {
-          throw new Error('Invalid build code format');
-        }
-      }
-      
-      // Extract character info fields based on format
-      let characterName = '';
-      let characterRace = '';
-      let characterTitle = '';
-      let threadCode = '';
-      let profileBannerUrl = '';
-      
-      if (isNewFormat) {
-        // New format: 6=name, 7=race, 8=title, 9=threadCode, 10=bannerUrl
-        if (parts.length > 6 && parts[6]) {
-          characterName = parts[6].replace(/_/gi, ' ');
-        }
-        if (parts.length > 7 && parts[7]) {
-          characterRace = parts[7].replace(/_/gi, ' ');
-        }
-        if (parts.length > 8 && parts[8]) {
-          characterTitle = parts[8].replace(/_/gi, ' ');
-        }
-        if (parts.length > 9 && parts[9]) {
-          threadCode = parts[9].replace(/_/gi, ' ');
-        }
-        if (parts.length > 10 && parts[10]) {
-          profileBannerUrl = decodeURIComponent(parts[10]);
-        }
-      } else {
-        // Old format: 6=name, 7=threadCode, 8=bannerUrl (no race/title)
-        if (parts.length > 6 && parts[6]) {
-          characterName = parts[6].replace(/_/gi, ' ');
-        }
-        if (parts.length > 7 && parts[7]) {
-          threadCode = parts[7].replace(/_/gi, ' ');
-        }
-        if (parts.length > 8 && parts[8]) {
-          profileBannerUrl = decodeURIComponent(parts[8]);
-        }
-      }
-      
-      const buildData = {
-        chosenMasteries: parts[0] ? parts[0].split(',').filter(m => m) : [],
-        chosenMasteriesRanks: parts[1] ? parts[1].split(',').map(r => parseInt(r) || 0) : [],
-        armorType: parts[2] || null,
-        armorRank: parseInt(parts[3]) || 0,
-        weaponRank: parseInt(parts[4]) || 0,
-        chosenActions: parts[5] ? parts[5].split(',').filter(a => a) : [],
-        characterName: characterName,
-        characterRace: characterRace,
-        characterTitle: characterTitle,
-        threadCode: threadCode,
-        profileBannerUrl: profileBannerUrl,
-        note: '' // Old format doesn't support notes
-      };
-      
-      return {
-        success: true,
-        data: buildData
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: 'Invalid build code: ' + error.message
-      };
+    } catch (e) {
+      // Not JSON format, try compact format
     }
+    
+    // Try compact format by looking for pipe delimiters in decoded string
+    try {
+      const decoded = atob(encodedString);
+      if (decoded.includes('|')) {
+        // If encodedString already has hash, use it as-is, otherwise add hash
+        const compactInput = encodedString.startsWith('#') ? encodedString : '#import.' + encodedString;
+        const compactResult = this.decodeCompactBuildCode(compactInput);
+        if (compactResult.success) {
+          return compactResult.data;
+        }
+      }
+    } catch (e) {
+      // Not compact format either
+    }
+    
+    throw new Error('V2 only supports JSON and compact build formats');
   },
+
   
   // Decode compact build code
   decodeCompactBuildCode(encodedString) {
@@ -269,7 +186,7 @@ const BuildEncoder = {
       // Handle compact format
       let cleanEncoded = encodedString;
       if (cleanEncoded.includes('#')) {
-        const hashMatch = cleanEncoded.match(/#(?:compact-import|compact)\.(.+)$/);
+        const hashMatch = cleanEncoded.match(/#(?:compact-import|compact|import)\.(.+)$/);
         if (hashMatch) {
           cleanEncoded = hashMatch[1];
         } else {
@@ -281,6 +198,7 @@ const BuildEncoder = {
       const decoded = decodeURIComponent(atob(cleanEncoded).replace(/./g, (char) => '%' + ('00' + char.charCodeAt(0).toString(16)).slice(-2)));
       const parts = decoded.split('|');
       
+      
       // Determine format based on parts count
       const isV2Format = parts.length >= 8; // V2 has expertise fields
       const hasAccessory = parts.length >= 10; // V2 with accessory has even more parts
@@ -289,19 +207,32 @@ const BuildEncoder = {
         throw new Error('Invalid compact build code format');
       }
       
-      // Convert mastery IDs back to names
+      // Keep mastery IDs as IDs for optimal storage
       let chosenMasteries = [];
+      let chosenMasteriesIds = []; // Store raw IDs
       const masteryData = window.masteriesV2 || window.masterylist;
       if (masteryData && parts[0]) {
         const masteryIds = parts[0].split(',').map(id => parseInt(id));
+        chosenMasteriesIds = masteryIds;
+        
+        // Convert to names for backward compatibility, but we'll prefer IDs
         chosenMasteries = masteryIds.map(id => {
           const mastery = masteryData.find(m => m.id === id);
           return mastery ? mastery.lookup : '';
         }).filter(name => name);
       }
       
-      // Unpack mastery ranks from single string
-      const chosenMasteriesRanks = parts[1] ? parts[1].split('').map(r => parseInt(r) || 0) : [];
+      // Unpack mastery ranks from single string - fix the parsing
+      let chosenMasteriesRanks = [];
+      if (parts[1]) {
+        // Handle both single string format (443335) and comma-separated (4,4,3,3,3,5)
+        if (parts[1].includes(',')) {
+          chosenMasteriesRanks = parts[1].split(',').map(r => parseInt(r) || 0);
+        } else {
+          // Split each character as a separate rank
+          chosenMasteriesRanks = parts[1].split('').map(r => parseInt(r) || 0);
+        }
+      }
       
       // Handle expertise (V2 format only)
       let chosenExpertise = [];
@@ -317,18 +248,28 @@ const BuildEncoder = {
           }).filter(name => name);
         }
         
-        // Unpack expertise ranks from single string
-        chosenExpertiseRanks = parts[3] ? parts[3].split('').map(r => parseInt(r) || 0) : [];
+        // Unpack expertise ranks from single string - fix the parsing
+        if (parts[3]) {
+          // Handle both single string format (345334) and comma-separated (3,4,5,3,3,4)
+          if (parts[3].includes(',')) {
+            chosenExpertiseRanks = parts[3].split(',').map(r => parseInt(r) || 0);
+          } else {
+            // Split each character as a separate rank
+            chosenExpertiseRanks = parts[3].split('').map(r => parseInt(r) || 0);
+          }
+        }
       }
       
-      // Adjust part indices based on format
-      const armorTypeIndex = isV2Format ? 4 : 2;
-      const armorRankIndex = isV2Format ? 5 : 3;
-      const accessoryTypeIndex = hasAccessory ? 6 : -1;
-      const accessoryRankIndex = hasAccessory ? 7 : -1;
-      const weaponRankIndex = hasAccessory ? 8 : (isV2Format ? 6 : 4);
-      const actionIndex = hasAccessory ? 9 : (isV2Format ? 7 : 5);
-      const charDataIndex = hasAccessory ? 10 : (isV2Format ? 8 : 6);
+      
+      // Correct part indices for V2 format with accessory
+      // Based on the actual structure: masteryIds|masteryRanks|expertiseIds|expertiseRanks|armorType|armorRank|accessoryType|accessoryRank|weaponRank|actionIds|charData
+      const armorTypeIndex = 4;
+      const armorRankIndex = 5;
+      const accessoryTypeIndex = 6;
+      const accessoryRankIndex = 7;
+      const weaponRankIndex = 8;
+      const actionIndex = 9;
+      const charDataIndex = 10;
       
       // Expand armor type
       const armorTypeMap = { 'h': 'heavy', 'm': 'medium', 'l': 'light' };
@@ -336,8 +277,8 @@ const BuildEncoder = {
 
       // Expand accessory type
       const accessoryTypeMap = { 'c': 'combat', 'u': 'utility', 'm': 'magic' };
-      const accessoryType = hasAccessory && accessoryTypeIndex >= 0 ? 
-        (accessoryTypeMap[parts[accessoryTypeIndex]] || parts[accessoryTypeIndex] || null) : null;
+      const accessoryType = parts[accessoryTypeIndex] ? 
+        (accessoryTypeMap[parts[accessoryTypeIndex]] || parts[accessoryTypeIndex]) : null;
       
       // Convert action IDs back to names
       let chosenActions = [];
@@ -388,7 +329,7 @@ const BuildEncoder = {
           armorType,
           armorRank: parseInt(parts[armorRankIndex]) || 0,
           accessoryType,
-          accessoryRank: hasAccessory && accessoryRankIndex >= 0 ? (parseInt(parts[accessoryRankIndex]) || 0) : 0,
+          accessoryRank: parseInt(parts[accessoryRankIndex]) || 0,
           weaponRank: parseInt(parts[weaponRankIndex]) || 0,
           chosenActions,
           characterName,
@@ -408,91 +349,99 @@ const BuildEncoder = {
   },
 
 
-  // Load build from current URL hash
+  // V2 Load build from current URL hash
   loadFromURL() {
     const hash = window.location.hash;
-    if (hash.includes('#compact-import.') || hash.includes('#compact.')) {
-      return this.decodeCompactBuildCode(hash);
-    } else if (hash.includes('#load.') || hash.includes('#sample.') || hash.includes('#import.') || hash.includes('#compact.')) {
-      return this.decodeBuildCode(hash);
+    if (hash.includes('#import.')) {
+      const buildCode = hash.slice(8); // Remove '#import.'
+      try {
+        const data = this.decodeBuildString(buildCode);
+        return { success: true, data: data };
+      } catch (error) {
+        return { success: false, error: error.message };
+      }
     }
-    return { success: false, error: 'No build code found in URL' };
+    return { success: false, error: 'No V2 build code found in URL' };
   },
   
-  // Generate short share code (for forum posts, etc.)
+  // V2 Generate short share code (for forum posts, etc.)
   generateShortCode(state) {
-    const buildCode = this.generateBuildCode(state, '');
+    const buildCode = this.generateJSONBuildCode(state, '');
     const encoded = buildCode.split('.').pop();
     return encoded.substring(0, 8).toUpperCase(); // First 8 characters as short code
   },
   
-  // Create shareable URLs for different contexts
+  // V2 Create shareable URLs for different contexts
   generateShareURLs(state) {
-    const baseCode = this.generateBuildCode(state);
+    const baseCode = this.generateJSONBuildCode(state);
     
     return {
       full: baseCode,
-      direct: baseCode.replace(/^(.*\/build\/)(?:index\.html)?(#\w+\..*)$/, '$1build-sheet.html$2'),
-      forum: `[url=${baseCode}]My Build[/url]`,
-      discord: `Check out my build: ${baseCode}`
+      direct: baseCode.replace(/^(.*\/build\/v2\/)(?:index\.html)?(#\w+\..*)$/, '$1build-sheet.html$2'),
+      forum: `[url=${baseCode}]My V2 Build[/url]`,
+      discord: `Check out my V2 build: ${baseCode}`
     };
   },
   
-  // Validate build code format
+  // V2 Validate build code format
   validateBuildCode(encodedString) {
-    const result = this.decodeBuildCode(encodedString);
-    if (!result.success) {
-      return result;
-    }
-    
-    const { data } = result;
-    
-    // Validate mastery count
-    if (data.chosenMasteries.length > 5) {
+    try {
+      const data = this.decodeBuildString(encodedString);
+      
+      // V2 allows up to 6 masteries (vs 5 in V1)
+      if (data.chosenMasteries.length > 6) {
+        return {
+          success: false,
+          error: 'Invalid V2 build: Too many masteries selected (max 6)'
+        };
+      }
+      
+      // Validate rank count matches mastery count
+      if (data.chosenMasteriesRanks.length !== data.chosenMasteries.length) {
+        return {
+          success: false,
+          error: 'Invalid V2 build: Mastery and rank counts do not match'
+        };
+      }
+      
+      // Validate armor type
+      if (data.armorType && !['heavy', 'medium', 'light'].includes(data.armorType)) {
+        return {
+          success: false,
+          error: 'Invalid V2 build: Invalid armor type'
+        };
+      }
+      
+      // Validate accessory type (V2 feature)
+      if (data.accessoryType && !['combat', 'utility', 'magic'].includes(data.accessoryType)) {
+        return {
+          success: false,
+          error: 'Invalid V2 build: Invalid accessory type'
+        };
+      }
+      
+      // Validate rank ranges
+      const invalidRanks = data.chosenMasteriesRanks.some(rank => rank < 0 || rank > 5);
+      if (invalidRanks || data.armorRank < 0 || data.armorRank > 5 || 
+          data.weaponRank < 0 || data.weaponRank > 5 || data.accessoryRank < 0 || data.accessoryRank > 5) {
+        return {
+          success: false,
+          error: 'Invalid V2 build: Ranks must be between 0 and 5'
+        };
+      }
+      
+      return {
+        success: true,
+        data: data
+      };
+    } catch (error) {
       return {
         success: false,
-        error: 'Invalid build: Too many masteries selected'
+        error: 'Invalid V2 build code: ' + error.message
       };
     }
-    
-    // Validate rank count matches mastery count
-    if (data.chosenMasteriesRanks.length !== data.chosenMasteries.length) {
-      return {
-        success: false,
-        error: 'Invalid build: Mastery and rank counts do not match'
-      };
-    }
-    
-    // Validate armor type
-    if (data.armorType && !['heavy', 'medium', 'light'].includes(data.armorType)) {
-      return {
-        success: false,
-        error: 'Invalid build: Invalid armor type'
-      };
-    }
-    
-    // Validate rank ranges
-    const invalidRanks = data.chosenMasteriesRanks.some(rank => rank < 0 || rank > 5);
-    if (invalidRanks || data.armorRank < 0 || data.armorRank > 5 || 
-        data.weaponRank < 0 || data.weaponRank > 5) {
-      return {
-        success: false,
-        error: 'Invalid build: Ranks must be between 0 and 5'
-      };
-    }
-    
-    return {
-      success: true,
-      data: data
-    };
   },
   
-  // Migration helper for old build codes
-  migrateLegacyCode(legacyCode) {
-    // This would handle any old format conversions if needed
-    // For now, just pass through to normal decoder
-    return this.decodeBuildCode(legacyCode);
-  }
 };
 
 // Make available globally

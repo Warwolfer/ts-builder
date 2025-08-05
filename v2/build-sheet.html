@@ -291,10 +291,23 @@
         
         this.rankLabels = ['E', 'D', 'C', 'B', 'A', 'S'];
         
+        // Helper method to safely get rank label
+        this.getRankLabel = (rank) => {
+          if (rank < 0 || rank >= this.rankLabels.length) {
+            return 'E';
+          }
+          return this.rankLabels[rank];
+        };
+        
         this.init();
       }
       
       getRankColorClass(rank) {
+        // Handle undefined or invalid rank values
+        if (!rank || typeof rank !== 'string') {
+          return 'rank-e'; // Default to gray
+        }
+        
         switch (rank.toUpperCase()) {
           case 'S': return 'rank-s'; // Gold
           case 'A': return 'rank-a'; // Orange  
@@ -302,7 +315,7 @@
           case 'C': return 'rank-c'; // Green
           case 'D': return 'rank-d'; // Blue
           case 'E': return 'rank-e'; // Grey
-          default: return 'rank-s';  // Default to gold
+          default: return 'rank-e';  // Default to gray
         }
       }
       
@@ -505,7 +518,7 @@
                 <span class="mastery-with-icon">
                   <img src="${mastery.image}" class="mastery-icon"> ${mastery.alt || mastery.name}
                 </span>&nbsp;
-                <span class="rank-badge ${this.getRankColorClass(this.rankLabels[rank])}"> ${this.rankLabels[rank]}</span>
+                <span class="rank-badge ${this.getRankColorClass(this.getRankLabel(rank))}"> ${this.getRankLabel(rank)}</span>
               </div>
             `;
           }
@@ -528,7 +541,7 @@
               <div class="expertise-rank-display">
                 <span class="mastery-with-icon">
                   <img src="${expertiseData.image}" class="mastery-icon"> ${expertiseData.alt || expertiseData.name}
-                </span>&nbsp;<span class="rank-badge ${this.getRankColorClass(this.rankLabels[rank])}">${this.rankLabels[rank]}</span>
+                </span>&nbsp;<span class="rank-badge ${this.getRankColorClass(this.getRankLabel(rank))}">${this.getRankLabel(rank)}</span>
               </div>
             `;
           }
@@ -590,13 +603,13 @@
 
         this.domUtils.setHTML(
           this.domUtils.querySelector('.weaponrankdisplay'),
-          `<div class="equipment-rank-display"><span class="mastery-with-icon"><img src="https://terrarp.com/db/tool/weapon-rank.png" class="mastery-icon"> Weapon</span><span class="rank-badge ${this.getRankColorClass(this.rankLabels[weaponRank])}">${this.rankLabels[weaponRank]}</span></div>`
+          `<div class="equipment-rank-display"><span class="mastery-with-icon"><img src="https://terrarp.com/db/tool/weapon-rank.png" class="mastery-icon"> Weapon</span><span class="rank-badge ${this.getRankColorClass(this.getRankLabel(weaponRank))}">${this.getRankLabel(weaponRank)}</span></div>`
         );
 
         if (armorType && this.armorImages[armorType]) {
           this.domUtils.setHTML(
             this.domUtils.querySelector('.armorrankdisplay'),
-            `<div class="equipment-rank-display"><span class="mastery-with-icon"><img src="${this.armorImages[armorType]}" class="mastery-icon"> ${armorType.charAt(0).toUpperCase() + armorType.slice(1)} Armor</span><span class="rank-badge ${this.getRankColorClass(this.rankLabels[armorRank])}">${this.rankLabels[armorRank]}</span></div>`
+            `<div class="equipment-rank-display"><span class="mastery-with-icon"><img src="${this.armorImages[armorType]}" class="mastery-icon"> ${armorType.charAt(0).toUpperCase() + armorType.slice(1)} Armor</span><span class="rank-badge ${this.getRankColorClass(this.getRankLabel(armorRank))}">${this.getRankLabel(armorRank)}</span></div>`
           );
           
           // Set armor ability
@@ -607,7 +620,7 @@
         if (accessoryType && this.accessoryImages[accessoryType]) {
           this.domUtils.setHTML(
             this.domUtils.querySelector('.accessoryrankdisplay'),
-            `<div class="equipment-rank-display"><span class="mastery-with-icon"><img src="${this.accessoryImages[accessoryType]}" class="mastery-icon"> ${accessoryType.charAt(0).toUpperCase() + accessoryType.slice(1)}</span><span class="rank-badge ${this.getRankColorClass(this.rankLabels[accessoryRank])}">${this.rankLabels[accessoryRank]}</span></div>`
+            `<div class="equipment-rank-display"><span class="mastery-with-icon"><img src="${this.accessoryImages[accessoryType]}" class="mastery-icon"> ${accessoryType.charAt(0).toUpperCase() + accessoryType.slice(1)}</span><span class="rank-badge ${this.getRankColorClass(this.getRankLabel(accessoryRank))}">${this.getRankLabel(accessoryRank)}</span></div>`
           );
         }
         
@@ -624,7 +637,7 @@
         
         if (!armorAbilities) return { name: 'No ability', description: '', rollCode: '' };
         
-        const rankLetter = this.rankLabels[armorRank];
+        const rankLetter = this.getRankLabel(armorRank);
         const result = armorAbilities[armorType]?.[rankLetter] || { name: 'No ability', description: '', rollCode: '' };
         return result;
       }
@@ -1028,7 +1041,7 @@
           // For manual builds (no banner), add top padding to prevent cut-off appearance
           const builddisplay = this.domUtils.getElementById('builddisplay');
           if (builddisplay) {
-            builddisplay.style.paddingTop = '60px';
+            // builddisplay.style.paddingTop = '60px';
           }
         }
       }
