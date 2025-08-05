@@ -87,12 +87,9 @@ class BuildState {
   loadFromStorage() {
     try {
       const saved = localStorage.getItem('tsbuilder_state');
-      console.log('💾 StateManager: Loading from localStorage:', saved ? 'Found data' : 'No data');
       if (saved) {
         const parsedState = JSON.parse(saved);
-        console.log('💾 StateManager: Parsed localStorage data:', parsedState);
         this.state = { ...this.state, ...parsedState };
-        console.log('💾 StateManager: State after loading:', this.state);
       }
     } catch (e) {
       console.error('💾 StateManager: Error loading from localStorage:', e);
@@ -104,7 +101,6 @@ class BuildState {
     // URL parameter loading is now disabled to avoid long, problematic URLs
     // All character data is stored in localStorage and persists across page navigation
     // Only build codes (in URL hash) are used for sharing complete builds
-    console.log('localStorage-first: URL parameter loading disabled for cleaner URLs');
   }
   
   // Generate clean URLs (localStorage-first approach)
@@ -138,9 +134,7 @@ class BuildState {
   
   // Validation methods
   isValidForRankSelection() {
-    const valid = this.state.chosenMasteries.length > 0 && this.state.chosenExpertise.length > 0;
-    console.log('🔍 StateManager: isValidForRankSelection =', valid, 'masteries:', this.state.chosenMasteries, 'expertise:', this.state.chosenExpertise);
-    return valid;
+    return this.state.chosenMasteries.length > 0 && this.state.chosenExpertise.length > 0;
   }
   
   isValidForActionSelection() {
@@ -159,11 +153,6 @@ class BuildState {
     }
     
     const valid = masteryValid && expertiseValid && rankCapsValid;
-    console.log('🔍 StateManager: isValidForActionSelection =', valid, {
-      masteries: this.state.chosenMasteries.length,
-      ranks: this.state.chosenMasteriesRanks.length,
-      rankCapsValid
-    });
     return valid;
   }
   
@@ -171,11 +160,6 @@ class BuildState {
     const actionValid = this.isValidForActionSelection();
     const actionsValid = this.state.chosenActions.length > 0;
     const valid = actionValid && actionsValid;
-    console.log('🔍 StateManager: isValidForBuildSheet =', valid, {
-      actionSelectionValid: actionValid,
-      hasActions: actionsValid,
-      actionsCount: this.state.chosenActions.length
-    });
     return valid;
   }
 }

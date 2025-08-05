@@ -90,7 +90,7 @@
             <span class="nameheader header-info--nameheader characterstuff">
               <span class="charname" id="character-name-display">Character Build</span>
               <span class="chartitle" id="character-title-display"></span>
-              <span class="charrace" id="character-race-display"></span>
+<!--              <span class="charrace" id="character-race-display"></span>-->
             </span>
             </div>
             <div class="filler"></div>
@@ -308,7 +308,6 @@
       
       init() {
         try {
-          console.log('🔄 BuildSheet V2: Starting initialization...');
           
           // Load V2 data
           this.loadMasteriesV2();
@@ -327,26 +326,12 @@
           // Check for build code in URL hash
           this.loadFromBuildCode();
           
-          // Debug current state
-          const currentState = this.state.getState();
-          console.log('📊 BuildSheet V2: Current state:', {
-            masteries: currentState.chosenMasteries,
-            masteryRanks: currentState.chosenMasteriesRanks,
-            expertise: currentState.chosenExpertise,
-            expertiseRanks: currentState.chosenExpertiseRanks,
-            actions: currentState.chosenActions,
-            isValid: this.state.isValidForBuildSheet()
-          });
-          
           // Check if we have a complete build
           if (!this.state.isValidForBuildSheet()) {
-            console.warn('❌ BuildSheet V2: Build is not valid for build sheet');
             alert('Please complete all previous steps first.');
             window.location.href = this.state.generateURL('mastery-selector.html');
             return;
           }
-          
-          console.log('✅ BuildSheet V2: Build is valid, displaying...');
           
           // Calculate and display everything
           this.displayBuild();
@@ -354,10 +339,9 @@
           // Set up event listeners
           this.setupEventListeners();
           
-          console.log('🎉 BuildSheet V2: Initialization complete!');
           
         } catch (error) {
-          console.error('💥 BuildSheet V2: Initialization failed:', error);
+          console.error('BuildSheet V2: Initialization failed:', error);
           this.showError('Failed to load build data: ' + error.message);
         }
       }
@@ -409,15 +393,7 @@
         this.displayExpertise(currentState, expertise);
         
         // Calculate and display stats
-        console.log('🔍 Build sheet calculating stats with:', {
-          masteries: masteries ? masteries.length : 'no data',
-          chosenMasteries: currentState.chosenMasteries,
-          chosenRanks: currentState.chosenMasteriesRanks,
-          armorType: currentState.armorType,
-          armorRank: currentState.armorRank
-        });
         const stats = this.calculations.getCompleteStats(currentState, masteries, actions, expertise);
-        console.log('🔍 Build sheet calculated saves:', stats.saves);
         this.displayStats(stats);
         
         // Display equipment
@@ -586,7 +562,6 @@
         }
         
         // Saves - display like equipment
-        console.log('🔍 Displaying saves:', stats.saves);
         this.displaySaves(stats.saves);
         
         // V2 has no expertise bonuses to display
@@ -646,39 +621,19 @@
       getArmorAbility(armorType, armorRank) {
         // Use V2 armor abilities data
         const armorAbilities = window.armorAbilitiesV2;
-        console.log('🔍 getArmorAbility debug:', {
-          armorType,
-          armorRank,
-          rankLetter: this.rankLabels[armorRank],
-          hasArmorAbilities: !!armorAbilities,
-          hasArmorType: !!armorAbilities?.[armorType],
-          armorTypeData: armorAbilities?.[armorType],
-          allArmorTypes: Object.keys(armorAbilities || {})
-        });
         
         if (!armorAbilities) return { name: 'No ability', description: '', rollCode: '' };
         
         const rankLetter = this.rankLabels[armorRank];
         const result = armorAbilities[armorType]?.[rankLetter] || { name: 'No ability', description: '', rollCode: '' };
-        console.log('🔍 getArmorAbility result:', result);
         return result;
       }
 
       displayArmorAbility(abilityData, armorType, armorRank) {
-        console.log('🔍 displayArmorAbility called with:', {abilityData, armorType, armorRank});
-        console.log('🔍 abilityData details:', {
-          name: abilityData?.name,
-          hasName: !!abilityData?.name,
-          nameEquals: abilityData?.name === 'No ability',
-          rankZero: armorRank === 0
-        });
         const container = this.domUtils.querySelector('.passivecontainer');
-        console.log('🔍 Passive container found:', !!container);
         const armorSkillDisplay = container ? container.closest('#equipmentpassive') : null;
-        console.log('🔍 Armor skill display found:', !!armorSkillDisplay);
         
         if (!abilityData.name || abilityData.name === 'No ability' || armorRank === 0) {
-          console.log('🔍 No armor ability or rank 0, hiding display');
           if (container) container.innerHTML = '<span class="armorpassive"></span>';
           // Hide the entire armor skill display div when no armor ability
           if (armorSkillDisplay) {
@@ -686,8 +641,6 @@
           }
           return;
         }
-
-        console.log('🔍 Showing armor ability:', abilityData.name);
         // Show the armor skill display div when there is an ability
         if (armorSkillDisplay) {
           armorSkillDisplay.style.display = 'block';
@@ -702,7 +655,6 @@
             <p>${abilityData.description}</p>
             <p><u class="charpassive">${abilityData.rollCode}</u></p>
           `;
-          console.log('🔍 Armor ability HTML set to container');
         }
       }
       
@@ -1052,13 +1004,12 @@
           try {
             const result = this.buildEncoder.loadFromURL();
             if (result.success) {
-              console.log('🔗 BuildSheet V2: Loaded build from URL:', result.data);
               this.state.updateState(result.data);
             } else {
-              console.warn('⚠️ BuildSheet V2: Failed to load build from URL:', result.error);
+              console.warn('BuildSheet V2: Failed to load build from URL:', result.error);
             }
           } catch (error) {
-            console.error('❌ BuildSheet V2: Error loading build code:', error);
+            console.error('BuildSheet V2: Error loading build code:', error);
           }
         }
       }
