@@ -16,6 +16,7 @@
     
     #inputbox {
       display: block !important;
+      padding: 10px 0px;
     }
     
     #threadcodereplace {
@@ -23,7 +24,7 @@
       height: 40px !important;
       padding: 10px !important;
       font-size: 14px !important;
-      border: 2px solid #a9357b !important;
+      border: 2px solid #fff !important;
       border-radius: 6px !important;
       background: linear-gradient(0deg, rgba(17,20,28,0.95) 0%, rgba(17,20,28,0.85) 100%) !important;
       color: #fff !important;
@@ -33,7 +34,7 @@
     
     #threadcodereplace:focus {
       outline: none !important;
-      border-color: #3ba8b8 !important;
+      border-color: #a9357b !important;
       box-shadow: 0 0 5px rgba(71, 203, 221, 0.3) !important;
     }
   </style>
@@ -84,36 +85,30 @@
       <div class="banner">
         <div class="bannerstuff">
           <div class="bannercontent">
-            <div class="charimg2 left"><img id="pfp2"></div>
+<!--            <div class="charimg2 left"><img id="pfp2"></div>-->
             <div class="charcontainer left">
             <span class="nameheader header-info--nameheader characterstuff">
-              <span class="chartitle" id="character-title-display"></span>
               <span class="charname" id="character-name-display">Character Build</span>
+              <span class="chartitle" id="character-title-display"></span>
               <span class="charrace" id="character-race-display"></span>
             </span>
             </div>
-<!--            <div class="filler"></div>-->
-<!--            <div class="header-info&#45;&#45;functions right">-->
-<!--              <div class="masterycategory" id="inputbox">-->
-<!--                <input type="text" id="threadcodereplace" autocomplete="off" placeholder="Thread code (510C5)...">-->
-<!--              </div>-->
-<!--              <div id="finalbuild"></div>-->
-<!--            </div>-->
+            <div class="filler"></div>
+            <div class="header-info--functions right">
+              <div class="masterycategory" id="inputbox">
+                <input type="text" id="threadcodereplace" autocomplete="off" placeholder="Thread code (510C5)...">
+              </div>
+              <div id="finalbuild"></div>
+            </div>
+          </div>
+          <div class="filler"></div>
+
+          <div class="masterycategory" id="statsdisplay">
+            <div class="hpdisplay"></div>
+            <div class="movementdisplay"></div>
+            <div class="rangedisplay"></div>
           </div>
         </div>
-      </div>
-
-
-
-
-
-      <!-- Stats Display -->
-<!--      <h1 class="statheader">Stats</h1>-->
-      <div class="masterycategory" id="statsdisplay">
-        <div class="hpdisplay"></div>
-        <div class="movementdisplay"></div>
-        <div class="rangedisplay"></div>
-        <!-- V2 has no expertise bonuses -->
       </div>
 
       <!-- Equipment and Saves Display -->
@@ -504,7 +499,6 @@
               background-size: cover;
               background-position: center;
               background-repeat: no-repeat;
-              filter: blur(3px);
               z-index: 10;
             }
           `;
@@ -770,14 +764,30 @@
           if (action) {
             const container = this.domUtils.querySelector(`.card.${actionId}final`);
             if (container) {
-              this.domUtils.setHTML(container, this.generateActionCardContent(action, state, masteries));
+              const hasDowncast = this.hasDowncastMasteries(action, state, masteries);
+              const downcastClass = hasDowncast ? ' downcast-action' : '';
+              const downcastIndicator = hasDowncast ? '<div class="action-downcast-indicator" title="This action has downcast masteries">⬇</div>' : '';
+              
+              // Update the container classes
+              if (hasDowncast) {
+                this.domUtils.addClass(container, 'downcast-action');
+              } else {
+                this.domUtils.removeClass(container, 'downcast-action');
+              }
+              
+              this.domUtils.setHTML(container, downcastIndicator + this.generateActionCardContent(action, state, masteries));
             }
           }
         });
       }
       
       generateActionCard(action, state, masteries) {
-        return `<div class="card" id="${action.lookup}final" style="border-color: ${action.color}">
+        const hasDowncast = this.hasDowncastMasteries(action, state, masteries);
+        const downcastClass = hasDowncast ? ' downcast-action' : '';
+        const downcastIndicator = hasDowncast ? '<div class="action-downcast-indicator" title="This action has downcast masteries">⬇</div>' : '';
+        
+        return `<div class="card${downcastClass}" id="${action.lookup}final" style="border-color: ${action.color}">
+          ${downcastIndicator}
           ${this.generateActionCardContent(action, state, masteries)}
         </div>`;
       }
@@ -802,6 +812,25 @@
         `;
       }
       
+      isActionDowncast(action, mastery) {
+        // Check if the mastery's primary role matches the action's category
+        // If not, it's downcast (mastery is being used outside its primary role)
+        return mastery.primaryRole !== action.category;
+      }
+      
+      hasDowncastMasteries(action, state, masteries) {
+        if (!action.masteries) return false;
+        
+        const applicableMasteries = state.chosenMasteries.filter(masteryId => 
+          action.masteries.includes(masteryId)
+        );
+        
+        return applicableMasteries.some(masteryId => {
+          const mastery = masteries.find(m => m.lookup === masteryId);
+          return mastery && this.isActionDowncast(action, mastery);
+        });
+      }
+      
       generateMasteryIcons(action, state, masteries) {
         if (!action.masteries) return '';
         
@@ -815,7 +844,14 @@
         applicableMasteries.forEach(masteryId => {
           const mastery = masteries.find(m => m.lookup === masteryId);
           if (mastery) {
-            html += `<div class="display masterycircle ${masteryId}"><img onclick="clickMastery(this)" class="${masteryId}" src="${mastery.image}"></div>`;
+            const isDowncast = this.isActionDowncast(action, mastery);
+            const downcastClass = isDowncast ? ' downcast' : '';
+            const downcastIndicator = isDowncast ? '<div class="downcast-indicator">↓</div>' : '';
+            
+            html += `<div class="display masterycircle ${masteryId}${downcastClass}" data-mastery="${masteryId}" data-action="${action.lookup}">
+              <img onclick="clickMastery(this)" class="${masteryId}" src="${mastery.image}">
+              ${downcastIndicator}
+            </div>`;
           }
         });
         html += '</div>';
@@ -1283,10 +1319,8 @@
     #expertisedisplay,
     #equipmentdisplay,
     #statsdisplay {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      display: flex;
       gap: 0px;
-      margin-bottom: 16px;
       /*top: -90px;*/
       position: relative;
     }
@@ -1336,9 +1370,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 8px 12px;
-      background-color: rgb(13, 15, 22);
       color: white;
-      border: 1px solid rgba(147, 51, 234, 0.3);
       font-size: 12px;
     }
 
@@ -1355,11 +1387,6 @@
     .saves-rank-display {
       background-color: rgb(13, 15, 22);
       border: 1px solid rgba(38, 220, 38, 0.3);
-    }
-
-    .stats-display {
-      background-color: rgb(13, 15, 22);
-      border: 1px solid #191e28;
     }
 
     .rank-badge {
@@ -1477,12 +1504,69 @@
 
     .bannercontent {
       justify-content: center;
-      align-items: center;
+      /*align-items: center;*/
       width: 900px;
-      padding: 10px 20px;
+      padding: 0px 10px;
       display: flex;
       box-sizing: border-box;
       z-index: 500;
+    }
+    
+    /* Downcasting styles */
+    .downcast-action {
+      opacity: 0.85;
+    }
+    
+    .action-downcast-indicator {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: rgba(255, 165, 0, 1);
+      color: white;
+      border-radius: 50%;
+      border-color: rgb(13, 15, 22);
+      border-width: 2px;
+      border-style: solid;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      z-index: 10;
+    }
+    
+    .masterycircle.downcast {
+      opacity: 0.7;
+      border-style: dashed !important;
+      border-width: 2px !important;
+    }
+    
+    .masterycircle .downcast-indicator {
+      position: absolute;
+      bottom: -3px;
+      right: -3px;
+      background: orange;
+      color: white;
+      border-radius: 50%;
+      width: 14px;
+      height: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      font-weight: bold;
+      z-index: 5;
+      pointer-events: none;
+    }
+    
+    .masterycircle {
+      position: relative;
+    }
+    
+    .card {
+      position: relative;
     }
 
     .characterstuff {
@@ -1491,6 +1575,20 @@
 
     .charcontainer {
       padding-left: 0;
+    }
+
+    .charname {
+      font-size: 2.5rem;
+    }
+
+    .chartitle {
+      font-weight: normal;
+      color: #fff;
+    }
+
+    .charrace {
+      padding-top: 2px;
+      font-weight: normal;
     }
   </style>
 </body>

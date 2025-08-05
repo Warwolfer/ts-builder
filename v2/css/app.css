@@ -68,7 +68,7 @@ html{
 
 .banner {
   display: flex;
-  align-items: center;
+  /*align-items: center;*/
 }
 
 .banner > img {
@@ -377,13 +377,13 @@ ul{
 .selected.hyper-sense{
   background-color: #40883a;
 }
-.displaycircle.arcanamancy, .displaycircle.astramancy, .displaycircle.beast-arts, .displaycircle.geomancy, .displaycircle.guard-arts, .displaycircle.hemomancy, .displaycircle.hydromancy, .displaycircle.illusion-magic, .display.arcanamancy, .display.astramancy, .display.beast-arts, .display.geomancy, .display.guard-arts, .display.hemomancy, .display.hydromancy, .display.illusion-magic{
+.displaycircle.arcanamancy, .displaycircle.astramancy, .displaycircle.beast-arts, .displaycircle.geomancy, .displaycircle.guard-arts, .displaycircle.hemomancy, .displaycircle.hydromancy, .displaycircle.illusion-magic, .displaycircle.cryomancy, .displaycircle.spellbane, .display.arcanamancy, .display.astramancy, .display.beast-arts, .display.geomancy, .display.guard-arts, .display.hemomancy, .display.hydromancy, .display.illusion-magic, .display.cryomancy, .display.spellbane{
   border-color: #ce832c;
 }
-.displaycircle.aeromancy, .displaycircle.crush-weapons, .displaycircle.dark-magic, .displaycircle.martial-arts, .displaycircle.pierce-weapons, .displaycircle.pyromancy, .displaycircle.ranged-weapons, .displaycircle.shadow-arts, .displaycircle.slash-weapons, .display.aeromancy, .display.crush-weapons, .display.dark-magic, .display.martial-arts, .display.pierce-weapons, .display.pyromancy, .display.ranged-weapons, .display.shadow-arts, .display.slash-weapons{
+.displaycircle.aeromancy, .displaycircle.crush-weapons, .displaycircle.dark-magic, .displaycircle.martial-arts, .displaycircle.pierce-weapons, .displaycircle.pyromancy, .displaycircle.ranged-weapons, .displaycircle.shadow-arts, .displaycircle.slash-weapons, .displaycircle.electromancy, .displaycircle.power, .displaycircle.precision, .displaycircle.speed, .displaycircle.unarmed, .displaycircle.ranged, .display.aeromancy, .display.crush-weapons, .display.dark-magic, .display.martial-arts, .display.pierce-weapons, .display.pyromancy, .display.ranged-weapons, .display.shadow-arts, .display.slash-weapons, .display.electromancy, .display.power, .display.precision, .display.speed, .display.unarmed, .display.ranged{
   border-color: #bd4444;/*#ce2c2c*/
 }
-.displaycircle.alchemy, .displaycircle.animancy, .displaycircle.chronomancy, .displaycircle.divine-magic, .displaycircle.harmonic-magic, .displaycircle.magitech, .displaycircle.nature-magic, .displaycircle.spirit-magic, .display.alchemy, .display.animancy, .display.chronomancy, .display.divine-magic, .display.harmonic-magic, .display.magitech, .display.nature-magic, .display.spirit-magic{
+.displaycircle.alchemy, .displaycircle.animancy, .displaycircle.chronomancy, .displaycircle.divine-magic, .displaycircle.harmonic-magic, .displaycircle.magitech, .displaycircle.nature-magic, .displaycircle.spirit-magic, .displaycircle.tinker, .displaycircle.war-arts, .display.alchemy, .display.animancy, .display.chronomancy, .display.divine-magic, .display.harmonic-magic, .display.magitech, .display.nature-magic, .display.spirit-magic, .display.tinker, .display.war-arts{
   border-color: #589edc;/*#4f88cf*/
 }
 .displaycircle.aura, .displaycircle.battle-spirits, .displaycircle.corrupt, .displaycircle.dynamism, .displaycircle.evoke, .displaycircle.hyper-sense, .displaycircle.mend, .displaycircle.metamorph, .displaycircle.summon, .displaycircle.weapon-arts, .display.aura, .display.battle-spirits, .display.corrupt, .display.dynamism, .display.evoke, .display.hyper-sense, .display.mend, .display.metamorph, .display.summon, .display.weapon-arts{
@@ -1386,12 +1386,11 @@ max-width: 840px;*/
 #statsdisplay{
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: right;
   user-select: none;
   text-align: center;
   z-index: 9998;
   position: relative;
-  margin: 0 -10px 0 -10px;
 }
 
 #statsdisplay > div{
@@ -1887,14 +1886,6 @@ margin: 0 0 5px 0!important;
   display: flex;
   color: #ffffff !important;
   flex-direction: column;
-  justify-content: center;
-  justify-items: center;
-  text-align: center;
-  text-shadow:
-  -2px -2px 0 #0d0f16,
-  2px -2px 0 #0d0f16,
-  -2px  2px 0 #0d0f16,
-  2px  2px 0 #0d0f16;
 }
 .header-info--functions{display: block}
 .charcontainer {

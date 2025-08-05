@@ -1336,7 +1336,7 @@ max-width: 840px;*/
 #statsdisplay{
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: right;
   user-select: none;
   text-align: center;
   margin: 40px 0 20xp 0;
