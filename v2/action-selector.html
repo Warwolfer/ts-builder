@@ -15,6 +15,7 @@
   <script src="shared/data-loader.js"></script>
   <script src="shared/calculations.js"></script>
   <script src="shared/build-encoder.js"></script>
+  <script src="shared/loading-manager.js"></script>
   
   <!-- Data files -->
   <script src="resource/masteries.js"></script>
@@ -120,8 +121,14 @@
         this.init();
       }
       
-      init() {
+      async init() {
         try {
+          // Show loading while initializing
+          LoadingManager.showActionLoading('action-categories');
+          
+          // Simulate async loading for better UX
+          await new Promise(resolve => setTimeout(resolve, 300));
+          
           // Load V2 data
           this.loadMasteriesV2();
           this.loadActionsV2();
@@ -153,7 +160,11 @@
           // Update UI with current state
           this.updateUI();
           
+          // Hide loading spinner
+          LoadingManager.hide('action-categories');
+          
         } catch (error) {
+          LoadingManager.hide('action-categories');
           console.error('Error initializing action selector:', error);
           this.showError('Failed to load action data: ' + error.message);
         }

@@ -10,6 +10,7 @@
   <!-- Shared modules -->
   <script src="shared/state-manager.js"></script>
   <script src="shared/build-encoder.js"></script>
+  <script src="shared/loading-manager.js"></script>
 
   <!-- Data files -->
   <script src="resource/masteries.js"></script>
@@ -116,7 +117,10 @@
 
     async function importBuildCode(buildCode, isCompact = false) {
       try {
-        document.getElementById('status').innerHTML = 'Importing build...';
+        LoadingManager.show('status', {
+          type: 'progress',
+          text: 'Importing build...'
+        });
         console.log('📥 V2 Index: Importing build code:', buildCode.substring(0, 20) + '...');
 
         if (!window.BuildEncoder) {
@@ -149,6 +153,7 @@
       } catch (error) {
         console.error('❌ V2 Index: Import failed:', error);
         
+        LoadingManager.hide('status');
         document.getElementById('status').innerHTML = `
           <div class="error">
             <h3>Import Failed</h3>
@@ -161,16 +166,20 @@
     }
 
     function redirectToMasterySelector() {
-      document.getElementById('status').innerHTML = `
-        <div class="loading">
-          <p>Redirecting to build creator...</p>
+      LoadingManager.show('status', {
+        type: 'mastery',
+        text: 'Redirecting to build creator...'
+      });
+      
+      setTimeout(() => {
+        document.getElementById('status').innerHTML += `
           <p><a href="mastery-selector.html" class="redirect-link">Click here if not redirected automatically</a></p>
-        </div>
-      `;
+        `;
+      }, 1500);
       
       setTimeout(() => {
         window.location.href = 'mastery-selector.html';
-      }, 1000);
+      }, 2000);
     }
 
     // Wait for page to load, then handle build codes

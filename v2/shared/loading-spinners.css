@@ -1,0 +1,255 @@
+/* TerraSphere V2 - CSS-Only Loading Spinners */
+
+/* Base loading container */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  min-height: 200px;
+}
+
+.loading-container.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(17, 20, 28, 0.95);
+  z-index: 9999;
+  min-height: 100vh;
+}
+
+.loading-text {
+  color: #47cbdd;
+  font-size: 16px;
+  margin-top: 20px;
+  text-align: center;
+  opacity: 0.9;
+}
+
+/* Primary Spinner - Rotating Ring */
+.spinner-ring {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(71, 203, 221, 0.2);
+  border-top: 4px solid #47cbdd;
+  border-radius: 50%;
+  animation: spin-ring 1s linear infinite;
+}
+
+@keyframes spin-ring {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Secondary Spinner - Pulsing Dots */
+.spinner-dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.spinner-dots .dot {
+  width: 12px;
+  height: 12px;
+  background-color: #47cbdd;
+  border-radius: 50%;
+  animation: pulse-dots 1.4s ease-in-out infinite both;
+}
+
+.spinner-dots .dot:nth-child(1) { animation-delay: -0.32s; }
+.spinner-dots .dot:nth-child(2) { animation-delay: -0.16s; }
+.spinner-dots .dot:nth-child(3) { animation-delay: 0s; }
+
+@keyframes pulse-dots {
+  0%, 80%, 100% {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Mastery Spinner - Themed for TerraSphere */
+.spinner-mastery {
+  width: 50px;
+  height: 50px;
+  position: relative;
+}
+
+.spinner-mastery::before,
+.spinner-mastery::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin-mastery 2s linear infinite;
+}
+
+.spinner-mastery::before {
+  border-top-color: #47cbdd;
+  border-right-color: #47cbdd;
+}
+
+.spinner-mastery::after {
+  border-bottom-color: #a9357b;
+  border-left-color: #a9357b;
+  animation-direction: reverse;
+  animation-duration: 1.5s;
+}
+
+@keyframes spin-mastery {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Data Loading Spinner - For API calls */
+.spinner-data {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(71, 203, 221, 0.2);
+  border-radius: 50%;
+  border-top-color: #47cbdd;
+  animation: spin-ring 0.8s linear infinite;
+}
+
+/* Inline spinner for buttons */
+.spinner-inline {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #ffffff;
+  animation: spin-ring 0.6s linear infinite;
+  margin-right: 8px;
+}
+
+/* Progress Spinner - With percentage */
+.spinner-progress {
+  width: 60px;
+  height: 60px;
+  position: relative;
+  background: conic-gradient(#47cbdd 0deg, rgba(71, 203, 221, 0.2) 0deg);
+  border-radius: 50%;
+  animation: spin-progress 2s linear infinite;
+}
+
+.spinner-progress::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 80%;
+  height: 80%;
+  background-color: #11141c;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes spin-progress {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Fade-in animation for loading states */
+.loading-fade-in {
+  animation: fade-in 0.3s ease-in-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading overlay for specific elements */
+.loading-overlay {
+  position: relative;
+}
+
+.loading-overlay::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(17, 20, 28, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.loading-overlay.spinner-ring::after {
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" fill="none" stroke="%2347cbdd" stroke-width="4" stroke-linecap="round" stroke-dasharray="31.416" stroke-dashoffset="31.416"><animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416" repeatCount="indefinite"/><animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416" repeatCount="indefinite"/></circle></svg>');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 40px 40px;
+}
+
+/* Utility classes */
+.loading-small .spinner-ring { width: 24px; height: 24px; border-width: 3px; }
+.loading-large .spinner-ring { width: 60px; height: 60px; border-width: 6px; }
+
+.loading-primary { color: #47cbdd; }
+.loading-secondary { color: #a9357b; }
+.loading-success { color: #28a745; }
+.loading-warning { color: #ffc107; }
+.loading-error { color: #dc3545; }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .loading-container {
+    padding: 30px 15px;
+    min-height: 150px;
+  }
+  
+  .loading-text {
+    font-size: 14px;
+  }
+  
+  .spinner-mastery {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .spinner-progress {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+/* Dark theme optimizations */
+@media (prefers-color-scheme: dark) {
+  .loading-container.fullscreen {
+    background-color: rgba(17, 20, 28, 0.98);
+  }
+}
+
+/* Accessibility - Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .spinner-ring,
+  .spinner-mastery::before,
+  .spinner-mastery::after,
+  .spinner-data,
+  .spinner-inline,
+  .spinner-progress {
+    animation-duration: 2s;
+  }
+  
+  .spinner-dots .dot {
+    animation-duration: 2s;
+  }
+}

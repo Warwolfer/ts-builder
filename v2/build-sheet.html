@@ -47,6 +47,7 @@
   <script src="shared/data-loader.js"></script>
   <script src="shared/calculations.js"></script>
   <script src="shared/build-encoder.js"></script>
+  <script src="shared/loading-manager.js"></script>
   
   <!-- Data files -->
   <script src="resource/masteries.js"></script>
@@ -85,7 +86,12 @@
       <div class="banner">
         <div class="bannerstuff">
           <div class="bannercontent">
-<!--            <div class="charimg2 left"><img id="pfp2"></div>-->
+            <div class="charimg2 left">
+              <div class="avatar-container">
+                <img id="pfp2">
+                <div class="rank-badge-avatar" id="rank-badge-avatar">E</div>
+              </div>
+            </div>
             <div class="charcontainer left">
             <span class="nameheader header-info--nameheader characterstuff">
               <span class="charname" id="character-name-display">Character Build</span>
@@ -578,6 +584,9 @@
         this.displaySaves(stats.saves);
         
         // V2 has no expertise bonuses to display
+        
+        // Calculate and display total score
+        this.calculateAndDisplayTotalScore();
       }
       
       displaySaves(saves) {
@@ -598,6 +607,268 @@
         );
       }
       
+      calculateAndDisplayTotalScore() {
+        const currentState = this.state.getState();
+        
+        // Use actual game bonuses from calculations system
+        const getRankValue = (rank) => {
+          let numericRank;
+          if (typeof rank === 'string') {
+            const rankMap = { 'E': 0, 'D': 1, 'C': 2, 'B': 3, 'A': 4, 'S': 5 };
+            numericRank = rankMap[rank] || 0;
+          } else {
+            numericRank = Math.max(0, Math.min(5, rank)); // Ensure rank is between 0-5
+          }
+          
+          // Use the actual game bonuses from calculations.js
+          const RANK_BONUSES = {
+            0: 0,   // E rank
+            1: 10,  // D rank 
+            2: 15,  // C rank
+            3: 25,  // B rank
+            4: 30,  // A rank
+            5: 40   // S rank
+          };
+          
+          return RANK_BONUSES[numericRank] || 0;
+        };
+        
+        let totalScore = 0;
+        let breakdown = [];
+        
+        // Equipment scores
+        const weaponScore = getRankValue(currentState.weaponRank);
+        const armorScore = getRankValue(currentState.armorRank);
+        const accessoryScore = getRankValue(currentState.accessoryRank);
+        
+        totalScore += weaponScore + armorScore + accessoryScore;
+        breakdown.push(`Weapon: ${this.getRankLabel(currentState.weaponRank)} (${weaponScore})`);
+        breakdown.push(`Armor: ${this.getRankLabel(currentState.armorRank)} (${armorScore})`);
+        breakdown.push(`Accessory: ${this.getRankLabel(currentState.accessoryRank)} (${accessoryScore})`);
+        
+        // Mastery scores - check multiple possible field names
+        let masteryTotal = 0;
+        const masteryRanks = currentState.masteryRanks || currentState.chosenMasteriesRanks || {};
+        const masteryNames = currentState.masteryNames || currentState.chosenMasteries || [];
+        
+        // Handle different data structures
+        if (Array.isArray(masteryRanks) && Array.isArray(masteryNames)) {
+          // Arrays - match by index
+          masteryNames.forEach((masteryName, index) => {
+            const rank = masteryRanks[index];
+            if (rank !== undefined) {
+              const rankValue = getRankValue(rank);
+              masteryTotal += rankValue;
+              breakdown.push(`${masteryName}: ${this.getRankLabel(rank)} (${rankValue})`);
+            }
+          });
+        } else if (typeof masteryRanks === 'object') {
+          // Object - use as key-value pairs
+          Object.entries(masteryRanks).forEach(([masteryId, rank]) => {
+            const rankValue = getRankValue(rank);
+            masteryTotal += rankValue;
+            breakdown.push(`${masteryId}: ${this.getRankLabel(rank)} (${rankValue})`);
+          });
+        }
+        
+        totalScore += masteryTotal;
+        
+        // Expertise scores (V2 feature)
+        let expertiseTotal = 0;
+        const expertiseRanks = currentState.expertiseRanks || currentState.chosenExpertiseRanks || {};
+        const expertiseNames = currentState.expertiseNames || currentState.chosenExpertise || [];
+        
+        // Handle different data structures for expertise (expertise worth 1/4 of masteries)
+        if (Array.isArray(expertiseRanks) && Array.isArray(expertiseNames)) {
+          // Arrays - match by index
+          expertiseNames.forEach((expertiseName, index) => {
+            const rank = expertiseRanks[index];
+            if (rank !== undefined) {
+              const fullRankValue = getRankValue(rank);
+              const expertiseValue = Math.round(fullRankValue / 4); // Expertise worth 1/4
+              expertiseTotal += expertiseValue;
+              breakdown.push(`${expertiseName}: ${this.getRankLabel(rank)} (${expertiseValue})`);
+            }
+          });
+        } else if (typeof expertiseRanks === 'object') {
+          // Object - use as key-value pairs
+          Object.entries(expertiseRanks).forEach(([expertiseId, rank]) => {
+            const fullRankValue = getRankValue(rank);
+            const expertiseValue = Math.round(fullRankValue / 4); // Expertise worth 1/4
+            expertiseTotal += expertiseValue;
+            breakdown.push(`${expertiseId}: ${this.getRankLabel(rank)} (${expertiseValue})`);
+          });
+        }
+        
+        totalScore += expertiseTotal;
+        
+        // Console log the scoring breakdown
+        console.group('🎯 Build Scoring System');
+        console.log(`Total Score: ${totalScore}`);
+        console.log('');
+        console.log('Equipment Breakdown:');
+        console.log(`  Weapon: ${this.getRankLabel(currentState.weaponRank)} (${weaponScore} points)`);
+        console.log(`  Armor: ${this.getRankLabel(currentState.armorRank)} (${armorScore} points)`);
+        console.log(`  Accessory: ${this.getRankLabel(currentState.accessoryRank)} (${accessoryScore} points)`);
+        console.log(`  Equipment Subtotal: ${weaponScore + armorScore + accessoryScore}`);
+        console.log('');
+        
+        if (Object.keys(masteryRanks).length > 0) {
+          console.log('Mastery Breakdown:');
+          Object.entries(masteryRanks).forEach(([masteryId, rank]) => {
+            const rankValue = getRankValue(rank);
+            console.log(`  ${masteryId}: ${this.getRankLabel(rank)} (${rankValue} points)`);
+          });
+          console.log(`  Mastery Subtotal: ${masteryTotal}`);
+          console.log('');
+        }
+        
+        if (Object.keys(expertiseRanks).length > 0) {
+          console.log('Expertise Breakdown:');
+          Object.entries(expertiseRanks).forEach(([expertiseId, rank]) => {
+            const rankValue = getRankValue(rank);
+            console.log(`  ${expertiseId}: ${this.getRankLabel(rank)} (${rankValue} points)`);
+          });
+          console.log(`  Expertise Subtotal: ${expertiseTotal}`);
+          console.log('');
+        }
+        
+        // Calculate build rank based on total score (0-339 scale with SAABBB limits)
+        const getBuildRank = (score) => {
+          const ranks = [
+            { grade: 'E', min: 0, max: 30 },
+            { grade: 'E+', min: 31, max: 61 },
+            { grade: 'D', min: 62, max: 92 },
+            { grade: 'D+', min: 93, max: 123 },
+            { grade: 'C', min: 124, max: 154 },
+            { grade: 'C+', min: 155, max: 185 },
+            { grade: 'B', min: 186, max: 216 },
+            { grade: 'B+', min: 217, max: 247 },
+            { grade: 'A', min: 248, max: 278 },
+            { grade: 'A+', min: 279, max: 309 },
+            { grade: 'S', min: 310, max: 338 },
+            { grade: 'S+', min: 339, max: 339 }
+          ];
+          
+          const rank = ranks.find(r => score >= r.min && score <= r.max);
+          return rank ? rank.grade : 'E';
+        };
+        
+        const buildRank = getBuildRank(totalScore);
+        
+        // Update the avatar rank badge
+        this.updateRankBadge(buildRank);
+        
+        console.log(`🏆 TOTAL BUILD SCORE: ${totalScore} points`);
+        console.log(`📊 BUILD RANK: ${buildRank}`);
+        console.log('');
+        console.log('Rank Scale: E (0-30), E+ (31-61), D (62-92), D+ (93-123), C (124-154), C+ (155-185)');
+        console.log('           B (186-216), B+ (217-247), A (248-278), A+ (279-309), S (310-338), S+ (339)');
+        console.log('');
+        console.log('Scoring: E=0, D=10, C=15, B=25, A=30, S=40 points per rank');
+        console.log('         Expertise worth 1/4 value (E=0, D=2.5, C=3.75, B=6.25, A=7.5, S=10)');
+        console.groupEnd();
+        
+        return { totalScore, buildRank };
+      }
+      
+      updateDowncastIndicators(cardElement, clickedMasteryId, clickedMastery) {
+        // Get the action ID from the card
+        const actionId = cardElement.id.replace('final', '');
+        const actions = this.dataLoader.cache.actions;
+        const action = actions.find(a => a.lookup === actionId);
+        
+        if (!action) return;
+        
+        // Check if the clicked mastery would cause downcast for this action
+        const isDowncast = this.isActionDowncast(action, clickedMastery);
+        
+        // Find or create the action downcast indicator
+        let indicator = cardElement.querySelector('.action-downcast-indicator');
+        
+        if (isDowncast) {
+          // Get the current state to find the mastery rank
+          const currentState = this.state.getState();
+          const masteryIndex = currentState.chosenMasteries.indexOf(clickedMasteryId);
+          
+          if (masteryIndex !== -1) {
+            const currentRank = currentState.chosenMasteriesRanks[masteryIndex];
+            const downcastRank = Math.max(0, currentRank - 1); // Downcast by 1 rank
+            const rankLabels = ['E', 'D', 'C', 'B', 'A', 'S'];
+            const currentRankLabel = rankLabels[currentRank];
+            const downcastRankLabel = rankLabels[downcastRank];
+            
+            // Show indicator if it doesn't exist
+            if (!indicator) {
+              indicator = document.createElement('div');
+              indicator.className = 'action-downcast-indicator';
+              indicator.textContent = '⬇';
+              cardElement.appendChild(indicator);
+            }
+            
+            // Update tooltip with rank downgrade info
+            indicator.title = `A secondary role mastery has been detected, action rank will be reduced from MR X ${currentRankLabel} to MR${downcastRankLabel}.`;
+            
+            // Update the MR display in the rollcode to show downcast rank
+            const masteryReplace = cardElement.querySelector('.masteryreplace');
+            if (masteryReplace) {
+              masteryReplace.innerHTML = downcastRankLabel;
+            }
+          }
+          
+          // Add downcast class to card
+          cardElement.classList.add('downcast-action');
+        } else {
+          // Remove indicator if it exists
+          if (indicator) {
+            indicator.remove();
+          }
+          // Remove downcast class from card
+          cardElement.classList.remove('downcast-action');
+          
+          // Reset MR to normal rank if not downcast
+          const currentState = this.state.getState();
+          const masteryIndex = currentState.chosenMasteries.indexOf(clickedMasteryId);
+          
+          if (masteryIndex !== -1) {
+            const currentRank = currentState.chosenMasteriesRanks[masteryIndex];
+            const rankLabels = ['E', 'D', 'C', 'B', 'A', 'S'];
+            const currentRankLabel = rankLabels[currentRank];
+            
+            // Update the MR display to show normal rank
+            const masteryReplace = cardElement.querySelector('.masteryreplace');
+            if (masteryReplace) {
+              masteryReplace.innerHTML = currentRankLabel;
+            }
+          }
+        }
+      }
+      
+      updateRankBadge(buildRank) {
+        const badge = this.domUtils.getElementById('rank-badge-avatar');
+        if (!badge) return;
+        
+        // Update badge text with superscript for + signs
+        let displayText = buildRank;
+        if (buildRank.includes('+')) {
+          const baseLetter = buildRank.charAt(0);
+          displayText = `${baseLetter}<sup>+</sup>`;
+        }
+        badge.innerHTML = displayText;
+        
+        // Remove all rank classes
+        badge.className = 'rank-badge-avatar';
+        
+        // Add appropriate rank class
+        let rankClass = buildRank.toLowerCase();
+        if (rankClass === 's+') {
+          rankClass = 'splus';
+        } else {
+          rankClass = rankClass.replace('+', '');
+        }
+        badge.classList.add(`rank-${rankClass}`);
+      }
+      
       displayEquipment(state) {
         const { armorType, weaponRank, armorRank, accessoryType = null, accessoryRank = 0 } = state;
 
@@ -609,7 +880,7 @@
         if (armorType && this.armorImages[armorType]) {
           this.domUtils.setHTML(
             this.domUtils.querySelector('.armorrankdisplay'),
-            `<div class="equipment-rank-display"><span class="mastery-with-icon"><img src="${this.armorImages[armorType]}" class="mastery-icon"> ${armorType.charAt(0).toUpperCase() + armorType.slice(1)} Armor</span><span class="rank-badge ${this.getRankColorClass(this.getRankLabel(armorRank))}">${this.getRankLabel(armorRank)}</span></div>`
+            `<div class="equipment-rank-display"><span class="mastery-with-icon"><img src="${this.armorImages[armorType]}" class="mastery-icon"> ${armorType.charAt(0).toUpperCase() + armorType.slice(1)}</span><span class="rank-badge ${this.getRankColorClass(this.getRankLabel(armorRank))}">${this.getRankLabel(armorRank)}</span></div>`
           );
           
           // Set armor ability
@@ -643,31 +914,48 @@
       }
 
       displayArmorAbility(abilityData, armorType, armorRank) {
-        const container = this.domUtils.querySelector('.passivecontainer');
-        const armorSkillDisplay = container ? container.closest('#equipmentpassive') : null;
-        
-        if (!abilityData.name || abilityData.name === 'No ability' || armorRank === 0) {
-          if (container) container.innerHTML = '<span class="armorpassive"></span>';
-          // Hide the entire armor skill display div when no armor ability
-          if (armorSkillDisplay) {
-            armorSkillDisplay.style.display = 'none';
-          }
-          return;
-        }
-        // Show the armor skill display div when there is an ability
+        // Hide the old armor passive display area
+        const armorSkillDisplay = this.domUtils.getElementById('equipmentpassive');
         if (armorSkillDisplay) {
-          armorSkillDisplay.style.display = 'block';
+          armorSkillDisplay.style.display = 'none';
+        }
+
+        // Find the Free actions container
+        const freeActionsContainer = this.domUtils.getElementById('freeactiondisplay');
+        if (!freeActionsContainer) return;
+
+        // Remove any existing armor ability card
+        const existingArmorCard = this.domUtils.querySelector('#armor-ability-card');
+        if (existingArmorCard) {
+          existingArmorCard.remove();
+        }
+
+        // Only add armor ability card if there's a valid ability
+        if (!abilityData.name || abilityData.name === 'No ability' || armorRank === 0) {
+          return;
         }
 
         const armorTypeName = armorType.charAt(0).toUpperCase() + armorType.slice(1);
         
-        if (container) {
-          container.innerHTML = `
-            <span class="armorpassive"></span>
-            <p><b>${abilityData.name}.</b> (${armorTypeName} Armor Ability)</p>
-            <p>${abilityData.description}</p>
-            <p><u class="charpassive">${abilityData.rollCode}</u></p>
-          `;
+        // Create armor ability card HTML
+        const armorCard = `
+          <div class="card normal" id="armor-ability-card">
+            <div class="cardicon" style="background-color: #1e2131; background-image: url('${this.armorImages[armorType]}'); background-repeat: no-repeat; background-position: center; background-size: contain;"></div>
+            <div class="cardtitle">${abilityData.name}</div>
+            <div class="cardinfo">
+              <p><em><b>${armorTypeName} Armor Ability</b></em></p>
+              <p>${abilityData.description}</p>
+            </div>
+            <div class="rollcode">${abilityData.rollCode}</div>
+          </div>
+        `;
+
+        // Insert the armor card right after the opening div of freeactiondisplay (before Attack card)
+        const firstCard = freeActionsContainer.querySelector('.card');
+        if (firstCard) {
+          firstCard.insertAdjacentHTML('beforebegin', armorCard);
+        } else {
+          freeActionsContainer.insertAdjacentHTML('afterbegin', armorCard);
         }
       }
       
@@ -729,30 +1017,22 @@
           if (action) {
             const container = this.domUtils.querySelector(`.card.${actionId}final`);
             if (container) {
-              const hasDowncast = this.hasDowncastMasteries(action, state, masteries);
-              const downcastClass = hasDowncast ? ' downcast-action' : '';
-              const downcastIndicator = hasDowncast ? '<div class="action-downcast-indicator" title="This action has downcast masteries">⬇</div>' : '';
-              
-              // Update the container classes
-              if (hasDowncast) {
-                this.domUtils.addClass(container, 'downcast-action');
-              } else {
-                this.domUtils.removeClass(container, 'downcast-action');
+              // Remove any existing downcast indicators and classes - they only show when mastery is clicked
+              const existingIndicator = container.querySelector('.action-downcast-indicator');
+              if (existingIndicator) {
+                existingIndicator.remove();
               }
+              container.classList.remove('downcast-action');
               
-              this.domUtils.setHTML(container, downcastIndicator + this.generateActionCardContent(action, state, masteries));
+              this.domUtils.setHTML(container, this.generateActionCardContent(action, state, masteries));
             }
           }
         });
       }
       
       generateActionCard(action, state, masteries) {
-        const hasDowncast = this.hasDowncastMasteries(action, state, masteries);
-        const downcastClass = hasDowncast ? ' downcast-action' : '';
-        const downcastIndicator = hasDowncast ? '<div class="action-downcast-indicator" title="This action has downcast masteries">⬇</div>' : '';
-        
-        return `<div class="card${downcastClass}" id="${action.lookup}final" style="border-color: ${action.color}">
-          ${downcastIndicator}
+        // Don't show downcast indicators by default - they only appear when mastery is clicked
+        return `<div class="card" id="${action.lookup}final" style="border-color: ${action.color}">
           ${this.generateActionCardContent(action, state, masteries)}
         </div>`;
       }
@@ -813,8 +1093,8 @@
             const downcastClass = isDowncast ? ' downcast' : '';
             const downcastIndicator = isDowncast ? '<div class="downcast-indicator">↓</div>' : '';
             
-            html += `<div class="display masterycircle ${masteryId}${downcastClass}" data-mastery="${masteryId}" data-action="${action.lookup}">
-              <img onclick="clickMastery(this)" class="${masteryId}" src="${mastery.image}">
+            html += `<div class="display masterycircle ${masteryId}${downcastClass}" data-mastery="${masteryId}" data-action="${action.lookup}" onclick="clickMastery(this)">
+              <img class="${masteryId}" src="${mastery.image}">
               ${downcastIndicator}
             </div>`;
           }
@@ -1105,6 +1385,9 @@
           if (mnameReplace) {
             mnameReplace.innerHTML = masteryName;
           }
+          
+          // Update downcast indicators based on clicked mastery
+          buildSheetInstance.updateDowncastIndicators(cardElement, masteryId, mastery);
         }
       }
     }
@@ -1287,6 +1570,7 @@
       gap: 0px;
       /*top: -90px;*/
       position: relative;
+      background: linear-gradient(180deg, transparent, rgba(17,20,28,1) 100%);
     }
 
     @media (max-width: 575px) {
@@ -1297,7 +1581,7 @@
         grid-template-columns: repeat(2, 1fr);
       }
       #statsdisplay {
-        grid-template-columns: repeat(3, 1fr);
+        justify-content: center !important;
       }
     }
 
@@ -1306,8 +1590,7 @@
       #savesdisplay,
       #masterydisplay,
       #expertisedisplay,
-      #equipmentdisplay,
-      #statsdisplay {
+      #equipmentdisplay{
         grid-template-columns: repeat(3, 1fr);
       }
     }
@@ -1448,6 +1731,61 @@
       gap: 8px;
     }
 
+    @media (max-width: 475px) {
+      #bodyback  {
+        margin-top: 84px;
+      }
+
+      .characterstuff {
+        padding-right: 0 !important;
+      }
+
+      .nameheader {
+        text-align: left;
+      }
+
+      .charname {
+        font-size: 18px !important;
+      }
+
+      .chartitle {
+        font-size: 12px !important;
+      }
+
+      .banner {
+        margin: 0 !important;
+      }
+
+      .header-info--functions {
+        padding-right: 10px;
+        width: 100px !important;
+      }
+    }
+
+    @media (min-width: 476px) and (max-width: 576px) {
+      #bodyback  {
+        margin-top: 84px;
+      }
+    }
+
+    @media (min-width: 576px) and (max-width: 899px) {
+      #bodyback  {
+        margin-top: 120px;
+      }
+    }
+
+    @media (max-width: 650px) {
+      .nameheader {
+        width: 100%;
+        text-align: left !important;
+      }
+
+      .mastery-section, .expertise-section {
+        margin-bottom: 16px;
+      }
+    }
+
+
     /* Mobile: stack vertically */
     @media (max-width: 768px) {
       .mastery-expertise-container {
@@ -1459,6 +1797,11 @@
       .expertise-section #expertisedisplay {
         grid-template-columns: repeat(2, 1fr);
       }
+
+      .stat-value {
+        font-weight: bold;
+        font-size: 18px !important;
+      }
     }
 
     .stat-value {
@@ -1467,18 +1810,20 @@
     }
 
     .bannercontent {
+      background: linear-gradient(0deg, transparent 0%, rgba(17,20,28,1) 100%);
       justify-content: center;
       /*align-items: center;*/
-      width: 900px;
+      width: 100%;
       padding: 0px 10px;
       display: flex;
       box-sizing: border-box;
       z-index: 500;
+      height: 120px;
     }
     
     /* Downcasting styles */
     .downcast-action {
-      opacity: 0.85;
+      /*animation: glow-downcast 2s ease-in-out infinite alternate;*/
     }
     
     .action-downcast-indicator {
@@ -1534,6 +1879,7 @@
     }
 
     .characterstuff {
+      padding-left: 10px;
       padding-right: 120px;
     }
 
@@ -1553,6 +1899,61 @@
     .charrace {
       padding-top: 2px;
       font-weight: normal;
+    }
+    
+    /* Rank badge styling */
+    .avatar-container {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .rank-badge-avatar {
+      position: absolute;
+      top: 14px;
+      right: -4px;
+      background: linear-gradient(0deg, rgba(17,20,28,1) 0%, rgba(17,20,28,1) 100%) !important;
+      color: white;
+      border-width: 1px;
+      border-style: solid;
+      border-color: #fff;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: bold;
+      z-index: 10;
+    }
+    
+    .rank-badge-avatar sup {
+      font-size: 10px;
+      vertical-align: super;
+      line-height: 0;
+    }
+    
+    /* Rank-specific colors matching mastery badges */
+    .rank-badge-avatar.rank-e { color: #6b7280; border-color: #6b7280;} /* Gray */
+    .rank-badge-avatar.rank-d { color: #3b82f6; border-color: #3b82f6;} /* Blue */
+    .rank-badge-avatar.rank-c { color: #22c55e; border-color: #22c55e;} /* Green */
+    .rank-badge-avatar.rank-b { color: #ec4899; border-color: #ec4899;} /* Pink */
+    .rank-badge-avatar.rank-a { color: #f97316; border-color: #f97316;} /* Orange */
+    .rank-badge-avatar.rank-s { color: #f59e0b; border-color: #f59e0b;} /* Gold/Yellow */
+    .rank-badge-avatar.rank-splus { 
+      color: #f59e0b;
+      border-color: #f59e0b;
+      /*animation: glow-ss 2s ease-in-out infinite alternate;*/
+    }
+    
+    @keyframes glow-ss {
+      from { box-shadow: 0 2px 6px rgba(0,0,0,0.3), 0 0 15px rgba(251, 191, 36, 0.4); }
+      to { box-shadow: 0 2px 6px rgba(0,0,0,0.3), 0 0 25px rgba(251, 191, 36, 0.8); }
+    }
+
+    @keyframes glow-downcast {
+      from { box-shadow: 0 2px 6px rgba(0,0,0,0.3), 0 0 15px rgba(255, 0, 0, 0.4); }
+      to { box-shadow: 0 2px 6px rgba(0,0,0,0.3), 0 0 25px rgba(200, 0, 0, 0.8); }
     }
   </style>
 </body>

@@ -15,6 +15,7 @@
   <script src="shared/data-loader.js"></script>
   <script src="shared/calculations.js"></script>
   <script src="shared/build-encoder.js"></script>
+  <script src="shared/loading-manager.js"></script>
   
   <!-- Data files -->
   <script src="resource/masteries.js"></script>
@@ -599,7 +600,7 @@
           html += `<div class="caps-breakdown">`;
           html += `<span class="${rankCounts[5] > 1 ? 'over-cap' : ''}">S: ${rankCounts[5]}/1</span> `;
           html += `<span class="${rankCounts[4] > 2 ? 'over-cap' : ''}">A: ${rankCounts[4]}/2</span> `;
-          html += `<span class="${rankCounts[3] > 3 ? 'over-cap' : ''}">B: ${rankCounts[3]}/3</span>`;
+          html += `<span>B: ${rankCounts[3]}/∞</span>`;
           html += `</div>`;
           html += `</div>`;
         }
@@ -658,8 +659,8 @@
           if (expertiseRankCounts.hasOwnProperty(r)) expertiseRankCounts[r]++;
         });
         
-        // V2 caps: S×1, A×2, B×3 (separate for masteries and expertise)
-        const maxCaps = { 5: 1, 4: 2, 3: 3 };
+        // V2 caps: S×1, A×2, B×unlimited (separate for masteries and expertise)
+        const maxCaps = { 5: 1, 4: 2, 3: 6 }; // B rank now unlimited (set to 6 = max slots)
         const masteryAvailable = { 5: 0, 4: 0, 3: 0 };
         const expertiseAvailable = { 5: 0, 4: 0, 3: 0 };
         

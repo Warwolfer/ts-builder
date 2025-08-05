@@ -87,12 +87,9 @@ const CharacterCalculations = {
           break;
       }
     }
-    
-    // V2: No armor bonuses, no multiplier
     return saves;
   },
-  
-  // V2 system doesn't have expertise bonuses
+
   
   // Calculate movement
   calculateMovement(state, chosenActions, actionList) {
@@ -192,7 +189,7 @@ const CharacterCalculations = {
     return { valid: true };
   },
   
-  // V2 rank distribution validation: S×1, A×2, B×3
+  // V2 rank distribution validation: S×1, A×2, B×unlimited
   validateMasteryRanks(ranks) {
     if (!ranks || ranks.length === 0) return { valid: true };
     
@@ -202,14 +199,14 @@ const CharacterCalculations = {
       if (rankCounts.hasOwnProperty(r)) rankCounts[r]++;
     });
     
-    const maxCaps = { 5: 1, 4: 2, 3: 3, 2: 6, 1: 6, 0: 6 };
+    const maxCaps = { 5: 1, 4: 2, 3: 6, 2: 6, 1: 6, 0: 6 }; // B rank now unlimited (set to 6 = max slots)
     const rankNames = { 5: 'S', 4: 'A', 3: 'B', 2: 'C', 1: 'D', 0: 'E' };
     
     for (const [rank, count] of Object.entries(rankCounts)) {
       if (count > maxCaps[rank]) {
         return { 
           valid: false, 
-          error: `Too many ${rankNames[rank]} ranks: ${count}/${maxCaps[rank]} allowed. V2 caps: S×1, A×2, B×3.`
+          error: `Too many ${rankNames[rank]} ranks: ${count}/${maxCaps[rank]} allowed. V2 caps: S×1, A×2, B×unlimited.`
         };
       }
     }
