@@ -80,9 +80,9 @@
         <i class="far fa-circle-question"></i> Actions are filtered based on your selected masteries
       </div>
 
-      <!-- General Actions (Always Available) -->
-      <h1 class="selectorheader">General Actions</h1>
-      <div class="masterycategory freeactions" id="basic-actions">
+      <!-- General Actions (Always Available) - Hidden since auto-selected -->
+      <h1 class="selectorheader" style="display: none;">General Actions</h1>
+      <div class="masterycategory freeactions" id="basic-actions" style="display: none;">
         <!-- General actions will be populated by JavaScript -->
       </div>
 
@@ -275,7 +275,8 @@
         // Get general actions (available to all masteries)
         const allActions = this.dataLoader.cache.actions;
         const generalActions = allActions.filter(action => 
-          action.category === 'general' || (action.masteries && action.masteries.includes('all'))
+          (action.category === 'general' || (action.masteries && action.masteries.includes('all'))) &&
+          action.lookup !== 'range' // Range should be selectable, not automatically free
         );
         
         console.log('🔍 General actions found:', generalActions.length, generalActions.map(a => a.name));
@@ -293,11 +294,9 @@
       renderActionsByCategory() {
         const categories = {};
         
-        // Group non-general actions by category
+        // Group non-basic actions by category (including utility actions like Range)
         const nonGeneralActions = this.availableActions.filter(action => 
-          action.category !== 'basic' && 
-          action.category !== 'general' && 
-          !(action.masteries && action.masteries.includes('all'))
+          action.category !== 'basic'
         );
         console.log('🔍 Non-general actions found:', nonGeneralActions.length);
         console.log('🔍 Categories breakdown:', nonGeneralActions.reduce((acc, action) => {
@@ -320,8 +319,14 @@
         const container = this.domUtils.getElementById('action-categories');
         let html = '';
         
-        // Render each category
-        Object.keys(categories).forEach(categoryName => {
+        // Define category order - utility first
+        const categoryOrder = ['utility', 'defense', 'offense', 'support', 'alter'];
+        const allCategoryNames = [...categoryOrder, ...Object.keys(categories).filter(cat => !categoryOrder.includes(cat))];
+        
+        // Render each category in order
+        allCategoryNames.forEach(categoryName => {
+          if (!categories[categoryName] || categories[categoryName].length === 0) return;
+          
           const categoryTitle = this.formatCategoryName(categoryName);
           console.log(`🔍 Rendering ${categoryName} with ${categories[categoryName].length} actions`);
           html += `
@@ -349,6 +354,7 @@
       formatCategoryName(category) {
         const names = {
           'general': 'General',
+          'utility': 'Utility',
           'defense': 'Defense',
           'offense': 'Offense', 
           'support': 'Support',

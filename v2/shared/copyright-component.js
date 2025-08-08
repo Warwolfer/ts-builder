@@ -11,6 +11,7 @@ class CopyrightComponent {
   }
 
   // Render the copyright HTML
+
   render() {
     return `
       <div id="copyright">

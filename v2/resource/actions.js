@@ -32,11 +32,12 @@ const actionlistV2 = [
   name: "Range",
   color: "#1e2131",
   image: "https://terrarp.com/db/action/range.png",
-  description: "<p><em><b>General</b></em></p><p>Passive: Gain 1 range</p><p>Bonus Action: Extend. Gain 1 additional range this cycle.</p>",
+  description: "<p><em><b>Utility</b></em></p><p>Passive: Gain 1 range</p><p>Bonus Action: Extend. Gain 1 additional range this cycle.</p>",
   dice: "Passive/Bonus Action",
   roll: "?r range # Range | Character Name | <span class='thrcode'>Code</span>",
   masteries: ["all"],
-  category: "general"
+  category: "utility",
+  bonuses: { range: 1 }
 },
 
 // Defense Actions
@@ -139,7 +140,8 @@ const actionlistV2 = [
   dice: "Passive",
   roll: "?r sturdy # Sturdy | Character Name | <span class='thrcode'>Code</span>",
   masteries: ["aeromancy", "arcanamancy", "beast-arts", "chronomancy", "cryomancy", "geomancy", "guard-arts", "hemomancy", "illusion-magic", "spellbane", "astramancy", "electromancy", "power", "pyromancy", "ranged", "speed", "unarmed", "animancy", "hydromancy", "nature-magic", "tinker", "war-arts"],
-  category: "defense"
+  category: "defense",
+  bonuses: { hp: "rank-based" }
 },
 
 // Offense Actions
@@ -279,7 +281,8 @@ const actionlistV2 = [
   dice: "Passive",
   roll: "?r swift # Swift | Character Name | <span class='thrcode'>Code</span>",
   masteries: ["astramancy", "dark-magic", "electromancy", "power", "precision", "pyromancy", "ranged", "speed", "subterfuge", "unarmed"],
-  category: "offense"
+  category: "offense",
+  bonuses: { movement: "rank-based" }
 },
 
 // Support Actions

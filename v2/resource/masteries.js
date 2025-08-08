@@ -306,7 +306,7 @@ const masteriesV2 = [
     image: "https://terrarp.com/db/mastery/w-harmonic.png",
     primaryRole: "support",
     secondaryRole: "offense",
-    save: "fortitude",
+    save: "will",
     breakType: "order",
     actions: ["Rush", "Heal", "Power Heal", "Buff", "Power Buff", "Inspire", "Haste", "Revive", "Versatile", "Stable Attack", "Burst Attack", "Sharp Attack", "Sneak Attack", "Critical Attack", "Reckless Attack", "Duelist", "Sharpshooter", "Area Effect"],
   },

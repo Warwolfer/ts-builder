@@ -808,7 +808,7 @@
             }
             
             // Update tooltip with rank downgrade info
-            indicator.title = `A secondary role mastery has been detected, action rank will be reduced from MR X ${currentRankLabel} to MR${downcastRankLabel}.`;
+            indicator.title = `A secondary role mastery has been detected, action rank will be reduced from MR ${currentRankLabel} to MR ${downcastRankLabel}.`;
             
             // Update the MR display in the rollcode to show downcast rank
             const masteryReplace = cardElement.querySelector('.masteryreplace');
@@ -983,7 +983,19 @@
         state.chosenExpertise.forEach(expertiseId => {
           const expertiseData = expertise.find(e => e.lookup === expertiseId);
           if (expertiseData) {
-            html += `<div class='display masterycircle ${expertiseData.lookup}' onclick='clickExpertise(this, "${expertiseId}")'><img src='${expertiseData.image}'></div>`;
+            // Get border color based on first type
+            const firstType = expertiseData.types && expertiseData.types[0];
+            let borderColor = '#6e51cb'; // Default: Discipline
+            
+            if (firstType === 'physical') {
+              borderColor = '#ce6541'; // Physical
+            } else if (firstType === 'creative') {
+              borderColor = '#a84b72'; // Artistic
+            } else if (firstType === 'crafting') {
+              borderColor = '#d2aa49'; // Crafting
+            }
+            
+            html += `<div class='display masterycircle ${expertiseData.lookup}' onclick='clickExpertise(this, "${expertiseId}")' style='border-color: ${borderColor};'><img src='${expertiseData.image}'></div>`;
           }
         });
         

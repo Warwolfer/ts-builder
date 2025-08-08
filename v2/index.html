@@ -45,6 +45,40 @@
       border-radius: 5px;
       display: inline-block;
     }
+    
+    /* Fix loading spinner centering on index page */
+    #status .loading-container {
+      margin-top: -50px; /* Offset the body margin-top */
+      min-height: 300px; /* Increased height for better centering */
+      text-align: center; /* Ensure all inline elements are centered */
+    }
+    
+    /* Ensure spinner animations are perfectly centered */
+    #status .loading-container .spinner-ring,
+    #status .loading-container .spinner-mastery,
+    #status .loading-container .spinner-progress,
+    #status .loading-container .spinner-data,
+    #status .loading-container .spinner-dots {
+      margin: 0 auto; /* Center the spinner horizontally */
+      display: block; /* Ensure block display for margin auto to work */
+    }
+    
+    #status .loading-container .spinner-dots {
+      display: flex; /* Restore flex for dots, but still centered */
+      justify-content: center;
+    }
+    
+    /* Fix mastery spinner pseudo-elements positioning */
+    #status .loading-container .spinner-mastery {
+      position: relative; /* Ensure relative positioning for pseudo-elements */
+    }
+    
+    #status .loading-container .spinner-mastery::before,
+    #status .loading-container .spinner-mastery::after {
+      top: 0;
+      left: 0;
+      transform-origin: center center;
+    }
   </style>
 </head>
 <body>

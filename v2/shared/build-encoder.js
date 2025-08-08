@@ -83,6 +83,9 @@ const BuildEncoder = {
       const shortBanner = bannerMatch ? bannerMatch[1] : encodeURIComponent(state.profileBannerUrl);
       charParts.push('b:' + shortBanner);
     }
+    if (state.avatarUrl) {
+      charParts.push('a:' + encodeURIComponent(state.avatarUrl));
+    }
     
     const charData = charParts.join('&');
     
@@ -130,6 +133,7 @@ const BuildEncoder = {
       characterTitle: state.characterTitle || '',
       threadCode: state.threadCode || '',
       profileBannerUrl: state.profileBannerUrl || '',
+      avatarUrl: state.avatarUrl || '',
       note: state.note || ''
     };
     
@@ -216,7 +220,7 @@ const BuildEncoder = {
         chosenMasteriesIds = masteryIds;
         
         // Convert to names for backward compatibility, but we'll prefer IDs
-        chosenMasteries = masteryIds.map(id => {
+        chosenMasteries = masteryIds.map(id =>  {
           const mastery = masteryData.find(m => m.id === id);
           return mastery ? mastery.lookup : '';
         }).filter(name => name);
@@ -295,7 +299,7 @@ const BuildEncoder = {
       }
       
       // Parse character data
-      let characterName = '', characterRace = '', characterTitle = '', threadCode = '', profileBannerUrl = '', note = '';
+      let characterName = '', characterRace = '', characterTitle = '', threadCode = '', profileBannerUrl = '', avatarUrl = '', note = '';
       if (parts[charDataIndex]) {
         const charParts = parts[charDataIndex].split('&');
         charParts.forEach(part => {
@@ -304,6 +308,7 @@ const BuildEncoder = {
           if (part.startsWith('t:')) characterTitle = part.substring(2).replace(/_/gi, ' ');
           if (part.startsWith('c:')) threadCode = part.substring(2).replace(/_/gi, ' ');
           if (part.startsWith('note:')) note = decodeURIComponent(part.substring(5));
+          if (part.startsWith('a:')) avatarUrl = decodeURIComponent(part.substring(2));
           if (part.startsWith('b:')) {
             const shortBanner = part.substring(2);
             // Reconstruct full terrarp banner URL from shortened form
@@ -337,6 +342,7 @@ const BuildEncoder = {
           characterTitle,
           threadCode,
           profileBannerUrl,
+          avatarUrl,
           note
         }
       };

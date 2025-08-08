@@ -679,6 +679,7 @@ margin: 10px 0 5px 0;
 #pfp, #pfp2{
   padding-top: 12px;
   height: 60px;
+  width: 60px;
   border-radius: 50%;
 }
 .nameheader{
@@ -1253,12 +1254,8 @@ background-repeat: no-repeat;
 }*/
 
 #pickactions, .freeactions{
-  display: flex;
-  align-items: stretch;
-  /* align-content: flex-end; */
-  flex-flow: row wrap;
-  flex-wrap: wrap;
-  /* max-width: 100%; */
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
 }
 
 /*#pickactions{

@@ -48,6 +48,13 @@ const CharacterCalculations = {
             const alterRank = chosenMasteriesRanks[chosenMasteriesRanks.length - 1];
             totalHP += this.getRankBonus(alterRank);
           }
+        } else if (action.bonuses.hp === "rank-based" && actionName === "sturdy") {
+          // Sturdy passive: 25 base + 5 per MR (D:+30, C:+35, B:+40, A:+45, S:+50), max +50
+          // Find the mastery used for this action and get its rank
+          const sturdyMasteryRank = this.getHighestDefenseMasteryRank(state, actionList);
+          const baseSturdy = 25;
+          const sturdyBonus = Math.min(50, baseSturdy + (5 * sturdyMasteryRank));
+          totalHP += sturdyBonus;
         } else if (typeof action.bonuses.hp === 'number') {
           totalHP += action.bonuses.hp;
         }
@@ -105,6 +112,11 @@ const CharacterCalculations = {
           if (speedRank >= 1) movement += 1;
           if (speedRank >= 3) movement += 1;
           if (speedRank >= 5) movement += 1;
+        } else if (action.bonuses.movement === "rank-based" && actionName === "swift") {
+          // Swift passive: +1 movement at D rank, +2 at S rank
+          const swiftMasteryRank = this.getHighestOffenseMasteryRank(state, actionList);
+          if (swiftMasteryRank >= 1) movement += 1; // D rank: +1 movement
+          if (swiftMasteryRank >= 5) movement += 1; // S rank: +1 additional (total +2)
         } else if (typeof action.bonuses.movement === 'number') {
           movement += action.bonuses.movement;
         }
@@ -138,6 +150,44 @@ const CharacterCalculations = {
       return parseInt(chosenMasteriesRanks[chosenMasteriesRanks.length - 1]) || 0;
     }
     return 0;
+  },
+  
+  // Get highest defense mastery rank for sturdy calculation
+  getHighestDefenseMasteryRank(state, actionList) {
+    const { chosenMasteries, chosenMasteriesRanks } = state;
+    const sturdyAction = actionList.find(a => a.lookup === "sturdy");
+    
+    if (!sturdyAction || !sturdyAction.masteries) return 0;
+    
+    let highestRank = 0;
+    for (let i = 0; i < chosenMasteries.length; i++) {
+      const masteryId = chosenMasteries[i];
+      if (sturdyAction.masteries.includes(masteryId)) {
+        const rank = parseInt(chosenMasteriesRanks[i]) || 0;
+        highestRank = Math.max(highestRank, rank);
+      }
+    }
+    
+    return highestRank;
+  },
+  
+  // Get highest offense mastery rank for swift calculation
+  getHighestOffenseMasteryRank(state, actionList) {
+    const { chosenMasteries, chosenMasteriesRanks } = state;
+    const swiftAction = actionList.find(a => a.lookup === "swift");
+    
+    if (!swiftAction || !swiftAction.masteries) return 0;
+    
+    let highestRank = 0;
+    for (let i = 0; i < chosenMasteries.length; i++) {
+      const masteryId = chosenMasteries[i];
+      if (swiftAction.masteries.includes(masteryId)) {
+        const rank = parseInt(chosenMasteriesRanks[i]) || 0;
+        highestRank = Math.max(highestRank, rank);
+      }
+    }
+    
+    return highestRank;
   },
   
   // Calculate damage modifiers
