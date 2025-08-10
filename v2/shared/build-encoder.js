@@ -29,7 +29,8 @@ const BuildEncoder = {
       characterName,
       characterRace,
       characterTitle,
-      threadCode
+      threadCode,
+      ng = 0
     } = state;
     
     // Convert mastery names to IDs (huge space savings!)
@@ -85,6 +86,9 @@ const BuildEncoder = {
     }
     if (state.avatarUrl) {
       charParts.push('a:' + encodeURIComponent(state.avatarUrl));
+    }
+    if (ng === 1) {
+      charParts.push('ng:1');
     }
     
     const charData = charParts.join('&');
@@ -299,7 +303,7 @@ const BuildEncoder = {
       }
       
       // Parse character data
-      let characterName = '', characterRace = '', characterTitle = '', threadCode = '', profileBannerUrl = '', avatarUrl = '', note = '';
+      let characterName = '', characterRace = '', characterTitle = '', threadCode = '', profileBannerUrl = '', avatarUrl = '', note = '', ng = 0;
       if (parts[charDataIndex]) {
         const charParts = parts[charDataIndex].split('&');
         charParts.forEach(part => {
@@ -309,6 +313,7 @@ const BuildEncoder = {
           if (part.startsWith('c:')) threadCode = part.substring(2).replace(/_/gi, ' ');
           if (part.startsWith('note:')) note = decodeURIComponent(part.substring(5));
           if (part.startsWith('a:')) avatarUrl = decodeURIComponent(part.substring(2));
+          if (part.startsWith('ng:')) ng = parseInt(part.substring(3)) || 0;
           if (part.startsWith('b:')) {
             const shortBanner = part.substring(2);
             // Reconstruct full terrarp banner URL from shortened form
@@ -343,7 +348,8 @@ const BuildEncoder = {
           threadCode,
           profileBannerUrl,
           avatarUrl,
-          note
+          note,
+          ng
         }
       };
     } catch (error) {

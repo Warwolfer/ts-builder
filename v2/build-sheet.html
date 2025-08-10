@@ -24,7 +24,7 @@
       height: 40px !important;
       padding: 10px !important;
       font-size: 14px !important;
-      border: 2px solid #fff !important;
+      border: 0px solid #fff !important;
       border-radius: 6px !important;
       background: linear-gradient(0deg, rgba(17,20,28,0.95) 0%, rgba(17,20,28,0.85) 100%) !important;
       color: #fff !important;
@@ -34,7 +34,7 @@
     
     #threadcodereplace:focus {
       outline: none !important;
-      border-color: #a9357b !important;
+      border: 1px solid #a9357b !important;
       box-shadow: 0 0 5px rgba(71, 203, 221, 0.3) !important;
     }
   </style>
@@ -170,7 +170,7 @@
       <div class="masterycategory" id="saveschecks">
         <div class="card">
           <div class="cardtitle">Saves</div>
-          <div class="rollcode">?r save <span class='saveadv'></span><span class='savebonusreplace'>X</span> <span class='reflexmodifiers'></span> # <span class='savereplace'>Type</span> | Character Name | <span class="thrcode">Thread Code</span></div>
+          <div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">?r save <span class='saveadv'></span><span class='savebonusreplace'>X</span> <span class='reflexmodifiers'></span> # <span class='savereplace'>Type</span> . Character Name . <span class="thrcode">Thread Code</span></div>
           <div id="savesicons">
             <div class='display masterycircle aci-fortitude' onclick='clickFortitude(this)'>
               <img src='https://terrarp.com/db/tool/fortitude.png'>
@@ -190,7 +190,7 @@
         </div>
         <div class="card">
           <div class="cardtitle">Expertise Check</div>
-          <div class="rollcode">?r expertise <span class='expertiseadv'></span><span class='expertisebonusreplace'>ER</span> # <span class='expertisereplace'>Type</span> | Character Name | <span class="thrcode">Thread Code</span></div>
+          <div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">?r expertise <span class='expertiseadv'></span><span class='expertisebonusreplace'>ER</span> # <span class='expertisereplace'>Type</span> . Character Name . <span class="thrcode">Thread Code</span></div>
           <div id="expertiseicons">
             <!-- V2 expertise icons will be populated by JavaScript based on selected expertise -->
           </div>
@@ -202,7 +202,7 @@
         </div>
         <div class="card">
           <div class="cardtitle">Mastery Check</div>
-          <div class="rollcode">?r mastery <span class='masteryadv'></span><span class='masteryreplace'>MR</span> # <span class='mnamereplace'>Type</span> | Character Name | <span class="thrcode">Thread Code</span></div>
+          <div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">?r mastery <span class='masteryadv'></span><span class='masteryreplace'>MR</span> # <span class='mnamereplace'>Type</span> . Character Name . <span class="thrcode">Thread Code</span></div>
           <div id="masterycheckicons"></div>
           <div class="togglecontainer">
             <div class="togglesavechecks" onclick="advantageMastery()">Adv</div>
@@ -216,23 +216,28 @@
       <h3 class="selectorheader">Actions</h3>
       <div class="masterycategory" id="freeactiondisplay">
         <!-- Free actions -->
-        <div class="card normal">
-          <div class="cardicon" style="background-color: #1e2131; background-image: url('https://terrarp.com/db/action/attack.png'); background-repeat: no-repeat; background-position: center;"></div>
-          <div class="cardtitle">Attack</div>
+        <div class="card normal attackfinal">
+            <div class="cardtop">
+                <div class="cardtopleft">
+                    <div class="cardtitle">Attack</div>
+                    <div class="filler"></div>
+                    <p class="type">Basic</p>
+                </div>
+                <div class="filler"></div>
+                <div class="cardicon" style="background-color: #1e2131; background-image: url('https://terrarp.com/db/action/attack.png'); background-repeat: no-repeat; background-position: center;"></div>
+            </div>
           <div class="cardinfo">
-            <p><em><b>Basic</b></em></p>
             <p>Perform a basic attack.</p>
           </div>
           <div class="cardroll"><b>Roll:</b> 1d100 + MR + WR + other bonuses</div>
+          <div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">?r attack <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> . Character Name . <span class='thrcode'>Code</span></div>
+          <div class="risky-toggle-container"></div>
         </div>
         <div class="card rushfinal">
-          <div class="cardicon" style="background-color: #1e2131; background-image: url('https://terrarp.com/db/action/rush.png'); background-repeat: no-repeat; background-position: center; background-size: contain;"></div>
-          <div class="cardtitle">Rush</div>
           <div class="cardinfo">
-            <p><em><b>Basic</b></em></p>
             <p><b>Bonus.</b> Gain 2 extra movements this cycle.</p>
           </div>
-          <div class="rollcode rushrc">?r rush # Character Name | <span class="thrcode">Code</span></div>
+          <div class="rollcode rushrc clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">?r rush # Character Name . <span class="thrcode">Code</span></div>
         </div>
       </div>
       <div class="masterycategory" id="actionsdisplay"></div>
@@ -941,13 +946,20 @@
         // Create armor ability card HTML
         const armorCard = `
           <div class="card normal" id="armor-ability-card">
-            <div class="cardicon" style="background-color: #1e2131; background-image: url('${this.armorImages[armorType]}'); background-repeat: no-repeat; background-position: center; background-size: contain;"></div>
-            <div class="cardtitle">${abilityData.name}</div>
+            <div class="cardtop">
+                <div class="cardtopleft">
+                    <div class="cardtitle">${abilityData.name}</div>
+                    <div class="filler"></div>
+                    <p class="type">${armorTypeName} Armor Ability</p>
+                </div>
+                <div class="filler"></div>
+                <div class="cardicon" style="background-color: #1e2131; background-image: url('${this.armorImages[armorType]}'); background-repeat: no-repeat; background-position: center; background-size: contain;"></div>
+            </div>
             <div class="cardinfo">
-              <p><em><b>${armorTypeName} Armor Ability</b></em></p>
               <p>${abilityData.description}</p>
             </div>
-            <div class="rollcode">${abilityData.rollCode}</div>
+            <div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">${abilityData.rollCode}</div>
+            <div class="risky-toggle-container"></div>
           </div>
         `;
 
@@ -1051,35 +1063,81 @@
       }
       
       generateActionCardContent(action, state, masteries) {
-        const rollSection = action.dice && action.dice !== '-' ? 
-          `<div class="cardroll"><b>Roll:</b> ${action.dice}</div>` : '';
-        
-        const rollCodeSection = action.roll && action.roll !== '-' ? 
-          `<div class="rollcode">${action.roll}</div>` : '';
-        
-        // Generate mastery icons for this action
-        const masteryIcons = this.generateMasteryIcons(action, state, masteries);
-        
-        return `
-          <div class="cardicon" style="background-color: ${action.color}; background-image: url('${action.image}'); background-repeat: no-repeat; background-position: center;"></div>
-          <div class="cardtitle">${action.name}</div>
-          <div class="cardinfo">${action.description}</div>
+          const rollSection = action.dice && action.dice !== '-' ?
+              `<div class="filler"></div><div class="cardroll"><b>Roll:</b> ${action.dice}</div>` : '';
+
+          const rollCodeSection = action.roll && action.roll !== '-' ?
+              `<div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">${action.roll}</div>` : '';
+
+          // Generate mastery icons for this action
+          const masteryIcons = this.generateMasteryIcons(action, state, masteries);
+
+          // Generate action-specific toggle buttons
+          const toggleButtons = this.generateToggleButtons(action);
+
+          return `
+          <div class="cardtop">
+            <div class="cardtopleft">
+                <div class="cardtitle">${action.name}</div>
+                <div class="filler"></div>
+                <p class="type">${action.type}</p>
+            </div>
+            <div class="filler"></div>
+            <div class="cardicon" style="background-color: ${action.color}; background-image: url('${action.image}'); background-repeat: no-repeat; background-position: center;"></div>
+          </div>
+          <div class="cardinfo"><p>${action.description}</p></div>
           ${rollSection}
           ${rollCodeSection}
           ${masteryIcons}
+          ${toggleButtons}
         `;
       }
       
-      isActionDowncast(action, mastery) {
-        // Check if the mastery's primary role matches the action's category
-        // If not, it's downcast (mastery is being used outside its primary role)
-        return mastery.primaryRole !== action.category;
-      }
-      
-      hasDowncastMasteries(action, state, masteries) {
-        if (!action.masteries) return false;
+      generateToggleButtons(action) {
+        const buttons = [];
         
-        const applicableMasteries = state.chosenMasteries.filter(masteryId => 
+        // Define button configurations for specific actions
+        const buttonConfigs = {
+          'ultra-counter': {
+            text: 'Melee',
+            onclick: 'toggleMelee',
+            suffix: 'Melee'
+          },
+          'reckless-attack': {
+            text: 'Risky',
+            onclick: 'toggleRisky',
+            suffix: 'Risky Mode',
+            hasInput: true
+          }
+        };
+        
+        const config = buttonConfigs[action.lookup];
+        
+        if (config) {
+          let buttonHtml = `<button class="risky-toggle" onclick="${config.onclick}('${action.lookup}', '${config.suffix}')">${config.text}</button>`;
+          
+          // Add input field for buttons that have hasInput
+          if (config.hasInput) {
+            buttonHtml += `<input type="text" class="risky-input" placeholder="Modifiers" style="display: none;" oninput="updateRiskySuffix('${action.lookup}')" onkeyup="updateRiskySuffix('${action.lookup}')">`;
+          }
+          
+          buttons.push(buttonHtml);
+        }
+
+        // Always return a container, even if empty
+        return `<div class="risky-toggle-container">${buttons.join('')}</div>`;
+      }
+
+        isActionDowncast(action, mastery) {
+            // Check if the mastery's primary role matches the action's category
+            // If not, it's downcast (mastery is being used outside its primary role)
+            return mastery.primaryRole !== action.category;
+        }
+
+        hasDowncastMasteries(action, state, masteries) {
+            if (!action.masteries) return false;
+
+            const applicableMasteries = state.chosenMasteries.filter(masteryId =>
           action.masteries.includes(masteryId)
         );
         
@@ -1092,9 +1150,18 @@
       generateMasteryIcons(action, state, masteries) {
         if (!action.masteries) return '';
         
-        const applicableMasteries = state.chosenMasteries.filter(masteryId => 
-          action.masteries.includes(masteryId)
-        );
+        // Rush action should not have mastery selection
+        if (action.lookup === 'rush') return '';
+        
+        // Handle "all" masteries - if action accepts all masteries, use all chosen masteries
+        let applicableMasteries;
+        if (action.masteries.includes("all")) {
+          applicableMasteries = state.chosenMasteries;
+        } else {
+          applicableMasteries = state.chosenMasteries.filter(masteryId => 
+            action.masteries.includes(masteryId)
+          );
+        }
         
         if (applicableMasteries.length === 0) return '';
         
@@ -1102,7 +1169,8 @@
         applicableMasteries.forEach(masteryId => {
           const mastery = masteries.find(m => m.lookup === masteryId);
           if (mastery) {
-            const isDowncast = this.isActionDowncast(action, mastery);
+            // Basic actions like Attack should never be downcasted
+            const isDowncast = action.lookup !== 'attack' && this.isActionDowncast(action, mastery);
             const downcastClass = isDowncast ? ' downcast' : '';
             const downcastIndicator = isDowncast ? '<div class="downcast-indicator">↓</div>' : '';
             
@@ -1502,6 +1570,143 @@
       document.querySelector('.masteryadv').innerHTML = 'dis ';
     }
     
+    // Generic toggle function for action buttons
+    function toggleActionButton(actionId, suffix, baseText) {
+      const button = event.target;
+      const cardElement = button.closest('.card');
+      const rollCodeElement = cardElement.querySelector('.rollcode');
+      const inputElement = cardElement.querySelector('.risky-input');
+      
+      if (!rollCodeElement) return;
+      
+      const isActive = button.classList.contains('active');
+      
+      if (isActive) {
+        // Remove active state
+        button.classList.remove('active');
+        button.textContent = baseText;
+        // Hide input if it exists
+        if (inputElement) {
+          inputElement.style.display = 'none';
+          inputElement.value = '';
+          // Clear any custom text from reckless attack
+          if (actionId === 'reckless-attack') {
+            updateRiskySuffix(actionId);
+          }
+        }
+        
+        // Handle different actions differently
+        if (actionId === 'reckless-attack') {
+          // For reckless attack, remove ". Risky Mode" suffix
+          const suffixPattern = new RegExp(` \\. Risky Mode$`);
+          rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(suffixPattern, '');
+        } else {
+          // For other actions, remove suffix from the end of roll code
+          const suffixPattern = new RegExp(` \\. [^.]*$`);
+          rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(suffixPattern, '');
+        }
+      } else {
+        // Add active state
+        button.classList.add('active');
+        button.textContent = baseText;
+        // Show input if it exists
+        if (inputElement) {
+          inputElement.style.display = 'inline-block';
+          inputElement.focus();
+        }
+        
+        // Handle different actions differently
+        if (actionId === 'reckless-attack') {
+          // For reckless attack, add ". Risky Mode" suffix at the end
+          rollCodeElement.innerHTML += ` . Risky Mode`;
+        } else {
+          // For other actions, add suffix to the end of roll code
+          rollCodeElement.innerHTML += ` . ${suffix}`;
+        }
+      }
+    }
+    
+    // Function to update the risky suffix based on input value
+    function updateRiskySuffix(actionId) {
+      const inputElement = event.target;
+      const cardElement = inputElement.closest('.card');
+      const rollCodeElement = cardElement.querySelector('.rollcode');
+      
+      if (!rollCodeElement) {
+        console.log('No roll code element found');
+        return;
+      }
+      
+      const customText = inputElement.value.trim();
+      console.log('Updating risky suffix:', actionId, customText);
+      
+      if (actionId === 'reckless-attack') {
+        // For reckless attack, insert the custom text before the # symbol
+        const currentHtml = rollCodeElement.innerHTML;
+        console.log('Current HTML:', currentHtml);
+        
+        // Target the damagepassivemod span - insert text inside it
+        if (customText) {
+          // Insert custom text inside the damagepassivemod span
+          const updatedHtml = currentHtml.replace(/(<span class="damagepassivemod">)[^<]*(<\/span>)/, `$1${customText}$2 `);
+          console.log('Updated HTML:', updatedHtml);
+          rollCodeElement.innerHTML = updatedHtml;
+        } else {
+          // Clear the damagepassivemod span
+          const updatedHtml = currentHtml.replace(/(<span class="damagepassivemod">)[^<]*(<\/span>)/, '$1$2');
+          console.log('Cleaned HTML:', updatedHtml);
+          rollCodeElement.innerHTML = updatedHtml;
+        }
+      } else {
+        // For other actions, use the old suffix replacement method
+        const newSuffix = customText || 'Risky Mode';
+        const suffixPattern = / \. [^.]*$/;
+        rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(suffixPattern, ` . ${newSuffix}`);
+      }
+    }
+
+    // Wrapper functions for backward compatibility
+    function toggleMelee(actionId, suffix = 'Melee') {
+      toggleActionButton(actionId, suffix, 'Melee');
+    }
+
+    function toggleRisky(actionId, suffix = 'Risky Mode') {
+      toggleActionButton(actionId, suffix, 'Risky');
+    }
+    
+    // Copy rollcode to clipboard function
+    function copyRollCode(element, event) {
+      // Get the text content without HTML tags
+      const text = element.innerText || element.textContent;
+      
+      // Copy to clipboard
+      navigator.clipboard.writeText(text).then(function() {
+        // Flash blue background
+        const originalBg = element.style.backgroundColor;
+        element.style.backgroundColor = '#67a2e0';
+        element.style.transition = 'background-color 0.05s ease';
+        
+        // Show "Copied!" tooltip
+        const copyTooltip = document.createElement('div');
+        copyTooltip.className = 'copy-tooltip';
+        copyTooltip.textContent = 'Copied!';
+        element.appendChild(copyTooltip);
+        
+        // Reset background quickly, remove tooltip after longer delay
+        setTimeout(function() {
+          element.style.backgroundColor = originalBg;
+        }, 50);
+        
+        setTimeout(function() {
+          if (copyTooltip.parentNode) {
+            copyTooltip.remove();
+          }
+        }, 800);
+      }).catch(function(err) {
+        console.error('Failed to copy text: ', err);
+      });
+    }
+    
     // Initialize when page loads
     window.onload = function() {
       buildSheetInstance = new BuildSheetV2();
@@ -1889,6 +2094,8 @@
     
     .card {
       position: relative;
+        display:flex;
+        flex-direction: column;
     }
 
     .characterstuff {
@@ -1967,6 +2174,135 @@
     @keyframes glow-downcast {
       from { box-shadow: 0 2px 6px rgba(0,0,0,0.3), 0 0 15px rgba(255, 0, 0, 0.4); }
       to { box-shadow: 0 2px 6px rgba(0,0,0,0.3), 0 0 25px rgba(200, 0, 0, 0.8); }
+    }
+    
+    /* Risky toggle button styles */
+    .risky-toggle-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      height: 24px;
+    }
+    
+    .risky-toggle {
+      background-color: #444;
+      color: white;
+      border: 0px solid #a9357b;
+      border-radius: 4px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .risky-toggle.active {
+      background-color: #a9357b;
+      border: 1px solid white;
+      color: white;
+    }
+    
+    .risky-input {
+      background-color: #2d3748;
+      color: white;
+      border: 1px solid #4a5568;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 11px;
+      width: 100px;
+      transition: all 0.2s ease;
+    }
+    
+    .risky-input:focus {
+      outline: none;
+      border-color: #a9357b;
+      background-color: #1a202c;
+    }
+    
+    .risky-input::placeholder {
+      color: #a0aec0;
+    }
+    
+    /* Clickable rollcode styling */
+    .clickable-rollcode {
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    
+    .clickable-rollcode:hover {
+      background-color: rgba(169, 53, 123, 0.1);
+      border-radius: 4px;
+    }
+    
+    .clickable-rollcode::after {
+      content: "📋";
+      position: absolute;
+      top: 2px;
+      right: 4px;
+      font-size: 12px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    
+    .clickable-rollcode:hover::after {
+      opacity: 0.7;
+    }
+    
+    /* Copy tooltip */
+    .copy-tooltip {
+      position: absolute;
+      top: -35px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      z-index: 1000;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    
+    .copy-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .cardtop {
+        padding: 10px;
+        display: flex;
+    }
+
+    .cardtopleft {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .type {
+        width: fit-content;
+        display: flex;
+        font-weight: normal;
+        padding: 2px 5px;
+        background-color: #1a1c29;
+        border-radius: 3px;
+        font-style: normal;
+        color: #556175;
+        margin-left: 5px;
+    }
+
+    .cardicon {
+        margin-bottom: 0px !important;
     }
   </style>
 </body>

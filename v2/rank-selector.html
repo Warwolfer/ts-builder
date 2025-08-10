@@ -170,6 +170,11 @@
             <label for="avatar-url">Avatar URL:</label>
             <input type="url" id="avatar-url" placeholder="https://example.com/avatar.jpg">
           </div>
+          <div class="form-group checkbox-group">
+            <label for="new-game-plus">
+              New Game + <input type="checkbox" id="new-game-plus">
+            </label>
+          </div>
         </div>
       </div>
     </div>
@@ -530,13 +535,15 @@
         const characterRace = this.domUtils.getElementById('character-race').value.trim();
         const profileBannerUrl = this.domUtils.getElementById('background-image-url').value.trim();
         const avatarUrl = this.domUtils.getElementById('avatar-url').value.trim();
+        const ng = this.domUtils.getElementById('new-game-plus').checked ? 1 : 0;
 
         this.state.updateState({ 
           characterName,
           characterTitle,
           characterRace,
           profileBannerUrl,
-          avatarUrl
+          avatarUrl,
+          ng
         });
       }
       
@@ -569,6 +576,7 @@
         this.domUtils.setValue(this.domUtils.getElementById('character-race'), currentState.characterRace || '');
         this.domUtils.setValue(this.domUtils.getElementById('background-image-url'), currentState.profileBannerUrl || '');
         this.domUtils.setValue(this.domUtils.getElementById('avatar-url'), currentState.avatarUrl || '');
+        this.domUtils.getElementById('new-game-plus').checked = currentState.ng === 1;
         
         // Update rank summary
         this.updateRankSummary();
@@ -865,6 +873,18 @@
       border: 1px solid #ccc;
       border-radius: 4px;
       font-size: 14px;
+    }
+    
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+      width: auto;
+      margin-right: 8px;
+      transform: scale(1.2);
     }
     
     .button[disabled] {
