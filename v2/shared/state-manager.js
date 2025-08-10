@@ -26,6 +26,7 @@ class BuildState {
       characterTitle: '',
       threadCode: '',
       note: '',
+      ng: 0, // New Game Plus indicator (0 or 1)
       
       // Imported Character Data
       profileBannerUrl: '',
@@ -67,6 +68,7 @@ class BuildState {
       characterRace: '',
       characterTitle: '',
       threadCode: '',
+      ng: 0,
       profileBannerUrl: '',
       avatarUrl: '',
       buildId: null,

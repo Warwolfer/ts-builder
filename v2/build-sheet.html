@@ -110,7 +110,9 @@
           </div>
           <div class="filler"></div>
          <div class="bannerbottom">
-             <div class="newgameplus">NG+</div>
+             <div class="icons">
+                 <div class="newgameplus">NG+</div>
+             </div>
              <div class="filler"></div>
              <div class="masterycategory" id="statsdisplay">
                  <div class="hpdisplay"></div>
@@ -483,6 +485,16 @@
         const bannerContainer = this.domUtils.getElementsByClassName('banner')[0];
         if (!bannerContainer) return;
         
+        // Handle NG+ display - only show when ng value is 1
+        const ngElement = this.domUtils.getElementsByClassName('newgameplus')[0];
+        if (ngElement) {
+          if (state.ng === 1) {
+            ngElement.style.display = 'block';
+          } else {
+            ngElement.style.display = 'none';
+          }
+        }
+        
         if (state.profileBannerUrl) {
           // Show character banner if available - add background image but preserve existing content
           bannerContainer.style.display = 'flex';
@@ -572,20 +584,20 @@
         // HP
         this.domUtils.setHTML(
           this.domUtils.querySelector('.hpdisplay'),
-          `<div class="stats-display" title="${statBreakdowns.hp}"><span class="mastery-with-icon"><img src="https://terrarp.com/db/tool/health.png" class="mastery-icon"> Health</span><span class="rank-badge stat-value">${stats.hp}</span></div>`
+          `<div class="stats-display" title="${statBreakdowns.hp}"><span class="mastery-with-icon"><img src="https://terrarp.com/db/tool/health.png" class="mastery-icon"></span><span class="rank-badge stat-value">${stats.hp}</span></div>`
         );
         
         // Movement
         this.domUtils.setHTML(
           this.domUtils.querySelector('.movementdisplay'),
-          `<div class="stats-display" title="${statBreakdowns.movement}"><span class="mastery-with-icon"><img src="https://terrarp.com/db/tool/movement.png" class="mastery-icon"> Movement</span><span class="rank-badge stat-value">${stats.movement}</span></div>`
+          `<div class="stats-display" title="${statBreakdowns.movement}"><span class="mastery-with-icon"><img src="https://terrarp.com/db/tool/movement.png" class="mastery-icon"></span><span class="rank-badge stat-value">${stats.movement}</span></div>`
         );
         
         // Range (if > 0)
         if (stats.range > 0) {
           this.domUtils.setHTML(
             this.domUtils.querySelector('.rangedisplay'),
-            `<div class="stats-display" title="${statBreakdowns.range}"><span class="mastery-with-icon"><img src="https://terrarp.com/db/tool/range.png" class="mastery-icon"> Range</span><span class="rank-badge stat-value">${stats.range}</span></div>`
+            `<div class="stats-display" title="${statBreakdowns.range}"><span class="mastery-with-icon"><img src="https://terrarp.com/db/tool/range.png" class="mastery-icon"></span><span class="rank-badge stat-value">${stats.range}</span></div>`
           );
           this.domUtils.show(this.domUtils.querySelector('.rangedisplay'));
         } else {
@@ -1251,7 +1263,7 @@
             <div class="filler"></div>
             <div class="cardicon" style="background-color: ${action.color}; background-image: url('${action.image}'); background-repeat: no-repeat; background-position: center;"></div>
           </div>
-          <div class="cardinfo"><p>${action.description}</p></div>
+          <div class="cardinfo">${action.description}</div>
           ${rollSection}
           ${rollCodeSection}
           ${masteryIcons}
@@ -2000,7 +2012,7 @@
       flex-direction: column;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 12px;
+      padding: 8px 24px;
       color: white;
       font-size: 12px;
       cursor: help;
@@ -2233,8 +2245,8 @@
     
     .action-downcast-indicator {
       position: absolute;
-      top: 5px;
-      right: 5px;
+      top: 12px;
+      right: 12px;
       background: rgba(255, 165, 0, 1);
       color: white;
       border-radius: 50%;

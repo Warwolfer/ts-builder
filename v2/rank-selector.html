@@ -453,6 +453,12 @@
           'input',
           (e) => this.updateCharacterInfo()
         );
+
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('new-game-plus'),
+          'change',
+          (e) => this.updateCharacterInfo()
+        );
         
         // Navigation buttons
         this.domUtils.addEventListener(
