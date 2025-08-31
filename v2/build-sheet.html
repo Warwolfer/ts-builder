@@ -175,7 +175,7 @@
       <div class="masterycategory" id="saveschecks">
         <div class="card">
           <div class="cardtitle">Saves</div>
-          <div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">?r save <span class='saveadv'></span><span class='savebonusreplace'>X</span> <span class='reflexmodifiers'></span> # <span class='savereplace'>Type</span> . Character Name . <span class="thrcode">Thread Code</span></div>
+          <div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">?r save <span class='saveadv'></span><span class='savebonusreplace'>X</span> <span class='reflexmodifiers'></span> # <span class='savereplace'>Type</span> · Character Name · <span class="thrcode">Thread Code</span></div>
           <div id="savesicons">
             <div class='display masterycircle aci-fortitude' onclick='clickFortitude(this)'>
               <img src='https://terrarp.com/db/tool/fortitude.png'>
@@ -195,7 +195,7 @@
         </div>
         <div class="card">
           <div class="cardtitle">Expertise Check</div>
-          <div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">?r expertise <span class='expertiseadv'></span><span class='expertisebonusreplace'>ER</span> # <span class='expertisereplace'>Type</span> . Character Name . <span class="thrcode">Thread Code</span></div>
+          <div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">?r expertise <span class='expertiseadv'></span><span class='expertisebonusreplace'>ER</span> # <span class='expertisereplace'>Type</span> · Character Name · <span class="thrcode">Thread Code</span></div>
           <div id="expertiseicons">
             <!-- V2 expertise icons will be populated by JavaScript based on selected expertise -->
           </div>
@@ -207,7 +207,7 @@
         </div>
         <div class="card">
           <div class="cardtitle">Mastery Check</div>
-          <div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">?r mastery <span class='masteryadv'></span><span class='masteryreplace'>MR</span> # <span class='mnamereplace'>Type</span> . Character Name . <span class="thrcode">Thread Code</span></div>
+          <div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">?r mastery <span class='masteryadv'></span><span class='masteryreplace'>MR</span> # <span class='mnamereplace'>Type</span> · <span class='breaktype'>Break-Type</span> · Character Name · <span class="thrcode">Thread Code</span></div>
           <div id="masterycheckicons"></div>
           <div class="togglecontainer">
             <div class="togglesavechecks" onclick="advantageMastery()">Adv</div>
@@ -235,14 +235,14 @@
             <p>Perform a basic attack.</p>
           </div>
           <div class="cardroll"><b>Roll:</b> 1d100 + MR + WR + other bonuses</div>
-          <div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">?r attack <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> . Character Name . <span class='thrcode'>Code</span></div>
+          <div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">?r attack <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> · <span class='breaktype'>Break-Type</span> · Character Name · <span class='thrcode'>Code</span></div>
           <div class="risky-toggle-container"></div>
         </div>
         <div class="card rushfinal">
           <div class="cardinfo">
             <p><b>Bonus.</b> Gain 2 extra movements this cycle.</p>
           </div>
-          <div class="rollcode rushrc clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">?r rush # Character Name . <span class="thrcode">Code</span></div>
+          <div class="rollcode rushrc clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">?r rush # Character Name · <span class="thrcode">Code</span></div>
         </div>
       </div>
       <div class="masterycategory" id="actionsdisplay"></div>
@@ -440,6 +440,9 @@
         
         // Replace weapon rank (WR) in all roll codes
         this.replaceWeaponRank(currentState.weaponRank);
+        
+        // Replace break types in all roll codes
+        this.replaceBreakTypes(currentState);
         
         // Set up thread code functionality
         this.setupThreadCode();
@@ -1253,6 +1256,10 @@
           // Generate action-specific toggle buttons
           const toggleButtons = this.generateToggleButtons(action);
 
+          // Generate swap button for Revive action
+          const swapButton = action.lookup === 'revive' ? 
+            '<div class="revive-swap-button" onclick="toggleReviveStabilize(this)" title="Toggle between Revive and Stabilize">⇄</div>' : '';
+
           return `
           <div class="cardtop">
             <div class="cardtopleft">
@@ -1261,7 +1268,9 @@
                 <p class="type">${action.type}</p>
             </div>
             <div class="filler"></div>
-            <div class="cardicon" style="background-color: ${action.color}; background-image: url('${action.image}'); background-repeat: no-repeat; background-position: center;"></div>
+            <div class="cardicon" style="background-color: ${action.color}; background-image: url('${action.image}'); background-repeat: no-repeat; background-position: center;">
+              ${swapButton}
+            </div>
           </div>
           <div class="cardinfo">${action.description}</div>
           ${rollSection}
@@ -1276,30 +1285,95 @@
         
         // Define button configurations for specific actions
         const buttonConfigs = {
-          'ultra-counter': {
+          'ultra-counter': [{
             text: 'Melee',
             onclick: 'toggleMelee',
             suffix: 'Melee'
-          },
-          'reckless-attack': {
+          }],
+          'reckless-attack': [{
             text: 'Risky',
             onclick: 'toggleRisky',
             suffix: 'Risky Mode',
             hasInput: true
+          }],
+          'versatile': [{
+            text: 'Ultra Versatile',
+            onclick: 'toggleUltraVersatile',
+            suffix: 'Ultra Versatile'
+          }],
+          'heal': [{
+            text: 'AoE',
+            onclick: 'toggleAoE',
+            suffix: 'AoE'
+          }, {
+            text: 'Versatile',
+            onclick: 'toggleVersatile',
+            suffix: 'Versatile'
+          }],
+          'buff': [{
+            text: 'AoE',
+            onclick: 'toggleAoE',
+            suffix: 'AoE'
+          }, {
+            text: 'Versatile',
+            onclick: 'toggleVersatile',
+            suffix: 'Versatile'
+          }],
+          'power-heal': [{
+            text: 'AoE',
+            onclick: 'toggleAoE',
+            suffix: 'AoE'
+          }, {
+            text: 'Versatile',
+            onclick: 'toggleVersatile',
+            suffix: 'Versatile'
+          }],
+          'power-buff': [{
+            text: 'AoE',
+            onclick: 'toggleAoE',
+            suffix: 'AoE'
+          }, {
+            text: 'Versatile',
+            onclick: 'toggleVersatile',
+            suffix: 'Versatile'
+          }]
+        };
+        
+        // Define input configurations for actions that need custom inputs
+        const inputConfigs = {
+          'imbue': {
+            target: true
+          },
+          'revive': {
+            target: true,
+            maxhp: true
           }
         };
         
-        const config = buttonConfigs[action.lookup];
+        const configs = buttonConfigs[action.lookup];
+        const inputs = inputConfigs[action.lookup];
         
-        if (config) {
-          let buttonHtml = `<button class="risky-toggle" onclick="${config.onclick}('${action.lookup}', '${config.suffix}')">${config.text}</button>`;
-          
-          // Add input field for buttons that have hasInput
-          if (config.hasInput) {
-            buttonHtml += `<input type="text" class="risky-input" placeholder="Modifiers" style="display: none;" oninput="updateRiskySuffix('${action.lookup}')" onkeyup="updateRiskySuffix('${action.lookup}')">`;
+        if (configs) {
+          configs.forEach(config => {
+            let buttonHtml = `<button class="risky-toggle" onclick="${config.onclick}('${action.lookup}', '${config.suffix}')">${config.text}</button>`;
+            
+            // Add input field for buttons that have hasInput
+            if (config.hasInput) {
+              buttonHtml += `<input type="text" class="risky-input" placeholder="Modifiers" style="display: none;" oninput="updateRiskySuffix('${action.lookup}')" onkeyup="updateRiskySuffix('${action.lookup}')">`;
+            }
+            
+            buttons.push(buttonHtml);
+          });
+        }
+        
+        // Add custom inputs for actions that need them (always visible)
+        if (inputs) {
+          if (inputs.target) {
+            buttons.push(`<input type="text" class="target-input" placeholder="Target" oninput="updateTargetSuffix('${action.lookup}')" onkeyup="updateTargetSuffix('${action.lookup}')">`);
           }
-          
-          buttons.push(buttonHtml);
+          if (inputs.maxhp) {
+            buttons.push(`<input type="text" class="maxhp-input" placeholder="MaxHP" oninput="updateMaxHPSuffix('${action.lookup}')" onkeyup="updateMaxHPSuffix('${action.lookup}')">`);
+          }
         }
 
         // Always return a container, even if empty
@@ -1335,6 +1409,14 @@
         let applicableMasteries;
         if (action.masteries.includes("all")) {
           applicableMasteries = state.chosenMasteries;
+          
+          // Special case: Attack action should not include alter masteries
+          if (action.lookup === 'attack') {
+            applicableMasteries = applicableMasteries.filter(masteryId => {
+              const mastery = masteries.find(m => m.lookup === masteryId);
+              return mastery && mastery.primaryRole !== 'alter';
+            });
+          }
         } else {
           applicableMasteries = state.chosenMasteries.filter(masteryId => 
             action.masteries.includes(masteryId)
@@ -1424,6 +1506,38 @@
         const armorPassive = this.domUtils.querySelector('.charpassive');
         if (armorPassive) {
           armorPassive.innerHTML = armorPassive.innerHTML.replace(/WR/g, weaponRankLetter);
+        }
+      }
+      
+      replaceBreakTypes(state) {
+        const masteries = this.dataLoader.cache.masteries;
+        
+        // Get the first selected mastery as primary for break type
+        if (state.chosenMasteries && state.chosenMasteries.length > 0) {
+          const primaryMasteryId = state.chosenMasteries[0];
+          const primaryMastery = masteries.find(m => m.lookup === primaryMasteryId);
+          
+          if (primaryMastery && primaryMastery.breakType) {
+            const breakType = primaryMastery.breakType.charAt(0).toUpperCase() + primaryMastery.breakType.slice(1);
+            
+            // Replace break types in all sections that contain roll codes
+            const sectionsToUpdate = [
+              'freeactiondisplay',
+              'actionsdisplay', 
+              'saveschecks'
+            ];
+            
+            sectionsToUpdate.forEach(sectionId => {
+              const section = this.domUtils.getElementById(sectionId);
+              if (section) {
+                // Replace the breaktype span content
+                const breakTypeSpans = section.querySelectorAll('.breaktype');
+                breakTypeSpans.forEach(span => {
+                  span.innerHTML = breakType;
+                });
+              }
+            });
+          }
         }
       }
       
@@ -1645,6 +1759,13 @@
             mnameReplace.innerHTML = masteryName;
           }
           
+          // Update break type
+          const breakTypeReplace = cardElement.querySelector('.breaktype');
+          if (breakTypeReplace && mastery && mastery.breakType) {
+            const breakType = mastery.breakType.charAt(0).toUpperCase() + mastery.breakType.slice(1);
+            breakTypeReplace.innerHTML = breakType;
+          }
+          
           // Update downcast indicators based on clicked mastery
           buildSheetInstance.updateDowncastIndicators(cardElement, masteryId, mastery);
         }
@@ -1776,11 +1897,11 @@
         // Handle different actions differently
         if (actionId === 'reckless-attack') {
           // For reckless attack, remove ". Risky Mode" suffix
-          const suffixPattern = new RegExp(` \\. Risky Mode$`);
+          const suffixPattern = new RegExp(` · Risky Mode$`);
           rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(suffixPattern, '');
         } else {
           // For other actions, remove suffix from the end of roll code
-          const suffixPattern = new RegExp(` \\. [^.]*$`);
+          const suffixPattern = new RegExp(` · ${suffix}`);
           rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(suffixPattern, '');
         }
       } else {
@@ -1796,10 +1917,10 @@
         // Handle different actions differently
         if (actionId === 'reckless-attack') {
           // For reckless attack, add ". Risky Mode" suffix at the end
-          rollCodeElement.innerHTML += ` . Risky Mode`;
+          rollCodeElement.innerHTML += ` · Risky Mode`;
         } else {
           // For other actions, add suffix to the end of roll code
-          rollCodeElement.innerHTML += ` . ${suffix}`;
+          rollCodeElement.innerHTML += ` · ${suffix}`;
         }
       }
     }
@@ -1843,6 +1964,44 @@
       }
     }
 
+    // Function to update the target suffix based on input value
+    function updateTargetSuffix(actionId) {
+      const inputElement = event.target;
+      const cardElement = inputElement.closest('.card');
+      const rollCodeElement = cardElement.querySelector('.rollcode');
+      
+      if (!rollCodeElement) {
+        return;
+      }
+      
+      const targetText = inputElement.value.trim();
+      
+      // Find the target span and update its content directly
+      const targetSpan = rollCodeElement.querySelector('.target');
+      if (targetSpan) {
+        targetSpan.innerHTML = targetText || 'Target';
+      }
+    }
+
+    // Function to update the MaxHP suffix based on input value
+    function updateMaxHPSuffix(actionId) {
+      const inputElement = event.target;
+      const cardElement = inputElement.closest('.card');
+      const rollCodeElement = cardElement.querySelector('.rollcode');
+      
+      if (!rollCodeElement) {
+        return;
+      }
+      
+      const maxhpText = inputElement.value.trim();
+      
+      // Find the maxhp span and update its content directly
+      const maxhpSpan = rollCodeElement.querySelector('.maxhp');
+      if (maxhpSpan) {
+        maxhpSpan.innerHTML = maxhpText || 'MaxHp';
+      }
+    }
+
     // Wrapper functions for backward compatibility
     function toggleMelee(actionId, suffix = 'Melee') {
       toggleActionButton(actionId, suffix, 'Melee');
@@ -1850,6 +2009,72 @@
 
     function toggleRisky(actionId, suffix = 'Risky Mode') {
       toggleActionButton(actionId, suffix, 'Risky');
+    }
+
+    function toggleUltraVersatile(actionId, suffix = 'Ultra Versatile') {
+      toggleActionButton(actionId, suffix, 'Ultra Versatile');
+    }
+
+    function toggleAoE(actionId, suffix = 'AoE') {
+      toggleActionButton(actionId, suffix, 'AoE');
+    }
+
+    function toggleVersatile(actionId, suffix = 'Versatile') {
+        toggleActionButton(actionId, suffix, 'Versatile');
+    }
+
+    // Function to toggle between Revive and Stabilize with flip animation
+    function toggleReviveStabilize(buttonElement) {
+      const cardElement = buttonElement.closest('.card');
+      const cardTitleElement = cardElement.querySelector('.cardtitle');
+      const rollCodeElement = cardElement.querySelector('.rollcode');
+      
+      if (!cardTitleElement || !rollCodeElement) {
+        return;
+      }
+      
+      const isCurrentlyRevive = cardTitleElement.textContent === 'Revive';
+      
+      // Start flip animation
+      cardElement.classList.add('card-flipping');
+      
+      // Change content at mid-flip (50% of animation duration)
+      setTimeout(() => {
+        const cardInfoElement = cardElement.querySelector('.cardinfo');
+        
+        if (isCurrentlyRevive) {
+          // Change to Stabilize
+          cardTitleElement.textContent = 'Stabilize';
+          buttonElement.classList.add('active');
+          
+          // Change description to remove Lander limitations
+          if (cardInfoElement) {
+            cardInfoElement.innerHTML = "<p>This action may be selected for free when you select 'Heal'.</p><p>Bonus Action: Revive an ally within range. They regain 50% of their max HP.</p>";
+          }
+          
+          // Append "· Stabilize" to the end of the rollcode
+          if (!rollCodeElement.innerHTML.includes('· Stabilize')) {
+            rollCodeElement.innerHTML += ' · Stabilize';
+          }
+        } else {
+          // Change back to Revive
+          cardTitleElement.textContent = 'Revive';
+          buttonElement.classList.remove('active');
+          
+          // Restore original description with Lander limitations
+          if (cardInfoElement) {
+            cardInfoElement.innerHTML = "<p>This action may be selected for free when you select 'Heal'.</p><p>Bonus Action: Revive an ally within range. They regain 50% of their max HP.</p><p>Limitations: Lander characters cannot use this action card.</p>";
+          }
+          
+          // Remove "· Stabilize" from the rollcode
+          rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(' · Stabilize', '');
+        }
+      }, 150); // Exactly when the card reaches 90 degrees (25% of 600ms)
+      
+      // Remove flip class after animation completes
+      setTimeout(() => {
+        cardElement.classList.remove('card-flipping');
+      }, 600); // Full animation duration
     }
     
     // Copy rollcode to clipboard function
@@ -2262,6 +2487,42 @@
       font-weight: bold;
       z-index: 10;
     }
+
+    .revive-swap-button {
+        user-select: none;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      background: rgba(59, 130, 246, 0.9);
+      color: white;
+      border-radius: 50%;
+      border-color: rgb(13, 15, 22);
+      border-width: 2px;
+      border-style: solid;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      z-index: 10;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .revive-swap-button:hover {
+      background: rgba(59, 130, 246, 1);
+      transform: scale(1.1);
+    }
+
+    .revive-swap-button.active {
+      background: rgba(16, 185, 129, 0.9);
+    }
+
+    .revive-swap-button.active:hover {
+      background: rgba(16, 185, 129, 1);
+    }
     
     .masterycircle.downcast {
       opacity: 0.7;
@@ -2381,6 +2642,17 @@
       from { box-shadow: 0 2px 6px rgba(0,0,0,0.3), 0 0 15px rgba(255, 0, 0, 0.4); }
       to { box-shadow: 0 2px 6px rgba(0,0,0,0.3), 0 0 25px rgba(200, 0, 0, 0.8); }
     }
+
+    @keyframes flipCard {
+      0% { transform: rotateY(0deg); }
+      50% { transform: rotateY(90deg); }
+      100% { transform: rotateY(0deg); }
+    }
+
+    .card-flipping {
+      animation: flipCard 0.3s ease-in-out;
+      transform-style: preserve-3d;
+    }
     
     /* Risky toggle button styles */
     .risky-toggle-container {
@@ -2428,6 +2700,48 @@
     }
     
     .risky-input::placeholder {
+      color: #a0aec0;
+    }
+    
+    .target-input {
+      background-color: #2d3748;
+      color: white;
+      border: 1px solid #4a5568;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 11px;
+      width: 100px;
+      transition: all 0.2s ease;
+    }
+    
+    .target-input:focus {
+      outline: none;
+      border-color: #63b3ed;
+      background-color: #1a202c;
+    }
+    
+    .target-input::placeholder {
+      color: #a0aec0;
+    }
+    
+    .maxhp-input {
+      background-color: #2d3748;
+      color: white;
+      border: 1px solid #4a5568;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 11px;
+      width: 80px;
+      transition: all 0.2s ease;
+    }
+    
+    .maxhp-input:focus {
+      outline: none;
+      border-color: #48bb78;
+      background-color: #1a202c;
+    }
+    
+    .maxhp-input::placeholder {
       color: #a0aec0;
     }
     
@@ -2509,6 +2823,7 @@
 
     .cardicon {
         margin-bottom: 0px !important;
+        position: relative;
     }
 
     .bannerbottom {
