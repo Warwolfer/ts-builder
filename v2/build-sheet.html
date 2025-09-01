@@ -218,7 +218,20 @@
       </div>
 
       <!-- Actions Display -->
-      <h3 class="selectorheader">Actions</h3>
+      <h3 class="selectorheader">
+        Actions
+        <div class="action-filters">
+          <div class="filter-pill offense-filter active" onclick="toggleActionFilter('offense')" data-filter="offense">Offense</div>
+          <div class="filter-pill defense-filter active" onclick="toggleActionFilter('defense')" data-filter="defense">Defense</div>
+          <div class="filter-pill support-filter active" onclick="toggleActionFilter('support')" data-filter="support">Support</div>
+          <div class="filter-pill alter-filter active" onclick="toggleActionFilter('alter')" data-filter="alter">Alter</div>
+          <div class="filter-pill main-filter active" onclick="toggleActionUseFilter('main')" data-filter="main">Main</div>
+            <div class="filter-pill special-filter active" onclick="toggleActionUseFilter('special')" data-filter="special">Special</div>
+            <div class="filter-pill bonus-filter active" onclick="toggleActionUseFilter('bonus')" data-filter="bonus">Bonus</div>
+          <div class="filter-pill free-filter active" onclick="toggleActionUseFilter('free')" data-filter="free">Free</div>
+          <div class="filter-pill passive-filter active" onclick="toggleActionUseFilter('passive')" data-filter="passive">Passive</div>
+        </div>
+      </h3>
       <div class="masterycategory" id="freeactiondisplay">
         <!-- Free actions -->
         <div class="card normal attackfinal">
@@ -1297,9 +1310,9 @@
             hasInput: true
           }],
           'versatile': [{
-            text: 'Ultra Versatile',
-            onclick: 'toggleUltraVersatile',
-            suffix: 'Ultra Versatile'
+            text: 'Simulcast',
+            onclick: 'toggleSimulcast',
+            suffix: 'Simulcast'
           }],
           'heal': [{
             text: 'AoE',
@@ -1309,6 +1322,11 @@
             text: 'Versatile',
             onclick: 'toggleVersatile',
             suffix: 'Versatile'
+          },
+          {
+              text: 'Simulcast',
+              onclick: 'toggleSimulcast',
+              suffix: 'Simulcast'
           }],
           'buff': [{
             text: 'AoE',
@@ -1318,6 +1336,11 @@
             text: 'Versatile',
             onclick: 'toggleVersatile',
             suffix: 'Versatile'
+          },
+          {
+              text: 'Simulcast',
+              onclick: 'toggleSimulcast',
+              suffix: 'Simulcast'
           }],
           'power-heal': [{
             text: 'AoE',
@@ -1327,6 +1350,11 @@
             text: 'Versatile',
             onclick: 'toggleVersatile',
             suffix: 'Versatile'
+          },
+          {
+              text: 'Simulcast',
+              onclick: 'toggleSimulcast',
+              suffix: 'Simulcast'
           }],
           'power-buff': [{
             text: 'AoE',
@@ -1336,6 +1364,11 @@
             text: 'Versatile',
             onclick: 'toggleVersatile',
             suffix: 'Versatile'
+          },
+          {
+              text: 'Simulcast',
+              onclick: 'toggleSimulcast',
+              suffix: 'Simulcast'
           }]
         };
         
@@ -1372,7 +1405,7 @@
             buttons.push(`<input type="text" class="target-input" placeholder="Target" oninput="updateTargetSuffix('${action.lookup}')" onkeyup="updateTargetSuffix('${action.lookup}')">`);
           }
           if (inputs.maxhp) {
-            buttons.push(`<input type="text" class="maxhp-input" placeholder="MaxHP" oninput="updateMaxHPSuffix('${action.lookup}')" onkeyup="updateMaxHPSuffix('${action.lookup}')">`);
+            buttons.push(`<input type="number" class="maxhp-input" placeholder="MaxHP" min="1" onkeydown="validateNumericInput(event)" oninput="updateMaxHPSuffix('${action.lookup}')" onkeyup="updateMaxHPSuffix('${action.lookup}')">`);
           }
         }
 
@@ -1983,6 +2016,25 @@
       }
     }
 
+    // Function to validate numeric input and prevent non-numbers
+    function validateNumericInput(event) {
+      // Allow: backspace, delete, tab, escape, enter
+      if ([8, 9, 27, 13, 46].includes(event.keyCode) ||
+          // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+          (event.keyCode === 65 && event.ctrlKey === true) ||
+          (event.keyCode === 67 && event.ctrlKey === true) ||
+          (event.keyCode === 86 && event.ctrlKey === true) ||
+          (event.keyCode === 88 && event.ctrlKey === true) ||
+          // Allow: home, end, left, right, down, up
+          (event.keyCode >= 35 && event.keyCode <= 40)) {
+        return;
+      }
+      // Ensure that it is a number and stop the keypress
+      if ((event.shiftKey || (event.keyCode < 48 || event.keyCode > 57)) && (event.keyCode < 96 || event.keyCode > 105)) {
+        event.preventDefault();
+      }
+    }
+
     // Function to update the MaxHP suffix based on input value
     function updateMaxHPSuffix(actionId) {
       const inputElement = event.target;
@@ -1993,7 +2045,16 @@
         return;
       }
       
-      const maxhpText = inputElement.value.trim();
+      let maxhpText = inputElement.value.trim();
+      
+      // Filter out non-numeric characters and ensure positive numbers only
+      const numericValue = maxhpText.replace(/[^0-9]/g, '');
+      
+      // Update input field to show only numeric value
+      if (maxhpText !== numericValue) {
+        inputElement.value = numericValue;
+        maxhpText = numericValue;
+      }
       
       // Find the maxhp span and update its content directly
       const maxhpSpan = rollCodeElement.querySelector('.maxhp');
@@ -2011,8 +2072,8 @@
       toggleActionButton(actionId, suffix, 'Risky');
     }
 
-    function toggleUltraVersatile(actionId, suffix = 'Ultra Versatile') {
-      toggleActionButton(actionId, suffix, 'Ultra Versatile');
+    function toggleSimulcast(actionId, suffix = 'Simulcast') {
+      toggleActionButton(actionId, suffix, 'Simulcast');
     }
 
     function toggleAoE(actionId, suffix = 'AoE') {
@@ -2077,6 +2138,91 @@
       }, 600); // Full animation duration
     }
     
+    // Function to toggle action filters
+    function toggleActionFilter(category) {
+      const filterButton = event.target;
+      filterButton.classList.toggle('active');
+      
+      // Refresh the display based on all active filters
+      refreshAllActionFilters();
+    }
+    
+
+    // Function to toggle action use filters
+    function toggleActionUseFilter(useType) {
+      const filterButton = event.target;
+      filterButton.classList.toggle('active');
+      
+      // Refresh the display based on all active filters
+      refreshActionsByUseFilters();
+    }
+    
+    function refreshActionsByUseFilters() {
+      refreshAllActionFilters();
+    }
+    
+    function refreshAllActionFilters() {
+      // Get all active role filters
+      const activeRoleFilters = [];
+      const roleFilterButtons = document.querySelectorAll('.filter-pill[data-filter]');
+      
+      roleFilterButtons.forEach(button => {
+        const filterType = button.getAttribute('data-filter');
+        if (['offense', 'defense', 'support', 'alter'].includes(filterType) && button.classList.contains('active')) {
+          activeRoleFilters.push(filterType);
+        }
+      });
+      
+      // Get all active use filters
+      const activeUseFilters = [];
+      roleFilterButtons.forEach(button => {
+        const filterType = button.getAttribute('data-filter');
+        if (['main', 'bonus', 'free', 'passive', 'special'].includes(filterType) && button.classList.contains('active')) {
+          activeUseFilters.push(filterType);
+        }
+      });
+      
+      const actions = buildSheetInstance.dataLoader.cache.actions;
+      
+      // Show/hide actions based on combined filter logic
+      actions.forEach(action => {
+        const actionCard = document.getElementById(action.lookup + 'final');
+        if (actionCard) {
+          let shouldShow = true;
+          
+          // Role filter check (OR within roles)
+          if (activeRoleFilters.length > 0) {
+            shouldShow = shouldShow && (action.category && activeRoleFilters.includes(action.category));
+          }
+          
+          // Use filter check (OR within uses)
+          if (activeUseFilters.length > 0) {
+            shouldShow = shouldShow && (action.use && action.use.some(useType => activeUseFilters.includes(useType)));
+          }
+          
+          actionCard.style.display = shouldShow ? 'flex' : 'none';
+        }
+      });
+      
+      // Handle basic attack card (considered 'offense' category and 'main' use type)
+      const attackCard = document.querySelector('.attackfinal');
+      if (attackCard) {
+        let shouldShow = true;
+        
+        // Role filter check for basic attack (offense)
+        if (activeRoleFilters.length > 0) {
+          shouldShow = shouldShow && activeRoleFilters.includes('offense');
+        }
+        
+        // Use filter check for basic attack (main)
+        if (activeUseFilters.length > 0) {
+          shouldShow = shouldShow && activeUseFilters.includes('main');
+        }
+        
+        attackCard.style.display = shouldShow ? 'flex' : 'none';
+      }
+    }
+
     // Copy rollcode to clipboard function
     function copyRollCode(element, event) {
       // Get the text content without HTML tags
@@ -2745,6 +2891,17 @@
       color: #a0aec0;
     }
     
+    /* Hide number input arrows */
+    .maxhp-input::-webkit-outer-spin-button,
+    .maxhp-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    
+    .maxhp-input[type=number] {
+      -moz-appearance: textfield;
+    }
+    
     /* Clickable rollcode styling */
     .clickable-rollcode {
       cursor: pointer;
@@ -2831,6 +2988,88 @@
         width: 100%;
         background: linear-gradient(180deg, transparent, rgba(17,20,28,1) 100%);
         z-index: 1000;
+    }
+
+    /* Action filter pills */
+    .selectorheader {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .action-filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-pill {
+      background-color: #444;
+      color: white;
+      border: 2px solid #555;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .filter-pill:hover {
+      background-color: #555;
+    }
+
+    .filter-pill.active {
+      background-color: #333;
+    }
+
+    /* Role-specific colors for active state */
+    .filter-pill.offense-filter.active {
+      border-color: #ef4444;
+      box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
+    }
+
+    .filter-pill.defense-filter.active {
+      border-color: #f97316;
+      box-shadow: 0 0 6px rgba(249, 115, 22, 0.4);
+    }
+
+    .filter-pill.support-filter.active {
+      border-color: #3b82f6;
+      box-shadow: 0 0 6px rgba(59, 130, 246, 0.4);
+    }
+
+    .filter-pill.alter-filter.active {
+      border-color: #8b5cf6;
+      box-shadow: 0 0 6px rgba(139, 92, 246, 0.4);
+    }
+
+    /* Use-specific colors for active state */
+    .filter-pill.main-filter.active {
+      border-color: #10b981;
+      box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+    }
+
+    .filter-pill.bonus-filter.active {
+      border-color: #f59e0b;
+      box-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
+    }
+
+    .filter-pill.free-filter.active {
+      border-color: #06b6d4;
+      box-shadow: 0 0 6px rgba(6, 182, 212, 0.4);
+    }
+
+    .filter-pill.passive-filter.active {
+      border-color: #84cc16;
+      box-shadow: 0 0 6px rgba(132, 204, 22, 0.4);
+    }
+
+    .filter-pill.special-filter.active {
+      border-color: #ec4899;
+      box-shadow: 0 0 6px rgba(236, 72, 153, 0.4);
     }
   </style>
 </body>
