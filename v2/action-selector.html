@@ -87,6 +87,18 @@
       </div>
 
       <!-- Available Actions by Category -->
+      <div class="action-filters">
+        <div class="filter-pill offense-filter active" onclick="toggleActionFilter('offense')" data-filter="offense">Offense</div>
+        <div class="filter-pill defense-filter active" onclick="toggleActionFilter('defense')" data-filter="defense">Defense</div>
+        <div class="filter-pill support-filter active" onclick="toggleActionFilter('support')" data-filter="support">Support</div>
+        <div class="filter-pill alter-filter active" onclick="toggleActionFilter('alter')" data-filter="alter">Alter</div>
+        <div class="filter-pill main-filter active" onclick="toggleActionUseFilter('main')" data-filter="main">Main</div>
+          <div class="filter-pill special-filter active" onclick="toggleActionUseFilter('special')" data-filter="special">Special</div>
+
+          <div class="filter-pill bonus-filter active" onclick="toggleActionUseFilter('bonus')" data-filter="bonus">Bonus</div>
+        <div class="filter-pill free-filter active" onclick="toggleActionUseFilter('free')" data-filter="free">Free</div>
+        <div class="filter-pill passive-filter active" onclick="toggleActionUseFilter('passive')" data-filter="passive">Passive</div>
+      </div>
       <div id="action-categories">
         <!-- Action categories will be populated by JavaScript -->
       </div>
@@ -640,10 +652,122 @@
         this.domUtils.showError(container, message);
       }
     }
+
+    // Action filter functions
+    function toggleActionFilter(category) {
+      const filterButton = event.target;
+      filterButton.classList.toggle('active');
+      
+      // Refresh the display based on all active filters
+      refreshAllActionFilters();
+    }
+
+    function toggleActionUseFilter(useType) {
+      const filterButton = event.target;
+      filterButton.classList.toggle('active');
+      
+      // Refresh the display based on all active filters
+      refreshAllActionFilters();
+    }
+    
+    function refreshAllActionFilters() {
+      // Get all active role filters
+      const activeRoleFilters = [];
+      const roleFilterButtons = document.querySelectorAll('.filter-pill[data-filter]');
+      
+      roleFilterButtons.forEach(button => {
+        const filterType = button.getAttribute('data-filter');
+        if (['offense', 'defense', 'support', 'alter'].includes(filterType) && button.classList.contains('active')) {
+          activeRoleFilters.push(filterType);
+        }
+      });
+      
+      // Get all active use filters
+      const activeUseFilters = [];
+      roleFilterButtons.forEach(button => {
+        const filterType = button.getAttribute('data-filter');
+        if (['main', 'bonus', 'free', 'passive', 'special'].includes(filterType) && button.classList.contains('active')) {
+          activeUseFilters.push(filterType);
+        }
+      });
+      
+      // Get all action cards (use the correct selector for action-selector page)
+      const actionCards = document.querySelectorAll('.card.choice');
+      
+      // Show/hide actions based on combined filter logic
+      actionCards.forEach(actionCard => {
+        // Get action data from card attributes
+        const actionId = actionCard.getAttribute('data-action');
+        const actionCategory = actionCard.getAttribute('data-category');
+        
+        if (actionId) {
+          // Always show utility actions (category 'utility')
+          if (actionCategory === 'utility') {
+            actionCard.classList.remove('filter-hidden');
+            return;
+          }
+          
+          // Find action data from cache to get the 'use' attribute
+          let actionData = window.actionsV2?.find(action => action.lookup === actionId);
+          
+          // If not found in actionsV2, try the actionSelectorInstance's availableActions
+          if (!actionData && window.actionSelectorInstance?.availableActions) {
+            actionData = window.actionSelectorInstance.availableActions.find(action => action.lookup === actionId);
+          }
+          
+          
+          let shouldShow = true;
+          
+          // Role filter check (OR within roles)
+          if (activeRoleFilters.length > 0) {
+            shouldShow = shouldShow && (actionCategory && activeRoleFilters.includes(actionCategory));
+          }
+          
+          // Use filter check (OR within uses) - only if actionData found
+          if (activeUseFilters.length > 0) {
+            if (actionData && actionData.use) {
+              shouldShow = shouldShow && actionData.use.some(useType => activeUseFilters.includes(useType));
+            } else {
+              // If no use data found, hide the action when use filters are active
+              shouldShow = false;
+            }
+          }
+          
+          if (shouldShow) {
+            actionCard.classList.remove('filter-hidden');
+          } else {
+            actionCard.classList.add('filter-hidden');
+          }
+        }
+      });
+      
+      // Also handle category headers - hide if no actions are visible
+      const categoryContainers = document.querySelectorAll('#action-categories .masterycategory');
+      categoryContainers.forEach(container => {
+        const visibleActions = container.querySelectorAll('.card.choice:not(.filter-hidden)');
+        const header = container.previousElementSibling;
+        
+        // Check if this is utility category - always keep it visible
+        const isUtilityCategory = container.id === 'utility-actions' || 
+                                 (header && header.textContent.includes('Utility'));
+        
+        if (visibleActions.length === 0 && !isUtilityCategory) {
+          container.style.display = 'none';
+          if (header && header.classList.contains('selectorheader')) {
+            header.style.display = 'none';
+          }
+        } else {
+          container.style.display = 'block';
+          if (header && header.classList.contains('selectorheader')) {
+            header.style.display = 'block';
+          }
+        }
+      });
+    }
     
     // Initialize when page loads
     window.onload = function() {
-      new ActionSelector();
+      window.actionSelectorInstance = new ActionSelector();
     };
   </script>
   
@@ -682,6 +806,117 @@
     .action-warnings {
       font-size: 0.9em;
       color: #d63384;
+    }
+
+    /* Filter pill styles */
+    .action-filters {
+      display: flex;
+        padding-left: 10px;
+        padding-right: 10px;
+      gap: 6px;
+      padding-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .filter-pill {
+      background-color: #444;
+      color: white;
+      border: 2px solid #555;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .filter-pill:hover {
+      background-color: #555;
+    }
+
+    .filter-pill.active {
+      background-color: #333;
+    }
+
+    /* Role-specific colors for active state */
+    .filter-pill.offense-filter.active {
+      border-color: #ef4444;
+      box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
+    }
+
+    .filter-pill.defense-filter.active {
+      border-color: #f97316;
+      box-shadow: 0 0 6px rgba(249, 115, 22, 0.4);
+    }
+
+    .filter-pill.support-filter.active {
+      border-color: #3b82f6;
+      box-shadow: 0 0 6px rgba(59, 130, 246, 0.4);
+    }
+
+    .filter-pill.alter-filter.active {
+      border-color: #8b5cf6;
+      box-shadow: 0 0 6px rgba(139, 92, 246, 0.4);
+    }
+
+    /* Use-specific colors for active state */
+    .filter-pill.main-filter.active {
+      border-color: #10b981;
+      box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+    }
+
+    .filter-pill.bonus-filter.active {
+      border-color: #f59e0b;
+      box-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
+    }
+
+    .filter-pill.free-filter.active {
+      border-color: #06b6d4;
+      box-shadow: 0 0 6px rgba(6, 182, 212, 0.4);
+    }
+
+    .filter-pill.passive-filter.active {
+      border-color: #84cc16;
+      box-shadow: 0 0 6px rgba(132, 204, 22, 0.4);
+    }
+
+    .filter-pill.special-filter.active {
+      border-color: #ec4899;
+      box-shadow: 0 0 6px rgba(236, 72, 153, 0.4);
+    }
+
+    /* Filter hidden class - completely hide without disrupting layout */
+    .filter-hidden {
+      display: none !important;
+    }
+
+    /* Use CSS Grid for consistent alignment */
+    .masterycategory.picker {
+      display: grid !important;
+      grid-template-columns: repeat(3, 1fr) !important;
+      gap: 12px !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    /* Cards in grid layout */
+    .masterycategory.picker .card {
+      box-sizing: border-box !important;
+      margin: 0 !important;
+      width: 100% !important;
+    }
+
+    @media (max-width: 1200px) {
+      .masterycategory.picker {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .masterycategory.picker {
+        grid-template-columns: 1fr !important;
+      }
     }
   </style>
 </body>
