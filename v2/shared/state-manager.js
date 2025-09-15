@@ -106,6 +106,46 @@ class BuildState {
     // All character data is stored in localStorage and persists across page navigation
     // Only build codes (in URL hash) are used for sharing complete builds
   }
+
+  // Load character data from TerraSphere Character Manager
+  loadFromCharacterManager(characterData) {
+    if (!characterData) return;
+    
+    const updates = {};
+    
+    // Basic character info
+    if (characterData.character_name) {
+      updates.characterName = characterData.character_name;
+    }
+    
+    if (characterData.race) {
+      updates.characterRace = characterData.race;
+    }
+    
+    if (characterData.title) {
+      updates.characterTitle = characterData.title;
+    }
+    
+    // Profile images
+    if (characterData.profile_banner_url) {
+      updates.profileBannerUrl = characterData.profile_banner_url;
+    }
+    
+    if (characterData.avatar_url) {
+      updates.avatarUrl = characterData.avatar_url;
+    }
+    
+    // Check for New Game Plus status
+    if (characterData.secondary_user_group_ids && Array.isArray(characterData.secondary_user_group_ids)) {
+      // Set ng to true (1) if secondary_user_group_ids contains ID 30
+      updates.ng = characterData.secondary_user_group_ids.includes(30) ? 1 : 0;
+    }
+    
+    // Update state with character data
+    this.updateState(updates);
+    
+    console.log('📋 StateManager: Loaded character from TerraSphere Character Manager', updates);
+  }
   
   // Generate clean URLs (localStorage-first approach)
   generateURL(basePath = '') {
