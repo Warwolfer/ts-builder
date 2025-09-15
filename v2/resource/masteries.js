@@ -425,7 +425,7 @@ const masteriesV2 = [
     secondaryRole: "alter",
     save: null,
     breakType: null,
-    actions: ["Exchange", "Future Wager"],
+    actions: ["Exchange", "Wager Future"],
   },
   {
 
@@ -503,7 +503,7 @@ const masteriesV2 = [
     secondaryRole: "alter",
     save: null,
     breakType: null,
-    actions: ["Coordinate", "Assist"],
+    actions: ["Coordinate", "Aid"],
   },
 {
 
