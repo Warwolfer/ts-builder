@@ -539,10 +539,12 @@
 .risky-toggle-container {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   margin-top: 8px;
-  height: 24px;
+  min-height: 40px; /* Reserve space for buttons and inputs */
+  flex-wrap: wrap;
+  padding-bottom: 8px; /* Extra space buffer */
 }
 
 .risky-toggle {
@@ -570,7 +572,7 @@
   border-radius: 4px;
   padding: 4px 8px;
   font-size: 11px;
-  width: 100px;
+  width: 60px;
   transition: all 0.2s ease;
 }
 
@@ -591,7 +593,7 @@
   border-radius: 4px;
   padding: 4px 8px;
   font-size: 11px;
-  width: 100px;
+  width: 60px;
   transition: all 0.2s ease;
 }
 
@@ -612,7 +614,7 @@
   border-radius: 4px;
   padding: 4px 8px;
   font-size: 11px;
-  width: 80px;
+  width: 60px;
   transition: all 0.2s ease;
 }
 
@@ -635,6 +637,152 @@
 
 .maxhp-input[type=number] {
   -moz-appearance: textfield;
+}
+
+.damage-taken-input {
+  background-color: #2d3748;
+  color: white;
+  border: 1px solid #4a5568;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  width: 60px;
+  transition: all 0.2s ease;
+}
+
+.damage-taken-input:focus {
+  outline: none;
+  border-color: #ef4444;
+  background-color: #1a202c;
+}
+
+.damage-taken-input::placeholder {
+  color: #a0aec0;
+}
+
+.damage-taken-input::-webkit-outer-spin-button,
+.damage-taken-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.damage-taken-input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.overdrive-damage-input {
+  background-color: #2d3748;
+  color: white;
+  border: 1px solid #4a5568;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  width: 80px;
+  transition: all 0.2s ease;
+}
+
+.overdrive-damage-input:focus {
+  outline: none;
+  border-color: #8b5cf6;
+  background-color: #1a202c;
+}
+
+.overdrive-damage-input::placeholder {
+  color: #a0aec0;
+}
+
+.overdrive-damage-input::-webkit-outer-spin-button,
+.overdrive-damage-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.overdrive-damage-input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.charging-input {
+  background-color: #2d3748;
+  color: white;
+  border: 1px solid #4a5568;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  width: 60px;
+  transition: all 0.2s ease;
+}
+
+.charging-input:focus {
+  outline: none;
+  border-color: #f59e0b;
+  background-color: #1a202c;
+}
+
+.charging-input::placeholder {
+  color: #a0aec0;
+}
+
+.release-input {
+  background-color: #2d3748;
+  color: white;
+  border: 1px solid #4a5568;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  width: 60px;
+  transition: all 0.2s ease;
+}
+
+.release-input:focus {
+  outline: none;
+  border-color: #10b981;
+  background-color: #1a202c;
+}
+
+.release-input::placeholder {
+  color: #a0aec0;
+}
+
+.bank-input {
+  background-color: #2d3748;
+  color: white;
+  border: 1px solid #4a5568;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  width: 60px;
+  transition: all 0.2s ease;
+}
+
+.bank-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background-color: #1a202c;
+}
+
+.bank-input::placeholder {
+  color: #a0aec0;
+}
+
+.frenzy-input {
+  background-color: #2d3748;
+  color: white;
+  border: 1px solid #4a5568;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  width: 60px;
+  transition: all 0.2s ease;
+}
+
+.frenzy-input:focus {
+  outline: none;
+  border-color: #ef4444;
+  background-color: #1a202c;
+}
+
+.frenzy-input::placeholder {
+  color: #a0aec0;
 }
 
 /* Clickable rollcode styling */
