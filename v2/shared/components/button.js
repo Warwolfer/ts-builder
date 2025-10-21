@@ -2,52 +2,51 @@
 // Reusable button component with consistent styling and loading states
 
 const ButtonComponent = {
-  
   // Render a button with specified options
   render(options = {}) {
     const {
-      text = 'Button',
-      type = 'primary', // primary, secondary, success, warning, danger, ghost
-      size = 'normal',  // small, normal, large
+      text = "Button",
+      type = "primary", // primary, secondary, success, warning, danger, ghost
+      size = "normal", // small, normal, large
       disabled = false,
       loading = false,
       icon = null,
-      iconPosition = 'left', // left, right
+      iconPosition = "left", // left, right
       onClick = null,
       id = null,
-      className = '',
-      attributes = {}
+      className = "",
+      attributes = {},
     } = options;
-    
+
     let buttonClasses = `ts-button ts-button-${type} ts-button-${size}`;
-    if (disabled) buttonClasses += ' disabled';
-    if (loading) buttonClasses += ' loading';
+    if (disabled) buttonClasses += " disabled";
+    if (loading) buttonClasses += " loading";
     if (className) buttonClasses += ` ${className}`;
-    
-    const buttonId = id ? `id="${id}"` : '';
-    const buttonDisabled = (disabled || loading) ? 'disabled' : '';
-    
+
+    const buttonId = id ? `id="${id}"` : "";
+    const buttonDisabled = disabled || loading ? "disabled" : "";
+
     // Build attributes string
-    let attributesString = '';
+    let attributesString = "";
     Object.entries(attributes).forEach(([key, value]) => {
       attributesString += ` ${key}="${value}"`;
     });
-    
+
     // Build button content
-    let buttonContent = '';
-    
+    let buttonContent = "";
+
     if (loading) {
       buttonContent += '<span class="spinner-inline"></span>';
-    } else if (icon && iconPosition === 'left') {
+    } else if (icon && iconPosition === "left") {
       buttonContent += `<span class="button-icon button-icon-left">${icon}</span>`;
     }
-    
+
     buttonContent += `<span class="button-text">${text}</span>`;
-    
-    if (icon && iconPosition === 'right' && !loading) {
+
+    if (icon && iconPosition === "right" && !loading) {
       buttonContent += `<span class="button-icon button-icon-right">${icon}</span>`;
     }
-    
+
     return `
       <button class="${buttonClasses}" 
               ${buttonId} 
@@ -57,34 +56,34 @@ const ButtonComponent = {
       </button>
     `;
   },
-  
+
   // Render button group
   renderGroup(buttons, options = {}) {
     const {
-      layout = 'horizontal', // horizontal, vertical
-      spacing = 'normal',    // tight, normal, loose
-      align = 'left',        // left, center, right
-      className = ''
+      layout = "horizontal", // horizontal, vertical
+      spacing = "normal", // tight, normal, loose
+      align = "left", // left, center, right
+      className = "",
     } = options;
-    
+
     let groupClasses = `ts-button-group ts-button-group-${layout} ts-button-group-${spacing} ts-button-group-${align}`;
     if (className) groupClasses += ` ${className}`;
-    
+
     let groupHTML = `<div class="${groupClasses}">`;
-    
-    buttons.forEach(buttonOptions => {
+
+    buttons.forEach((buttonOptions) => {
       groupHTML += this.render(buttonOptions);
     });
-    
-    groupHTML += '</div>';
+
+    groupHTML += "</div>";
     return groupHTML;
   },
-  
+
   // Render navigation buttons (Previous/Next pattern)
   renderNavigation(options = {}) {
     const {
-      previousText = 'Previous',
-      nextText = 'Next',
+      previousText = "Previous",
+      nextText = "Next",
       previousUrl = null,
       nextUrl = null,
       previousDisabled = false,
@@ -93,173 +92,174 @@ const ButtonComponent = {
       onNext = null,
       showProgress = false,
       currentStep = 1,
-      totalSteps = 4
+      totalSteps = 4,
     } = options;
-    
+
     const buttons = [];
-    
+
     // Previous button
     if (previousUrl || onPrevious) {
       buttons.push({
         text: previousText,
-        type: 'secondary',
-        icon: '←',
-        iconPosition: 'left',
+        type: "secondary",
+        icon: "←",
+        iconPosition: "left",
         disabled: previousDisabled,
         onClick: onPrevious,
-        attributes: previousUrl ? { 'data-url': previousUrl } : {}
+        attributes: previousUrl ? { "data-url": previousUrl } : {},
       });
     }
-    
+
     // Progress indicator
     if (showProgress) {
       buttons.push({
         text: `Step ${currentStep} of ${totalSteps}`,
-        type: 'ghost',
+        type: "ghost",
         disabled: true,
-        className: 'progress-indicator'
+        className: "progress-indicator",
       });
     }
-    
+
     // Next button
     buttons.push({
       text: nextText,
-      type: 'primary',
-      icon: '→',
-      iconPosition: 'right',
+      type: "primary",
+      icon: "→",
+      iconPosition: "right",
       disabled: nextDisabled,
       onClick: onNext,
-      attributes: nextUrl ? { 'data-url': nextUrl } : {}
+      attributes: nextUrl ? { "data-url": nextUrl } : {},
     });
-    
+
     return this.renderGroup(buttons, {
-      layout: 'horizontal',
-      align: 'center',
-      spacing: 'normal',
-      className: 'navigation-buttons'
+      layout: "horizontal",
+      align: "center",
+      spacing: "normal",
+      className: "navigation-buttons",
     });
   },
-  
+
   // Create button element programmatically
   create(options = {}) {
     const buttonHTML = this.render(options);
-    const tempDiv = document.createElement('div');
+    const tempDiv = document.createElement("div");
     tempDiv.innerHTML = buttonHTML;
     const button = tempDiv.firstElementChild;
-    
+
     // Add click event listener if provided
     if (options.onClick) {
-      button.addEventListener('click', options.onClick);
+      button.addEventListener("click", options.onClick);
     }
-    
+
     return button;
   },
-  
+
   // Update button state (loading, disabled, text)
   updateState(button, updates = {}) {
-    if (typeof button === 'string') {
+    if (typeof button === "string") {
       button = document.getElementById(button);
     }
-    
+
     if (!button) return;
-    
+
     const {
       loading = null,
       disabled = null,
       text = null,
-      icon = null
+      icon = null,
     } = updates;
-    
+
     // Handle loading state
     if (loading !== null) {
       if (loading) {
-        button.classList.add('loading');
+        button.classList.add("loading");
         button.disabled = true;
-        
+
         // Add spinner if not present
-        if (!button.querySelector('.spinner-inline')) {
-          const spinner = document.createElement('span');
-          spinner.className = 'spinner-inline';
+        if (!button.querySelector(".spinner-inline")) {
+          const spinner = document.createElement("span");
+          spinner.className = "spinner-inline";
           button.insertBefore(spinner, button.firstChild);
         }
       } else {
-        button.classList.remove('loading');
-        
+        button.classList.remove("loading");
+
         // Remove spinner
-        const spinner = button.querySelector('.spinner-inline');
+        const spinner = button.querySelector(".spinner-inline");
         if (spinner) {
           spinner.remove();
         }
-        
+
         // Restore disabled state
         if (disabled === null) {
-          button.disabled = button.classList.contains('disabled');
+          button.disabled = button.classList.contains("disabled");
         }
       }
     }
-    
+
     // Handle disabled state
     if (disabled !== null) {
       button.disabled = disabled;
       if (disabled) {
-        button.classList.add('disabled');
+        button.classList.add("disabled");
       } else {
-        button.classList.remove('disabled');
+        button.classList.remove("disabled");
       }
     }
-    
+
     // Update text
     if (text !== null) {
-      const textElement = button.querySelector('.button-text');
+      const textElement = button.querySelector(".button-text");
       if (textElement) {
         textElement.textContent = text;
       }
     }
-    
+
     // Update icon
     if (icon !== null) {
-      const iconElement = button.querySelector('.button-icon');
+      const iconElement = button.querySelector(".button-icon");
       if (iconElement) {
         iconElement.innerHTML = icon;
       }
     }
   },
-  
+
   // Initialize buttons with automatic event handling
-  init(containerSelector = 'body') {
-    const container = typeof containerSelector === 'string' 
-      ? document.querySelector(containerSelector) 
-      : containerSelector;
-      
+  init(containerSelector = "body") {
+    const container =
+      typeof containerSelector === "string"
+        ? document.querySelector(containerSelector)
+        : containerSelector;
+
     if (!container) return;
-    
+
     // Handle navigation buttons with data-url attributes
-    const navButtons = container.querySelectorAll('.ts-button[data-url]');
-    navButtons.forEach(button => {
-      button.addEventListener('click', (e) => {
+    const navButtons = container.querySelectorAll(".ts-button[data-url]");
+    navButtons.forEach((button) => {
+      button.addEventListener("click", (e) => {
         e.preventDefault();
-        const url = button.getAttribute('data-url');
+        const url = button.getAttribute("data-url");
         if (url) {
           // Show loading state briefly
           this.updateState(button, { loading: true });
-          
+
           setTimeout(() => {
             window.location.href = url;
           }, 200);
         }
       });
     });
-    
+
     // Inject styles
     this.injectStyles();
   },
-  
+
   // Inject component styles
   injectStyles() {
-    if (document.getElementById('button-component-styles')) return;
-    
-    const style = document.createElement('style');
-    style.id = 'button-component-styles';
+    if (document.getElementById("button-component-styles")) return;
+
+    const style = document.createElement("style");
+    style.id = "button-component-styles";
     style.textContent = `
       /* Button Component Styles */
       .ts-button {
@@ -485,13 +485,13 @@ const ButtonComponent = {
         100% { transform: rotate(360deg); }
       }
     `;
-    
+
     document.head.appendChild(style);
-  }
+  },
 };
 
 // Auto-initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   ButtonComponent.init();
 });
 

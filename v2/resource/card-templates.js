@@ -12,10 +12,10 @@ class CardTemplates {
       rollSection,
       masteryIcons,
       toggleButtons,
-      borderColor = '#1e2131',
+      borderColor = "#1e2131",
       iconUrl,
-      iconBackgroundColor = '#1e2131',
-      additionalButtons = ''
+      iconBackgroundColor = "#1e2131",
+      additionalButtons = "",
     } = options;
 
     return `
@@ -46,7 +46,7 @@ class CardTemplates {
       imageUrl,
       rank,
       rankColorClass,
-      containerClass = 'mastery-rank-display'
+      containerClass = "mastery-rank-display",
     } = options;
 
     return `
@@ -60,11 +60,7 @@ class CardTemplates {
   }
 
   static createStatsDisplay(options) {
-    const {
-      imageUrl,
-      value,
-      tooltip
-    } = options;
+    const { imageUrl, value, tooltip } = options;
 
     return `
       <div class="stats-display" title="${tooltip}">
@@ -83,31 +79,28 @@ class CardTemplates {
       suffix,
       onclick,
       hasInput = false,
-      inputType = 'text',
-      placeholder = '',
-      additionalClasses = ''
+      inputType = "text",
+      placeholder = "",
+      additionalClasses = "",
     } = options;
 
     let buttonHtml = `<button class="risky-toggle ${additionalClasses}" onclick="${onclick}('${actionId}', '${suffix}')">${text}</button>`;
-    
+
     if (hasInput) {
       buttonHtml += `<input type="${inputType}" class="risky-input" placeholder="${placeholder}" style="display: none;" oninput="updateRiskySuffix('${actionId}')" onkeyup="updateRiskySuffix('${actionId}')">`;
     }
-    
+
     return buttonHtml;
   }
 
   static createMasteryIcon(options) {
-    const {
-      masteryId,
-      imageUrl,
-      isDowncast = false,
-      actionId
-    } = options;
+    const { masteryId, imageUrl, isDowncast = false, actionId } = options;
 
-    const downcastClass = isDowncast ? ' downcast' : '';
-    const downcastIndicator = isDowncast ? '<div class="downcast-indicator">↓</div>' : '';
-    
+    const downcastClass = isDowncast ? " downcast" : "";
+    const downcastIndicator = isDowncast
+      ? '<div class="downcast-indicator">↓</div>'
+      : "";
+
     return `
       <div class="display masterycircle ${masteryId}${downcastClass}" data-mastery="${masteryId}" data-action="${actionId}" onclick="clickMastery(this)">
         <img class="${masteryId}" src="${imageUrl}">
@@ -117,12 +110,7 @@ class CardTemplates {
   }
 
   static createSaveDisplay(options) {
-    const {
-      saveType,
-      imageUrl,
-      value,
-      tooltip
-    } = options;
+    const { saveType, imageUrl, value, tooltip } = options;
 
     return `
       <div class="saves-rank-display" title="${tooltip}">
@@ -135,12 +123,7 @@ class CardTemplates {
   }
 
   static createEquipmentDisplay(options) {
-    const {
-      name,
-      imageUrl,
-      rank,
-      rankColorClass
-    } = options;
+    const { name, imageUrl, rank, rankColorClass } = options;
 
     return `
       <div class="equipment-rank-display">
@@ -155,35 +138,45 @@ class CardTemplates {
   // Common button configurations
   static getToggleConfigs() {
     return {
-      'ultra-counter': [{
-        text: 'Melee',
-        onclick: 'toggleMelee',
-        suffix: 'Melee'
-      }],
-      'reckless-attack': [{
-        text: 'Risky',
-        onclick: 'toggleRisky',
-        suffix: 'Risky Mode',
-        hasInput: true
-      }],
-      'versatile': [{
-        text: 'Simulcast',
-        onclick: 'toggleSimulcast',
-        suffix: 'Simulcast'
-      }],
-      'heal': [{
-        text: 'AoE',
-        onclick: 'toggleAoE',
-        suffix: 'AoE'
-      }, {
-        text: 'Versatile',
-        onclick: 'toggleVersatile',
-        suffix: 'Versatile'
-      }, {
-        text: 'Simulcast',
-        onclick: 'toggleSimulcast',
-        suffix: 'Simulcast'
-      }]
+      "ultra-counter": [
+        {
+          text: "Melee",
+          onclick: "toggleMelee",
+          suffix: "Melee",
+        },
+      ],
+      "reckless-attack": [
+        {
+          text: "Risky",
+          onclick: "toggleRisky",
+          suffix: "Risky Mode",
+          hasInput: true,
+        },
+      ],
+      versatile: [
+        {
+          text: "Simulcast",
+          onclick: "toggleSimulcast",
+          suffix: "Simulcast",
+        },
+      ],
+      heal: [
+        {
+          text: "AoE",
+          onclick: "toggleAoE",
+          suffix: "AoE",
+        },
+        {
+          text: "Versatile",
+          onclick: "toggleVersatile",
+          suffix: "Versatile",
+        },
+        {
+          text: "Simulcast",
+          onclick: "toggleSimulcast",
+          suffix: "Simulcast",
+        },
+      ],
       // Add more configurations as needed
     };
   }
@@ -191,13 +184,13 @@ class CardTemplates {
   // Common input configurations
   static getInputConfigs() {
     return {
-      'imbue': {
-        target: true
-      },
-      'revive': {
+      imbue: {
         target: true,
-        maxhp: true
-      }
+      },
+      revive: {
+        target: true,
+        maxhp: true,
+      },
       // Add more configurations as needed
     };
   }

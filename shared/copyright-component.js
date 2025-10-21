@@ -5,9 +5,9 @@
 
 class CopyrightComponent {
   constructor() {
-    this.version = 'v2.0';
-    this.copyrightYears = '2016-2025';
-    this.teamName = 'Team Terrasphere';
+    this.version = "v2.0";
+    this.copyrightYears = "2016-2025";
+    this.teamName = "Team Terrasphere";
   }
 
   // Render the copyright HTML
@@ -32,12 +32,12 @@ class CopyrightComponent {
 
   // Append copyright to the page body (default behavior)
   appendToBody() {
-    document.body.insertAdjacentHTML('beforeend', this.render());
+    document.body.insertAdjacentHTML("beforeend", this.render());
   }
 
   // Replace existing copyright element
   replace() {
-    const existingCopyright = document.getElementById('copyright');
+    const existingCopyright = document.getElementById("copyright");
     if (existingCopyright) {
       existingCopyright.outerHTML = this.render();
     } else {
@@ -50,8 +50,8 @@ class CopyrightComponent {
 window.CopyrightComponent = CopyrightComponent;
 
 // Auto-initialize if DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
     // Auto-replace existing copyright if found
     const copyright = new CopyrightComponent();
     copyright.replace();

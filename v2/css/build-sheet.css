@@ -26,7 +26,7 @@
 
 .share-option label {
   font-weight: bold;
-  color: #FFF;
+  color: #fff;
 }
 
 .share-option textarea {
@@ -34,13 +34,12 @@
   padding: 8px;
   border: 1px solid #ced4da;
   background-color: #232937;
-  color: #FFF;
+  color: #fff;
   border-radius: 4px;
   font-family: monospace;
   font-size: 12px;
   resize: vertical;
 }
-
 
 .copy-button {
   align-self: flex-start;
@@ -82,17 +81,16 @@
     grid-template-columns: repeat(2, 1fr);
   }
   #statsdisplay {
-      flex-grow: 1;
+    flex-grow: 1;
     justify-content: center !important;
   }
 }
-
 
 @media (max-width: 768px) and (min-width: 576px) {
   #savesdisplay,
   #masterydisplay,
   #expertisedisplay,
-  #equipmentdisplay{
+  #equipmentdisplay {
     grid-template-columns: repeat(3, 1fr);
   }
 }
@@ -159,12 +157,24 @@
 }
 
 /* Rank color classes */
-.rank-s { color: #fbbf24 !important; } /* Yellow/Gold */
-.rank-a { color: #fb923c !important; } /* Orange */
-.rank-b { color: #f472b6 !important; } /* Pink */
-.rank-c { color: #4ade80 !important; } /* Green */
-.rank-d { color: #60a5fa !important; } /* Blue */
-.rank-e { color: #9ca3af !important; } /* Gray */
+.rank-s {
+  color: #fbbf24 !important;
+} /* Yellow/Gold */
+.rank-a {
+  color: #fb923c !important;
+} /* Orange */
+.rank-b {
+  color: #f472b6 !important;
+} /* Pink */
+.rank-c {
+  color: #4ade80 !important;
+} /* Green */
+.rank-d {
+  color: #60a5fa !important;
+} /* Blue */
+.rank-e {
+  color: #9ca3af !important;
+} /* Gray */
 
 /* Inline mastery icons */
 .mastery-with-icon {
@@ -190,13 +200,12 @@
   margin-bottom: 4px;
 }
 
-@media (min-width: 900px){
-  #bodyback  {
+@media (min-width: 900px) {
+  #bodyback {
     width: 900px;
     margin-top: 120px;
   }
 }
-
 
 .selectorheader {
   margin-top: 10px;
@@ -249,7 +258,7 @@
 }
 
 @media (max-width: 475px) {
-  #bodyback  {
+  #bodyback {
     margin-top: 84px;
   }
 
@@ -267,7 +276,7 @@
 
   .newgameplus {
     font-weight: bold;
-      user-select: none;
+    user-select: none;
     font-size: 18px !important;
   }
 
@@ -286,13 +295,13 @@
 }
 
 @media (min-width: 476px) and (max-width: 576px) {
-  #bodyback  {
+  #bodyback {
     margin-top: 84px;
   }
 }
 
 @media (min-width: 576px) and (max-width: 899px) {
-  #bodyback  {
+  #bodyback {
     margin-top: 120px;
   }
 }
@@ -303,11 +312,11 @@
     text-align: left !important;
   }
 
-  .mastery-section, .expertise-section {
+  .mastery-section,
+  .expertise-section {
     margin-bottom: 16px;
   }
 }
-
 
 /* Mobile: stack vertically */
 @media (max-width: 768px) {
@@ -315,7 +324,7 @@
     flex-direction: column;
     gap: 0;
   }
-  
+
   .mastery-section #masterydisplay,
   .expertise-section #expertisedisplay {
     grid-template-columns: repeat(2, 1fr);
@@ -333,7 +342,7 @@
 }
 
 .bannercontent {
-  background: linear-gradient(0deg, transparent 0%, rgba(17,20,28,1) 100%);
+  background: linear-gradient(0deg, transparent 0%, rgba(17, 20, 28, 1) 100%);
   justify-content: center;
   /*align-items: center;*/
   width: 100%;
@@ -370,7 +379,7 @@
 }
 
 .revive-swap-button {
-    user-select: none;
+  user-select: none;
   position: absolute;
   bottom: 0;
   left: 0;
@@ -435,8 +444,8 @@
 
 .card {
   position: relative;
-    display:flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .characterstuff {
@@ -453,10 +462,10 @@
 }
 
 .newgameplus {
-    user-select: none;
-    font-weight: bold;
-    font-size: 2.5rem;
-    padding: 8px 12px;
+  user-select: none;
+  font-weight: bold;
+  font-size: 2.5rem;
+  padding: 8px 12px;
 }
 
 .chartitle {
@@ -479,7 +488,11 @@
   position: absolute;
   top: 14px;
   right: -4px;
-  background: linear-gradient(0deg, rgba(17,20,28,1) 0%, rgba(17,20,28,1) 100%) !important;
+  background: linear-gradient(
+    0deg,
+    rgba(17, 20, 28, 1) 0%,
+    rgba(17, 20, 28, 1) 100%
+  ) !important;
   color: white;
   border-width: 1px;
   border-style: solid;
@@ -502,32 +515,72 @@
 }
 
 /* Rank-specific colors matching mastery badges */
-.rank-badge-avatar.rank-e { color: #6b7280; border-color: #6b7280;} /* Gray */
-.rank-badge-avatar.rank-d { color: #3b82f6; border-color: #3b82f6;} /* Blue */
-.rank-badge-avatar.rank-c { color: #22c55e; border-color: #22c55e;} /* Green */
-.rank-badge-avatar.rank-b { color: #ec4899; border-color: #ec4899;} /* Pink */
-.rank-badge-avatar.rank-a { color: #f97316; border-color: #f97316;} /* Orange */
-.rank-badge-avatar.rank-s { color: #f59e0b; border-color: #f59e0b;} /* Gold/Yellow */
-.rank-badge-avatar.rank-splus { 
+.rank-badge-avatar.rank-e {
+  color: #6b7280;
+  border-color: #6b7280;
+} /* Gray */
+.rank-badge-avatar.rank-d {
+  color: #3b82f6;
+  border-color: #3b82f6;
+} /* Blue */
+.rank-badge-avatar.rank-c {
+  color: #22c55e;
+  border-color: #22c55e;
+} /* Green */
+.rank-badge-avatar.rank-b {
+  color: #ec4899;
+  border-color: #ec4899;
+} /* Pink */
+.rank-badge-avatar.rank-a {
+  color: #f97316;
+  border-color: #f97316;
+} /* Orange */
+.rank-badge-avatar.rank-s {
+  color: #f59e0b;
+  border-color: #f59e0b;
+} /* Gold/Yellow */
+.rank-badge-avatar.rank-splus {
   color: #f59e0b;
   border-color: #f59e0b;
   /*animation: glow-ss 2s ease-in-out infinite alternate;*/
 }
 
 @keyframes glow-ss {
-  from { box-shadow: 0 2px 6px rgba(0,0,0,0.3), 0 0 15px rgba(251, 191, 36, 0.4); }
-  to { box-shadow: 0 2px 6px rgba(0,0,0,0.3), 0 0 25px rgba(251, 191, 36, 0.8); }
+  from {
+    box-shadow:
+      0 2px 6px rgba(0, 0, 0, 0.3),
+      0 0 15px rgba(251, 191, 36, 0.4);
+  }
+  to {
+    box-shadow:
+      0 2px 6px rgba(0, 0, 0, 0.3),
+      0 0 25px rgba(251, 191, 36, 0.8);
+  }
 }
 
 @keyframes glow-downcast {
-  from { box-shadow: 0 2px 6px rgba(0,0,0,0.3), 0 0 15px rgba(255, 0, 0, 0.4); }
-  to { box-shadow: 0 2px 6px rgba(0,0,0,0.3), 0 0 25px rgba(200, 0, 0, 0.8); }
+  from {
+    box-shadow:
+      0 2px 6px rgba(0, 0, 0, 0.3),
+      0 0 15px rgba(255, 0, 0, 0.4);
+  }
+  to {
+    box-shadow:
+      0 2px 6px rgba(0, 0, 0, 0.3),
+      0 0 25px rgba(200, 0, 0, 0.8);
+  }
 }
 
 @keyframes flipCard {
-  0% { transform: rotateY(0deg); }
-  50% { transform: rotateY(90deg); }
-  100% { transform: rotateY(0deg); }
+  0% {
+    transform: rotateY(0deg);
+  }
+  50% {
+    transform: rotateY(90deg);
+  }
+  100% {
+    transform: rotateY(0deg);
+  }
 }
 
 .card-flipping {
@@ -635,7 +688,7 @@
   margin: 0;
 }
 
-.maxhp-input[type=number] {
+.maxhp-input[type="number"] {
   -moz-appearance: textfield;
 }
 
@@ -666,7 +719,7 @@
   margin: 0;
 }
 
-.damage-taken-input[type=number] {
+.damage-taken-input[type="number"] {
   -moz-appearance: textfield;
 }
 
@@ -697,7 +750,7 @@
   margin: 0;
 }
 
-.overdrive-damage-input[type=number] {
+.overdrive-damage-input[type="number"] {
   -moz-appearance: textfield;
 }
 
@@ -830,7 +883,7 @@
 }
 
 .copy-tooltip::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 100%;
   left: 50%;
@@ -840,37 +893,37 @@
 }
 
 .cardtop {
-    padding: 10px;
-    display: flex;
+  padding: 10px;
+  display: flex;
 }
 
 .cardtopleft {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .type {
-    width: fit-content;
-    display: flex;
-    font-weight: normal;
-    padding: 2px 5px;
-    background-color: #1a1c29;
-    border-radius: 3px;
-    font-style: normal;
-    color: #556175;
-    margin-left: 5px;
+  width: fit-content;
+  display: flex;
+  font-weight: normal;
+  padding: 2px 5px;
+  background-color: #1a1c29;
+  border-radius: 3px;
+  font-style: normal;
+  color: #556175;
+  margin-left: 5px;
 }
 
 .cardicon {
-    margin-bottom: 0px !important;
-    position: relative;
+  margin-bottom: 0px !important;
+  position: relative;
 }
 
 .bannerbottom {
-    display: flex;
-    width: 100%;
-    background: linear-gradient(180deg, transparent, rgba(17,20,28,1) 100%);
-    z-index: 1000;
+  display: flex;
+  width: 100%;
+  background: linear-gradient(180deg, transparent, rgba(17, 20, 28, 1) 100%);
+  z-index: 1000;
 }
 
 /* Action filter pills */
@@ -979,7 +1032,11 @@
   font-size: 14px !important;
   border: 0px solid #fff !important;
   border-radius: 6px !important;
-  background: linear-gradient(0deg, rgba(17,20,28,0.95) 0%, rgba(17,20,28,0.85) 100%) !important;
+  background: linear-gradient(
+    0deg,
+    rgba(17, 20, 28, 0.95) 0%,
+    rgba(17, 20, 28, 0.85) 100%
+  ) !important;
   color: #fff !important;
   box-sizing: border-box !important;
   display: block !important;

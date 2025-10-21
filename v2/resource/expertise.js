@@ -6,31 +6,31 @@ const expertiseV2 = [
     name: "Acrobatics",
     color: "#48d1c3",
     image: "https://terrarp.com/db/expertise/s-acrobatics.png",
-    types: ["physical", "finesse"]
+    types: ["physical", "finesse"],
   },
   {
     id: 2,
     lookup: "coordination",
-    name: "Coordination", 
+    name: "Coordination",
     color: "#50cbe3",
     image: "https://terrarp.com/db/expertise/s-coordination.png",
-    types: ["physical", "finesse"]
+    types: ["physical", "finesse"],
   },
   {
     id: 3,
     lookup: "endurance",
     name: "Endurance",
-    color: "#db7233", 
+    color: "#db7233",
     image: "https://terrarp.com/db/expertise/s-endurance.png",
-    types: ["physical", "fitness"]
+    types: ["physical", "fitness"],
   },
   {
     id: 4,
     lookup: "strength",
     name: "Strength",
     color: "#ec4a97",
-    image: "https://terrarp.com/db/expertise/s-strength.png", 
-    types: ["physical", "fitness"]
+    image: "https://terrarp.com/db/expertise/s-strength.png",
+    types: ["physical", "fitness"],
   },
 
   // Artistic Expertise
@@ -40,7 +40,7 @@ const expertiseV2 = [
     name: "Esthetics",
     color: "#9b59b6",
     image: "https://terrarp.com/db/expertise/s-esthetics.png",
-    types: ["finesse", "creative"]
+    types: ["finesse", "creative"],
   },
   {
     id: 6,
@@ -48,7 +48,7 @@ const expertiseV2 = [
     name: "Fine Arts",
     color: "#e74c3c",
     image: "https://terrarp.com/db/expertise/s-fine-arts.png",
-    types: ["creative", "crafting"]
+    types: ["creative", "crafting"],
   },
   {
     id: 7,
@@ -56,7 +56,7 @@ const expertiseV2 = [
     name: "Music",
     color: "#f39c12",
     image: "https://terrarp.com/db/expertise/s-music.png",
-    types: ["creative", "knowledge"]
+    types: ["creative", "knowledge"],
   },
   {
     id: 8,
@@ -64,7 +64,7 @@ const expertiseV2 = [
     name: "Theatrics",
     color: "#2ecc71",
     image: "https://terrarp.com/db/expertise/s-theatrics.png",
-    types: ["creative", "social"]
+    types: ["creative", "social"],
   },
 
   // Crafting Expertise
@@ -74,7 +74,7 @@ const expertiseV2 = [
     name: "Architecture",
     color: "#34495e",
     image: "https://terrarp.com/db/expertise/s-architecture.png",
-    types: ["crafting", "knowledge"]
+    types: ["crafting", "knowledge"],
   },
   {
     id: 10,
@@ -82,7 +82,7 @@ const expertiseV2 = [
     name: "Artificing",
     color: "#16a085",
     image: "https://terrarp.com/db/expertise/s-artificing.png",
-    types: ["crafting", "knowledge"]
+    types: ["crafting", "knowledge"],
   },
   {
     id: 11,
@@ -90,7 +90,7 @@ const expertiseV2 = [
     name: "Blacksmithing",
     color: "#c0392b",
     image: "https://terrarp.com/db/expertise/s-blacksmithing.png",
-    types: ["crafting", "fitness"]
+    types: ["crafting", "fitness"],
   },
   {
     id: 12,
@@ -98,7 +98,7 @@ const expertiseV2 = [
     name: "Carpentry",
     color: "#d35400",
     image: "https://terrarp.com/db/expertise/s-carpentry.png",
-    types: ["crafting", "finesse"]
+    types: ["crafting", "finesse"],
   },
   {
     id: 13,
@@ -106,7 +106,7 @@ const expertiseV2 = [
     name: "Culinary",
     color: "#27ae60",
     image: "https://terrarp.com/db/expertise/s-culinary.png",
-    types: ["crafting", "creative"]
+    types: ["crafting", "creative"],
   },
   {
     id: 14,
@@ -114,7 +114,7 @@ const expertiseV2 = [
     name: "Cultivation",
     color: "#8e44ad",
     image: "https://terrarp.com/db/expertise/s-cultivation.png",
-    types: ["crafting", "insight"]
+    types: ["crafting", "insight"],
   },
   {
     id: 15,
@@ -122,7 +122,7 @@ const expertiseV2 = [
     name: "Heuristics",
     color: "#2980b9",
     image: "https://terrarp.com/db/expertise/s-heuristics.png",
-    types: ["crafting", "knowledge"]
+    types: ["crafting", "knowledge"],
   },
   {
     id: 16,
@@ -130,7 +130,7 @@ const expertiseV2 = [
     name: "Tailoring",
     color: "#e67e22",
     image: "https://terrarp.com/db/expertise/s-tailoring.png",
-    types: ["crafting", "finesse"]
+    types: ["crafting", "finesse"],
   },
 
   // Discipline Expertise
@@ -140,7 +140,7 @@ const expertiseV2 = [
     name: "Academia",
     color: "#3498db",
     image: "https://terrarp.com/db/expertise/s-academia.png",
-    types: ["knowledge", "social"]
+    types: ["knowledge", "social"],
   },
   {
     id: 18,
@@ -148,7 +148,7 @@ const expertiseV2 = [
     name: "Archeology",
     color: "#95a5a6",
     image: "https://terrarp.com/db/expertise/s-archeology.png",
-    types: ["knowledge", "insight"]
+    types: ["knowledge", "insight"],
   },
   {
     id: 19,
@@ -156,7 +156,7 @@ const expertiseV2 = [
     name: "Commerce",
     color: "#f1c40f",
     image: "https://terrarp.com/db/expertise/s-commerce.png",
-    types: ["social", "knowledge"]
+    types: ["social", "knowledge"],
   },
   {
     id: 20,
@@ -164,7 +164,7 @@ const expertiseV2 = [
     name: "Crime",
     color: "#7f8c8d",
     image: "https://terrarp.com/db/expertise/s-crime.png",
-    types: ["finesse", "social"]
+    types: ["finesse", "social"],
   },
   {
     id: 21,
@@ -172,7 +172,7 @@ const expertiseV2 = [
     name: "Esoterica",
     color: "#9b59b6",
     image: "https://terrarp.com/db/expertise/s-esoterica.png",
-    types: ["knowledge", "insight"]
+    types: ["knowledge", "insight"],
   },
   {
     id: 22,
@@ -180,7 +180,7 @@ const expertiseV2 = [
     name: "Games",
     color: "#e74c3c",
     image: "https://terrarp.com/db/expertise/s-games.png",
-    types: ["knowledge", "insight"]
+    types: ["knowledge", "insight"],
   },
   {
     id: 23,
@@ -188,7 +188,7 @@ const expertiseV2 = [
     name: "Lexiconum",
     color: "#1abc9c",
     image: "https://terrarp.com/db/expertise/s-lexiconum.png",
-    types: ["insight", "knowledge"]
+    types: ["insight", "knowledge"],
   },
   {
     id: 24,
@@ -196,7 +196,7 @@ const expertiseV2 = [
     name: "Medicine",
     color: "#e67e22",
     image: "https://terrarp.com/db/expertise/s-medicine.png",
-    types: ["insight", "knowledge"]
+    types: ["insight", "knowledge"],
   },
   {
     id: 25,
@@ -204,7 +204,7 @@ const expertiseV2 = [
     name: "Mentalism",
     color: "#9b59b6",
     image: "https://terrarp.com/db/expertise/s-mentalism.png",
-    types: ["insight", "social"]
+    types: ["insight", "social"],
   },
   {
     id: 26,
@@ -212,7 +212,7 @@ const expertiseV2 = [
     name: "Monstrology",
     color: "#c0392b",
     image: "https://terrarp.com/db/expertise/s-monstrology.png",
-    types: ["insight", "knowledge"]
+    types: ["insight", "knowledge"],
   },
   {
     id: 27,
@@ -220,7 +220,7 @@ const expertiseV2 = [
     name: "Naturalism",
     color: "#27ae60",
     image: "https://terrarp.com/db/expertise/s-naturalism.png",
-    types: ["insight", "knowledge"]
+    types: ["insight", "knowledge"],
   },
   {
     id: 28,
@@ -228,7 +228,7 @@ const expertiseV2 = [
     name: "Politics",
     color: "#34495e",
     image: "https://terrarp.com/db/expertise/s-politics.png",
-    types: ["social", "knowledge"]
+    types: ["social", "knowledge"],
   },
   {
     id: 29,
@@ -236,7 +236,7 @@ const expertiseV2 = [
     name: "Seeking",
     color: "#f39c12",
     image: "https://terrarp.com/db/expertise/s-seeking.png",
-    types: ["insight", "knowledge"]
+    types: ["insight", "knowledge"],
   },
   {
     id: 30,
@@ -244,7 +244,7 @@ const expertiseV2 = [
     name: "Society",
     color: "#2ecc71",
     image: "https://terrarp.com/db/expertise/s-society.png",
-    types: ["social", "insight"]
+    types: ["social", "insight"],
   },
   {
     id: 31,
@@ -252,7 +252,7 @@ const expertiseV2 = [
     name: "Theology",
     color: "#f1c40f",
     image: "https://terrarp.com/db/expertise/s-theology.png",
-    types: ["knowledge", "social"]
+    types: ["knowledge", "social"],
   },
   {
     id: 32,
@@ -260,8 +260,8 @@ const expertiseV2 = [
     name: "Voyaging",
     color: "#3498db",
     image: "https://terrarp.com/db/expertise/s-voyaging.png",
-    types: ["insight", "fitness"]
-  }
+    types: ["insight", "fitness"],
+  },
 ];
 
 // Export to global scope

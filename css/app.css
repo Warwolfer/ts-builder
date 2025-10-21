@@ -1,33 +1,93 @@
 /* CSS placed here will affect users of the Tweeki skin v5.15.4*/
-@import url("https://nagoshiashumari.github.io/Rpg-Awesome/stylesheets/rpg-awesome.min.css"); 
+@import url("https://nagoshiashumari.github.io/Rpg-Awesome/stylesheets/rpg-awesome.min.css");
 @import url("https://site-assets.fontawesome.com/releases/v6.1.1/css/all.css"); /*v6.0.0*/
 /*https://pro.fontawesome.com/releases/v6.0.0-beta3/css/all.css*/
 
-#regenerationfinal .cardroll, #coordinatefinal .cardroll, #exceedfinal .cardroll, #savior .cardroll, #infusefinal .cardroll, #regeneration .cardroll,  #maneuverfinal .cardroll, #roverfinal .cardroll, #hyper-awarenessfinal .cardroll, #extension .cardroll, #overhealfinal .cardroll, #revivefinal .cardroll, #area-effect .cardroll, #coordinatefinal .cardroll, #shieldfinal .cardroll, #tormentfinal .cardroll, #alter-hinderfinal .cardroll, #disruptivefinal .cardroll, #boostfinal .cardroll, #disruptivefinal .cardroll, #revivefinal .cardroll, #taunt .cardroll, #auto-assist .cardroll, #consistent .cardroll, #risky .cardroll, #duelist .cardroll, #sharpshooter .cardroll, #duelist .cardroll, #disruptive .cardroll, #revive .cardroll, #versatile .cardroll, #overheal .cardroll, #cure .cardroll, #boost .cardroll, #charge .cardroll, #exceed .cardroll, #corruption .cardroll, #berserk .cardroll, #savior .cardroll, #guardian .cardroll, #coordinate .cardroll, #infuse .cardroll, #regeneration .cardroll, #maneuver .cardroll, #rover .cardroll, #momentum .cardroll, #hyper-awareness .cardroll, #extension .cardroll {display:none!important}
-
-input,textarea,button,select,a{
-  -webkit-tap-highlight-color: rgba(0,0,0,0);
+#regenerationfinal .cardroll,
+#coordinatefinal .cardroll,
+#exceedfinal .cardroll,
+#savior .cardroll,
+#infusefinal .cardroll,
+#regeneration .cardroll,
+#accelerationfinal .cardroll,
+#roverfinal .cardroll,
+#hyper-awarenessfinal .cardroll,
+#extension .cardroll,
+#overhealfinal .cardroll,
+#revivefinal .cardroll,
+#area-effect .cardroll,
+#coordinatefinal .cardroll,
+#shieldfinal .cardroll,
+#tormentfinal .cardroll,
+#alter-hinderfinal .cardroll,
+#disruptivefinal .cardroll,
+#boostfinal .cardroll,
+#disruptivefinal .cardroll,
+#revivefinal .cardroll,
+#taunt .cardroll,
+#auto-assist .cardroll,
+#consistent .cardroll,
+#risky .cardroll,
+#duelist .cardroll,
+#sharpshooter .cardroll,
+#duelist .cardroll,
+#disruptive .cardroll,
+#revive .cardroll,
+#versatile .cardroll,
+#overheal .cardroll,
+#cure .cardroll,
+#boost .cardroll,
+#charge .cardroll,
+#exceed .cardroll,
+#corruption .cardroll,
+#berserk .cardroll,
+#savior .cardroll,
+#guardian .cardroll,
+#coordinate .cardroll,
+#infuse .cardroll,
+#regeneration .cardroll,
+#acceleration .cardroll,
+#rover .cardroll,
+#momentum .cardroll,
+#hyper-awareness .cardroll,
+#extension .cardroll {
+  display: none !important;
 }
 
-#actionselector .charimg, #actionselector .nameheader, .nodisplay, #nodisplay{
-  display:none;
+input,
+textarea,
+button,
+select,
+a {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
-.expertisecontainer{
-margin-right:0!important
+#actionselector .charimg,
+#actionselector .nameheader,
+.nodisplay,
+#nodisplay {
+  display: none;
 }
 
-html{
+.expertisecontainer {
+  margin-right: 0 !important;
+}
+
+html {
   background-image: url("https://terrarp.com/db/background/bbga12.webp");
   background-repeat: no-repeat;
   background-position: center;
   background-attachment: fixed;
   background-size: cover;
-  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+  font-family: "Segoe UI", "Roboto", "Helvetica Neue", sans-serif;
 }
 
-#bodyback{
-  background: linear-gradient(0deg, rgba(17,20,28,0.95) 0%, rgba(17,20,28,0.85) 100%);
+#bodyback {
+  background: linear-gradient(
+    0deg,
+    rgba(17, 20, 28, 0.95) 0%,
+    rgba(17, 20, 28, 0.85) 100%
+  );
   width: 75vw;
   border-radius: 10px;
   box-sizing: border-box;
@@ -39,11 +99,13 @@ html{
   overflow: hidden;
 }
 
-#threadcodeinput, #threadcodebutton{
+#threadcodeinput,
+#threadcodebutton {
   display: none;
 }
 
-.buttonimport, #thrcodebutton{
+.buttonimport,
+#thrcodebutton {
   background-color: #a9357b;
   color: white;
   padding: 5px 10px 0 10px;
@@ -58,7 +120,8 @@ html{
   font-weight: 400;
 }
 
-.buttonimport:hover, #thrcodebutton:hover{
+.buttonimport:hover,
+#thrcodebutton:hover {
   background-color: #444;
 }
 
@@ -72,36 +135,38 @@ html{
   margin: auto;
 }
 
-.charrace, .chartitle {
+.charrace,
+.chartitle {
   color: #fff;
-  font-variant:small-caps;
+  font-variant: small-caps;
 }
 
 h2 {
   text-align: left;
 }
 
-#threadcodebutton{
+#threadcodebutton {
   text-align: center;
 }
 
-h1{
+h1 {
   font-weight: bold;
 }
 
-.button-container{
+.button-container {
   text-align: center;
 }
 
-.actionboxinfo{
-    background: #fff;
-    border-radius: 4px;
-    /*margin: 10px 5px;*/
-    padding: 10px 20px;
-    border: 1px solid #e1e1e1;
+.actionboxinfo {
+  background: #fff;
+  border-radius: 4px;
+  /*margin: 10px 5px;*/
+  padding: 10px 20px;
+  border: 1px solid #e1e1e1;
 }
 
-#instructiontoggle, #helpfullinkstoggle{
+#instructiontoggle,
+#helpfullinkstoggle {
   text-decoration: underline;
   text-decoration-style: dotted;
   margin: auto;
@@ -111,7 +176,8 @@ h1{
   user-select: none;
 }
 
-#instructions, #helpfullinks{
+#instructions,
+#helpfullinks {
   display: none;
   padding: 5px;
   border: 1px solid black;
@@ -122,7 +188,7 @@ h1{
   color: #999;
 }
 
-#finalcode{
+#finalcode {
   font-family: monospace;
   margin: auto;
   width: 210px;
@@ -135,39 +201,39 @@ h1{
   background: transparent;
 }
 
-.buildlink{
+.buildlink {
   float: left;
   max-width: 253px;
 }
 
-ol > li{
+ol > li {
   margin-bottom: 0.5vw;
 }
 
-ul{
+ul {
   font-size: 0.8rem;
   color: #444444;
 }
 
-.mcontainer{
+.mcontainer {
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
   /*padding-right: -3vw;*/
 }
 
-.masterycategory{
+.masterycategory {
   text-align: left;
   font-size: 1.35rem;
   padding: 0 5px;
 }
 
-#inputbox{
+#inputbox {
   margin: 5px 5px 0 5px;
   display: none;
 }
 
-.masterycircle{
+.masterycircle {
   height: 15vw;
   width: 15vw;
   max-width: 90px;
@@ -182,18 +248,18 @@ ul{
   font-size: 0.8rem;
   user-select: none;
   box-sizing: border-box;
-  transition: all .1s ease-in-out;
+  transition: all 0.1s ease-in-out;
   cursor: pointer;
   border: 2px solid transparent;
   background: transparent;
 }
 
-.mbox{
+.mbox {
   position: relative;
   margin: 0;
 }
 
-.masterycircle > img{
+.masterycircle > img {
   width: 12vw;
   height: 12vw;
   max-width: 70px;
@@ -201,7 +267,7 @@ ul{
   margin: auto;
 }
 
-.tooltip{
+.tooltip {
   z-index: 1;
   visibility: hidden;
   background-color: #444;
@@ -216,11 +282,11 @@ ul{
   text-align: center;
 }
 
-.mbox:hover .tooltip{
+.mbox:hover .tooltip {
   visibility: visible;
 }
 
-.selectorheader{
+.selectorheader {
   font-weight: 500;
   font-size: 1.2rem;
   padding: 5px 10px;
@@ -232,172 +298,242 @@ ul{
   padding-left: 15px;
 }
 
-.mselector:hover{
-  transform: scale(0.90);
+.mselector:hover {
+  transform: scale(0.9);
 }
 
-.mselector{
+.mselector {
   cursor: pointer;
-  transition: transform .2s ease;
+  transition: transform 0.2s ease;
 }
 
-.armorpassive{
-  /*display: none*/;
+.armorpassive {
+  /*display: none*/
 }
 
-.selected{
+.selected {
   border: 2px solid white;
 }
-.selected.arcanamancy{
+.selected.arcanamancy {
   background-color: #50cbe3;
 }
 .selected.evoke {
   background-color: #50c8cb;
 }
-.selected.pierce-weapons{
+.selected.pierce-weapons {
   background-color: #46bcc8;
 }
-.selected.astramancy{
+.selected.astramancy {
   background-color: #ae43c3;
 }
-.selected.dark-magic{
+.selected.dark-magic {
   background-color: #883cca;
 }
-.selected.animancy{
+.selected.animancy {
   background-color: #6c319d;
 }
-.selected.corrupt{
+.selected.corrupt {
   background-color: #813090;
 }
-.selected.beast-arts{
+.selected.beast-arts {
   background-color: #db7233;
 }
-.selected.crush-weapons{
+.selected.crush-weapons {
   background-color: #ce5e32;
 }
-.selected.geomancy{
+.selected.geomancy {
   background-color: #a76a36;
 }
-.selected.guard-arts{
+.selected.guard-arts {
   background-color: #f2bb36;
 }
-.selected.divine-magic{
+.selected.divine-magic {
   background-color: #edb82a;
 }
-.selected.aura{
+.selected.aura {
   background-color: #e0b439;
 }
-.selected.hemomancy{
+.selected.hemomancy {
   background-color: #c32222;
 }
-.selected.pyromancy{
+.selected.pyromancy {
   background-color: #cb3739;
 }
-.selected.battle-spirits{
+.selected.battle-spirits {
   background-color: #b72c2c;
 }
-.selected.weapon-arts{
+.selected.weapon-arts {
   background-color: #cb5050;
 }
-.selected.hydromancy{
+.selected.hydromancy {
   background-color: #66b8ea;
 }
-.selected.harmonic-magic{
+.selected.harmonic-magic {
   background-color: #36a5e8;
 }
-.selected.illusion-magic{
+.selected.illusion-magic {
   background-color: #ea5694;
 }
-.selected.chronomancy{
+.selected.chronomancy {
   background-color: #ec4a97;
 }
-.selected.metamorph{
+.selected.metamorph {
   background-color: #cc4e71;
 }
-.selected.aeromancy{
+.selected.aeromancy {
   background-color: #48d1c3;
 }
-.selected.spirit-magic{
+.selected.spirit-magic {
   background-color: #50c8cb;
 }
-.selected.martial-arts{
+.selected.martial-arts {
   background-color: #c9c9c9;
 }
-.selected.magitech{
+.selected.magitech {
   background-color: #5c6779;
 }
-.selected.ranged-weapons{
+.selected.ranged-weapons {
   background-color: #77b933;
 }
-.selected.nature-magic{
+.selected.nature-magic {
   background-color: #91c023;
 }
-.selected.dynamism{
+.selected.dynamism {
   background-color: #87ad3d;
 }
-.selected.shadow-arts{
+.selected.shadow-arts {
   background-color: #383838;
 }
-.selected.slash-weapons{
+.selected.slash-weapons {
   background-color: #4263cb;
 }
-.selected.mend{
+.selected.mend {
   background-color: #2f8cc1;
 }
-.selected.summon{
+.selected.summon {
   background-color: #4a4da5;
 }
-.selected.alchemy{
+.selected.alchemy {
   background-color: #53b159;
 }
-.selected.hyper-sense{
+.selected.hyper-sense {
   background-color: #40883a;
 }
-.displaycircle.arcanamancy, .displaycircle.astramancy, .displaycircle.beast-arts, .displaycircle.geomancy, .displaycircle.guard-arts, .displaycircle.hemomancy, .displaycircle.hydromancy, .displaycircle.illusion-magic, .display.arcanamancy, .display.astramancy, .display.beast-arts, .display.geomancy, .display.guard-arts, .display.hemomancy, .display.hydromancy, .display.illusion-magic{
+.displaycircle.arcanamancy,
+.displaycircle.astramancy,
+.displaycircle.beast-arts,
+.displaycircle.geomancy,
+.displaycircle.guard-arts,
+.displaycircle.hemomancy,
+.displaycircle.hydromancy,
+.displaycircle.illusion-magic,
+.display.arcanamancy,
+.display.astramancy,
+.display.beast-arts,
+.display.geomancy,
+.display.guard-arts,
+.display.hemomancy,
+.display.hydromancy,
+.display.illusion-magic {
   border-color: #ce832c;
 }
-.displaycircle.aeromancy, .displaycircle.crush-weapons, .displaycircle.dark-magic, .displaycircle.martial-arts, .displaycircle.pierce-weapons, .displaycircle.pyromancy, .displaycircle.ranged-weapons, .displaycircle.shadow-arts, .displaycircle.slash-weapons, .display.aeromancy, .display.crush-weapons, .display.dark-magic, .display.martial-arts, .display.pierce-weapons, .display.pyromancy, .display.ranged-weapons, .display.shadow-arts, .display.slash-weapons{
-  border-color: #bd4444;/*#ce2c2c*/
+.displaycircle.aeromancy,
+.displaycircle.crush-weapons,
+.displaycircle.dark-magic,
+.displaycircle.martial-arts,
+.displaycircle.pierce-weapons,
+.displaycircle.pyromancy,
+.displaycircle.ranged-weapons,
+.displaycircle.shadow-arts,
+.displaycircle.slash-weapons,
+.display.aeromancy,
+.display.crush-weapons,
+.display.dark-magic,
+.display.martial-arts,
+.display.pierce-weapons,
+.display.pyromancy,
+.display.ranged-weapons,
+.display.shadow-arts,
+.display.slash-weapons {
+  border-color: #bd4444; /*#ce2c2c*/
 }
-.displaycircle.alchemy, .displaycircle.animancy, .displaycircle.chronomancy, .displaycircle.divine-magic, .displaycircle.harmonic-magic, .displaycircle.magitech, .displaycircle.nature-magic, .displaycircle.spirit-magic, .display.alchemy, .display.animancy, .display.chronomancy, .display.divine-magic, .display.harmonic-magic, .display.magitech, .display.nature-magic, .display.spirit-magic{
-  border-color: #589edc;/*#4f88cf*/
+.displaycircle.alchemy,
+.displaycircle.animancy,
+.displaycircle.chronomancy,
+.displaycircle.divine-magic,
+.displaycircle.harmonic-magic,
+.displaycircle.magitech,
+.displaycircle.nature-magic,
+.displaycircle.spirit-magic,
+.display.alchemy,
+.display.animancy,
+.display.chronomancy,
+.display.divine-magic,
+.display.harmonic-magic,
+.display.magitech,
+.display.nature-magic,
+.display.spirit-magic {
+  border-color: #589edc; /*#4f88cf*/
 }
-.displaycircle.aura, .displaycircle.battle-spirits, .displaycircle.corrupt, .displaycircle.dynamism, .displaycircle.evoke, .displaycircle.hyper-sense, .displaycircle.mend, .displaycircle.metamorph, .displaycircle.summon, .displaycircle.weapon-arts, .display.aura, .display.battle-spirits, .display.corrupt, .display.dynamism, .display.evoke, .display.hyper-sense, .display.mend, .display.metamorph, .display.summon, .display.weapon-arts{
+.displaycircle.aura,
+.displaycircle.battle-spirits,
+.displaycircle.corrupt,
+.displaycircle.dynamism,
+.displaycircle.evoke,
+.displaycircle.hyper-sense,
+.displaycircle.mend,
+.displaycircle.metamorph,
+.displaycircle.summon,
+.displaycircle.weapon-arts,
+.display.aura,
+.display.battle-spirits,
+.display.corrupt,
+.display.dynamism,
+.display.evoke,
+.display.hyper-sense,
+.display.mend,
+.display.metamorph,
+.display.summon,
+.display.weapon-arts {
   border-color: #6436b1;
 }
 
-.selected.armor{
+.selected.armor {
   background-color: #444;
 }
 
-#masterycontainer, #rankselector, #actionselector, #builddisplay, #importdisplay{
+#masterycontainer,
+#rankselector,
+#actionselector,
+#builddisplay,
+#importdisplay {
   display: block;
-  padding: 10px 10px 0px 10px ;
+  padding: 10px 10px 0px 10px;
 }
 
-#rankselector{
+#rankselector {
   display: none;
 }
 
-#masteryrankpick{
+#masteryrankpick {
   font-size: 1rem;
   display: flex;
   flex-wrap: wrap;
 }
 
-#actionselector{
+#actionselector {
   display: none;
 }
 
-#builddisplay{
+#builddisplay {
   display: none;
 }
 
-#importdisplay{
+#importdisplay {
   display: none;
 }
 
-.button{
+.button {
   display: inline-block;
   padding: 10px 15px;
   box-sizing: border-box;
@@ -421,39 +557,48 @@ ul{
   cursor: pointer;
 }*/
 
-#button2, #button3, #button2back, #button3back, #button4back{
+#button2,
+#button3,
+#button2back,
+#button3back,
+#button4back {
   display: none;
- }
-
- .exceedcontainer{
-   display: flex;
-   align-items: center;
-   justify-content: center;
- }
-
- .exceedbutton{
-    margin-right: 5px;
-    font-weight: bold;
-    font-size: 120%;
-    user-select: none;
-    cursor: pointer;
-    background-color: #242424;
-    color: #fff;
-    padding: 5px 15px;
-    margin: 2px;
-    border-radius: 25px;
-    min-width: 20px;
-    text-align: center;
 }
 
- @media (max-width: 344px){
-#button1, #button2, #button3, #button2back, #button3back, #button4back{
-  width: 95%!important;
-  margin: 5px auto!important;
-}
+.exceedcontainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.rankpick{
+.exceedbutton {
+  margin-right: 5px;
+  font-weight: bold;
+  font-size: 120%;
+  user-select: none;
+  cursor: pointer;
+  background-color: #242424;
+  color: #fff;
+  padding: 5px 15px;
+  margin: 2px;
+  border-radius: 25px;
+  min-width: 20px;
+  text-align: center;
+}
+
+@media (max-width: 344px) {
+  #button1,
+  #button2,
+  #button3,
+  #button2back,
+  #button3back,
+  #button4back {
+    width: 95% !important;
+    margin: 5px auto !important;
+  }
+}
+
+.rankpick {
   display: flex;
   justify-content: space-around;
   padding: 10px 5px;
@@ -461,7 +606,7 @@ ul{
   flex-wrap: wrap;
 }
 
-.rankcontainer{
+.rankcontainer {
   display: flex;
   flex-direction: column;
   margin-left: 0.6vw;
@@ -473,677 +618,714 @@ ul{
   color: #eee;
 }
 
-.card{
+.card {
   margin: 5px;
   font-size: 13px;
   border-radius: 7px;
   padding: 0 5px 10px 5px;
-  border-top: 2px solid transparent!important;
+  border-top: 2px solid transparent !important;
   background-color: #23293775;
   align-content: flex-start;
   flex: 1 1 300px;
   color: #ccc;
   border-bottom: 2px solid transparent;
-  border-left: 2px solid transparent!important;
-  border-right: 2px solid transparent!important;
+  border-left: 2px solid transparent !important;
+  border-right: 2px solid transparent !important;
   margin: 7px;
 }
 
-@media (min-width: 768px){
-.card{
+@media (min-width: 768px) {
+  .card {
     flex: 0 1 30%;
-}
+  }
 }
 
-.displaytitle{
+.displaytitle {
   font-size: 1rem;
   font-weight: 600;
   /*margin: 5px 10px 0 10px;*/
-  color: #FFFFFF;
-margin: 10px 0 5px 0;
+  color: #ffffff;
+  margin: 10px 0 5px 0;
 }
-.masterycategory.displayrank{
-  font-size: 170%!important;
+.masterycategory.displayrank {
+  font-size: 170% !important;
 }
-.displayrank{
+.displayrank {
   font-weight: 900;
   font-size: 1.5em;
   color: #eee;
   line-height: 110%;
 }
-.passivecontainer h4{
+.passivecontainer h4 {
   margin: 5px;
   font-weight: bold;
 }
-.passivecontainer p{
+.passivecontainer p {
   margin: 5px;
   /*font-size: 90%;*/
 }
 
-.edisplay .displaytitle{
+.edisplay .displaytitle {
   width: 40%;
 }
-.edisplay .displayrank{
+.edisplay .displayrank {
   width: 20%;
 }
 
-@media (max-width: 768px) and (min-width: 422px){
-.passivecontainer{
-  width: 720px;
-  max-width: none;
-}
+@media (max-width: 768px) and (min-width: 422px) {
+  .passivecontainer {
+    width: 720px;
+    max-width: none;
+  }
 }
 
-@media (max-width: 767px){
-.card{
+@media (max-width: 767px) {
+  .card {
     flex: 1 1 46%;
-}
+  }
 }
 
-@media (min-width: 768px){
-.card{
+@media (min-width: 768px) {
+  .card {
     flex: 0 1 29.5%;
+  }
+  .test {
+    flex: 1 1 60% !important;
+  }
+  .edisplay.armorskilldisplay,
+  .edisplay.armorrankdisplay,
+  .edisplay.weaponrankdisplay {
+    flex: 1 1 29.5% !important;
+  }
 }
-.test{
-    flex: 1 1 60%!important;
-}
-.edisplay.armorskilldisplay, .edisplay.armorrankdisplay, .edisplay.weaponrankdisplay{
-    flex: 1 1 29.5%!important;
-}
-}
-@media (max-width: 768px){
-.edisplay .displaycircle{
-  margin: auto;
-}
-.edisplay .displaytitle{
-  width: 40%;
-}
-.edisplay .displayrank{
-  width: 20%;
-}
-#button1, #button2, #button3, #button2back, #button3back, #button4back{
-  width: 48%!important;
-  margin: 5px auto!important;
-}
+@media (max-width: 768px) {
+  .edisplay .displaycircle {
+    margin: auto;
+  }
+  .edisplay .displaytitle {
+    width: 40%;
+  }
+  .edisplay .displayrank {
+    width: 20%;
+  }
+  #button1,
+  #button2,
+  #button3,
+  #button2back,
+  #button3back,
+  #button4back {
+    width: 48% !important;
+    margin: 5px auto !important;
+  }
 }
 
-.card.choice.selected .rollcode{
+.card.choice.selected .rollcode {
   background: #333;
   border: 1px solid #333;
 }
-.card.choice.selected .cardtitle{
-    color: #fff;
+.card.choice.selected .cardtitle {
+  color: #fff;
 }
-.card.choice.selected .cardtitle, .card.choice.selected .cardroll, .card.choice.selected .cardinfo{
-    /*border-bottom: 1px solid #444;*/
+.card.choice.selected .cardtitle,
+.card.choice.selected .cardroll,
+.card.choice.selected .cardinfo {
+  /*border-bottom: 1px solid #444;*/
 }
-.card.choice.selected{
+.card.choice.selected {
   background-color: #0d0f16;
   color: #bbb;
   border-color: #aaa;
 }
 
-.cardtitle{
+.cardtitle {
   font-size: 20px;
   font-weight: 700;
   padding-left: 5px;
   /*  padding-bottom: 5px;*/
   /* background: #111; */
 }
-.cardtitle, .cardroll, .cardinfo{
-    /*border-bottom: 1px solid #d5d5d5;*/
-    margin: 5px 0;
+.cardtitle,
+.cardroll,
+.cardinfo {
+  /*border-bottom: 1px solid #d5d5d5;*/
+  margin: 5px 0;
 }
 
-.cardroll, .cardinfo{
+.cardroll,
+.cardinfo {
   padding: 0 5px 10px 5px;
 }
 
-.cardroll{
+.cardroll {
   padding-bottom: 10px;
   margin: 0 10px;
 }
 
-.cardicon{
-    float: right;
-    background: #272627;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    background-position: 50% 50%;
-    margin-top: 5px;
-    margin-left: 5px;
-    margin-bottom: 15px;
-    transition: transform .3s ease;
+.cardicon {
+  float: right;
+  background: #272627;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  background-position: 50% 50%;
+  margin-top: 5px;
+  margin-left: 5px;
+  margin-bottom: 15px;
+  transition: transform 0.3s ease;
 }
 
-.cardinfo p{
+.cardinfo p {
   margin-bottom: 5px;
 }
 
-.actiontype{
+.actiontype {
   font-style: italic;
 }
 
-.charimg, .charimg2{
+.charimg,
+.charimg2 {
   /*display: none;
   margin: auto;
   width: 15vw;*/
   text-align: center;
   margin-top: 10px;
 }
-#pfp, #pfp2{
+#pfp,
+#pfp2 {
   border-radius: 50%;
 }
-.nameheader{
-  text-align:center;
-  font-weight:bold;
+.nameheader {
+  text-align: center;
+  font-weight: bold;
   margin: 10px 0 0 20px;
   font-variant: small-caps;
-  color: #EEE;
+  color: #eee;
 }
 
-p{
-    display: block;
-    margin-block-start: 0px;
-    margin-block-end: 0px;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
+p {
+  display: block;
+  margin-block-start: 0px;
+  margin-block-end: 0px;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
 }
-.displaycircle.equipment{
-  background-color: transparent!important;
+.displaycircle.equipment {
+  background-color: transparent !important;
 }
-.edisplay .displaycircle, .edisplay.armorrankdisplay img, .edisplay.weaponrankdisplay img{
+.edisplay .displaycircle,
+.edisplay.armorrankdisplay img,
+.edisplay.weaponrankdisplay img {
   max-width: 40px;
   max-height: 40px;
 }
-.edisplay.armorskilldisplay, .edisplay.armorrankdisplay, .edisplay.weaponrankdisplay{
-    flex: 1 1 300px;
+.edisplay.armorskilldisplay,
+.edisplay.armorrankdisplay,
+.edisplay.weaponrankdisplay {
+  flex: 1 1 300px;
 }
-.edisplay.armorrankdisplay,.edisplay.weaponrankdisplay{
+.edisplay.armorrankdisplay,
+.edisplay.weaponrankdisplay {
   /*padding: 0 10px;*/
-  /* background-color: #e1e1e1; *//*d1d1d1*/
+  /* background-color: #e1e1e1; */ /*d1d1d1*/
   margin: 0 10px 5px 0;
   border-radius: 4px;
   color: #eee;
   /* border-right: 1px solid #555; */
 }
-#aweight{
-margin-right: 4px;
+#aweight {
+  margin-right: 4px;
 }
-.edisplay{
+.edisplay {
   min-width: 145px;
 }
-.edisplay .displaytitle{
+.edisplay .displaytitle {
   align-items: center;
   justify-content: center;
   display: flex;
   padding: 5px;
   font-weight: bold;
 }
-.edisplay .displayrank{
+.edisplay .displayrank {
   padding: 15px 10px;
   align-items: center;
   display: flex;
   justify-content: space-around;
 }
 
-.aci-rush{
-    background-image: url(https://terrarp.com/db/action/rush.png);
-    background-repeat: no-repeat;
+.aci-rush {
+  background-image: url(https://terrarp.com/db/action/rush.png);
+  background-repeat: no-repeat;
 }
-.aci-recover{
-    background-image: url(https://terrarp.com/db/action/recover.png);
-    background-repeat: no-repeat;
+.aci-recover {
+  background-image: url(https://terrarp.com/db/action/recover.png);
+  background-repeat: no-repeat;
 }
-.aci-attack{
-    background-image: url(https://terrarp.com/db/action/attack.png);
-    background-repeat: no-repeat;
+.aci-attack {
+  background-image: url(https://terrarp.com/db/action/attack.png);
+  background-repeat: no-repeat;
 }
-.aci-counter{
-	background-image: url(https://terrarp.com/db/action/counter.png);
-	background-repeat: no-repeat;
+.aci-counter {
+  background-image: url(https://terrarp.com/db/action/counter.png);
+  background-repeat: no-repeat;
 }
-.aci-taunt{
-	background-image: url(https://terrarp.com/db/action/taunt.png);
-	background-repeat: no-repeat;
+.aci-taunt {
+  background-image: url(https://terrarp.com/db/action/taunt.png);
+  background-repeat: no-repeat;
 }
-.aci-protect{
-	background-image: url(https://terrarp.com/db/action/protect.png);
-	background-repeat: no-repeat;
+.aci-protect {
+  background-image: url(https://terrarp.com/db/action/protect.png);
+  background-repeat: no-repeat;
 }
-.aci-hinder{
-	background-image: url(https://terrarp.com/db/action/hinder.png);
-	background-repeat: no-repeat;
+.aci-hinder {
+  background-image: url(https://terrarp.com/db/action/hinder.png);
+  background-repeat: no-repeat;
 }
-.aci-ultra-protect{
-	background-image: url(https://terrarp.com/db/action/uprotect.png);
-	background-repeat: no-repeat;
+.aci-ultra-protect {
+  background-image: url(https://terrarp.com/db/action/uprotect.png);
+  background-repeat: no-repeat;
 }
-.aci-ultra-hinder{
-	background-image: url(https://terrarp.com/db/action/uhinder.png);
-	background-repeat: no-repeat;
+.aci-ultra-hinder {
+  background-image: url(https://terrarp.com/db/action/uhinder.png);
+  background-repeat: no-repeat;
 }
-.aci-rush{
-	background-image: url(https://terrarp.com/db/action/rush.png);
-	background-repeat: no-repeat;
+.aci-rush {
+  background-image: url(https://terrarp.com/db/action/rush.png);
+  background-repeat: no-repeat;
 }
-.aci-burst{
-	background-image: url(https://terrarp.com/db/action/burst.png);
-	background-repeat: no-repeat;
+.aci-burst {
+  background-image: url(https://terrarp.com/db/action/burst.png);
+  background-repeat: no-repeat;
 }
-.aci-critical{
-	background-image: url(https://terrarp.com/db/action/critical.png);
-	background-repeat: no-repeat;
+.aci-critical {
+  background-image: url(https://terrarp.com/db/action/critical.png);
+  background-repeat: no-repeat;
 }
-.aci-heavy-attack{
-    background-image: url(https://terrarp.com/db/action/heavy-a.png);
-    background-repeat: no-repeat;
+.aci-heavy-attack {
+  background-image: url(https://terrarp.com/db/action/heavy-a.png);
+  background-repeat: no-repeat;
 }
-.aci-heal{
-	background-image: url(https://terrarp.com/db/action/heal.png);
-	background-repeat: no-repeat;
+.aci-heal {
+  background-image: url(https://terrarp.com/db/action/heal.png);
+  background-repeat: no-repeat;
 }
-.aci-buff{
-	background-image: url(https://terrarp.com/db/action/buff.png);
-	background-repeat: no-repeat;
+.aci-buff {
+  background-image: url(https://terrarp.com/db/action/buff.png);
+  background-repeat: no-repeat;
 }
-.aci-dispel{
-	background-image: url(https://terrarp.com/db/action/dispel.png);
-	background-repeat: no-repeat;
+.aci-dispel {
+  background-image: url(https://terrarp.com/db/action/dispel.png);
+  background-repeat: no-repeat;
 }
-.aci-power-heal{
-	background-image: url(https://terrarp.com/db/action/pheal.png);
-	background-repeat: no-repeat;
+.aci-power-heal {
+  background-image: url(https://terrarp.com/db/action/pheal.png);
+  background-repeat: no-repeat;
 }
-.aci-power-buff{
-	background-image: url(https://terrarp.com/db/action/pbuff.png);
-	background-repeat: no-repeat;
+.aci-power-buff {
+  background-image: url(https://terrarp.com/db/action/pbuff.png);
+  background-repeat: no-repeat;
 }
-.aci-damage{
-	background-image: url(https://terrarp.com/db/action/damage.png);
-	background-repeat: no-repeat;
+.aci-damage {
+  background-image: url(https://terrarp.com/db/action/damage.png);
+  background-repeat: no-repeat;
 }
-.aci-support{
-	background-image: url(https://terrarp.com/db/action/support.png);
-	background-repeat: no-repeat;
+.aci-support {
+  background-image: url(https://terrarp.com/db/action/support.png);
+  background-repeat: no-repeat;
 }
-.aci-defense{
-	background-image: url(https://terrarp.com/db/action/defense.png);
-	background-repeat: no-repeat;
+.aci-defense {
+  background-image: url(https://terrarp.com/db/action/defense.png);
+  background-repeat: no-repeat;
 }
-.aci-speed{
-	background-image: url(https://terrarp.com/db/action/speed.png);
-	background-repeat: no-repeat;
+.aci-speed {
+  background-image: url(https://terrarp.com/db/action/speed.png);
+  background-repeat: no-repeat;
 }
-.aci-maneuver{
-	background-image: url(https://terrarp.com/db/action/maneuver.png);
-	background-repeat: no-repeat;
+.aci-acceleration {
+  background-image: url(https://terrarp.com/db/action/acceleration.png);
+  background-repeat: no-repeat;
 }
-.aci-ferrier{
-	background-image: url(https://terrarp.com/db/action/ferrier.png);
-	background-repeat: no-repeat;
+.aci-ferrier {
+  background-image: url(https://terrarp.com/db/action/ferrier.png);
+  background-repeat: no-repeat;
 }
-.aci-extra-movement{
-	background-image: url(https://terrarp.com/db/action/movement.png);
-	background-repeat: no-repeat;
+.aci-extra-movement {
+  background-image: url(https://terrarp.com/db/action/movement.png);
+  background-repeat: no-repeat;
 }
-.aci-extension{
-	background-image: url(https://terrarp.com/db/action/extension.png);
-	background-repeat: no-repeat;
+.aci-extension {
+  background-image: url(https://terrarp.com/db/action/extension.png);
+  background-repeat: no-repeat;
 }
-.aci-precise-hinder{
-	background-image: url(https://terrarp.com/db/action/precise-hinder.png);
-	background-repeat: no-repeat;
+.aci-precise-hinder {
+  background-image: url(https://terrarp.com/db/action/precise-hinder.png);
+  background-repeat: no-repeat;
 }
-.aci-charge{
-	background-image: url(https://terrarp.com/db/action/charge.png);
-	background-repeat: no-repeat;
+.aci-charge {
+  background-image: url(https://terrarp.com/db/action/charge.png);
+  background-repeat: no-repeat;
 }
-.aci-inspire{
-	background-image: url(https://terrarp.com/db/action/inspire.png);
-	background-repeat: no-repeat;
+.aci-inspire {
+  background-image: url(https://terrarp.com/db/action/inspire.png);
+  background-repeat: no-repeat;
 }
-.aci-carry{
-	background-image: url(https://terrarp.com/db/action/carry.png);
-	background-repeat: no-repeat;
+.aci-carry {
+  background-image: url(https://terrarp.com/db/action/carry.png);
+  background-repeat: no-repeat;
 }
-.aci-momentum{
-	background-image: url(https://terrarp.com/db/action/momentum.png);
-	background-repeat: no-repeat;
+.aci-momentum {
+  background-image: url(https://terrarp.com/db/action/momentum.png);
+  background-repeat: no-repeat;
 }
-.aci-alter-inspire{
-	background-image: url(https://terrarp.com/db/action/inspire.png);
-	background-repeat: no-repeat;
+.aci-alter-inspire {
+  background-image: url(https://terrarp.com/db/action/inspire.png);
+  background-repeat: no-repeat;
 }
-.aci-exceed{
-	background-image: url(https://terrarp.com/db/action/exceed.png);
-	background-repeat: no-repeat;
+.aci-exceed {
+  background-image: url(https://terrarp.com/db/action/exceed.png);
+  background-repeat: no-repeat;
 }
-.aci-haste{
-    background-image: url(https://terrarp.com/db/action/haste.png);
-    background-repeat: no-repeat;
+.aci-haste {
+  background-image: url(https://terrarp.com/db/action/haste.png);
+  background-repeat: no-repeat;
 }
-.aci-instability{
-    background-image: url(https://terrarp.com/db/action/instability.png);
-    background-repeat: no-repeat;
+.aci-instability {
+  background-image: url(https://terrarp.com/db/action/instability.png);
+  background-repeat: no-repeat;
 }
-.aci-reposition{
-    background-image: url(https://terrarp.com/db/action/reposition.png);
-    background-repeat: no-repeat;
+.aci-reposition {
+  background-image: url(https://terrarp.com/db/action/reposition.png);
+  background-repeat: no-repeat;
 }
-.aci-coordinate{
-    background-image: url(https://terrarp.com/db/action/coordinate.png);
-    background-repeat: no-repeat;
+.aci-coordinate {
+  background-image: url(https://terrarp.com/db/action/coordinate.png);
+  background-repeat: no-repeat;
 }
 
-.aci-saving-aura{
-    background-image: url(https://terrarp.com/db/action/saving-aura.png);
-    background-repeat: no-repeat;
+.aci-saving-aura {
+  background-image: url(https://terrarp.com/db/action/saving-aura.png);
+  background-repeat: no-repeat;
 }
-.aci-berserk{
-    background-image: url(https://terrarp.com/db/action/berserk.png);
-    background-repeat: no-repeat;
+.aci-berserk {
+  background-image: url(https://terrarp.com/db/action/berserk.png);
+  background-repeat: no-repeat;
 }
-.aci-corruption{
-    background-image: url(https://terrarp.com/db/action/corruption.png);
-    background-repeat: no-repeat;
+.aci-corruption {
+  background-image: url(https://terrarp.com/db/action/corruption.png);
+  background-repeat: no-repeat;
 }
-.aci-regeneration{
-    background-image: url(https://terrarp.com/db/action/regeneration.png);
-    background-repeat: no-repeat;
+.aci-regeneration {
+  background-image: url(https://terrarp.com/db/action/regeneration.png);
+  background-repeat: no-repeat;
 }
-.aci-hyper-awareness{
-    background-image: url(https://terrarp.com/db/action/hyper-awareness.png);
-    background-repeat: no-repeat;
+.aci-hyper-awareness {
+  background-image: url(https://terrarp.com/db/action/hyper-awareness.png);
+  background-repeat: no-repeat;
 }
-.aci-rush{
-    background-image: url(https://terrarp.com/db/action/rush.png);
-    background-repeat: no-repeat;
+.aci-rush {
+  background-image: url(https://terrarp.com/db/action/rush.png);
+  background-repeat: no-repeat;
 }
-.aci-recover{
-    background-image: url(https://terrarp.com/db/action/recover.png);
-    background-repeat: no-repeat;
+.aci-recover {
+  background-image: url(https://terrarp.com/db/action/recover.png);
+  background-repeat: no-repeat;
 }
-.aci-attack{
-    background-image: url(https://terrarp.com/db/action/attack.png);
-    background-repeat: no-repeat;
+.aci-attack {
+  background-image: url(https://terrarp.com/db/action/attack.png);
+  background-repeat: no-repeat;
 }
-.aci-counter{
-	background-image: url(https://terrarp.com/db/action/counter.png);
-	background-repeat: no-repeat;
+.aci-counter {
+  background-image: url(https://terrarp.com/db/action/counter.png);
+  background-repeat: no-repeat;
 }
 /*.aci-taunt{
 	background-image: url(https://terrarp.com/db/action/taunt.png);
 	background-repeat: no-repeat;
 }*/
-.aci-protect{
-	background-image: url(https://terrarp.com/db/action/protect.png);
-	background-repeat: no-repeat;
+.aci-protect {
+  background-image: url(https://terrarp.com/db/action/protect.png);
+  background-repeat: no-repeat;
 }
-.aci-hinder{
-	background-image: url(https://terrarp.com/db/action/hinder.png);
-	background-repeat: no-repeat;
+.aci-hinder {
+  background-image: url(https://terrarp.com/db/action/hinder.png);
+  background-repeat: no-repeat;
 }
-.aci-ultra-protect{
-	background-image: url(https://terrarp.com/db/action/uprotect.png);
-	background-repeat: no-repeat;
+.aci-ultra-protect {
+  background-image: url(https://terrarp.com/db/action/uprotect.png);
+  background-repeat: no-repeat;
 }
-.aci-ultra-hinder{
-	background-image: url(https://terrarp.com/db/action/uhinder.png);
-	background-repeat: no-repeat;
+.aci-ultra-hinder {
+  background-image: url(https://terrarp.com/db/action/uhinder.png);
+  background-repeat: no-repeat;
 }
-.aci-burst{
-	background-image: url(https://terrarp.com/db/action/burst.png);
-	background-repeat: no-repeat;
+.aci-burst {
+  background-image: url(https://terrarp.com/db/action/burst.png);
+  background-repeat: no-repeat;
 }
-.aci-critical{
-	background-image: url(https://terrarp.com/db/action/critical.png);
-	background-repeat: no-repeat;
+.aci-critical {
+  background-image: url(https://terrarp.com/db/action/critical.png);
+  background-repeat: no-repeat;
 }
-.aci-heavy-attack{
-    background-image: url(https://terrarp.com/db/action/heavy-a.png);
-    background-repeat: no-repeat;
+.aci-heavy-attack {
+  background-image: url(https://terrarp.com/db/action/heavy-a.png);
+  background-repeat: no-repeat;
 }
-.aci-heal{
-	background-image: url(https://terrarp.com/db/action/heal.png);
-	background-repeat: no-repeat;
+.aci-heal {
+  background-image: url(https://terrarp.com/db/action/heal.png);
+  background-repeat: no-repeat;
 }
-.aci-buff{
-	background-image: url(https://terrarp.com/db/action/buff.png);
-	background-repeat: no-repeat;
+.aci-buff {
+  background-image: url(https://terrarp.com/db/action/buff.png);
+  background-repeat: no-repeat;
 }
-.aci-dispel{
-	background-image: url(https://terrarp.com/db/action/dispel.png);
-	background-repeat: no-repeat;
+.aci-dispel {
+  background-image: url(https://terrarp.com/db/action/dispel.png);
+  background-repeat: no-repeat;
 }
-.aci-power-heal{
-	background-image: url(https://terrarp.com/db/action/pheal.png);
-	background-repeat: no-repeat;
+.aci-power-heal {
+  background-image: url(https://terrarp.com/db/action/pheal.png);
+  background-repeat: no-repeat;
 }
-.aci-power-buff{
-	background-image: url(https://terrarp.com/db/action/pbuff.png);
-	background-repeat: no-repeat;
+.aci-power-buff {
+  background-image: url(https://terrarp.com/db/action/pbuff.png);
+  background-repeat: no-repeat;
 }
-.aci-damage{
-	background-image: url(https://terrarp.com/db/action/damage.png);
-	background-repeat: no-repeat;
+.aci-damage {
+  background-image: url(https://terrarp.com/db/action/damage.png);
+  background-repeat: no-repeat;
 }
-.aci-support{
-	background-image: url(https://terrarp.com/db/action/support.png);
-	background-repeat: no-repeat;
+.aci-support {
+  background-image: url(https://terrarp.com/db/action/support.png);
+  background-repeat: no-repeat;
 }
-.aci-defense{
-	background-image: url(https://terrarp.com/db/action/defense.png);
-	background-repeat: no-repeat;
+.aci-defense {
+  background-image: url(https://terrarp.com/db/action/defense.png);
+  background-repeat: no-repeat;
 }
-.aci-speed{
-	background-image: url(https://terrarp.com/db/action/speed.png);
-	background-repeat: no-repeat;
+.aci-speed {
+  background-image: url(https://terrarp.com/db/action/speed.png);
+  background-repeat: no-repeat;
 }
-.aci-maneuver{
-	background-image: url(https://terrarp.com/db/action/maneuver.png);
-	background-repeat: no-repeat;
+.aci-acceleration {
+  background-image: url(https://terrarp.com/db/action/acceleration.png);
+  background-repeat: no-repeat;
 }
-.aci-ferrier{
-	background-image: url(https://terrarp.com/db/action/ferrier.png);
-	background-repeat: no-repeat;
+.aci-ferrier {
+  background-image: url(https://terrarp.com/db/action/ferrier.png);
+  background-repeat: no-repeat;
 }
-.aci-extra-movement{
-	background-image: url(https://terrarp.com/db/action/movement.png);
-	background-repeat: no-repeat;
+.aci-extra-movement {
+  background-image: url(https://terrarp.com/db/action/movement.png);
+  background-repeat: no-repeat;
 }
-.aci-extension{
-	background-image: url(https://terrarp.com/db/action/extension.png);
-	background-repeat: no-repeat;
+.aci-extension {
+  background-image: url(https://terrarp.com/db/action/extension.png);
+  background-repeat: no-repeat;
 }
-.aci-precise-hinder{
-	background-image: url(https://terrarp.com/db/action/precise-hinder.png);
-	background-repeat: no-repeat;
+.aci-precise-hinder {
+  background-image: url(https://terrarp.com/db/action/precise-hinder.png);
+  background-repeat: no-repeat;
 }
-.aci-charge{
-	background-image: url(https://terrarp.com/db/action/charge.png);
-	background-repeat: no-repeat;
+.aci-charge {
+  background-image: url(https://terrarp.com/db/action/charge.png);
+  background-repeat: no-repeat;
 }
-.aci-inspire{
-	background-image: url(https://terrarp.com/db/action/inspire.png);
-	background-repeat: no-repeat;
+.aci-inspire {
+  background-image: url(https://terrarp.com/db/action/inspire.png);
+  background-repeat: no-repeat;
 }
-.aci-carry{
-	background-image: url(https://terrarp.com/db/action/carry.png);
-	background-repeat: no-repeat;
+.aci-carry {
+  background-image: url(https://terrarp.com/db/action/carry.png);
+  background-repeat: no-repeat;
 }
-.aci-momentum{
-	background-image: url(https://terrarp.com/db/action/momentum.png);
-	background-repeat: no-repeat;
+.aci-momentum {
+  background-image: url(https://terrarp.com/db/action/momentum.png);
+  background-repeat: no-repeat;
 }
-.aci-exceed{
-	background-image: url(https://terrarp.com/db/action/exceed.png);
-	background-repeat: no-repeat;
+.aci-exceed {
+  background-image: url(https://terrarp.com/db/action/exceed.png);
+  background-repeat: no-repeat;
 }
-.aci-haste{
-    background-image: url(https://terrarp.com/db/action/haste.png);
-    background-repeat: no-repeat;
+.aci-haste {
+  background-image: url(https://terrarp.com/db/action/haste.png);
+  background-repeat: no-repeat;
 }
-.aci-instability{
-    background-image: url(https://terrarp.com/db/action/instability.png);
-    background-repeat: no-repeat;
+.aci-instability {
+  background-image: url(https://terrarp.com/db/action/instability.png);
+  background-repeat: no-repeat;
 }
-.aci-reposition{
-    background-image: url(https://terrarp.com/db/action/reposition.png);
-    background-repeat: no-repeat;
+.aci-reposition {
+  background-image: url(https://terrarp.com/db/action/reposition.png);
+  background-repeat: no-repeat;
 }
-.aci-coordinate{
-    background-image: url(https://terrarp.com/db/action/coordinate.png);
-    background-repeat: no-repeat;
+.aci-coordinate {
+  background-image: url(https://terrarp.com/db/action/coordinate.png);
+  background-repeat: no-repeat;
 }
 
-.aci-savior{
-    background-image: url(https://terrarp.com/db/action/savior2.png);
-    background-repeat: no-repeat;
+.aci-savior {
+  background-image: url(https://terrarp.com/db/action/savior2.png);
+  background-repeat: no-repeat;
 }
-.aci-berserk{
-    background-image: url(https://terrarp.com/db/action/berserk.png);
-    background-repeat: no-repeat;
+.aci-berserk {
+  background-image: url(https://terrarp.com/db/action/berserk.png);
+  background-repeat: no-repeat;
 }
-.aci-corruption{
-    background-image: url(https://terrarp.com/db/action/corruption.png);
-    background-repeat: no-repeat;
+.aci-corruption {
+  background-image: url(https://terrarp.com/db/action/corruption.png);
+  background-repeat: no-repeat;
 }
-.aci-regeneration{
-    background-image: url(https://terrarp.com/db/action/regeneration.png);
-    background-repeat: no-repeat;
+.aci-regeneration {
+  background-image: url(https://terrarp.com/db/action/regeneration.png);
+  background-repeat: no-repeat;
 }
-.aci-hyper-awareness{
-    background-image: url(https://terrarp.com/db/action/hyper-awareness.png);
-    background-repeat: no-repeat;
+.aci-hyper-awareness {
+  background-image: url(https://terrarp.com/db/action/hyper-awareness.png);
+  background-repeat: no-repeat;
 }
-.aci-dba, .aci-torment, .aci-alterhinder, .aci-shield, .aci-disruptive{
-    background-image: url(https://terrarp.com/db/action/dba3.png);
-    background-repeat: no-repeat;
+.aci-dba,
+.aci-torment,
+.aci-alterhinder,
+.aci-shield,
+.aci-disruptive {
+  background-image: url(https://terrarp.com/db/action/dba3.png);
+  background-repeat: no-repeat;
 }
-.aci-oba, .aci-duelist, .aci-sharpshooter, .aci-overload, .aci-area-effect{
-    background-image: url(https://terrarp.com/db/action/oba2.png);
-    background-repeat: no-repeat;
+.aci-oba,
+.aci-duelist,
+.aci-sharpshooter,
+.aci-overload,
+.aci-area-effect {
+  background-image: url(https://terrarp.com/db/action/oba2.png);
+  background-repeat: no-repeat;
 }
-.aci-sba, .aci-overheal, .aci-versatile, .aci-boost, .aci-cure{
-    background-image: url(https://terrarp.com/db/action/sba4.png);
-    background-repeat: no-repeat;
+.aci-sba,
+.aci-overheal,
+.aci-versatile,
+.aci-boost,
+.aci-cure {
+  background-image: url(https://terrarp.com/db/action/sba4.png);
+  background-repeat: no-repeat;
 }
-.aci-revive{
-background-color: #4e9be2!important;
+.aci-revive {
+  background-color: #4e9be2 !important;
 }
-.aci-taunt{
-background-color: #d78747!important;
+.aci-taunt {
+  background-color: #d78747 !important;
 }
-.aci-sturdy{
-    background-image: url(https://terrarp.com/db/action/sturdy.png);
-    background-repeat: no-repeat;
+.aci-sturdy {
+  background-image: url(https://terrarp.com/db/action/sturdy.png);
+  background-repeat: no-repeat;
 }
-.aci-mobile{
-    background-image: url(https://terrarp.com/db/action/mobile.png);
-    background-repeat: no-repeat;
+.aci-mobile {
+  background-image: url(https://terrarp.com/db/action/mobile.png);
+  background-repeat: no-repeat;
 }
-.aci-ultra-counter{
-    background-image: url(https://terrarp.com/db/action/ucounter.png);
-    background-repeat: no-repeat;
+.aci-ultra-counter {
+  background-image: url(https://terrarp.com/db/action/ucounter.png);
+  background-repeat: no-repeat;
 }
-.aci-consistent{
-    background-image: url(https://terrarp.com/db/action/consistent.png);
-    background-repeat: no-repeat;
+.aci-consistent {
+  background-image: url(https://terrarp.com/db/action/consistent.png);
+  background-repeat: no-repeat;
 }
-.aci-wild{
-    background-image: url(https://terrarp.com/db/action/wild.png);
-    background-repeat: no-repeat;
+.aci-wild {
+  background-image: url(https://terrarp.com/db/action/wild.png);
+  background-repeat: no-repeat;
 }
-.aci-multi{
-    background-image: url(https://terrarp.com/db/action/multi.png);
-    background-repeat: no-repeat;
+.aci-multi {
+  background-image: url(https://terrarp.com/db/action/multi.png);
+  background-repeat: no-repeat;
 }
-.aci-sharp{
-    background-image: url(https://terrarp.com/db/action/sharp.png);
-    background-repeat: no-repeat;
+.aci-sharp {
+  background-image: url(https://terrarp.com/db/action/sharp.png);
+  background-repeat: no-repeat;
 }
-.aci-stable{
-	background-image: url(https://terrarp.com/db/action/stable.png);
-	background-repeat: no-repeat;
+.aci-stable {
+  background-image: url(https://terrarp.com/db/action/stable.png);
+  background-repeat: no-repeat;
 }
-.aci-reckless{
-	background-image: url(https://terrarp.com/db/action/reckless.png);
-	background-repeat: no-repeat;
+.aci-reckless {
+  background-image: url(https://terrarp.com/db/action/reckless.png);
+  background-repeat: no-repeat;
 }
-.aci-sneak{
-    background-image: url(https://terrarp.com/db/action/sneak.png);
-    background-repeat: no-repeat;
+.aci-sneak {
+  background-image: url(https://terrarp.com/db/action/sneak.png);
+  background-repeat: no-repeat;
 }
-.aci-auto-assist{
-    background-image: url(https://terrarp.com/db/action/auto-assist.png);
-    background-repeat: no-repeat;
+.aci-auto-assist {
+  background-image: url(https://terrarp.com/db/action/auto-assist.png);
+  background-repeat: no-repeat;
 }
-.aci-guardian{
-background-image: url(/db/action/guardian.png);
-background-repeat: no-repeat;
+.aci-guardian {
+  background-image: url(/db/action/guardian.png);
+  background-repeat: no-repeat;
 }
-.aci-alert{
-background-image: url(/db/action/alert.png);
-background-repeat: no-repeat;
+.aci-alert {
+  background-image: url(/db/action/alert.png);
+  background-repeat: no-repeat;
 }
-.aci-rover{
-background-image: url(/db/action/rover.png);
-background-repeat: no-repeat;
+.aci-rover {
+  background-image: url(/db/action/rover.png);
+  background-repeat: no-repeat;
 }
-.aci-fortitude, .aci-reflex, .aci-will{
+.aci-fortitude,
+.aci-reflex,
+.aci-will {
   border-color: #c34747;
 }
-.aci-fortitude{
+.aci-fortitude {
   /*background-image: url(https://terrarp.com/db/tool/fortitude.png);*/
   /*background-color: #df6135;*/
   background-repeat: no-repeat;
 }
-.aci-reflex{
+.aci-reflex {
   /*background-image: url(https://terrarp.com/db/tool/reflex.png);*/
   /*background-color: #68b435;*/
   background-repeat: no-repeat;
 }
-.aci-will{
+.aci-will {
   /*background-image: url(https://terrarp.com/db/tool/will.png);*/
   /*background-color: #9f5cce;*/
   background-repeat: no-repeat;
 }
-.aci-fitness, .aci-knack, .aci-awareness, .aci-knowledge, .aci-presence{
+.aci-fitness,
+.aci-knack,
+.aci-awareness,
+.aci-knowledge,
+.aci-presence {
   border-color: #72b554;
 }
-.aci-fitness{
+.aci-fitness {
   /*background-image: url(https://terrarp.com/db/tool/fitness.png);*/
   /*background-color: #d02222;*/
   background-repeat: no-repeat;
 }
 
-.aci-knack{
+.aci-knack {
   /*background-image: url(https://terrarp.com/db/tool/knack.png);*/
   /*background-color: #389c44;*/
   background-repeat: no-repeat;
 }
 
-.aci-awareness{
+.aci-awareness {
   /*background-image: url(https://terrarp.com/db/tool/awareness.png);*/
   /*background-color: #de6e47;*/
   background-repeat: no-repeat;
 }
 
-.aci-knowledge{
+.aci-knowledge {
   /*background-image: url(https://terrarp.com/db/tool/knowledge.png);*/
   /*background-color: #6e51cb;*/
   background-repeat: no-repeat;
 }
 
-.aci-presence{
+.aci-presence {
   /*background-image: url(https://terrarp.com/db/tool/presence.png);*/
   /*background-color: #e2427b;*/
   background-repeat: no-repeat;
 }
 
-.rollcode{
+.rollcode {
   font-family: monospace;
   user-select: all;
   background: #0d0f16;
@@ -1153,20 +1335,20 @@ background-repeat: no-repeat;
   padding: 5px;
 }
 
-.line{
+.line {
   display: block;
   height: 1px;
   /*border-top: 1px solid #d5d5d5;
   margin-bottom:10px;*/
 }
 
-.choice{
+.choice {
   cursor: pointer;
 }
-.choice:hover .cardicon{
+.choice:hover .cardicon {
   transform: scale(0.9);
 }
-.droplist{
+.droplist {
   background-color: #222;
   border-radius: 4px;
   border: 0;
@@ -1174,15 +1356,15 @@ background-repeat: no-repeat;
   color: #eee;
 }
 
-.ts-logo{
+.ts-logo {
   padding: 20px;
   text-align: center;
 }
-.ts-logo img{
+.ts-logo img {
   max-width: 100%;
 }
 
-.togglecontainer{
+.togglecontainer {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -1190,24 +1372,25 @@ background-repeat: no-repeat;
   margin: 5px auto 20px auto;
 }
 
-.togglesavechecks{
-    font-size: 1.1em;
-    font-weight: bold;
-    background-color: #272627;
-    color: #ffffff38;
-    padding: 5px 15px;
-    margin: 2px;
-    border-radius: 25px;
-    user-select: none;
-    cursor: pointer;
-    text-align: center;
+.togglesavechecks {
+  font-size: 1.1em;
+  font-weight: bold;
+  background-color: #272627;
+  color: #ffffff38;
+  padding: 5px 15px;
+  margin: 2px;
+  border-radius: 25px;
+  user-select: none;
+  cursor: pointer;
+  text-align: center;
 }
 
 /*.card > div{
   padding-bottom: 4px;
 }*/
 
-#pickactions, .freeactions{
+#pickactions,
+.freeactions {
   display: flex;
   align-items: stretch;
   /* align-content: flex-end; */
@@ -1223,7 +1406,7 @@ background-repeat: no-repeat;
   padding: 0;
 }*/
 
-#freeactiondisplay{
+#freeactiondisplay {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   flex-wrap: wrap;
@@ -1231,7 +1414,7 @@ background-repeat: no-repeat;
   margin-top: 5px;
 }
 
-#actionsdisplay{
+#actionsdisplay {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   justify-content: flex-start;
@@ -1239,45 +1422,46 @@ background-repeat: no-repeat;
   margin-top: 13px;
 }
 
-.display > img{
+.display > img {
   width: 80%;
   height: 80%;
 }
 
-.display.masterycircle{
+.display.masterycircle {
   width: 35px;
   height: 35px;
   margin: 5px;
 }
-.togglesavechecks, .display.masterycircle{
-  transition: all .1s ease-in-out;
+.togglesavechecks,
+.display.masterycircle {
+  transition: all 0.1s ease-in-out;
 }
-.display.masterycircle:hover{
+.display.masterycircle:hover {
   transform: scale(0.9);
 }
-.togglesavechecks:hover{
+.togglesavechecks:hover {
   background-color: #444;
 }
-.masteryicon{
+.masteryicon {
   display: flex;
   justify-content: center;
   flex-direction: row;
 }
 
-#masterydisplay{
+#masterydisplay {
   display: flex;
   justify-content: space-around;
   flex-wrap: nowrap;
   text-align: center;
 }
 
-.masterydisplay{
+.masterydisplay {
   display: flex;
   flex-direction: column;
   user-select: none;
 }
 
-.displaycircle{
+.displaycircle {
   height: 15vw;
   width: 15vw;
   max-width: 95px;
@@ -1291,7 +1475,7 @@ background-repeat: no-repeat;
   border: 3px solid;
 }
 
-.displaycircle > img{
+.displaycircle > img {
   height: 12vw;
   width: 12vw;
   max-width: 70px;
@@ -1299,13 +1483,13 @@ background-repeat: no-repeat;
   margin: auto;
 }
 
-#equipmentdisplay{
+#equipmentdisplay {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   user-select: none;
   flex-wrap: wrap;
-/*new
+  /*new
 background: #e1e1e1;
 margin: 10px auto;
 border-radius: 4px;
@@ -1315,17 +1499,17 @@ max-width: 840px;*/
   border-radius: 7px;
 }
 
-.edisplay{
+.edisplay {
   display: flex;
   flex-direction: row;
 }
 
-.displaycircle.equipment{
+.displaycircle.equipment {
   background-color: #b0b0b0;
   border: 0;
 }
 
-.passivecontainer{
+.passivecontainer {
   border-radius: 4px;
   font-size: 0.9rem;
   max-width: 98.5%;
@@ -1333,29 +1517,33 @@ max-width: 840px;*/
   color: #eee;
 }
 
-#statsdisplay{
+#statsdisplay {
   display: flex;
   flex-direction: row;
   justify-content: right;
   user-select: none;
   text-align: center;
-  margin: 40px 0 20xp 0;
+  margin: 40px 0 20px 0;
   /* margin-bottom: 32px; */
   margin: 0 12px;
   border-radius: 7px;
 }
 
-#statsdisplay > div{
+#statsdisplay > div {
   margin-right: 15px;
 }
-.stat-numbers tr td{
+.stat-numbers tr td {
   text-align: left;
 }
-.displaycircle.hp, .displaycircle.move{
-  background-color: rgba(0,0,0,0);
+.displaycircle.hp,
+.displaycircle.move {
+  background-color: rgba(0, 0, 0, 0);
 }
 
-.savecontainer, .expertisecontainer, .checkrollcontainer, .saverollcontainer{
+.savecontainer,
+.expertisecontainer,
+.checkrollcontainer,
+.saverollcontainer {
   display: flex;
   flex-direction: column;
   text-align: center;
@@ -1367,44 +1555,51 @@ max-width: 840px;*/
   background-color: transparent;
 }
 
-#saveschecks{
+#saveschecks {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: space-between;
 }
 
-.checkrollcontainer, .saverollcontainer{
+.checkrollcontainer,
+.saverollcontainer {
   margin: 0.5vw;
   justify-content: space-around;
 }
 
-.checkrollcontainer > div, .saverollcontainer > div{
+.checkrollcontainer > div,
+.saverollcontainer > div {
   margin: 0.75vw;
 }
 
-.checkrollcontainer > .rollcode, .saverollcontainer > .rollcode{
+.checkrollcontainer > .rollcode,
+.saverollcontainer > .rollcode {
   font-size: 0.5em;
 }
 
-#masterycheckicons, #savesicons, #expertiseicons{
+#masterycheckicons,
+#savesicons,
+#expertiseicons {
   display: flex;
   justify-content: center;
   margin: 10px auto;
 }
 
-.rangecontainer{
-  color: #9746bb!important;
+.rangecontainer {
+  color: #9746bb !important;
   background: #9802d9;
   display: none;
 }
 
-.statoutput{
+.statoutput {
   font-size: 80%;
   line-height: 90%;
 }
 
-.hpcontainer, .movementcontainer, .rangecontainer{
+.hpcontainer,
+.movementcontainer,
+.rangecontainer {
   padding: 10px;
   border-radius: 4px;
   color: #eee;
@@ -1413,29 +1608,32 @@ max-width: 840px;*/
   /* border: 2px solid #000; */
 }
 
-.move img, .hp img, .range img{
+.move img,
+.hp img,
+.range img {
   width: 60px;
 }
 
-.stat-text{
+.stat-text {
   font-weight: 700;
   font-size: 1em;
   margin: 4px auto 10px auto;
   line-height: 100%;
 }
 
-#builddisplay, .masterycategory{
+#builddisplay,
+.masterycategory {
   margin: 0;
 }
-#freeactiondisplay{
+#freeactiondisplay {
   margin: 0;
 }
-#builddisplay .first{
+#builddisplay .first {
   align-items: stretch;
   background: #23293775;
 }
 
-table{
+table {
   border: none;
   font-size: 0.8rem;
   margin-top: 5px;
@@ -1443,39 +1641,40 @@ table{
   width: 100%;
 }
 
-#inputbox table{
+#inputbox table {
   width: auto;
   margin: 0 auto;
 }
 
-#inputbox table td{
+#inputbox table td {
   text-align: right;
   font-weight: 600;
 }
 
-.fas{
+.fas {
   color: #eee;
 }
 
-td{
+td {
   padding: 3px;
 }
 
-.expertcontainer{
+.expertcontainer {
   display: flex;
   max-height: 20vh;
   flex-wrap: wrap;
   justify-content: space-evenly;
 }
 
-.expert{
+.expert {
   display: flex;
   flex-direction: column;
   font-size: 0.8rem;
   padding: 5px;
 }
 
-.single, .aoe{
+.single,
+.aoe {
   border-radius: 3px;
   padding: 2px;
   cursor: pointer;
@@ -1486,163 +1685,165 @@ td{
   padding-left: 10px;
 }
 
-.single{
+.single {
   background-color: #6c2b85;
   border-left: 5px solid #85449f;
 }
 
-.aoe{
+.aoe {
   background-color: #1b7887;
   border-left: 5px solid #439ba9;
 }
 
-@media (min-width: 800px){
-.passivecontainer{
-margin: 10px 0 0 0;
+@media (min-width: 800px) {
+  .passivecontainer {
+    margin: 10px 0 0 0;
+  }
 }
-}
-@media (max-width: 1000px){
-  #bodyback{
+@media (max-width: 1000px) {
+  #bodyback {
     width: 100%;
     margin: 0;
     padding: 0;
     border-radius: 0;
   }
-  body{
-    margin:0;
+  body {
+    margin: 0;
     background-color: transparent;
   }
-  html{
-    background-image: none!important;
+  html {
+    background-image: none !important;
     background-color: #0e0c0f;
   }
 }
 
-@media (max-width: 800px){
-
-  .tooltip{
+@media (max-width: 800px) {
+  .tooltip {
     font-size: 0.6rem;
   }
 
-  #statsdisplay{
+  #statsdisplay {
     font-size: 0.8rem;
     margin: 0;
     margin-bottom: 3vh;
     flex-wrap: wrap;
   }
 
-  #statsdisplay > div{
+  #statsdisplay > div {
     margin-bottom: 2vh;
   }
 
-  .expertcontainer{
+  .expertcontainer {
     display: flex;
     flex-wrap: wrap;
     flex-direction: row;
   }
 
-  table, td{
+  table,
+  td {
     font-size: 0.7rem;
     padding: 1px;
   }
 
-  .masterycategory.first{
+  .masterycategory.first {
     display: flex;
     flex-direction: column;
   }
 
-  .expert{
+  .expert {
     padding: 0;
     font-size: 0.5rem;
     margin-bottom: 0.5vw;
   }
 
-  #masterydisplay{
+  #masterydisplay {
     font-size: 0.94rem;
     flex-wrap: wrap;
   }
 
-  #equipmentdisplay{
+  #equipmentdisplay {
     font-size: 0.9rem;
   }
 
-  .edisplay{
+  .edisplay {
     margin: 0 5px 5px 0;
   }
 
-  .display.masterycircle{
+  .display.masterycircle {
     width: 8vw;
     height: 8vw;
   }
 
-  .display > img{
+  .display > img {
     width: 6.5vw;
     height: 6.5vw;
   }
 }
 
 /* Header */
-#mw-navigation{
-    background: #090909;
-    display: block;
+#mw-navigation {
+  background: #090909;
+  display: block;
 }
-.fixed-top{
-    position: fixed;
-    right: 0;
-    left: 0;
-    top: 0;
-    z-index: 1030;
+.fixed-top {
+  position: fixed;
+  right: 0;
+  left: 0;
+  top: 0;
+  z-index: 1030;
 }
-.container{
+.container {
   max-width: 1045px;
   margin: 0 auto;
   padding: 8px 15px 0 15px;
 }
-.navbar-brand{
+.navbar-brand {
   padding: 3px 0;
   display: inline-flex;
-  padding-top: .3125rem;
-  padding-bottom: .3125rem;
+  padding-top: 0.3125rem;
+  padding-bottom: 0.3125rem;
   margin-right: 1rem;
   font-size: 1.25rem;
   line-height: inherit;
   white-space: nowrap;
 }
-.nav-left{
+.nav-left {
   /*margin-left: 17px;*/
   display: inline-flex;
 }
 /* Dropdown Button */
-.dropbtn{
+.dropbtn {
   font-size: 16px;
   border: none;
-  background-color: rgba(0,0,0,0);
+  background-color: rgba(0, 0, 0, 0);
   color: #eee;
-  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+  font-family: "Segoe UI", "Roboto", "Helvetica Neue", sans-serif;
   padding: 0;
 }
 /* The container <div> - needed to position the dropdown content */
-.link, .fixed-top .dropdown{
+.link,
+.fixed-top .dropdown {
   position: relative;
   display: inline-block;
   padding: 0;
   top: -6px;
-  padding: .5rem;
+  padding: 0.5rem;
 }
-.link{
-
+.link {
   /*padding-right: .5rem;
   padding-left: .5rem;*/
 }
-.link a{
+.link a {
   color: #eee;
   text-decoration: none;
 }
-.dropdown-content a:hover, .dropdown:hover .dropbtn, .link a:hover{
+.dropdown-content a:hover,
+.dropdown:hover .dropbtn,
+.link a:hover {
   color: #30adbb;
 }
 /* Dropdown Content (Hidden by Default) */
-.dropdown-content{
+.dropdown-content {
   /*display: none;
   position: absolute;
   background-color: #f1f1f1;
@@ -1650,39 +1851,43 @@ margin: 10px 0 0 0;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 1;*/
   min-width: 10rem;
-  padding: .5rem 0;
-  margin: .125rem 0 0;
+  padding: 0.5rem 0;
+  margin: 0.125rem 0 0;
   font-size: 1rem;
   color: #212529;
   text-align: left;
   list-style: none;
   background-color: #fff;
   background-clip: padding-box;
-  border: 1px solid rgba(0,0,0,.15);
-  border-radius: .25rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 0.25rem;
   display: none;
   position: absolute;
 }
 /* Links inside the dropdown */
-.dropdown-content a{
+.dropdown-content a {
   color: black;
   padding: 12px 16px;
   text-decoration: none;
   display: block;
 }
 /* Change color of dropdown links on hover */
-.dropdown-content a:hover{background-color: #f8f9fa;}
+.dropdown-content a:hover {
+  background-color: #f8f9fa;
+}
 /* Show the dropdown menu on hover */
-.dropdown:hover .dropdown-content{display: block;}
-.ddarrow{
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+.ddarrow {
   font-size: 6px;
 }
-.tip{
+.tip {
   position: relative;
   display: inline-block;
   /*border-bottom: 1px dotted black;*/
 }
-.tiptext{
+.tiptext {
   visibility: hidden;
   width: 120px;
   background-color: black;
@@ -1693,33 +1898,33 @@ margin: 10px 0 0 0;
   position: absolute;
   z-index: 1;
 }
-.tip:hover .tiptext{
+.tip:hover .tiptext {
   visibility: visible;
 }
-.caret{
+.caret {
   font-size: 0.75em;
   color: #bbb;
 }
-.ca-left{
+.ca-left {
   margin-right: 10px;
 }
-.ca-right{
+.ca-right {
   margin-left: 10px;
 }
-.tip{
+.tip {
   font-size: 0.75em;
 }
-span.ttip{
+span.ttip {
   padding: 0px 5px;
   position: relative;
   cursor: pointer;
 }
-.ttip-info{
+.ttip-info {
   position: absolute;
   top: -9999px;
   left: -9999px;
 }
-span.ttip::before{
+span.ttip::before {
   content: attr(data-tooltip);
   position: absolute;
   top: 1.5em;
@@ -1734,13 +1939,13 @@ span.ttip::before{
   width: 200px;
   font-size: 14px;
 }
-span.ttip:hover::before{
+span.ttip:hover::before {
   display: inline-block;
 }
-.passivetitle{
+.passivetitle {
   margin-bottom: 5px;
 }
-.typebox{
+.typebox {
   background: #1c1c1c;
   border-radius: 20px;
   padding-left: 10px;
@@ -1749,13 +1954,14 @@ span.ttip:hover::before{
   text-align: center;
   border: 1px solid #1c1c1c;
 }
-#charnamereplace, #threadcodereplace{
+#charnamereplace,
+#threadcodereplace {
   border: 0;
   font-style: italic;
-  background:transparent;
+  background: transparent;
   color: #eee;
 }
-.passivecontainer p u{
+.passivecontainer p u {
   user-select: all;
   text-decoration: none;
   background-color: #090909;
@@ -1765,214 +1971,318 @@ span.ttip:hover::before{
   padding: 5px 7px;
   border-bottom: 1px solid #222;
 }
-#threadcodereplace, #charnamereplace{
-    outline: none !important;
-    border: 0 !important;
+#threadcodereplace,
+#charnamereplace {
+  outline: none !important;
+  border: 0 !important;
 }
-.mastery-margin{
-  margin: 0 auto 40px auto!important;
+.mastery-margin {
+  margin: 0 auto 40px auto !important;
 }
-#offensemasteries, #defensemasteries, #supportmasteries, #altermasteries, #masterycontainer #equipment{
-margin-top: 15px;
-padding-right: 0;
+#offensemasteries,
+#defensemasteries,
+#supportmasteries,
+#altermasteries,
+#masterycontainer #equipment {
+  margin-top: 15px;
+  padding-right: 0;
 }
-.armorrankdisplay{
-margin-right:0!important;
+.armorrankdisplay {
+  margin-right: 0 !important;
 }
-#buildcodedisplay{
+#buildcodedisplay {
   /*text-align: center;*/
 }
-#finalbuild{
-text-align: center;
+#finalbuild {
+  text-align: center;
 }
-#buildinstructions{
-font-size: 0.85em;
-margin-bottom: 10px;
-text-align: left;
+#buildinstructions {
+  font-size: 0.85em;
+  margin-bottom: 10px;
+  text-align: left;
 }
-#inputbox table{
-margin: 15px auto;
+#inputbox table {
+  margin: 15px auto;
 }
-#button4back{
-background-color: #521e3e;
+#button4back {
+  background-color: #521e3e;
 }
-.button-container{margin: 10px 0 20px 0;}
-.armorskilldisplay{
-display:block!important;
-margin: 0 auto;
-border-radius: 4px;
-max-width: 850px;
+.button-container {
+  margin: 10px 0 20px 0;
 }
-.selectorheader i{
-color: #a9357b;
+.armorskilldisplay {
+  display: block !important;
+  margin: 0 auto;
+  border-radius: 4px;
+  max-width: 850px;
 }
-.edisplay.armorrankdisplay{margin: 0 0 5px 0!important;}
-@media (max-width: 760px){
-.edisplay.armorrankdisplay, .edisplay.weaponrankdisplay{
-margin: 0 0 5px 0!important;
+.selectorheader i {
+  color: #a9357b;
 }
+.edisplay.armorrankdisplay {
+  margin: 0 0 5px 0 !important;
 }
-.header-info{
-  display:flex;margin: 50px auto 0 auto;
+@media (max-width: 760px) {
+  .edisplay.armorrankdisplay,
+  .edisplay.weaponrankdisplay {
+    margin: 0 0 5px 0 !important;
+  }
 }
-.header-info--content{
-width: 900px;
-margin: 0 auto;
-padding: 10px 0;
+.header-info {
+  display: flex;
+  margin: 50px auto 0 auto;
 }
-.header-info--nameheader{display: block;float: left;}
-.header-info--functions{display: block}
-@media (max-width: 650px){
-.charcontainer, .nameheader, .charimg2, .header-info--functions{float: none!important}
-.nameheader{width: 100%;text-align: center;margin: 0;}
-.charinfo{display:block!important;text-align:center;margin:5px 0 10px 0!important}
-.banner-inner, .banner, .charbanner{width:100%!important;height:250px!important}
-.charbanner{margin:108px -10px 0 -10px!important}
-.banner-inner{margin:0!important}
-.mastery-margin{top: 10px}
-.charimg, .charimg2{margin-top:0}
-.displaytitle{font-size:0.85em}
+.header-info--content {
+  width: 900px;
+  margin: 0 auto;
+  padding: 10px 0;
 }
-@media (max-width: 575px){
-.header-info{margin-top: 84px}
+.header-info--nameheader {
+  display: block;
+  float: left;
 }
+.header-info--functions {
+  display: block;
 }
-@media (max-width: 475px){
-#bodyback{padding-top: 0;}
-.header-info{margin-top: 89px!important}
-.navbar-brand{text-align: center;margin: 0;display: block;}
-.nav-left{display: block;text-align: center;}
-#masterycontainer, #rankselector, #actionselector, #builddisplay, #importdisplay{padding: 0;}
+@media (max-width: 650px) {
+  .charcontainer,
+  .nameheader,
+  .charimg2,
+  .header-info--functions {
+    float: none !important;
+  }
+  .nameheader {
+    width: 100%;
+    text-align: center;
+    margin: 0;
+  }
+  .charinfo {
+    display: block !important;
+    text-align: center;
+    margin: 5px 0 10px 0 !important;
+  }
+  .banner-inner,
+  .banner,
+  .charbanner {
+    width: 100% !important;
+    height: 250px !important;
+  }
+  .charbanner {
+    margin: 108px -10px 0 -10px !important;
+  }
+  .banner-inner {
+    margin: 0 !important;
+  }
+  .mastery-margin {
+    top: 10px;
+  }
+  .charimg,
+  .charimg2 {
+    margin-top: 0;
+  }
+  .displaytitle {
+    font-size: 0.85em;
+  }
 }
-.left{float:left}
-.right{float:right}
-.charinfo{
+@media (max-width: 575px) {
+  .header-info {
+    margin-top: 84px;
+  }
+}
+@media (max-width: 475px) {
+  #bodyback {
+    padding-top: 0;
+  }
+  .header-info {
+    margin-top: 89px !important;
+  }
+  .navbar-brand {
+    text-align: center;
+    margin: 0;
+    display: block;
+  }
+  .nav-left {
+    display: block;
+    text-align: center;
+  }
+  #masterycontainer,
+  #rankselector,
+  #actionselector,
+  #builddisplay,
+  #importdisplay {
+    padding: 0;
+  }
+}
+.left {
+  float: left;
+}
+.right {
+  float: right;
+}
+.charinfo {
   margin: 0 0 0 20px;
   display: inline-block;
 }
-.chartitle{color: #ccc}
-.charrace{color:#999}
-.charrace, .chartitle{display:block;font-size: 0.65em;font-variant:normal!important}
-.banner-inner, .banner, .charbanner{
-width: calc(100% + 20px);
-height: 380px;
-overflow: hidden;
+.chartitle {
+  color: #ccc;
+}
+.charrace {
+  color: #999;
+}
+.charrace,
+.chartitle {
+  display: block;
+  font-size: 0.65em;
+  font-variant: normal !important;
+}
+.banner-inner,
+.banner,
+.charbanner {
+  width: calc(100% + 20px);
+  height: 380px;
+  overflow: hidden;
   margin: -10px -10px 0;
 }
-.charbanner{background-size: cover}
-.armorskilldisplay, .freeactions, .rankpick{margin-bottom: 0px}
-.mcontainer{margin-bottom: 20px}
-.123{margin-bottom: 40px}
-#copyright{
-text-align: center;
-font-size: 11px;
-color: #bbb;
+.charbanner {
+  background-size: cover;
 }
-.cpr {display: block;}
-.refresh-msg{
-padding: 10px 10px;
-background: #222;
-color: #eee;
-border-radius: 4px;
-display:block
+.armorskilldisplay,
+.freeactions,
+.rankpick {
+  margin-bottom: 0px;
 }
-.refresh-msg i{
-color: #eee;
-font-size: 1em;
-margin-right:10px;
-color: #a9357b;
+.mcontainer {
+  margin-bottom: 20px;
 }
-.charbanner{
-background-position-y: 15%;
-position: relative;
+#copyright {
+  text-align: center;
+  font-size: 11px;
+  color: #bbb;
+}
+.cpr {
+  display: block;
+}
+.refresh-msg {
+  padding: 10px 10px;
+  background: #222;
+  color: #eee;
+  border-radius: 4px;
+  display: block;
+}
+.refresh-msg i {
+  color: #eee;
+  font-size: 1em;
+  margin-right: 10px;
+  color: #a9357b;
+}
+.charbanner {
+  background-position-y: 15%;
+  position: relative;
 }
 
 .charbanner::after {
-content: '';
-position: absolute;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: linear-gradient(to bottom, transparent 45%, rgba(17,20,28,1) 100%);
-pointer-events: none;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent 45%,
+    rgba(17, 20, 28, 1) 100%
+  );
+  pointer-events: none;
 }
-.aci-healthy{
-background-image: url(https://terrarp.com/db/action/healthy.png);
-background-repeat: no-repeat;
+.aci-healthy {
+  background-image: url(https://terrarp.com/db/action/healthy.png);
+  background-repeat: no-repeat;
 }
-.aci-mobile{
-background-image: url(https://terrarp.com/db/action/mobile.png);
-background-repeat: no-repeat;
+.aci-mobile {
+  background-image: url(https://terrarp.com/db/action/mobile.png);
+  background-repeat: no-repeat;
 }
-.aci-ultra-counter{
-background-image: url(https://terrarp.com/db/action/ucounter.png);
-background-repeat: no-repeat;
+.aci-ultra-counter {
+  background-image: url(https://terrarp.com/db/action/ucounter.png);
+  background-repeat: no-repeat;
 }
-.aci-consistent{
-background-image: url(https://terrarp.com/db/action/consistent.png);
-background-repeat: no-repeat;
+.aci-consistent {
+  background-image: url(https://terrarp.com/db/action/consistent.png);
+  background-repeat: no-repeat;
 }
-.aci-risky{
-background-image: url(https://terrarp.com/db/action/risky.png);
-background-repeat: no-repeat;
+.aci-risky {
+  background-image: url(https://terrarp.com/db/action/risky.png);
+  background-repeat: no-repeat;
 }
-.aci-wild{
-background-image: url(https://terrarp.com/db/action/wild.png);
-background-repeat: no-repeat;
+.aci-wild {
+  background-image: url(https://terrarp.com/db/action/wild.png);
+  background-repeat: no-repeat;
 }
-.aci-multi{
-background-image: url(https://terrarp.com/db/action/multi.png);
-background-repeat: no-repeat;
+.aci-multi {
+  background-image: url(https://terrarp.com/db/action/multi.png);
+  background-repeat: no-repeat;
 }
-.aci-sharp{
-background-image: url(https://terrarp.com/db/action/sharp.png);
-background-repeat: no-repeat;
+.aci-sharp {
+  background-image: url(https://terrarp.com/db/action/sharp.png);
+  background-repeat: no-repeat;
 }
-.aci-stable{
-background-image: url(https://terrarp.com/db/action/stable.png);
-background-repeat: no-repeat;
+.aci-stable {
+  background-image: url(https://terrarp.com/db/action/stable.png);
+  background-repeat: no-repeat;
 }
-.aci-reckless{
-background-image: url(https://terrarp.com/db/action/reckless.png);
-background-repeat: no-repeat;
+.aci-reckless {
+  background-image: url(https://terrarp.com/db/action/reckless.png);
+  background-repeat: no-repeat;
 }
-.aci-sneak{
-background-image: url(https://terrarp.com/db/action/sneak.png);
-background-repeat: no-repeat;
+.aci-sneak {
+  background-image: url(https://terrarp.com/db/action/sneak.png);
+  background-repeat: no-repeat;
 }
-.aci-auto-assist{
-background-image: url(https://terrarp.com/db/action/auto-assist.png);
-background-repeat: no-repeat;
+.aci-auto-assist {
+  background-image: url(https://terrarp.com/db/action/auto-assist.png);
+  background-repeat: no-repeat;
 }
-.aci-revive{
-background-image: url(https://terrarp.com/db/action/revive.png);
-background-repeat: no-repeat;
+.aci-revive {
+  background-image: url(https://terrarp.com/db/action/revive.png);
+  background-repeat: no-repeat;
 }
-.aci-infuse{
-background-image: url(https://terrarp.com/db/action/infuse.png);
-background-repeat: no-repeat;
+.aci-infuse {
+  background-image: url(https://terrarp.com/db/action/infuse.png);
+  background-repeat: no-repeat;
 }
-.bapad{
-margin-top: 5px;
+.bapad {
+  margin-top: 5px;
 }
-.cardinfo p em b{display:inline-block;font-weight:normal;margin-right: 15px;padding: 2px 5px;background-color: #323232;border-radius: 3px;font-style: normal;color: #777;margin-left: -10px;}
-.cardinfo p:first-child{
-margin-bottom: 15px;
+.cardinfo p em b {
+  display: inline-block;
+  font-weight: normal;
+  margin-right: 15px;
+  padding: 2px 5px;
+  background-color: #323232;
+  border-radius: 3px;
+  font-style: normal;
+  color: #777;
+  margin-left: -10px;
 }
-.cardinfo p{margin-bottom: 10px;margin: 0 10px 10px 10px;}
-.actionselector .cardroll{
-display: none;
+.cardinfo p:first-child {
+  margin-bottom: 15px;
+}
+.cardinfo p {
+  margin-bottom: 10px;
+  margin: 0 10px 10px 10px;
+}
+.actionselector .cardroll {
+  display: none;
 }
 .cardinfo p b u {
-text-decoration:none;
+  text-decoration: none;
 }
-.actionselector .cardinfo p b u{
-display: inline-block!important;
+.actionselector .cardinfo p b u {
+  display: inline-block !important;
 }
-.selected p em b{
-background-color: #0d0d0d!important;
-color: #666!important;
+.selected p em b {
+  background-color: #0d0d0d !important;
+  color: #666 !important;
 }
 /*
 .savecontainer.div b{
@@ -1994,8 +2304,12 @@ border-color:#ce832c!important;
 border-color:#6436b1!important;
 }
 */
-#builddisplay.rollcode{display:none}
-.version{color:#bd4c90}
+#builddisplay.rollcode {
+  display: none;
+}
+.version {
+  color: #bd4c90;
+}
 #masterydisplay {
   position: relative;
   top: -30px;
@@ -2003,40 +2317,54 @@ border-color:#6436b1!important;
 .mastery-margin {
   margin: 0 auto 0 auto !important;
 }
-@media (min-width: 692px){
-/*.card{margin: 10px 0 10px 0!important}*/
+@media (min-width: 692px) {
+  /*.card{margin: 10px 0 10px 0!important}*/
 }
-.expertisecontainer div, .savecontainer div, .stat-text{
-color: #eee!important;
+.expertisecontainer div,
+.savecontainer div,
+.stat-text {
+  color: #eee !important;
 }
-.hpcontainer{
-color: #4ba3b5;
+.hpcontainer {
+  color: #4ba3b5;
 }
-.movementcontainer{
-color: #69b54b;
+.movementcontainer {
+  color: #69b54b;
 }
-@media (max-width: 800px){
-.display.masterycircle{
+@media (max-width: 800px) {
+  .display.masterycircle {
     width: 7vw;
     height: 7vw;
-}
-.display > img {
+  }
+  .display > img {
     width: 5vw;
     height: 5vw;
+  }
 }
+.hpcontainer,
+.movementcontainer,
+.rangecontainer {
 }
-.hpcontainer, .movementcontainer, .rangecontainer{}
-.null{display:none}
-.etcinfo{padding: 0 15px;font-style: italic;}
-.rushrc{display:none}
-.rushfinal .rushrc{display:block!important}
+.null {
+  display: none;
+}
+.etcinfo {
+  padding: 0 15px;
+  font-style: italic;
+}
+.rushrc {
+  display: none;
+}
+.rushfinal .rushrc {
+  display: block !important;
+}
 
 /* Mobile styles for action displays */
 @media (max-width: 768px) {
   #freeactiondisplay {
     grid-template-columns: 1fr;
   }
-  
+
   #actionsdisplay {
     grid-template-columns: 1fr;
   }

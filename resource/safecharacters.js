@@ -1,252 +1,252 @@
 const charlist = [
   {
     text: "%C3%80",
-    character: "À"
+    character: "À",
   },
   {
     text: "%C3%81",
-    character: "Á"
+    character: "Á",
   },
   {
     text: "%C3%82",
-    character: "Â"
+    character: "Â",
   },
   {
     text: "%C3%83",
-    character: "Ã"
+    character: "Ã",
   },
   {
     text: "%C3%84",
-    character: "Ä"
+    character: "Ä",
   },
   {
     text: "%C3%85",
-    character: "Å"
+    character: "Å",
   },
   {
     text: "%C3%86",
-    character: "Æ"
+    character: "Æ",
   },
   {
     text: "%C3%87",
-    character: "Ç"
+    character: "Ç",
   },
   {
     text: "%C3%88",
-    character: "È"
+    character: "È",
   },
   {
     text: "%C3%89",
-    character: "É"
+    character: "É",
   },
   {
     text: "%C3%8A",
-    character: "Ê"
+    character: "Ê",
   },
   {
     text: "%C3%8B",
-    character: "Ë"
+    character: "Ë",
   },
   {
     text: "%C3%8C",
-    character: "Ì"
+    character: "Ì",
   },
   {
     text: "%C3%8D",
-    character: "Í"
+    character: "Í",
   },
   {
     text: "%C3%8E",
-    character: "Î"
+    character: "Î",
   },
   {
     text: "%C3%8F",
-    character: "Ï"
+    character: "Ï",
   },
   {
     text: "%C3%90",
-    character: "Ð"
+    character: "Ð",
   },
   {
     text: "%C3%91",
-    character: "Ñ"
+    character: "Ñ",
   },
   {
     text: "%C3%92",
-    character: "Ò"
+    character: "Ò",
   },
   {
     text: "%C3%93",
-    character: "Ó"
+    character: "Ó",
   },
   {
     text: "%C3%94",
-    character: "Ô"
+    character: "Ô",
   },
   {
     text: "%C3%95",
-    character: "Õ"
+    character: "Õ",
   },
   {
     text: "%C3%96",
-    character: "Ö"
+    character: "Ö",
   },
   {
     text: "%C3%98",
-    character: "Ø"
+    character: "Ø",
   },
   {
     text: "%C3%99",
-    character: "Ù"
+    character: "Ù",
   },
   {
     text: "%C3%9A",
-    character: "Ú"
+    character: "Ú",
   },
   {
     text: "%C3%9B",
-    character: "Û"
+    character: "Û",
   },
   {
     text: "%C3%9C",
-    character: "Ü"
+    character: "Ü",
   },
   {
     text: "%C3%9D",
-    character: "Ý"
+    character: "Ý",
   },
   {
     text: "%C3%9E",
-    character: "Þ"
+    character: "Þ",
   },
   {
     text: "%C3%9F",
-    character: "ß"
+    character: "ß",
   },
   {
     text: "%C3%A0",
-    character: "à"
+    character: "à",
   },
   {
     text: "%C3%A1",
-    character: "á"
+    character: "á",
   },
   {
     text: "%C3%A2",
-    character: "â"
+    character: "â",
   },
   {
     text: "%C3%A3",
-    character: "ã"
+    character: "ã",
   },
   {
     text: "%C3%A4",
-    character: "ä"
+    character: "ä",
   },
   {
     text: "%C3%A5",
-    character: "å"
+    character: "å",
   },
   {
     text: "%C3%A6",
-    character: "æ"
+    character: "æ",
   },
   {
     text: "%C3%A7",
-    character: "ç"
+    character: "ç",
   },
   {
     text: "%C3%A8",
-    character: "è"
+    character: "è",
   },
   {
     text: "%C3%A9",
-    character: "é"
+    character: "é",
   },
   {
     text: "%C3%AA",
-    character: "ê"
+    character: "ê",
   },
   {
     text: "%C3%AB",
-    character: "ë"
+    character: "ë",
   },
   {
     text: "%C3%AC",
-    character: "ì"
+    character: "ì",
   },
   {
     text: "%C3%AD",
-    character: "í"
+    character: "í",
   },
   {
     text: "%C3%AE",
-    character: "î"
+    character: "î",
   },
   {
     text: "%C3%AF",
-    character: "ï"
+    character: "ï",
   },
   {
     text: "%C3%B0",
-    character: "ð"
+    character: "ð",
   },
   {
     text: "%C3%B1",
-    character: "ñ"
+    character: "ñ",
   },
   {
     text: "%C3%B2",
-    character: "ò"
+    character: "ò",
   },
   {
     text: "%C3%B3",
-    character: "ó"
+    character: "ó",
   },
   {
     text: "%C3%B4",
-    character: "ô"
+    character: "ô",
   },
   {
     text: "%C3%B5",
-    character: "õ"
+    character: "õ",
   },
   {
     text: "%C3%B6",
-    character: "ö"
+    character: "ö",
   },
   {
     text: "%C3%B8",
-    character: "ø"
+    character: "ø",
   },
   {
     text: "%C3%B9",
-    character: "ù"
+    character: "ù",
   },
   {
     text: "%C3%BA",
-    character: "ú"
+    character: "ú",
   },
   {
     text: "%C3%BB",
-    character: "û"
+    character: "û",
   },
   {
     text: "%C3%BC",
-    character: "ü"
+    character: "ü",
   },
   {
     text: "%C3%BD",
-    character: "ý"
+    character: "ý",
   },
   {
     text: "%C3%BE",
-    character: "þ"
+    character: "þ",
   },
   {
     text: "%C3%BF",
-    character: "ÿ"
-  }
+    character: "ÿ",
+  },
 ];
 
 // Make available globally

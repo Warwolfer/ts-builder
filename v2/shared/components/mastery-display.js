@@ -2,7 +2,6 @@
 // Reusable component for displaying masteries with ranks and visual styling
 
 const MasteryDisplayComponent = {
-  
   // Render mastery grid for selection
   renderMasteryGrid(masteries, selectedMasteries = [], options = {}) {
     const {
@@ -10,42 +9,42 @@ const MasteryDisplayComponent = {
       showRanks = false,
       masteryRanks = [],
       showIcons = true,
-      columns = 'auto',
-      onMasteryClick = null
+      columns = "auto",
+      onMasteryClick = null,
     } = options;
-    
+
     let gridHTML = '<div class="mastery-grid">';
-    
+
     // Group masteries by category
     const categories = this.groupMasteriesByCategory(masteries);
-    
+
     Object.entries(categories).forEach(([category, categoryMasteries]) => {
       gridHTML += `<div class="mastery-category">`;
       gridHTML += `<h3 class="category-title">${this.formatCategoryName(category)}</h3>`;
       gridHTML += `<div class="mastery-cards">`;
-      
+
       categoryMasteries.forEach((mastery, index) => {
         const isSelected = selectedMasteries.includes(mastery.lookup);
         const masteryIndex = selectedMasteries.indexOf(mastery.lookup);
         const rank = masteryIndex >= 0 ? masteryRanks[masteryIndex] : 0;
-        
+
         gridHTML += this.renderMasteryCard(mastery, {
           selected: isSelected,
           selectable,
           showRank: showRanks,
           rank: rank,
           showIcon: showIcons,
-          clickable: selectable
+          clickable: selectable,
         });
       });
-      
+
       gridHTML += `</div></div>`;
     });
-    
-    gridHTML += '</div>';
+
+    gridHTML += "</div>";
     return gridHTML;
   },
-  
+
   // Render individual mastery card
   renderMasteryCard(mastery, options = {}) {
     const {
@@ -55,212 +54,237 @@ const MasteryDisplayComponent = {
       rank = 0,
       showIcon = true,
       clickable = false,
-      size = 'normal' // small, normal, large
+      size = "normal", // small, normal, large
     } = options;
-    
+
     let cardClasses = `mastery-card mastery-${size}`;
-    if (selected) cardClasses += ' selected';
-    if (selectable) cardClasses += ' selectable';
-    if (clickable) cardClasses += ' clickable';
+    if (selected) cardClasses += " selected";
+    if (selectable) cardClasses += " selectable";
+    if (clickable) cardClasses += " clickable";
     if (mastery.role) cardClasses += ` mastery-role-${mastery.role}`;
-    
+
     const roleColors = {
-      'offense': '#dc3545',
-      'defense': '#fd7e14', 
-      'support': '#007bff',
-      'alter': '#6f42c1'
+      offense: "#dc3545",
+      defense: "#fd7e14",
+      support: "#007bff",
+      alter: "#6f42c1",
     };
-    
-    const borderColor = roleColors[mastery.role] || '#47cbdd';
-    
+
+    const borderColor = roleColors[mastery.role] || "#47cbdd";
+
     return `
       <div class="${cardClasses}" 
            data-mastery="${mastery.lookup}"
-           style="border-color: ${selected ? borderColor : 'transparent'}">
-        ${showIcon ? `
+           style="border-color: ${selected ? borderColor : "transparent"}">
+        ${
+          showIcon
+            ? `
           <div class="mastery-icon-container">
             <img src="${mastery.image}" 
                  alt="${mastery.name}" 
                  class="mastery-icon"
                  loading="lazy">
-            ${showRank && rank > 0 ? `
+            ${
+              showRank && rank > 0
+                ? `
               <div class="rank-badge rank-${this.getRankLetter(rank)}">${this.getRankLetter(rank)}</div>
-            ` : ''}
+            `
+                : ""
+            }
           </div>
-        ` : ''}
+        `
+            : ""
+        }
         <div class="mastery-info">
           <div class="mastery-name">${mastery.alt || mastery.name}</div>
-          ${mastery.role ? `<div class="mastery-role">${this.formatRole(mastery.role)}</div>` : ''}
-          ${mastery.secondaryRole ? `<div class="mastery-secondary-role">+${this.formatRole(mastery.secondaryRole)}</div>` : ''}
+          ${mastery.role ? `<div class="mastery-role">${this.formatRole(mastery.role)}</div>` : ""}
+          ${mastery.secondaryRole ? `<div class="mastery-secondary-role">+${this.formatRole(mastery.secondaryRole)}</div>` : ""}
         </div>
-        ${selected ? '<div class="selection-indicator">✓</div>' : ''}
+        ${selected ? '<div class="selection-indicator">✓</div>' : ""}
       </div>
     `;
   },
-  
+
   // Render mastery list (compact view)
   renderMasteryList(masteries, masteryRanks = [], options = {}) {
     const {
       showRanks = true,
       showIcons = true,
       showRoles = true,
-      horizontal = false
+      horizontal = false,
     } = options;
-    
-    const listClass = horizontal ? 'mastery-list horizontal' : 'mastery-list vertical';
-    
+
+    const listClass = horizontal
+      ? "mastery-list horizontal"
+      : "mastery-list vertical";
+
     let listHTML = `<div class="${listClass}">`;
-    
+
     masteries.forEach((mastery, index) => {
       const rank = masteryRanks[index] || 0;
-      
+
       listHTML += `
         <div class="mastery-list-item">
-          ${showIcons ? `
+          ${
+            showIcons
+              ? `
             <div class="mastery-list-icon">
               <img src="${mastery.image}" alt="${mastery.name}" class="mastery-icon-small">
             </div>
-          ` : ''}
+          `
+              : ""
+          }
           <div class="mastery-list-info">
             <div class="mastery-list-name">${mastery.alt || mastery.name}</div>
-            ${showRoles && mastery.role ? `
+            ${
+              showRoles && mastery.role
+                ? `
               <div class="mastery-list-role">${this.formatRole(mastery.role)}</div>
-            ` : ''}
+            `
+                : ""
+            }
           </div>
-          ${showRanks && rank > 0 ? `
+          ${
+            showRanks && rank > 0
+              ? `
             <div class="mastery-list-rank">
               <span class="rank-badge rank-${this.getRankLetter(rank)}">${this.getRankLetter(rank)}</span>
             </div>
-          ` : ''}
+          `
+              : ""
+          }
         </div>
       `;
     });
-    
-    listHTML += '</div>';
+
+    listHTML += "</div>";
     return listHTML;
   },
-  
+
   // Group masteries by category/role
   groupMasteriesByCategory(masteries) {
     const categories = {};
-    
-    masteries.forEach(mastery => {
-      const category = mastery.role || 'Other';
+
+    masteries.forEach((mastery) => {
+      const category = mastery.role || "Other";
       if (!categories[category]) {
         categories[category] = [];
       }
       categories[category].push(mastery);
     });
-    
+
     // Sort categories in preferred order
     const sortedCategories = {};
-    ['offense', 'defense', 'support', 'alter'].forEach(cat => {
+    ["offense", "defense", "support", "alter"].forEach((cat) => {
       if (categories[cat]) {
         sortedCategories[cat] = categories[cat];
       }
     });
-    
+
     // Add any remaining categories
-    Object.keys(categories).forEach(cat => {
+    Object.keys(categories).forEach((cat) => {
       if (!sortedCategories[cat]) {
         sortedCategories[cat] = categories[cat];
       }
     });
-    
+
     return sortedCategories;
   },
-  
+
   // Helper methods
   getRankLetter(rank) {
-    const rankLabels = ['E', 'D', 'C', 'B', 'A', 'S'];
-    return rankLabels[rank] || 'E';
+    const rankLabels = ["E", "D", "C", "B", "A", "S"];
+    return rankLabels[rank] || "E";
   },
-  
+
   formatRole(role) {
     return role.charAt(0).toUpperCase() + role.slice(1);
   },
-  
+
   formatCategoryName(category) {
     const names = {
-      'offense': 'Offensive Masteries',
-      'defense': 'Defensive Masteries', 
-      'support': 'Support Masteries',
-      'alter': 'Alter Masteries'
+      offense: "Offensive Masteries",
+      defense: "Defensive Masteries",
+      support: "Support Masteries",
+      alter: "Alter Masteries",
     };
     return names[category] || category;
   },
-  
+
   // Initialize component with event listeners
   init(containerId, masteries, options = {}) {
     const container = document.getElementById(containerId);
     if (!container) {
-      console.warn('MasteryDisplayComponent: Container not found:', containerId);
+      console.warn(
+        "MasteryDisplayComponent: Container not found:",
+        containerId,
+      );
       return;
     }
-    
+
     const {
       selectedMasteries = [],
       masteryRanks = [],
       onMasterySelect = null,
       selectable = false,
-      mode = 'grid' // grid, list
+      mode = "grid", // grid, list
     } = options;
-    
+
     // Render based on mode
-    let html = '';
-    if (mode === 'grid') {
+    let html = "";
+    if (mode === "grid") {
       html = this.renderMasteryGrid(masteries, selectedMasteries, {
         selectable,
         showRanks: masteryRanks.length > 0,
         masteryRanks,
-        onMasteryClick: onMasterySelect
+        onMasteryClick: onMasterySelect,
       });
     } else {
       html = this.renderMasteryList(masteries, masteryRanks, options);
     }
-    
+
     container.innerHTML = html;
-    
+
     // Setup event listeners if selectable
     if (selectable && onMasterySelect) {
       this.setupEventListeners(container, onMasterySelect);
     }
-    
+
     // Inject styles
     this.injectStyles();
   },
-  
+
   // Setup event listeners for mastery selection
   setupEventListeners(container, onMasterySelect) {
-    const masteryCards = container.querySelectorAll('.mastery-card.clickable');
-    
-    masteryCards.forEach(card => {
-      card.addEventListener('click', (e) => {
+    const masteryCards = container.querySelectorAll(".mastery-card.clickable");
+
+    masteryCards.forEach((card) => {
+      card.addEventListener("click", (e) => {
         const masteryId = card.dataset.mastery;
-        const isSelected = card.classList.contains('selected');
-        
+        const isSelected = card.classList.contains("selected");
+
         if (onMasterySelect) {
           onMasterySelect(masteryId, !isSelected, card);
         }
       });
-      
+
       // Add hover effects
-      card.addEventListener('mouseenter', () => {
-        card.classList.add('hover');
+      card.addEventListener("mouseenter", () => {
+        card.classList.add("hover");
       });
-      
-      card.addEventListener('mouseleave', () => {
-        card.classList.remove('hover');
+
+      card.addEventListener("mouseleave", () => {
+        card.classList.remove("hover");
       });
     });
   },
-  
+
   // Inject component styles
   injectStyles() {
-    if (document.getElementById('mastery-display-component-styles')) return;
-    
-    const style = document.createElement('style');
-    style.id = 'mastery-display-component-styles';
+    if (document.getElementById("mastery-display-component-styles")) return;
+
+    const style = document.createElement("style");
+    style.id = "mastery-display-component-styles";
     style.textContent = `
       /* Mastery Display Component Styles */
       .mastery-grid {
@@ -483,9 +507,9 @@ const MasteryDisplayComponent = {
         border-color: var(--role-color, #47cbdd);
       }
     `;
-    
+
     document.head.appendChild(style);
-  }
+  },
 };
 
 // Make available globally

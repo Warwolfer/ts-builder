@@ -2,9 +2,8 @@
 // Reusable navigation bar for all V2 pages
 
 const NavigationComponent = {
-  
   // Render the main navigation bar
-  render(currentPage = '') {
+  render(currentPage = "") {
     return `
       <nav id="mw-navigation" class="fixed-top">
         <div class="container">
@@ -34,118 +33,125 @@ const NavigationComponent = {
       </nav>
     `;
   },
-  
+
   // Render breadcrumb navigation for multi-step process
   renderBreadcrumbs(steps, currentStep) {
     const breadcrumbSteps = [
-      { id: 'mastery', name: 'Select Masteries', url: 'mastery-selector.html' },
-      { id: 'expertise', name: 'Choose Expertise', url: 'expertise-selector.html' },
-      { id: 'actions', name: 'Pick Actions', url: 'action-selector.html' },
-      { id: 'build', name: 'Build Sheet', url: 'build-sheet.html' }
+      { id: "mastery", name: "Select Masteries", url: "mastery-selector.html" },
+      {
+        id: "expertise",
+        name: "Choose Expertise",
+        url: "expertise-selector.html",
+      },
+      { id: "actions", name: "Pick Actions", url: "action-selector.html" },
+      { id: "build", name: "Build Sheet", url: "build-sheet.html" },
     ];
-    
+
     let breadcrumbHTML = '<div class="breadcrumb-nav">';
-    
+
     breadcrumbSteps.forEach((step, index) => {
       const isActive = step.id === currentStep;
-      const isCompleted = index < breadcrumbSteps.findIndex(s => s.id === currentStep);
-      const isDisabled = index > breadcrumbSteps.findIndex(s => s.id === currentStep);
-      
-      let className = 'breadcrumb-step';
-      if (isActive) className += ' active';
-      if (isCompleted) className += ' completed';
-      if (isDisabled) className += ' disabled';
-      
+      const isCompleted =
+        index < breadcrumbSteps.findIndex((s) => s.id === currentStep);
+      const isDisabled =
+        index > breadcrumbSteps.findIndex((s) => s.id === currentStep);
+
+      let className = "breadcrumb-step";
+      if (isActive) className += " active";
+      if (isCompleted) className += " completed";
+      if (isDisabled) className += " disabled";
+
       breadcrumbHTML += `
         <div class="${className}">
-          ${isDisabled ? 
-            `<span class="step-content">
+          ${
+            isDisabled
+              ? `<span class="step-content">
               <span class="step-number">${index + 1}</span>
               <span class="step-name">${step.name}</span>
-             </span>` :
-            `<a href="${step.url}" class="step-content">
+             </span>`
+              : `<a href="${step.url}" class="step-content">
               <span class="step-number">${index + 1}</span>
               <span class="step-name">${step.name}</span>
              </a>`
           }
-          ${index < breadcrumbSteps.length - 1 ? '<span class="step-arrow">→</span>' : ''}
+          ${index < breadcrumbSteps.length - 1 ? '<span class="step-arrow">→</span>' : ""}
         </div>
       `;
     });
-    
-    breadcrumbHTML += '</div>';
+
+    breadcrumbHTML += "</div>";
     return breadcrumbHTML;
   },
-  
+
   // Initialize navigation component
-  init(containerId = 'navigation', options = {}) {
+  init(containerId = "navigation", options = {}) {
     const {
-      currentPage = '',
+      currentPage = "",
       showBreadcrumbs = false,
-      currentStep = ''
+      currentStep = "",
     } = options;
-    
+
     const container = document.getElementById(containerId);
     if (!container) {
-      console.warn('NavigationComponent: Container not found:', containerId);
+      console.warn("NavigationComponent: Container not found:", containerId);
       return;
     }
-    
+
     let navigationHTML = this.render(currentPage);
-    
+
     if (showBreadcrumbs && currentStep) {
       navigationHTML += this.renderBreadcrumbs([], currentStep);
     }
-    
+
     container.innerHTML = navigationHTML;
-    
+
     // Add event listeners for dropdowns
     this.setupEventListeners();
-    
+
     // Add navigation styles if not present
     this.injectStyles();
   },
-  
+
   // Setup event listeners for interactive elements
   setupEventListeners() {
     // Dropdown functionality
-    const dropdowns = document.querySelectorAll('.dropdown');
-    dropdowns.forEach(dropdown => {
-      const toggle = dropdown.querySelector('.dropdown-toggle');
-      const content = dropdown.querySelector('.dropdown-content');
-      
+    const dropdowns = document.querySelectorAll(".dropdown");
+    dropdowns.forEach((dropdown) => {
+      const toggle = dropdown.querySelector(".dropdown-toggle");
+      const content = dropdown.querySelector(".dropdown-content");
+
       if (toggle && content) {
-        toggle.addEventListener('click', (e) => {
+        toggle.addEventListener("click", (e) => {
           e.preventDefault();
           e.stopPropagation();
-          
+
           // Close other dropdowns
-          dropdowns.forEach(other => {
+          dropdowns.forEach((other) => {
             if (other !== dropdown) {
-              other.classList.remove('active');
+              other.classList.remove("active");
             }
           });
-          
+
           // Toggle current dropdown
-          dropdown.classList.toggle('active');
+          dropdown.classList.toggle("active");
         });
       }
     });
-    
+
     // Close dropdowns when clicking outside
-    document.addEventListener('click', () => {
-      dropdowns.forEach(dropdown => {
-        dropdown.classList.remove('active');
+    document.addEventListener("click", () => {
+      dropdowns.forEach((dropdown) => {
+        dropdown.classList.remove("active");
       });
     });
   },
-  
+
   // Inject component styles
   injectStyles() {
-    if (document.getElementById('navigation-component-styles')) return;
-    
-    const style = document.createElement('style');
-    style.id = 'navigation-component-styles';
+    if (document.getElementById("navigation-component-styles")) return;
+
+    const style = document.createElement("style");
+    style.id = "navigation-component-styles";
     style.textContent = `
       /* Navigation Component Styles */
       .nav-center {
@@ -338,18 +344,18 @@ const NavigationComponent = {
         }
       }
     `;
-    
+
     document.head.appendChild(style);
-  }
+  },
 };
 
 // Auto-initialize if container exists
-document.addEventListener('DOMContentLoaded', () => {
-  const navContainer = document.getElementById('navigation');
+document.addEventListener("DOMContentLoaded", () => {
+  const navContainer = document.getElementById("navigation");
   if (navContainer) {
     // Try to detect current page from URL
-    const currentPage = window.location.pathname.split('/').pop();
-    NavigationComponent.init('navigation', { currentPage });
+    const currentPage = window.location.pathname.split("/").pop();
+    NavigationComponent.init("navigation", { currentPage });
   }
 });
 

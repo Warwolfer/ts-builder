@@ -40,8 +40,12 @@
 }
 
 @keyframes spin-ring {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Secondary Spinner - Pulsing Dots */
@@ -59,12 +63,20 @@
   animation: pulse-dots 1.4s ease-in-out infinite both;
 }
 
-.spinner-dots .dot:nth-child(1) { animation-delay: -0.32s; }
-.spinner-dots .dot:nth-child(2) { animation-delay: -0.16s; }
-.spinner-dots .dot:nth-child(3) { animation-delay: 0s; }
+.spinner-dots .dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+.spinner-dots .dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+.spinner-dots .dot:nth-child(3) {
+  animation-delay: 0s;
+}
 
 @keyframes pulse-dots {
-  0%, 80%, 100% {
+  0%,
+  80%,
+  100% {
     transform: scale(0.6);
     opacity: 0.5;
   }
@@ -83,7 +95,7 @@
 
 .spinner-mastery::before,
 .spinner-mastery::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 100%;
   height: 100%;
@@ -105,8 +117,12 @@
 }
 
 @keyframes spin-mastery {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Data Loading Spinner - For API calls */
@@ -141,7 +157,7 @@
 }
 
 .spinner-progress::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -153,8 +169,12 @@
 }
 
 @keyframes spin-progress {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Fade-in animation for loading states */
@@ -179,7 +199,7 @@
 }
 
 .loading-overlay::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -200,14 +220,32 @@
 }
 
 /* Utility classes */
-.loading-small .spinner-ring { width: 24px; height: 24px; border-width: 3px; }
-.loading-large .spinner-ring { width: 60px; height: 60px; border-width: 6px; }
+.loading-small .spinner-ring {
+  width: 24px;
+  height: 24px;
+  border-width: 3px;
+}
+.loading-large .spinner-ring {
+  width: 60px;
+  height: 60px;
+  border-width: 6px;
+}
 
-.loading-primary { color: #47cbdd; }
-.loading-secondary { color: #a9357b; }
-.loading-success { color: #28a745; }
-.loading-warning { color: #ffc107; }
-.loading-error { color: #dc3545; }
+.loading-primary {
+  color: #47cbdd;
+}
+.loading-secondary {
+  color: #a9357b;
+}
+.loading-success {
+  color: #28a745;
+}
+.loading-warning {
+  color: #ffc107;
+}
+.loading-error {
+  color: #dc3545;
+}
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
@@ -215,16 +253,16 @@
     padding: 30px 15px;
     min-height: 150px;
   }
-  
+
   .loading-text {
     font-size: 14px;
   }
-  
+
   .spinner-mastery {
     width: 40px;
     height: 40px;
   }
-  
+
   .spinner-progress {
     width: 50px;
     height: 50px;
@@ -248,7 +286,7 @@
   .spinner-progress {
     animation-duration: 2s;
   }
-  
+
   .spinner-dots .dot {
     animation-duration: 2s;
   }
