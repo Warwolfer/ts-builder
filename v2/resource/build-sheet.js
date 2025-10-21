@@ -537,6 +537,18 @@ class BuildSheetV2 {
           if (swiftBonus > 0) {
             movementBreakdown.push(`Swift: ${swiftBonus}`);
           }
+        } else if (
+          action.bonuses.movement === "rank-based" &&
+          actionName === "acceleration"
+        ) {
+          const accelerationRank = this.calculations.getAlterMasteryRank(currentState);
+          let accelerationBonus = 0;
+          if (accelerationRank >= 1) accelerationBonus += 2;
+          if (accelerationRank >= 3) accelerationBonus += 1;
+          if (accelerationRank >= 5) accelerationBonus += 1;
+          if (accelerationBonus > 0) {
+            movementBreakdown.push(`Acceleration (Alter): ${accelerationBonus}`);
+          }
         } else if (typeof action.bonuses.movement === "number") {
           movementBreakdown.push(`${action.name}: ${action.bonuses.movement}`);
         }

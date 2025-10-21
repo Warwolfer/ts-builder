@@ -1289,6 +1289,7 @@ const actionlistV2 = [
     category: "alter",
     pair: "O1",
     type: "Alter - Dynamism",
+    bonuses: { movement: "rank-based" },
   },
   {
     id: 43,

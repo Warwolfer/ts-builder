@@ -137,6 +137,15 @@ const CharacterCalculations = {
           );
           if (swiftMasteryRank >= 1) movement += 1; // D rank: +1 movement
           if (swiftMasteryRank >= 5) movement += 1; // S rank: +1 additional (total +2)
+        } else if (
+          action.bonuses.movement === "rank-based" &&
+          actionName === "acceleration"
+        ) {
+          // Acceleration passive: +2 movement at D rank, +3 at B rank, +4 at S rank
+          const accelerationRank = this.getAlterMasteryRank(state);
+          if (accelerationRank >= 1) movement += 2; // D rank: +2 movement
+          if (accelerationRank >= 3) movement += 1; // B rank: +1 additional (total +3)
+          if (accelerationRank >= 5) movement += 1; // S rank: +1 additional (total +4)
         } else if (typeof action.bonuses.movement === "number") {
           movement += action.bonuses.movement;
         }
