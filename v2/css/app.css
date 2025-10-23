@@ -2453,6 +2453,66 @@ border-color:#6436b1!important;
   display: block !important;
 }
 
+/* Filter tab styles */
+.action-filters {
+  display: flex;
+  gap: 0;
+  padding-top: 24px;
+  border-bottom: 2px solid #333;
+  margin-bottom: 16px;
+}
+
+.filter-tab {
+  background-color: #1a1a1a;
+  color: #888;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  position: relative;
+  top: 2px;
+}
+
+.filter-tab:hover {
+  background-color: #222;
+  color: #aaa;
+}
+
+.filter-tab.active {
+  background-color: #272727;
+  color: white;
+  border-bottom-color: #a9357b;
+}
+
+.filter-tab[data-filter="all"].active {
+  border-bottom-color: #666;
+}
+
+.filter-tab[data-filter="offense"].active {
+  border-bottom-color: #ef4444;
+}
+
+.filter-tab[data-filter="defense"].active {
+  border-bottom-color: #f97316;
+}
+
+.filter-tab[data-filter="support"].active {
+  border-bottom-color: #3b82f6;
+}
+
+.filter-tab[data-filter="alter"].active {
+  border-bottom-color: #8b5cf6;
+}
+
+/* Filter hidden class */
+.filter-hidden {
+  display: none !important;
+}
+
 /* Mobile styles for action displays */
 @media (max-width: 768px) {
   #freeactiondisplay {

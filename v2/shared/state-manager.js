@@ -114,25 +114,25 @@ class BuildState {
     const updates = {};
 
     // Basic character info
-    if (characterData.character_name) {
-      updates.characterName = characterData.character_name;
+    if (characterData.username) {
+      updates.characterName = characterData.username;
     }
 
-    if (characterData.race) {
-      updates.characterRace = characterData.race;
+    if (characterData.Race) {
+      updates.characterRace = characterData.Race;
     }
 
-    if (characterData.title) {
-      updates.characterTitle = characterData.title;
+    if (characterData.custom_title) {
+      updates.characterTitle = characterData.custom_title;
     }
 
     // Profile images
-    if (characterData.profile_banner_url) {
-      updates.profileBannerUrl = characterData.profile_banner_url;
+    if (characterData.banner_urls?.l) {
+      updates.profileBannerUrl = characterData.banner_urls.l;
     }
 
-    if (characterData.avatar_url) {
-      updates.avatarUrl = characterData.avatar_url;
+    if (characterData.avatar_urls?.m) {
+      updates.avatarUrl = characterData.avatar_urls.m;
     }
 
     // Check for New Game Plus status
@@ -143,6 +143,72 @@ class BuildState {
       // Set ng to true (1) if secondary_user_group_ids contains ID 30
       updates.ng = characterData.secondary_user_group_ids.includes(30) ? 1 : 0;
     }
+
+    // Parse character masteries for V2 system
+    const chosenMasteries = [];
+    const chosenMasteriesRanks = [];
+
+    if (characterData.masteries && characterData.masteries.length > 0) {
+      for (let i = 0; i < characterData.masteries.length; i++) {
+        // Convert mastery name to V2 format (lowercase with hyphens)
+        const masteryName = characterData.masteries[i].Mastery.toLowerCase().replace(/\s+/g, '-');
+        const rank = characterData.masteries[i].Rank;
+
+        chosenMasteries.push(masteryName);
+
+        // Convert rank letter to number (0=E, 1=D, 2=C, 3=B, 4=A, 5=S)
+        const rankMap = {'E': 0, 'D': 1, 'C': 2, 'B': 3, 'A': 4, 'S': 5};
+        chosenMasteriesRanks.push(rankMap[rank] || 0);
+      }
+      updates.chosenMasteries = chosenMasteries;
+      updates.chosenMasteriesRanks = chosenMasteriesRanks;
+    }
+
+    // Parse expertise for V2 system
+    const chosenExpertise = [];
+    const chosenExpertiseRanks = [];
+    const rankMap = {'E': 0, 'D': 1, 'C': 2, 'B': 3, 'A': 4, 'S': 5};
+
+    if (characterData.expertises && characterData.expertises.length > 0) {
+      for (let i = 0; i < characterData.expertises.length; i++) {
+        // Convert expertise name to V2 format (lowercase with hyphens)
+        const expertiseName = characterData.expertises[i].Expertise.toLowerCase().replace(/\s+/g, '-');
+        const rank = characterData.expertises[i].Rank;
+
+        chosenExpertise.push(expertiseName);
+        chosenExpertiseRanks.push(rankMap[rank] || 0);
+      }
+      updates.chosenExpertise = chosenExpertise;
+      updates.chosenExpertiseRanks = chosenExpertiseRanks;
+    }
+
+    // Parse armor and accessory types from equipment
+    if (characterData.equipment && characterData.equipment.length >= 2) {
+      // Parse armor type
+      const armorKey = Object.keys(characterData.equipment[1])[0];
+      if (armorKey === 'Heavy Armor') {
+        updates.armorType = 'heavy';
+      } else if (armorKey === 'Medium Armor') {
+        updates.armorType = 'medium';
+      } else if (armorKey === 'Light Armor') {
+        updates.armorType = 'light';
+      }
+
+      // Parse accessory type if available
+      if (characterData.equipment.length >= 3) {
+        const accessoryKey = Object.keys(characterData.equipment[2])[0];
+        if (accessoryKey === 'Cloak' || accessoryKey === 'Combat Accessory') {
+          updates.accessoryType = 'cloak';
+        } else if (accessoryKey === 'Charm' || accessoryKey === 'Social Accessory') {
+          updates.accessoryType = 'charm';
+        } else if (accessoryKey === 'Band' || accessoryKey === 'Exploration Accessory') {
+          updates.accessoryType = 'band';
+        }
+      }
+    }
+
+    // Clear chosen actions since masteries/expertise changed
+    updates.chosenActions = [];
 
     // Update state with character data
     this.updateState(updates);

@@ -2706,98 +2706,49 @@ function toggleReviveStabilize(buttonElement) {
 // Function to toggle action filters
 function toggleActionFilter(category) {
   const filterButton = event.target;
-  filterButton.classList.toggle("active");
 
-  // Refresh the display based on all active filters
-  refreshAllActionFilters();
-}
+  // Remove active class from all tabs
+  document.querySelectorAll(".filter-tab").forEach((tab) => {
+    tab.classList.remove("active");
+  });
 
-// Function to toggle action use filters
-function toggleActionUseFilter(useType) {
-  const filterButton = event.target;
-  filterButton.classList.toggle("active");
+  // Add active class to clicked tab
+  filterButton.classList.add("active");
 
-  // Refresh the display based on all active filters
-  refreshActionsByUseFilters();
-}
-
-function refreshActionsByUseFilters() {
+  // Refresh the display based on selected filter
   refreshAllActionFilters();
 }
 
 function refreshAllActionFilters() {
-  // Get all active role filters
-  const activeRoleFilters = [];
-  const roleFilterButtons = document.querySelectorAll(
-    ".filter-pill[data-filter]",
-  );
-
-  roleFilterButtons.forEach((button) => {
-    const filterType = button.getAttribute("data-filter");
-    if (
-      ["offense", "defense", "support", "alter"].includes(filterType) &&
-      button.classList.contains("active")
-    ) {
-      activeRoleFilters.push(filterType);
-    }
-  });
-
-  // Get all active use filters
-  const activeUseFilters = [];
-  roleFilterButtons.forEach((button) => {
-    const filterType = button.getAttribute("data-filter");
-    if (
-      ["main", "bonus", "free", "passive", "special"].includes(filterType) &&
-      button.classList.contains("active")
-    ) {
-      activeUseFilters.push(filterType);
-    }
-  });
+  // Get the active filter (only one can be active now)
+  const activeTab = document.querySelector(".filter-tab.active");
+  const activeFilter = activeTab
+    ? activeTab.getAttribute("data-filter")
+    : "all";
 
   const actions = buildSheetInstance.dataLoader.cache.actions;
 
-  // Show/hide actions based on combined filter logic
+  // Show/hide actions based on selected filter
   actions.forEach((action) => {
     const actionCard = document.getElementById(action.lookup + "final");
     if (actionCard) {
-      let shouldShow = true;
+      let shouldShow = false;
 
-      // Role filter check (OR within roles)
-      if (activeRoleFilters.length > 0) {
-        shouldShow =
-          shouldShow &&
-          action.category &&
-          activeRoleFilters.includes(action.category);
-      }
-
-      // Use filter check (OR within uses)
-      if (activeUseFilters.length > 0) {
-        shouldShow =
-          shouldShow &&
-          action.use &&
-          action.use.some((useType) => activeUseFilters.includes(useType));
+      // Filter logic
+      if (activeFilter === "all") {
+        shouldShow = true;
+      } else {
+        shouldShow = action.category === activeFilter;
       }
 
       actionCard.style.display = shouldShow ? "flex" : "none";
     }
   });
 
-  // Handle basic attack card (considered 'offense' category and 'main' use type)
+  // Handle basic attack card (always visible regardless of filter)
   const attackCard = document.querySelector(".attackfinal");
   if (attackCard) {
-    let shouldShow = true;
-
-    // Role filter check for basic attack (offense)
-    if (activeRoleFilters.length > 0) {
-      shouldShow = shouldShow && activeRoleFilters.includes("offense");
-    }
-
-    // Use filter check for basic attack (main)
-    if (activeUseFilters.length > 0) {
-      shouldShow = shouldShow && activeUseFilters.includes("main");
-    }
-
-    attackCard.style.display = shouldShow ? "flex" : "none";
+    attackCard.style.display = "flex";
   }
 }
 

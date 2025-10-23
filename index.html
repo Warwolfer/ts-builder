@@ -24,17 +24,21 @@
       margin-top: 100px;
       color: white;
     }
+
     .loading {
       font-size: 18px;
       margin: 20px 0;
     }
+
     .redirect-link {
       color: #47cbdd;
       text-decoration: none;
     }
+
     .redirect-link:hover {
       text-decoration: underline;
     }
+
     .error {
       color: #ff6b6b;
       margin: 20px;
@@ -46,200 +50,200 @@
   </style>
 </head>
 <body>
-  <h1>TerraSphere Build Editor</h1>
-  <div id="status">Loading...</div>
+<h1>TerraSphere Build Editor</h1>
+<div id="status">Loading...</div>
 
-  <script>
-    function clearPreviousState() {
-      try {
-        if (window.buildState) {
-          window.buildState.reset();
-        } else {
-          const keys = Object.keys(localStorage);
-          keys.forEach(key => {
-            if (key.startsWith('terrasphere-build-')) {
-              localStorage.removeItem(key);
-            }
-          });
-        }
-      } catch (error) {
-        console.error('Failed to clear previous state:', error);
-      }
-    }
-
-    async function handleBuildCode() {
-      const hash = window.location.hash;
-
-      if (hash.includes('#load.')) {
-        const charId = hash.slice(6);
-        await loadCharacterProfile(charId);
-      } else if (hash.includes('#import.')) {
-        const buildCode = hash.slice(8);
-        await importBuildCode(buildCode);
-      } else if (hash.includes('#sample.')) {
-        const buildCode = hash.slice(8);
-        await importBuildCode(buildCode);
-      } else if (hash.includes('#compact-import.')) {
-        const buildCode = hash.slice(16);
-        await importBuildCode(buildCode, true);
-      } else if (hash.includes('#compact.')) {
-        const buildCode = hash.slice(9);
-        await importBuildCode(buildCode, true);
+<script>
+  function clearPreviousState() {
+    try {
+      if (window.buildState) {
+        window.buildState.reset();
       } else {
-        clearPreviousState();
-        redirectToMasterySelector();
-      }
-    }
-
-    async function loadCharacterProfile(charId) {
-      try {
-        document.getElementById('status').innerHTML = 'Loading character profile...';
-
-        const response = await fetch(`https://terrarp.com/api/terrasphere-charactermanager/?id=${charId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Xf-Api-Key': 'nY3YHH7VMoIIVj8WgvmFfBG2tLeWyzUj'
+        const keys = Object.keys(localStorage);
+        keys.forEach(key => {
+          if (key.startsWith('terrasphere-build-')) {
+            localStorage.removeItem(key);
           }
         });
+      }
+    } catch (error) {
+      console.error('Failed to clear previous state:', error);
+    }
+  }
 
-        // const response = await fetch(`http://localhost:3001/api/terrarp-user/${charId}`, {
-        //   method: 'GET',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //     'Xf-Api-Key': 'nY3YHH7VMoIIVj8WgvmFfBG2tLeWyzUj'
-        //   }
-        // });
+  async function handleBuildCode() {
+    const hash = window.location.hash;
 
+    if (hash.includes('#load.')) {
+      const charId = hash.slice(6);
+      await loadCharacterProfile(charId);
+    } else if (hash.includes('#import.')) {
+      const buildCode = hash.slice(8);
+      await importBuildCode(buildCode);
+    } else if (hash.includes('#sample.')) {
+      const buildCode = hash.slice(8);
+      await importBuildCode(buildCode);
+    } else if (hash.includes('#compact-import.')) {
+      const buildCode = hash.slice(16);
+      await importBuildCode(buildCode, true);
+    } else if (hash.includes('#compact.')) {
+      const buildCode = hash.slice(9);
+      await importBuildCode(buildCode, true);
+    } else {
+      clearPreviousState();
+      redirectToMasterySelector();
+    }
+  }
 
-        if (!response.ok) {
-          throw new Error('Failed to load character data');
+  async function loadCharacterProfile(charId) {
+    try {
+      document.getElementById('status').innerHTML = 'Loading character profile...';
+
+      // const response = await fetch(`https://terrarp.com/api/terrasphere-charactermanager/?id=${charId}`, {
+      //   method: 'GET',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Xf-Api-Key': 'nY3YHH7VMoIIVj8WgvmFfBG2tLeWyzUj'
+      //   }
+      // });
+
+      const response = await fetch(`http://localhost:3001/api/terrarp-user/${charId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Xf-Api-Key': 'nY3YHH7VMoIIVj8WgvmFfBG2tLeWyzUj'
         }
+      });
 
-        const characterData = await response.json();
 
-        // Parse character masteries
-        const chosenMasteries = [];
-        const chosenMasteriesRanks = [];
+      if (!response.ok) {
+        throw new Error('Failed to load character data');
+      }
 
-        if (characterData.masteries && characterData.masteries.length > 0) {
-          for (let i = 0; i < characterData.masteries.length; i++) {
-            const masteryName = characterData.masteries[i].Mastery.toLowerCase().replace(' ', '-');
-            const rank = characterData.masteries[i].Rank;
+      const characterData = await response.json();
 
-            chosenMasteries.push(masteryName);
+      // Parse character masteries
+      const chosenMasteries = [];
+      const chosenMasteriesRanks = [];
 
-            const rankMap = {'E': 0, 'D': 1, 'C': 2, 'B': 3, 'A': 4, 'S': 5};
-            chosenMasteriesRanks.push(rankMap[rank] || 0);
-          }
-        }
+      if (characterData.masteries && characterData.masteries.length > 0) {
+        for (let i = 0; i < characterData.masteries.length; i++) {
+          const masteryName = characterData.masteries[i].Mastery.toLowerCase().replace(' ', '-');
+          const rank = characterData.masteries[i].Rank;
 
-        // Parse equipment
-        let weaponRank = 0;
-        let armorRank = 0;
-        let armorType = 'medium';
-
-        if (characterData.equipment && characterData.equipment.length >= 2) {
-          const weaponRankLetter = Object.values(characterData.equipment[0]).toString();
-          const armorRankLetter = Object.values(characterData.equipment[1]).toString();
-
-          const armorKey = Object.keys(characterData.equipment[1])[0];
-          if (armorKey === 'Heavy Armor') {
-            armorType = 'heavy';
-          } else if (armorKey === 'Medium Armor') {
-            armorType = 'medium';
-          } else if (armorKey === 'Light Armor') {
-            armorType = 'light';
-          }
+          chosenMasteries.push(masteryName);
 
           const rankMap = {'E': 0, 'D': 1, 'C': 2, 'B': 3, 'A': 4, 'S': 5};
-          weaponRank = rankMap[weaponRankLetter] || 0;
-          armorRank = rankMap[armorRankLetter] || 0;
+          chosenMasteriesRanks.push(rankMap[rank] || 0);
+        }
+      }
+
+      // Parse equipment
+      let weaponRank = 0;
+      let armorRank = 0;
+      let armorType = 'medium';
+
+      if (characterData.equipment && characterData.equipment.length >= 2) {
+        const weaponRankLetter = Object.values(characterData.equipment[0]).toString();
+        const armorRankLetter = Object.values(characterData.equipment[1]).toString();
+
+        const armorKey = Object.keys(characterData.equipment[1])[0];
+        if (armorKey === 'Heavy Armor') {
+          armorType = 'heavy';
+        } else if (armorKey === 'Medium Armor') {
+          armorType = 'medium';
+        } else if (armorKey === 'Light Armor') {
+          armorType = 'light';
         }
 
-        // Update build state
-        const state = window.buildState;
-        state.updateState({
-          characterName: characterData.username,
-          characterTitle: characterData.custom_title || '',
-          characterRace: characterData.Race || '',
-          profileImageUrl: characterData.avatar_urls?.m || '',
-          profileBannerUrl: characterData.banner_urls?.l || '',
-          chosenMasteries: chosenMasteries,
-          chosenMasteriesRanks: chosenMasteriesRanks,
-          weaponRank: weaponRank,
-          armorRank: armorRank,
-          armorType: armorType,
-          chosenActions: []
-        });
-
-        document.getElementById('status').innerHTML = 'Character loaded! Redirecting to action selector...';
-        setTimeout(() => {
-          window.location.href = 'action-selector.html';
-        }, 1500);
-
-      } catch (error) {
-        console.error('Failed to load character profile:', error);
-        showError('Failed to load character profile. Redirecting to mastery selector...');
-        setTimeout(redirectToMasterySelector, 3000);
+        const rankMap = {'E': 0, 'D': 1, 'C': 2, 'B': 3, 'A': 4, 'S': 5};
+        weaponRank = rankMap[weaponRankLetter] || 0;
+        armorRank = rankMap[armorRankLetter] || 0;
       }
-    }
 
-    async function importBuildCode(buildCode, isCompact = false) {
-      try {
-        document.getElementById('status').innerHTML = 'Loading build...';
+      // Update build state
+      const state = window.buildState;
+      state.updateState({
+        characterName: characterData.username,
+        characterTitle: characterData.custom_title || '',
+        characterRace: characterData.Race || '',
+        profileImageUrl: characterData.avatar_urls?.m || '',
+        profileBannerUrl: characterData.banner_urls?.l || '',
+        chosenMasteries: chosenMasteries,
+        chosenMasteriesRanks: chosenMasteriesRanks,
+        weaponRank: weaponRank,
+        armorRank: armorRank,
+        armorType: armorType,
+        chosenActions: []
+      });
 
-        const buildEncoder = window.BuildEncoder;
-        const result = isCompact ? 
-          buildEncoder.decodeCompactBuildCode(buildCode) : 
-          buildEncoder.decodeBuildCode(buildCode);
-
-        if (!result.success) {
-          throw new Error(result.error || 'Invalid build code');
-        }
-
-        const decodedBuild = result.data;
-
-        const state = window.buildState;
-        state.updateState(decodedBuild);
-
-        document.getElementById('status').innerHTML = 'Build loaded! Redirecting to build display...';
-        setTimeout(() => {
-          window.location.href = 'build-sheet.html';
-        }, 1500);
-
-      } catch (error) {
-        console.error('Failed to import build:', error);
-        showError('Failed to import build code. Redirecting to mastery selector...');
-        setTimeout(redirectToMasterySelector, 3000);
-      }
-    }
-
-    function redirectToMasterySelector() {
-      document.getElementById('status').innerHTML = 'Redirecting to build editor...';
+      document.getElementById('status').innerHTML = 'Character loaded! Redirecting to action selector...';
       setTimeout(() => {
-        window.location.href = 'mastery-selector.html';
-      }, 1000);
-    }
+        window.location.href = 'action-selector.html';
+      }, 1500);
 
-    function showError(message) {
-      document.getElementById('status').innerHTML = `
+    } catch (error) {
+      console.error('Failed to load character profile:', error);
+      showError('Failed to load character profile. Redirecting to mastery selector...');
+      setTimeout(redirectToMasterySelector, 3000);
+    }
+  }
+
+  async function importBuildCode(buildCode, isCompact = false) {
+    try {
+      document.getElementById('status').innerHTML = 'Loading build...';
+
+      const buildEncoder = window.BuildEncoder;
+      const result = isCompact ?
+        buildEncoder.decodeCompactBuildCode(buildCode) :
+        buildEncoder.decodeBuildCode(buildCode);
+
+      if (!result.success) {
+        throw new Error(result.error || 'Invalid build code');
+      }
+
+      const decodedBuild = result.data;
+
+      const state = window.buildState;
+      state.updateState(decodedBuild);
+
+      document.getElementById('status').innerHTML = 'Build loaded! Redirecting to build display...';
+      setTimeout(() => {
+        window.location.href = 'build-sheet.html';
+      }, 1500);
+
+    } catch (error) {
+      console.error('Failed to import build:', error);
+      showError('Failed to import build code. Redirecting to mastery selector...');
+      setTimeout(redirectToMasterySelector, 3000);
+    }
+  }
+
+  function redirectToMasterySelector() {
+    document.getElementById('status').innerHTML = 'Redirecting to build editor...';
+    setTimeout(() => {
+      window.location.href = 'mastery-selector.html';
+    }, 1000);
+  }
+
+  function showError(message) {
+    document.getElementById('status').innerHTML = `
         <div class="error">
           ${message}<br><br>
           <a href="mastery-selector.html" class="redirect-link">Go to Build Editor</a>
         </div>
       `;
-    }
+  }
 
-    // Page initialization
-    window.onload = function() {
-      handleBuildCode();
-    };
+  // Page initialization
+  window.onload = function () {
+    handleBuildCode();
+  };
 
-    // Hash change handling
-    window.addEventListener('hashchange', function() {
-      handleBuildCode();
-    });
-  </script>
+  // Hash change handling
+  window.addEventListener('hashchange', function () {
+    handleBuildCode();
+  });
+</script>
 </body>
 </html>
