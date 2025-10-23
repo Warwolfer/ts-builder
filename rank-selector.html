@@ -15,9 +15,11 @@
   <script src="shared/data-loader.js"></script>
   <script src="shared/calculations.js"></script>
   <script src="shared/build-encoder.js"></script>
+  <script src="shared/loading-manager.js"></script>
   
   <!-- Data files -->
   <script src="resource/masteries.js"></script>
+  <script src="resource/expertise.js"></script>
   <script src="resource/actions.js"></script>
   <script src="resource/safecharacters.js"></script>
   <script src="resource/armor-abilities.js"></script>
@@ -31,7 +33,7 @@
       </a>
       <div class="nav-left">
         <div class="link"><a href="https://terrarp.com/build/index.html" style="color:#47cbdd">Build Planner</a></div>
-        <div class="link"><a href="https://terrarp.com/build/v2/index.html" style="color:#47cbdd">V2 Beta</a></div>
+        
         <div class="link"><a href="https://terrarp.com/index.php">Forums</a></div>
         <div class="link"><a href="https://terrarp.com/wiki/Main_Page">Wiki</a></div>
         <div class="dropdown">
@@ -52,10 +54,10 @@
       <div class="charimg2 left"><img id="pfp2"></div>
       <div class="charcontainer left">
         <h1 class="nameheader header-info--nameheader">
-          <span class="charname">Step 2: Assign Ranks</span>
-        </h1><br>
+          <span class="charname">Step 3: Assign Ranks</span>
+        </h1>
         <h2 class="charinfo">
-          <span class="chartitle">Assign ranks to your selected masteries and equipment</span>
+          <span class="chartitle">Assign ranks to your selected masteries, expertise, and equipment</span>
           <span class="charrace"></span>
         </h2>
       </div>
@@ -105,13 +107,42 @@
               <option value="5">S</option>
             </select>
           </div>
+          <div class="rankcontainer">
+            <div class="masterycircle">
+              <img id="accessoryimage" src="https://terrarp.com/db/tool/armor-medium.png">
+            </div>
+            <span id="accessory-type-label">Accessory</span>
+            <select id="accessoryrank" autocomplete="off" class="droplist">
+              <option value="0">E</option>
+              <option value="1">D</option>
+              <option value="2">C</option>
+              <option value="3">B</option>
+              <option value="4">A</option>
+              <option value="5">S</option>
+            </select>
+          </div>
         </div>
       </div>
+
 
       <!-- Mastery Ranks -->
       <div class="masterycategory">
         <h1 class="selectorheader">Masteries</h1>
+        <!-- Rank Availability Display -->
+        <div class="masterycategory">
+          <div id="rank-availability-main" style="margin-bottom: 20px;">
+            <!-- rank caps display will be inserted here -->
+          </div>
+        </div>
         <div class="rankpick" id="masteryrankpick">
+          <!-- Will be populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Expertise Ranks -->
+      <div class="masterycategory">
+        <h1 class="selectorheader">Expertise</h1>
+        <div class="rankpick" id="expertiserankpick">
           <!-- Will be populated by JavaScript -->
         </div>
       </div>
@@ -122,6 +153,27 @@
           <div class="form-group">
             <label for="character-name">Character Name:</label>
             <input type="text" id="character-name" placeholder="Enter character name" maxlength="50">
+          </div>
+          <div class="form-group">
+            <label for="character-title">Title:</label>
+            <input type="text" id="character-title" placeholder="Enter character title" maxlength="50">
+          </div>
+          <div class="form-group">
+            <label for="character-race">Race:</label>
+            <input type="text" id="character-race" placeholder="Enter character race" maxlength="30">
+          </div>
+          <div class="form-group">
+            <label for="background-image-url">Background Image URL:</label>
+            <input type="url" id="background-image-url" placeholder="https://example.com/background.jpg">
+          </div>
+          <div class="form-group">
+            <label for="avatar-url">Avatar URL:</label>
+            <input type="url" id="avatar-url" placeholder="https://example.com/avatar.jpg">
+          </div>
+          <div class="form-group checkbox-group">
+            <label for="new-game-plus">
+              New Game + <input type="checkbox" id="new-game-plus">
+            </label>
           </div>
         </div>
       </div>
@@ -150,16 +202,42 @@
           medium: 'https://terrarp.com/db/tool/armor-medium.png',
           light: 'https://terrarp.com/db/tool/armor-light.png'
         };
+
+        // Using armor images as placeholders for accessories
+        this.accessoryImages = {
+          combat: 'https://terrarp.com/db/tool/armor-heavy.png',
+          utility: 'https://terrarp.com/db/tool/armor-medium.png',
+          magic: 'https://terrarp.com/db/tool/armor-light.png'
+        };
         
         this.rankLabels = ['E', 'D', 'C', 'B', 'A', 'S'];
         
         this.init();
       }
       
+      loadMasteries() {
+        // Load masteries data and cache it in DataLoader format
+        if (window.masteries) {
+          this.dataLoader.cache.masteries = window.masteries;
+        } else {
+          throw new Error('masteries not found');
+        }
+      }
+      
+      loadExpertise() {
+        // Load expertise data and cache it in DataLoader format
+        if (window.expertise) {
+          this.dataLoader.cache.expertise = window.expertise;
+        } else {
+          throw new Error('expertise not found');
+        }
+      }
+      
       init() {
         try {
-          // Load mastery data
-          this.dataLoader.loadMasteries();
+          // Load mastery and expertise data - use mastery data
+          this.loadMasteries();
+          this.loadExpertise();
           
           // Load state from URL if present
           this.state.loadFromURL();
@@ -168,7 +246,7 @@
           const currentState = this.state.getState();
           
           if (!this.state.isValidForRankSelection()) {
-            alert('Please complete mastery selection first. No masteries selected.');
+            alert('Please complete mastery and expertise selection first.');
             window.location.href = this.state.generateURL('mastery-selector.html');
             return;
           }
@@ -192,22 +270,25 @@
       
       renderRankSelectors() {
         const currentState = this.state.getState();
-        const { chosenMasteries, armorType } = currentState;
+        const { chosenMasteries, chosenExpertise, armorType, accessoryType = null } = currentState;
         
         // Update armor image based on selected type
         this.updateArmorDisplay(armorType);
         
+        // Update accessory image based on selected type
+        this.updateAccessoryDisplay(accessoryType);
+        
         // Render mastery rank selectors
         const masteries = this.dataLoader.getMasteriesByCategory();
-        const container = this.domUtils.getElementById('masteryrankpick');
+        const masteryContainer = this.domUtils.getElementById('masteryrankpick');
         
-        let html = '';
+        let masteryHtml = '';
         
         chosenMasteries.forEach((masteryId, index) => {
           const mastery = masteries.find(m => m.lookup === masteryId);
           
           if (mastery) {
-            const masteryHtml = `
+            const html = `
               <div class="rankcontainer">
                 <div class="masterycircle" style="background-color: ${mastery.color}">
                   <img src="${mastery.image}">
@@ -223,10 +304,43 @@
                 </select>
               </div>
             `;
-            html += masteryHtml;
+            masteryHtml += html;
           }
         });
         
+        this.domUtils.setHTML(masteryContainer, masteryHtml);
+        
+        // Render expertise rank selectors
+        const expertise = this.dataLoader.cache.expertise;
+        const expertiseContainer = this.domUtils.getElementById('expertiserankpick');
+        
+        let expertiseHtml = '';
+        
+        chosenExpertise.forEach((expertiseId, index) => {
+          const exp = expertise.find(e => e.lookup === expertiseId);
+          
+          if (exp) {
+            const html = `
+              <div class="rankcontainer">
+                <div class="masterycircle" style="background-color: ${exp.color}">
+                  <img src="${exp.image}">
+                </div>
+                ${exp.name}
+                <select id="expertise-rank-${index}" data-expertise="${expertiseId}" class="droplist expertise-rank">
+                  <option value="0">E</option>
+                  <option value="1">D</option>
+                  <option value="2">C</option>
+                  <option value="3">B</option>
+                  <option value="4">A</option>
+                  <option value="5">S</option>
+                </select>
+              </div>
+            `;
+            expertiseHtml += html;
+          }
+        });
+        
+        this.domUtils.setHTML(expertiseContainer, expertiseHtml);
         
         // Show the rank selector (it's hidden by default in app.css)
         const rankSelector = this.domUtils.getElementById('rankselector');
@@ -234,20 +348,24 @@
           rankSelector.style.display = 'block';
         }
         
-        this.domUtils.setHTML(container, html);
-        
         // Initialize default ranks (all E = 0) if not already set
         this.initializeDefaultRanks();
       }
       
       initializeDefaultRanks() {
         const currentState = this.state.getState();
-        const { chosenMasteries, chosenMasteriesRanks } = currentState;
+        const { chosenMasteries, chosenMasteriesRanks, chosenExpertise, chosenExpertiseRanks } = currentState;
         
-        // If ranks array doesn't match masteries length, initialize with default E (0) ranks
+        // If mastery ranks array doesn't match masteries length, initialize with default E (0) ranks
         if (chosenMasteriesRanks.length !== chosenMasteries.length) {
           const defaultRanks = new Array(chosenMasteries.length).fill(0);
           this.state.updateState({ chosenMasteriesRanks: defaultRanks });
+        }
+        
+        // If expertise ranks array doesn't match expertise length, initialize with default E (0) ranks
+        if (chosenExpertiseRanks.length !== chosenExpertise.length) {
+          const defaultRanks = new Array(chosenExpertise.length).fill(0);
+          this.state.updateState({ chosenExpertiseRanks: defaultRanks });
         }
       }
       
@@ -258,6 +376,16 @@
         if (armorType && this.armorImages[armorType]) {
           armorImage.src = this.armorImages[armorType];
           this.domUtils.setText(armorLabel, armorType.charAt(0).toUpperCase() + armorType.slice(1) + ' Armor');
+        }
+      }
+
+      updateAccessoryDisplay(accessoryType) {
+        const accessoryImage = this.domUtils.getElementById('accessoryimage');
+        const accessoryLabel = this.domUtils.getElementById('accessory-type-label');
+        
+        if (accessoryType && this.accessoryImages[accessoryType]) {
+          accessoryImage.src = this.accessoryImages[accessoryType];
+          this.domUtils.setText(accessoryLabel, accessoryType.charAt(0).toUpperCase() + accessoryType.slice(1) + ' Accessory');
         }
       }
       
@@ -274,6 +402,12 @@
           'change',
           (e) => this.updateArmorRank(parseInt(e.target.value))
         );
+
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('accessoryrank'),
+          'change',
+          (e) => this.updateAccessoryRank(parseInt(e.target.value))
+        );
         
         // Mastery rank selectors
         this.domUtils.querySelectorAll('.mastery-rank').forEach(select => {
@@ -282,11 +416,48 @@
           });
         });
         
-        // Character name input
+        // Expertise rank selectors
+        this.domUtils.querySelectorAll('.expertise-rank').forEach(select => {
+          this.domUtils.addEventListener(select, 'change', (e) => {
+            this.updateExpertiseRanks();
+          });
+        });
+        
+        // Character information inputs
         this.domUtils.addEventListener(
           this.domUtils.getElementById('character-name'),
           'input',
-          (e) => this.updateCharacterName(e.target.value)
+          (e) => this.updateCharacterInfo()
+        );
+
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('character-title'),
+          'input',
+          (e) => this.updateCharacterInfo()
+        );
+
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('character-race'),
+          'input',
+          (e) => this.updateCharacterInfo()
+        );
+
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('background-image-url'),
+          'input',
+          (e) => this.updateCharacterInfo()
+        );
+
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('avatar-url'),
+          'input',
+          (e) => this.updateCharacterInfo()
+        );
+
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('new-game-plus'),
+          'change',
+          (e) => this.updateCharacterInfo()
         );
         
         // Navigation buttons
@@ -312,6 +483,11 @@
         this.state.updateState({ armorRank: rank });
         this.updateUI();
       }
+
+      updateAccessoryRank(rank) {
+        this.state.updateState({ accessoryRank: rank });
+        this.updateUI();
+      }
       
       updateMasteryRanks() {
         const ranks = [];
@@ -321,21 +497,70 @@
           ranks.push(parseInt(select.value) || 0);
         });
         
+        // Note: Validate rank caps (S×1, A×2, B×3)
+        if (window.CharacterCalculations) {
+          const validation = window.CharacterCalculations.validateMasteryRanks(ranks);
+          if (!validation.valid) {
+            alert(validation.error);
+            // Revert to previous state
+            this.updateUI();
+            return;
+          }
+        }
+        
         this.state.updateState({ chosenMasteriesRanks: ranks });
         this.updateUI();
       }
       
-      updateCharacterName(name) {
-        this.state.updateState({ characterName: name.trim() });
+      updateExpertiseRanks() {
+        const ranks = [];
+        const selects = this.domUtils.querySelectorAll('.expertise-rank');
+        
+        selects.forEach(select => {
+          ranks.push(parseInt(select.value) || 0);
+        });
+        
+        // Note: Validate rank caps (S×1, A×2, B×3) - same rules as masteries
+        if (window.CharacterCalculations) {
+          const validation = window.CharacterCalculations.validateMasteryRanks(ranks);
+          if (!validation.valid) {
+            alert('Expertise ' + validation.error);
+            // Revert to previous state
+            this.updateUI();
+            return;
+          }
+        }
+        
+        this.state.updateState({ chosenExpertiseRanks: ranks });
+        this.updateUI();
+      }
+      
+      updateCharacterInfo() {
+        const characterName = this.domUtils.getElementById('character-name').value.trim();
+        const characterTitle = this.domUtils.getElementById('character-title').value.trim();
+        const characterRace = this.domUtils.getElementById('character-race').value.trim();
+        const profileBannerUrl = this.domUtils.getElementById('background-image-url').value.trim();
+        const avatarUrl = this.domUtils.getElementById('avatar-url').value.trim();
+        const ng = this.domUtils.getElementById('new-game-plus').checked ? 1 : 0;
+
+        this.state.updateState({ 
+          characterName,
+          characterTitle,
+          characterRace,
+          profileBannerUrl,
+          avatarUrl,
+          ng
+        });
       }
       
       updateUI() {
         const currentState = this.state.getState();
-        const { weaponRank, armorRank, chosenMasteriesRanks, characterName } = currentState;
+        const { weaponRank, armorRank, accessoryRank = 0, chosenMasteriesRanks, chosenExpertiseRanks, characterName } = currentState;
         
         // Update equipment rank selectors
         this.domUtils.setValue(this.domUtils.getElementById('weaponrank'), weaponRank.toString());
         this.domUtils.setValue(this.domUtils.getElementById('armorrank'), armorRank.toString());
+        this.domUtils.setValue(this.domUtils.getElementById('accessoryrank'), accessoryRank.toString());
         
         // Update mastery rank selectors
         this.domUtils.querySelectorAll('.mastery-rank').forEach((select, index) => {
@@ -344,11 +569,25 @@
           }
         });
         
-        // Update character name input
-        this.domUtils.setValue(this.domUtils.getElementById('character-name'), characterName || '');
+        // Update expertise rank selectors
+        this.domUtils.querySelectorAll('.expertise-rank').forEach((select, index) => {
+          if (chosenExpertiseRanks[index] !== undefined) {
+            this.domUtils.setValue(select, chosenExpertiseRanks[index].toString());
+          }
+        });
+        
+        // Update character information inputs
+        this.domUtils.setValue(this.domUtils.getElementById('character-name'), currentState.characterName || '');
+        this.domUtils.setValue(this.domUtils.getElementById('character-title'), currentState.characterTitle || '');
+        this.domUtils.setValue(this.domUtils.getElementById('character-race'), currentState.characterRace || '');
+        this.domUtils.setValue(this.domUtils.getElementById('background-image-url'), currentState.profileBannerUrl || '');
+        this.domUtils.setValue(this.domUtils.getElementById('avatar-url'), currentState.avatarUrl || '');
+        this.domUtils.getElementById('new-game-plus').checked = currentState.ng === 1;
         
         // Update rank summary
         this.updateRankSummary();
+
+        this.updateDropdownOptions();
         
         // Update next button state
         this.updateNextButtonState();
@@ -362,6 +601,24 @@
         const { chosenMasteries, chosenMasteriesRanks, weaponRank, armorRank } = currentState;
         
         let html = '<div class="rank-summary-content">';
+        
+        // Note: Show rank cap status
+        if (chosenMasteriesRanks.length > 0) {
+          const rankCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0, 0: 0 };
+          chosenMasteriesRanks.forEach(rank => {
+            const r = parseInt(rank) || 0;
+            if (rankCounts.hasOwnProperty(r)) rankCounts[r]++;
+          });
+          
+          html += `<div class="rank-caps-status">`;
+          html += `<div class="caps-title">Rank Caps:</div>`;
+          html += `<div class="caps-breakdown">`;
+          html += `<span class="${rankCounts[5] > 1 ? 'over-cap' : ''}">S: ${rankCounts[5]}/1</span> `;
+          html += `<span class="${rankCounts[4] > 2 ? 'over-cap' : ''}">A: ${rankCounts[4]}/2</span> `;
+          html += `<span>B: ${rankCounts[3]}/∞</span>`;
+          html += `</div>`;
+          html += `</div>`;
+        }
         
         // Show total ranks assigned
         const totalMasteryRanks = chosenMasteriesRanks.reduce((sum, rank) => sum + rank, 0);
@@ -398,6 +655,98 @@
         }
       }
       
+      // Note: Calculate rank availability based on current selections
+      calculateRankAvailability() {
+        const currentState = this.state.getState();
+        const { chosenMasteriesRanks, chosenExpertiseRanks } = currentState;
+        
+        // Count mastery ranks separately
+        const masteryRankCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0, 0: 0 };
+        chosenMasteriesRanks.forEach(rank => {
+          const r = parseInt(rank) || 0;
+          if (masteryRankCounts.hasOwnProperty(r)) masteryRankCounts[r]++;
+        });
+        
+        // Count expertise ranks separately  
+        const expertiseRankCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0, 0: 0 };
+        chosenExpertiseRanks.forEach(rank => {
+          const r = parseInt(rank) || 0;
+          if (expertiseRankCounts.hasOwnProperty(r)) expertiseRankCounts[r]++;
+        });
+        
+        // Caps: S×1, A×2, B×unlimited (separate for masteries and expertise)
+        const maxCaps = { 5: 1, 4: 2, 3: 6 }; // B rank now unlimited (set to 6 = max slots)
+        const masteryAvailable = { 5: 0, 4: 0, 3: 0 };
+        const expertiseAvailable = { 5: 0, 4: 0, 3: 0 };
+        
+        // Calculate available slots for masteries
+        for (const [rank, max] of Object.entries(maxCaps)) {
+          masteryAvailable[rank] = Math.max(0, max - masteryRankCounts[rank]);
+        }
+        
+        // Calculate available slots for expertise
+        for (const [rank, max] of Object.entries(maxCaps)) {
+          expertiseAvailable[rank] = Math.max(0, max - expertiseRankCounts[rank]);
+        }
+        
+        return { 
+          mastery: { used: masteryRankCounts, available: masteryAvailable },
+          expertise: { used: expertiseRankCounts, available: expertiseAvailable }
+        };
+      }
+
+      
+      // Note: Update dropdown options based on rank availability
+      updateDropdownOptions() {
+        const rankData = this.calculateRankAvailability();
+        
+        // Update mastery dropdowns
+        const masteryDropdowns = this.domUtils.querySelectorAll('.mastery-rank');
+        masteryDropdowns.forEach(dropdown => {
+          const currentValue = dropdown.value;
+          const options = dropdown.querySelectorAll('option');
+          
+          options.forEach(option => {
+            const rank = parseInt(option.value);
+            const isCurrentSelection = rank.toString() === currentValue;
+            
+            // Enable/disable based on mastery availability (always allow current selection)
+            if (rank >= 3 && rank <= 5) { // Only restrict S, A, B ranks
+              if (rankData.mastery.available[rank] === 0 && !isCurrentSelection) {
+                option.disabled = true;
+                option.textContent = option.textContent.split(' ')[0];
+              } else {
+                option.disabled = false;
+                option.textContent = ['E', 'D', 'C', 'B', 'A', 'S'][rank];
+              }
+            }
+          });
+        });
+        
+        // Update expertise dropdowns
+        const expertiseDropdowns = this.domUtils.querySelectorAll('.expertise-rank');
+        expertiseDropdowns.forEach(dropdown => {
+          const currentValue = dropdown.value;
+          const options = dropdown.querySelectorAll('option');
+          
+          options.forEach(option => {
+            const rank = parseInt(option.value);
+            const isCurrentSelection = rank.toString() === currentValue;
+            
+            // Enable/disable based on expertise availability (always allow current selection)
+            if (rank >= 3 && rank <= 5) { // Only restrict S, A, B ranks
+              if (rankData.expertise.available[rank] === 0 && !isCurrentSelection) {
+                option.disabled = true;
+                option.textContent = option.textContent.split(' ')[0];
+              } else {
+                option.disabled = false;
+                option.textContent = ['E', 'D', 'C', 'B', 'A', 'S'][rank];
+              }
+            }
+          });
+        });
+      }
+      
       syncUIWithState() {
         // This method ensures UI matches the current state
         // Useful for when loading from URL or returning from another page
@@ -413,10 +762,31 @@
           this.domUtils.getElementById('armorrank'), 
           currentState.armorRank.toString()
         );
+
+        this.domUtils.setValue(
+          this.domUtils.getElementById('accessoryrank'), 
+          (currentState.accessoryRank || 0).toString()
+        );
         
         this.domUtils.setValue(
           this.domUtils.getElementById('character-name'), 
           currentState.characterName || ''
+        );
+        this.domUtils.setValue(
+          this.domUtils.getElementById('character-title'), 
+          currentState.characterTitle || ''
+        );
+        this.domUtils.setValue(
+          this.domUtils.getElementById('character-race'), 
+          currentState.characterRace || ''
+        );
+        this.domUtils.setValue(
+          this.domUtils.getElementById('background-image-url'), 
+          currentState.profileBannerUrl || ''
+        );
+        this.domUtils.setValue(
+          this.domUtils.getElementById('avatar-url'), 
+          currentState.avatarUrl || ''
         );
       }
       
@@ -445,7 +815,7 @@
         if (currentState.profileBannerUrl) {
           const backButton = this.domUtils.getElementById('back-button');
           if (backButton) {
-            backButton.style.display = 'none';
+            // backButton.style.display = 'none';
           }
         }
       }
@@ -463,6 +833,13 @@
   </script>
   
   <style>
+    .rank-caps-display{
+      background-color: #23293775;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
     .rank-summary-content {
       text-align: center;
       padding: 10px;
@@ -502,6 +879,18 @@
       border: 1px solid #ccc;
       border-radius: 4px;
       font-size: 14px;
+    }
+    
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+      width: auto;
+      margin-right: 8px;
+      transform: scale(1.2);
     }
     
     .button[disabled] {

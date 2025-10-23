@@ -1,4 +1,4 @@
-// TerraSphere V2 - Button Component
+// TerraSphere - Button Component
 // Reusable button component with consistent styling and loading states
 
 const ButtonComponent = {

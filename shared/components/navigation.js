@@ -1,5 +1,5 @@
-// TerraSphere V2 - Navigation Component
-// Reusable navigation bar for all V2 pages
+// TerraSphere - Navigation Component
+// Reusable navigation bar for all pages
 
 const NavigationComponent = {
   // Render the main navigation bar

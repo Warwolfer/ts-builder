@@ -5,12 +5,13 @@
 
 class CopyrightComponent {
   constructor() {
-    this.version = "v2.0";
+    this.version = "2.0";
     this.copyrightYears = "2016-2025";
     this.teamName = "Team Terrasphere";
   }
 
   // Render the copyright HTML
+
   render() {
     return `
       <div id="copyright">

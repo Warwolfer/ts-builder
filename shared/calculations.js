@@ -8,6 +8,19 @@ const CharacterCalculations = {
     heavy: 30,
   },
 
+  RANK_BONUSES: {
+    0: 0, // E rank
+    1: 10, // D rank
+    2: 15, // C rank
+    3: 25, // B rank
+    4: 30, // A rank
+    5: 40, // S rank
+  },
+
+  getRankBonus(rank) {
+    return this.RANK_BONUSES[parseInt(rank) || 0] || 0;
+  },
+
   BASE_HP: 100,
   BASE_MOVEMENT: 2,
   SAVE_MULTIPLIER: 5,
@@ -30,13 +43,25 @@ const CharacterCalculations = {
       const action = actionList.find((a) => a.lookup === actionName);
       if (action && action.bonuses && action.bonuses.hp) {
         if (action.bonuses.hp === "rank-based" && actionName === "defense") {
-          // Defense passive - 10 HP per alter mastery rank
+          // Defense passive uses alter mastery rank
           if (chosenMasteriesRanks.length > 0) {
-            const alterRank = parseInt(
-              chosenMasteriesRanks[chosenMasteriesRanks.length - 1],
-            );
-            totalHP += alterRank * 10;
+            const alterRank =
+              chosenMasteriesRanks[chosenMasteriesRanks.length - 1];
+            totalHP += this.getRankBonus(alterRank);
           }
+        } else if (
+          action.bonuses.hp === "rank-based" &&
+          actionName === "sturdy"
+        ) {
+          // Sturdy passive: 25 base + 5 per MR (D:+30, C:+35, B:+40, A:+45, S:+50), max +50
+          // Find the mastery used for this action and get its rank
+          const sturdyMasteryRank = this.getHighestDefenseMasteryRank(
+            state,
+            actionList,
+          );
+          const baseSturdy = 25;
+          const sturdyBonus = Math.min(50, baseSturdy + 5 * sturdyMasteryRank);
+          totalHP += sturdyBonus;
         } else if (typeof action.bonuses.hp === "number") {
           totalHP += action.bonuses.hp;
         }
@@ -48,65 +73,40 @@ const CharacterCalculations = {
 
   // Calculate save bonuses
   calculateSaves(state, masteryList) {
-    const { chosenMasteries, chosenMasteriesRanks, armorType, armorRank } =
-      state;
+    const {
+      chosenMasteries,
+      chosenMasteriesRanks,
+      accessoryType,
+      accessoryRank,
+    } = state;
     const saves = { fortitude: 0, reflex: 0, will: 0 };
 
-    // Mastery bonuses
+    // Mastery save bonuses only
     for (let i = 0; i < chosenMasteries.length; i++) {
       const mastery = masteryList.find((m) => m.lookup === chosenMasteries[i]);
       if (mastery && mastery.save) {
-        const rank = parseInt(chosenMasteriesRanks[i]) || 0;
-        saves[mastery.save] += rank;
+        const bonus = this.getRankBonus(chosenMasteriesRanks[i]);
+        saves[mastery.save] += bonus;
       }
     }
 
-    // Armor bonuses
-    const armorRankValue = parseInt(armorRank) || 0;
-    if (armorType === "light") {
-      saves.will += armorRankValue;
-    } else if (armorType === "heavy") {
-      saves.fortitude += armorRankValue;
-    } else if (armorType === "medium") {
-      saves.reflex += armorRankValue;
+    // Accessory save bonuses (+10 per rank)
+    if (accessoryType && accessoryRank !== undefined) {
+      const accessoryBonus = (accessoryRank + 1) * 10; // E=10, D=20, C=30, B=40, A=50, S=60
+
+      switch (accessoryType) {
+        case "combat":
+          saves.fortitude += accessoryBonus;
+          break;
+        case "utility":
+          saves.reflex += accessoryBonus;
+          break;
+        case "magic":
+          saves.will += accessoryBonus;
+          break;
+      }
     }
-
-    // Apply multiplier
-    saves.fortitude *= this.SAVE_MULTIPLIER;
-    saves.reflex *= this.SAVE_MULTIPLIER;
-    saves.will *= this.SAVE_MULTIPLIER;
-
     return saves;
-  },
-
-  // Calculate expertise bonuses
-  calculateExpertise(state, masteryList) {
-    const { chosenMasteries, chosenMasteriesRanks } = state;
-    const expertise = {
-      fitness: 0,
-      awareness: 0,
-      knack: 0,
-      knowledge: 0,
-      presence: 0,
-    };
-
-    // Mastery bonuses
-    for (let i = 0; i < chosenMasteries.length; i++) {
-      const mastery = masteryList.find((m) => m.lookup === chosenMasteries[i]);
-      if (mastery && mastery.expertise) {
-        const rank = parseInt(chosenMasteriesRanks[i]) || 0;
-        expertise[mastery.expertise] += rank;
-      }
-    }
-
-    // Apply multiplier
-    expertise.fitness *= this.EXPERTISE_MULTIPLIER;
-    expertise.awareness *= this.EXPERTISE_MULTIPLIER;
-    expertise.knack *= this.EXPERTISE_MULTIPLIER;
-    expertise.knowledge *= this.EXPERTISE_MULTIPLIER;
-    expertise.presence *= this.EXPERTISE_MULTIPLIER;
-
-    return expertise;
   },
 
   // Calculate movement
@@ -126,6 +126,26 @@ const CharacterCalculations = {
           if (speedRank >= 1) movement += 1;
           if (speedRank >= 3) movement += 1;
           if (speedRank >= 5) movement += 1;
+        } else if (
+          action.bonuses.movement === "rank-based" &&
+          actionName === "swift"
+        ) {
+          // Swift passive: +1 movement at D rank, +2 at S rank
+          const swiftMasteryRank = this.getHighestOffenseMasteryRank(
+            state,
+            actionList,
+          );
+          if (swiftMasteryRank >= 1) movement += 1; // D rank: +1 movement
+          if (swiftMasteryRank >= 5) movement += 1; // S rank: +1 additional (total +2)
+        } else if (
+          action.bonuses.movement === "rank-based" &&
+          actionName === "acceleration"
+        ) {
+          // Acceleration passive: +2 movement at D rank, +3 at B rank, +4 at S rank
+          const accelerationRank = this.getAlterMasteryRank(state);
+          if (accelerationRank >= 1) movement += 2; // D rank: +2 movement
+          if (accelerationRank >= 3) movement += 1; // B rank: +1 additional (total +3)
+          if (accelerationRank >= 5) movement += 1; // S rank: +1 additional (total +4)
         } else if (typeof action.bonuses.movement === "number") {
           movement += action.bonuses.movement;
         }
@@ -163,14 +183,51 @@ const CharacterCalculations = {
     return 0;
   },
 
+  // Get highest defense mastery rank for sturdy calculation
+  getHighestDefenseMasteryRank(state, actionList) {
+    const { chosenMasteries, chosenMasteriesRanks } = state;
+    const sturdyAction = actionList.find((a) => a.lookup === "sturdy");
+
+    if (!sturdyAction || !sturdyAction.masteries) return 0;
+
+    let highestRank = 0;
+    for (let i = 0; i < chosenMasteries.length; i++) {
+      const masteryId = chosenMasteries[i];
+      if (sturdyAction.masteries.includes(masteryId)) {
+        const rank = parseInt(chosenMasteriesRanks[i]) || 0;
+        highestRank = Math.max(highestRank, rank);
+      }
+    }
+
+    return highestRank;
+  },
+
+  // Get highest offense mastery rank for swift calculation
+  getHighestOffenseMasteryRank(state, actionList) {
+    const { chosenMasteries, chosenMasteriesRanks } = state;
+    const swiftAction = actionList.find((a) => a.lookup === "swift");
+
+    if (!swiftAction || !swiftAction.masteries) return 0;
+
+    let highestRank = 0;
+    for (let i = 0; i < chosenMasteries.length; i++) {
+      const masteryId = chosenMasteries[i];
+      if (swiftAction.masteries.includes(masteryId)) {
+        const rank = parseInt(chosenMasteriesRanks[i]) || 0;
+        highestRank = Math.max(highestRank, rank);
+      }
+    }
+
+    return highestRank;
+  },
+
   // Calculate damage modifiers
   calculateDamageModifiers(state, chosenActions) {
     const modifiers = [];
 
-    // Damage passive (alter mastery)
     if (chosenActions.includes("damage")) {
       const alterRank = this.getAlterMasteryRank(state);
-      modifiers.push(alterRank * 5);
+      modifiers.push(this.getRankBonus(alterRank));
     }
 
     return modifiers;
@@ -180,21 +237,19 @@ const CharacterCalculations = {
   calculateSupportModifiers(state, chosenActions) {
     const modifiers = [];
 
-    // Support passive (alter mastery)
     if (chosenActions.includes("support")) {
       const alterRank = this.getAlterMasteryRank(state);
-      modifiers.push(alterRank * 5);
+      modifiers.push(this.getRankBonus(alterRank));
     }
 
     return modifiers;
   },
 
   // Get complete character stats
-  getCompleteStats(state, masteryList, actionList) {
+  getCompleteStats(state, masteryList, actionList, expertiseList) {
     const stats = {
       hp: this.calculateHP(state, masteryList, actionList),
       saves: this.calculateSaves(state, masteryList),
-      expertise: this.calculateExpertise(state, masteryList),
       movement: this.calculateMovement(state, state.chosenActions, actionList),
       range: this.calculateRange(state, state.chosenActions, actionList),
       damageModifiers: this.calculateDamageModifiers(
@@ -212,14 +267,39 @@ const CharacterCalculations = {
 
   // Validate mastery selection
   validateMasterySelection(masteries) {
-    if (masteries.length > 5) {
+    if (masteries.length > 6) {
       return {
         valid: false,
-        error: "You may only select 5 masteries at maximum.",
+        error: "You may only select 6 masteries at maximum.",
       };
     }
 
     // Additional compatibility checks can be added here if needed
+
+    return { valid: true };
+  },
+
+  // rank distribution validation: S×1, A×2, B×unlimited
+  validateMasteryRanks(ranks) {
+    if (!ranks || ranks.length === 0) return { valid: true };
+
+    const rankCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0, 0: 0 };
+    ranks.forEach((rank) => {
+      const r = parseInt(rank) || 0;
+      if (rankCounts.hasOwnProperty(r)) rankCounts[r]++;
+    });
+
+    const maxCaps = { 5: 1, 4: 2, 3: 6, 2: 6, 1: 6, 0: 6 }; // B rank now unlimited (set to 6 = max slots)
+    const rankNames = { 5: "S", 4: "A", 3: "B", 2: "C", 1: "D", 0: "E" };
+
+    for (const [rank, count] of Object.entries(rankCounts)) {
+      if (count > maxCaps[rank]) {
+        return {
+          valid: false,
+          error: `Too many ${rankNames[rank]} ranks: ${count}/${maxCaps[rank]} allowed. caps: S×1, A×2, B×unlimited.`,
+        };
+      }
+    }
 
     return { valid: true };
   },

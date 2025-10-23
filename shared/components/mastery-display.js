@@ -1,4 +1,4 @@
-// TerraSphere V2 - Mastery Display Component
+// TerraSphere - Mastery Display Component
 // Reusable component for displaying masteries with ranks and visual styling
 
 const MasteryDisplayComponent = {

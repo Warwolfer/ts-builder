@@ -8,513 +8,856 @@
   <link rel="stylesheet" href="css/index.css">
   <link rel="shortcut icon" href="https://www.terrarp.com//favicon.ico">
   <link rel="preconnect" href="https://fonts.gstatic.com">
-  
+
   <!-- Shared modules -->
   <script src="shared/state-manager.js"></script>
   <script src="shared/dom-utils.js"></script>
   <script src="shared/data-loader.js"></script>
   <script src="shared/calculations.js"></script>
   <script src="shared/build-encoder.js"></script>
-  
+  <script src="shared/loading-manager.js"></script>
+
   <!-- Data files -->
   <script src="resource/masteries.js"></script>
+  <script src="resource/expertise.js"></script>
   <script src="resource/actions.js"></script>
   <script src="resource/safecharacters.js"></script>
   <script src="resource/armor-abilities.js"></script>
 </head>
 
 <body>
-  <nav id="mw-navigation" class="fixed-top">
-    <div class="container">
-      <a href="https://terrarp.com/build/" class="navbar-brand">
-        <img src="https://terrarp.com/db/logo/logo-xs.png">
-      </a>
-      <div class="nav-left">
-        <div class="link"><a href="https://terrarp.com/build/index.html" style="color:#47cbdd">Build Planner</a></div>
-        <div class="link"><a href="https://terrarp.com/build/v2/index.html" style="color:#47cbdd">V2 Beta</a></div>
-        <div class="link"><a href="https://terrarp.com/index.php">Forums</a></div>
-        <div class="link"><a href="https://terrarp.com/wiki/Main_Page">Wiki</a></div>
-        <div class="dropdown">
-          <button class="dropbtn">Important <i class="fa fa-caret-down"></i></button>
-          <div class="dropdown-content">
-            <a href="https://terrarp.com/wiki/Mastery">Mastery List</a>
-            <a href="https://terrarp.com/wiki/Races">Playable Races</a>
-            <a href="https://terrarp.com/wiki/RPG_Mechanics">RPG Mechanics</a>
-            <a href="https://terrarp.com/wiki/Actions">Action List</a>
-          </div>
-        </div>
+<nav id="mw-navigation" class="fixed-top">
+  <div class="container">
+    <a href="https://terrarp.com/build/" class="navbar-brand">
+      <img src="https://terrarp.com/db/logo/logo-xs.png">
+    </a>
+    <div class="nav-left">
+      <div class="link"><a href="https://terrarp.com/build/index.html" style="color:#47cbdd">Build Planner</a>
       </div>
-    </div>
-  </nav>
-
-  <div class="header-info">
-    <div class="header-info--content">
-      <div class="charimg2 left"><img id="pfp2"></div>
-      <div class="charcontainer left">
-        <h1 class="nameheader header-info--nameheader">
-          <span class="charname">Step 3: Select Actions</span>
-        </h1><br>
-        <h2 class="charinfo">
-          <span class="chartitle">Choose your combat actions (6 slots maximum)</span>
-          <span class="charrace"></span>
-        </h2>
-      </div>
-      <div class="header-info--functions right">
-        <div class="masterycategory" id="inputbox">
-          <div class="action-info">
-            <div class="slot-usage" id="slot-usage">
-              <span id="used-slots">0</span> / 6 slots used
-            </div>
-            <div class="action-warnings" id="action-warnings"></div>
-          </div>
+      
+      <div class="link"><a href="https://terrarp.com/index.php">Forums</a></div>
+      <div class="link"><a href="https://terrarp.com/wiki/Main_Page">Wiki</a></div>
+      <div class="dropdown">
+        <button class="dropbtn">Important <i class="fa fa-caret-down"></i></button>
+        <div class="dropdown-content">
+          <a href="https://terrarp.com/wiki/Mastery">Mastery List</a>
+          <a href="https://terrarp.com/wiki/Races">Playable Races</a>
+          <a href="https://terrarp.com/wiki/RPG_Mechanics">RPG Mechanics</a>
+          <a href="https://terrarp.com/wiki/Actions">Action List</a>
         </div>
       </div>
     </div>
   </div>
+</nav>
 
-  <div id="bodyback">
-    <div id="actionselector">
-      <div class="refresh-msg">
-        <i class="far fa-circle-question"></i> Actions are filtered based on your selected masteries
-      </div>
-
-      <!-- Free Actions (Always Available) -->
-      <h1 class="selectorheader">Basic Actions</h1>
-      <div class="masterycategory freeactions">
-        <div class="card selected free-action" data-action="attack">
-          <div class="cardicon aci-attack"></div>
-          <div class="cardtitle">Attack</div>
-          <div class="cardinfo">
-            <p><em><b>Base</b><b>Offense</b><b>Attack</b></em></p>
-            <p>Perform a basic attack.</p>
+<div class="header-info">
+  <div class="header-info--content">
+    <div class="charimg2 left"><img id="pfp2"></div>
+    <div class="charcontainer left">
+      <h1 class="nameheader header-info--nameheader">
+        <span class="charname">Step 4: Select Actions</span>
+      </h1>
+      <h2 class="charinfo">
+        <span class="chartitle">Choose your combat actions (6 slots maximum)</span>
+        <span class="charrace"></span>
+      </h2>
+    </div>
+    <div class="header-info--functions right">
+      <div class="masterycategory" id="inputbox">
+        <div class="action-info">
+          <div class="slot-usage" id="slot-usage">
+            <span id="used-slots">0</span> / 6 slots used
           </div>
-          <div class="cardroll"><b>Roll:</b> 1d100 + MR + WR + other bonuses</div>
+          <div class="action-warnings" id="action-warnings"></div>
         </div>
-        <div class="card selected free-action" data-action="recover">
-          <div class="cardicon aci-recover"></div>
-          <div class="cardtitle">Recover</div>
-          <div class="cardinfo">
-            <p><em><b>Base</b><b>Action</b></em></p>
-            <p>Recover your HP by 1d20. Double your roll result on a nat-20.</p>
-          </div>
-          <div class="cardroll"><b>Roll:</b> 1d20</div>
-        </div>
-        <div class="card selected free-action" data-action="rush">
-          <div class="cardicon aci-rush"></div>
-          <div class="cardtitle">Rush</div>
-          <div class="cardinfo">
-            <p><em><b>Base</b><b>Bonus</b></em></p>
-            <p><b>Bonus.</b> Double your total movement count this cycle.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Selectable Actions -->
-      <h1 class="selectorheader">Pick your actions</h1>
-      <div class="masterycategory" id="pickactions">
-        <!-- Will be populated by JavaScript -->
       </div>
     </div>
+  </div>
+</div>
 
-    <div class="button-container">
-      <div class="button" id="back-button">Back</div>
-      <div class="button" id="next-button" disabled>Next</div>
+<div id="bodyback">
+  <div id="actionselector">
+    <div class="refresh-msg">
+      <i class="far fa-circle-question"></i> Actions are filtered based on your selected masteries
+    </div>
+
+    <!-- General Actions (Always Available) - Hidden since auto-selected -->
+    <h1 class="selectorheader" style="display: none;">General Actions</h1>
+    <div class="masterycategory freeactions" id="basic-actions" style="display: none;">
+      <!-- General actions will be populated by JavaScript -->
+    </div>
+
+    <!-- Available Actions by Category -->
+    <div class="action-filters">
+      <div class="filter-tab active" onclick="toggleActionFilter('all')" data-filter="all">All</div>
+      <div class="filter-tab" onclick="toggleActionFilter('offense')" data-filter="offense">Offense</div>
+      <div class="filter-tab" onclick="toggleActionFilter('defense')" data-filter="defense">Defense</div>
+      <div class="filter-tab" onclick="toggleActionFilter('support')" data-filter="support">Support</div>
+      <div class="filter-tab" onclick="toggleActionFilter('alter')" data-filter="alter">Alter</div>
+    </div>
+    <div id="action-categories">
+      <!-- Action categories will be populated by JavaScript -->
     </div>
   </div>
 
-  <!-- Copyright will be inserted here by shared component -->
+  <div class="action-summary">
+    <div class="action-count" id="action-count">
+      <strong>Selected: <span id="total-actions">0</span> actions (<span id="used-slots-bottom">0</span>/6
+        slots)</strong>
+    </div>
+  </div>
 
-  <script src="shared/copyright-component.js"></script>
-  <script>
-    // Action Selection Logic
-    class ActionSelector {
-      constructor() {
-        this.state = window.buildState;
-        this.dataLoader = window.DataLoader;
-        this.domUtils = window.DOMUtils;
-        this.calculations = window.CharacterCalculations;
-        
-        // Action selection constants
-        this.ACTION_SLOT_CAP = 6;
-        this.MIN_ACTION_PAIRS = 0;
-        this.MIN_MISC_ACTIONS = 0;
-        this.ALWAYS_SELECTED_ACTIONS = 3; // attack, recover, rush
-        
-        this.availableActions = [];
-        this.selectedActions = [];
-        
-        this.init();
-      }
-      
-      init() {
-        try {
-          // Show the action selector (it's hidden by default in app.css)
-          const actionSelector = this.domUtils.getElementById('actionselector');
-          if (actionSelector) {
-            actionSelector.style.display = 'block';
-          }
-          
-          // Load data
-          this.dataLoader.loadAll();
-          
-          // Load state from URL if present
-          this.state.loadFromURL();
-          
-          // Check if we have the required data from previous steps
-          if (!this.state.isValidForActionSelection()) {
-            alert('Please complete mastery and rank selection first.');
-            window.location.href = this.state.generateURL('rank-selector.html');
-            return;
-          }
-          
-          // Get available actions based on masteries
-          this.loadAvailableActions();
-          
-          // Render action cards
-          this.renderActionCards();
-          
-          // Set up event listeners
-          this.setupEventListeners();
-          
-          // Update UI with current state
-          this.updateUI();
-          
-          // Adjust UI for imported characters
-          this.adjustUIForImportedCharacter();
-          
-        } catch (error) {
-          this.showError('Failed to load action data. Please refresh the page.');
-        }
-      }
-      
-      loadAvailableActions() {
+  <div class="button-container">
+    <div class="button" id="back-button">Back</div>
+    <div class="button" id="next-button" disabled>Next</div>
+  </div>
+</div>
+
+<script>
+  // Initialize global objects
+  window.buildState = window.buildState || new BuildState();
+  window.DataLoader = window.DataLoader || new DataLoader();
+  window.DOMUtils = window.DOMUtils || new DOMUtils();
+
+  class ActionSelector {
+    constructor() {
+      this.state = window.buildState;
+      this.dataLoader = window.DataLoader;
+      this.domUtils = window.DOMUtils;
+      this.calculations = window.CharacterCalculations;
+
+      this.availableActions = [];
+
+      this.init();
+    }
+
+    async init() {
+      try {
+        // Show loading while initializing
+        LoadingManager.showActionLoading('action-categories');
+
+        // Simulate async loading for better UX
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        // Load data
+        this.loadMasteries();
+        this.loadActions();
+
+        // Load state from URL if present
+        this.state.loadFromURL();
+
+        // Check if we have the required data from previous steps
         const currentState = this.state.getState();
-        const { chosenMasteries } = currentState;
-        
-        // Get all actions available to selected masteries
-        const allActions = this.dataLoader.cache.actions;
-        this.availableActions = [];
-        
-        // Build action pool from masteries
-        const actionPool = [];
-        const masteries = this.dataLoader.cache.masteries;
-        
-        chosenMasteries.forEach(masteryId => {
-          const mastery = masteries.find(m => m.lookup === masteryId);
-          if (mastery && mastery.actions) {
-            actionPool.push(...mastery.actions);
-          }
-        });
-        
-        // Get unique actions (excluding the first 3 which are free actions)
-        const uniqueActions = [...new Set(actionPool)].slice(3);
-        
-        // Convert action names to action objects
-        uniqueActions.forEach(actionName => {
-          const action = allActions.find(a => a.name === actionName);
-          if (action) {
-            this.availableActions.push(action);
-          }
-        });
+
+        if (!this.state.isValidForActionSelection()) {
+          alert('Please complete previous steps first.');
+          window.location.href = this.state.generateURL('mastery-selector.html');
+          return;
+        }
+
+        // Load available actions based on masteries
+        this.loadAvailableActions();
+
+        // Clean up invalid actions from previous state
+        this.validateAndCleanActions();
+
+        // Render action cards
+        this.renderActionCards();
+
+        // Set up event listeners
+        this.setupEventListeners();
+
+        // Update UI with current state
+        this.updateUI();
+
+        // Hide loading spinner
+        LoadingManager.hide('action-categories');
+
+      } catch (error) {
+        LoadingManager.hide('action-categories');
+        console.error('Error initializing action selector:', error);
+        this.showError('Failed to load action data: ' + error.message);
       }
-      
-      renderActionCards() {
-        const container = this.domUtils.getElementById('pickactions');
-        let html = '';
-        
-        this.availableActions.forEach(action => {
+    }
+
+    loadMasteries() {
+      if (window.masteries) {
+        this.dataLoader.cache.masteries = window.masteries;
+      } else {
+        throw new Error('masteries not found');
+      }
+    }
+
+    loadActions() {
+      if (window.actionlist) {
+        this.dataLoader.cache.actions = window.actionlist;
+      } else {
+        throw new Error('actionlist not found');
+      }
+    }
+
+    loadAvailableActions() {
+      const currentState = this.state.getState();
+      const {chosenMasteries} = currentState;
+      const allActions = this.dataLoader.cache.actions;
+
+
+      this.availableActions = [];
+
+      // Get actions available for selected masteries
+      chosenMasteries.forEach(masteryId => {
+        console.log('🔍 Getting actions for mastery:', masteryId);
+        const actions = this.dataLoader.getActionsByMastery(masteryId);
+        console.log('🔍 Found actions:', actions.length, actions.map(a => a.name));
+        this.availableActions.push(...actions);
+      });
+
+      console.log('🔍 Total available actions before dedup:', this.availableActions.length);
+
+      // Remove duplicates
+      this.availableActions = this.availableActions.filter((action, index, self) =>
+        index === self.findIndex(a => a.lookup === action.lookup)
+      );
+
+      console.log('🔍 Total available actions after dedup:', this.availableActions.length);
+
+      // Sort by category then ID
+      this.availableActions.sort((a, b) => {
+        if (a.category !== b.category) {
+          return a.category.localeCompare(b.category);
+        }
+        return a.id - b.id;
+      });
+    }
+
+    validateAndCleanActions() {
+      const currentState = this.state.getState();
+      const {chosenActions} = currentState;
+
+      console.log('🔍 Validating actions. Current selected:', chosenActions);
+      console.log('🔍 Available action IDs:', this.availableActions.map(a => a.lookup));
+
+      // Get all action IDs that are currently available (including general actions)
+      const availableActionIds = new Set();
+
+      // Add general actions (always available)
+      const allActions = this.dataLoader.cache.actions;
+      const generalActions = allActions.filter(action =>
+        action.category === 'general' || (action.masteries && action.masteries.includes('all'))
+      );
+      generalActions.forEach(action => availableActionIds.add(action.lookup));
+
+      // Add mastery-specific actions
+      this.availableActions.forEach(action => availableActionIds.add(action.lookup));
+
+      console.log('🔍 All available action IDs:', Array.from(availableActionIds));
+
+      // Filter out invalid actions
+      const validActions = chosenActions.filter(actionId => {
+        const isValid = availableActionIds.has(actionId);
+        if (!isValid) {
+          console.log(`🔍 Removing invalid action: ${actionId}`);
+        }
+        return isValid;
+      });
+
+      console.log('🔍 Valid actions after filtering:', validActions);
+
+      // Update state if actions were removed
+      if (validActions.length !== chosenActions.length) {
+        console.log(`🔍 Cleaned ${chosenActions.length - validActions.length} invalid actions`);
+        this.state.updateState({chosenActions: validActions});
+      }
+    }
+
+    renderActionCards() {
+      console.log('🔍 Rendering action cards. Available actions:', this.availableActions.length);
+
+      // Render basic actions
+      this.renderBasicActions();
+
+      // Render actions by category
+      this.renderActionsByCategory();
+    }
+
+    renderBasicActions() {
+      // Get general actions (available to all masteries)
+      const allActions = this.dataLoader.cache.actions;
+      const generalActions = allActions.filter(action =>
+        (action.category === 'general' || (action.masteries && action.masteries.includes('all'))) &&
+        action.lookup !== 'range' // Range should be selectable, not automatically free
+      );
+
+      console.log('🔍 General actions found:', generalActions.length, generalActions.map(a => a.name));
+      const container = this.domUtils.getElementById('basic-actions');
+
+      let html = '';
+      generalActions.forEach(action => {
+        html += this.generateActionCardHTML(action, true); // true for always selected
+      });
+
+      console.log('🔍 General actions HTML length:', html.length);
+      this.domUtils.setHTML(container, html);
+    }
+
+    renderActionsByCategory() {
+      const categories = {};
+
+      // Group non-basic actions by category (including utility actions like Range)
+      const nonGeneralActions = this.availableActions.filter(action =>
+        action.category !== 'basic'
+      );
+      console.log('🔍 Non-general actions found:', nonGeneralActions.length);
+      console.log('🔍 Categories breakdown:', nonGeneralActions.reduce((acc, action) => {
+        acc[action.category] = (acc[action.category] || 0) + 1;
+        return acc;
+      }, {}));
+
+      nonGeneralActions.forEach(action => {
+        if (!categories[action.category]) {
+          categories[action.category] = [];
+        }
+        categories[action.category].push(action);
+      });
+
+      // Sort actions within each category by ID
+      Object.keys(categories).forEach(categoryName => {
+        categories[categoryName].sort((a, b) => a.id - b.id);
+      });
+
+      const container = this.domUtils.getElementById('action-categories');
+      let html = '';
+
+      // Define category order - utility first
+      const categoryOrder = ['utility', 'defense', 'offense', 'support', 'alter'];
+      const allCategoryNames = [...categoryOrder, ...Object.keys(categories).filter(cat => !categoryOrder.includes(cat))];
+
+      // Render each category in order
+      allCategoryNames.forEach(categoryName => {
+        if (!categories[categoryName] || categories[categoryName].length === 0) return;
+
+        const categoryTitle = this.formatCategoryName(categoryName);
+        console.log(`🔍 Rendering ${categoryName} with ${categories[categoryName].length} actions`);
+        html += `
+            <h1 class="selectorheader">${categoryTitle} Actions</h1>
+            <div class="masterycategory picker" id="${categoryName}-actions">
+          `;
+
+        categories[categoryName].forEach(action => {
           html += this.generateActionCardHTML(action);
         });
-        
-        this.domUtils.setHTML(container, html);
-        
-        // Apply styling
-        this.availableActions.forEach(action => {
-          const element = this.domUtils.getElementById(action.lookup);
-          if (element) {
-            element.style.borderColor = action.color;
-            element.style.borderStyle = 'solid';
-            const icon = this.domUtils.querySelector(`.aci-${action.lookup}`);
-            if (icon) {
-              icon.style.backgroundColor = action.color;
-            }
-          }
-        });
+
+        html += '</div>';
+      });
+
+      console.log('🔍 Total category HTML length:', html.length);
+      this.domUtils.setHTML(container, html);
+
+      // Show the action selector (it's hidden by default in app.css)
+      const actionSelector = this.domUtils.getElementById('actionselector');
+      if (actionSelector) {
+        actionSelector.style.display = 'block';
       }
-      
-      generateActionCardHTML(action) {
-        let classText = 'card choice';
-        if (action.pair) {
-          classText += ` pair-${action.pair}`;
-        }
-        
-        const hasRoll = action.roll && action.roll !== '-';
-        const rollSection = hasRoll ? 
-          `<div class='cardroll'><b>Roll:</b> ${action.dice}</div>` : '';
-        
-        return `
+    }
+
+    formatCategoryName(category) {
+      const names = {
+        'general': 'General',
+        'utility': 'Utility',
+        'defense': 'Defense',
+        'offense': 'Offense',
+        'support': 'Support',
+        'alter': 'Alter'
+      };
+      return names[category] || category.charAt(0).toUpperCase() + category.slice(1);
+    }
+
+    generateActionCardHTML(action, isBasic = false) {
+      let classText = 'card choice';
+      if (isBasic) {
+        classText += ' selected free-action';
+      }
+
+      const hasRoll = action.roll && action.roll !== '-';
+      const rollSection = hasRoll ?
+        `<div class='cardroll'><b>Roll:</b> ${action.dice}</div>` : '';
+
+      return `
           <div class='${classText}' 
                id='${action.lookup}' 
                data-action='${action.lookup}'
-               data-slot-cost='${action.slotcost || 1}'
+               data-category='${action.category}'
                data-pair='${action.pair || ''}'
+               data-slot-cost='${action.slotCost || 1}'
+               data-conditional-free='${action.conditionalFree || ''}'
                style='border-color: ${action.color}'>
-            <div class='cardicon aci-${action.lookup}'></div>
+            <div class='cardicon' style='background-color: ${action.color}; background-image: url("${action.image}"); background-repeat: no-repeat; background-position: center;'></div>
             <div class='cardtitle'>${action.name}</div>
             <div class='cardinfo'>${action.description}</div>
             ${rollSection}
           </div>
         `;
-      }
-      
-      setupEventListeners() {
-        // Action card selection
-        this.domUtils.querySelectorAll('.card.choice').forEach(card => {
-          this.domUtils.addEventListener(card, 'click', (e) => {
-            this.selectAction(e.target.closest('.card'));
+    }
+
+    setupEventListeners() {
+      // Action card selection (only for non-basic actions)
+      this.domUtils.querySelectorAll('.card.choice:not(.free-action)').forEach(card => {
+        this.domUtils.addEventListener(card, 'click', (e) => {
+          this.selectAction(e.target.closest('.card'));
+        });
+      });
+
+      // Navigation buttons
+      this.domUtils.addEventListener(
+        this.domUtils.getElementById('back-button'),
+        'click',
+        () => this.goToPreviousPage()
+      );
+
+      this.domUtils.addEventListener(
+        this.domUtils.getElementById('next-button'),
+        'click',
+        () => this.goToNextPage()
+      );
+    }
+
+    selectAction(element) {
+      if (!element) return;
+
+      const actionId = element.dataset.action;
+      const pairId = element.dataset.pair;
+      const currentState = this.state.getState();
+      let {chosenActions} = currentState;
+
+      const isSelected = this.domUtils.hasClass(element, 'selected');
+
+      if (isSelected) {
+        // Deselect action (and pair if applicable)
+        if (pairId) {
+          const pairActions = this.getAllActionsInPair(pairId);
+          pairActions.forEach(pairElement => {
+            this.domUtils.removeClass(pairElement, 'selected');
+            const pairActionId = pairElement.dataset.action;
+            chosenActions = chosenActions.filter(id => id !== pairActionId);
           });
-        });
-        
-        // Navigation buttons
-        this.domUtils.addEventListener(
-          this.domUtils.getElementById('back-button'),
-          'click',
-          () => this.goToPreviousPage()
-        );
-        
-        this.domUtils.addEventListener(
-          this.domUtils.getElementById('next-button'),
-          'click',
-          () => this.goToNextPage()
-        );
-      }
-      
-      selectAction(element) {
-        if (!element) return;
-        
-        const actionId = element.dataset.action;
-        const slotCost = parseInt(element.dataset.slotCost) || 1;
-        const pairId = element.dataset.pair;
-        
-        const currentState = this.state.getState();
-        let { chosenActions } = currentState;
-        
-        if (this.domUtils.hasClass(element, 'selected')) {
-          // Deselect action (and pair if applicable)
-          if (pairId) {
-            const pairActions = this.getAllActionsInPair(pairId);
-            pairActions.forEach(pairElement => {
-              this.domUtils.removeClass(pairElement, 'selected');
-              const pairActionId = pairElement.dataset.action;
-              chosenActions = chosenActions.filter(a => a !== pairActionId);
-            });
-          } else {
-            this.domUtils.removeClass(element, 'selected');
-            chosenActions = chosenActions.filter(a => a !== actionId);
-          }
         } else {
-          // Check slot limits
-          const currentSlots = this.calculateUsedSlots();
-          
-          if (currentSlots + slotCost > this.ACTION_SLOT_CAP) {
-            alert(`This action exceeds your maximum of ${this.ACTION_SLOT_CAP} action slots.`);
-            return;
-          }
-          
-          // Select action (and pair if applicable)
-          if (pairId) {
-            const pairActions = this.getAllActionsInPair(pairId);
-            pairActions.forEach(pairElement => {
-              this.domUtils.addClass(pairElement, 'selected');
-              const pairActionId = pairElement.dataset.action;
-              if (!chosenActions.includes(pairActionId)) {
-                chosenActions.push(pairActionId);
-              }
-            });
-          } else {
-            this.domUtils.addClass(element, 'selected');
-            if (!chosenActions.includes(actionId)) {
-              chosenActions.push(actionId);
-            }
-          }
+          this.domUtils.removeClass(element, 'selected');
+          chosenActions = chosenActions.filter(id => id !== actionId);
         }
-        
-        // Update state
-        this.state.updateState({ chosenActions });
-        this.updateUI();
-      }
-      
-      getAllActionsInPair(pairId) {
-        if (!pairId) return [];
-        return this.domUtils.querySelectorAll(`[data-pair="${pairId}"]`);
-      }
-      
-      calculateUsedSlots() {
-        const selected = this.domUtils.querySelectorAll('.card.choice.selected');
-        const pairsFound = [];
-        let total = 0;
-        
-        selected.forEach(card => {
-          const pairId = card.dataset.pair;
-          const slotCost = parseInt(card.dataset.slotCost) || 1;
-          
-          if (pairId) {
-            if (!pairsFound.includes(pairId)) {
-              pairsFound.push(pairId);
-              total += slotCost;
+      } else {
+        // Check slot limit (6 actions maximum, not counting basic actions)
+        // Temporarily add the action to calculate slots with it included
+        const tempChosenActions = [...chosenActions];
+        if (pairId) {
+          const pairActions = this.getAllActionsInPair(pairId);
+          pairActions.forEach(pairElement => {
+            const pairActionId = pairElement.dataset.action;
+            if (!tempChosenActions.includes(pairActionId)) {
+              tempChosenActions.push(pairActionId);
             }
-          } else {
-            total += slotCost;
-          }
-        });
-        
-        return total;
-      }
-      
-      updateUI() {
-        const currentState = this.state.getState();
-        const { chosenActions } = currentState;
-        
-        // Update slot usage display
-        const usedSlots = this.calculateUsedSlots();
-        this.domUtils.setText(
-          this.domUtils.getElementById('used-slots'),
-          usedSlots.toString()
-        );
-        
-        // Update next button state
-        const nextButton = this.domUtils.getElementById('next-button');
-        const canProceed = chosenActions.length > 0;
-        
-        if (canProceed) {
-          nextButton.removeAttribute('disabled');
-          this.domUtils.removeClass(nextButton, 'disabled');
+          });
         } else {
-          nextButton.setAttribute('disabled', 'true');
-          this.domUtils.addClass(nextButton, 'disabled');
+          tempChosenActions.push(actionId);
         }
-        
-        // Sync UI with state
-        this.syncUIWithState();
-      }
-      
-      syncUIWithState() {
-        const currentState = this.state.getState();
-        const { chosenActions } = currentState;
-        
-        // Clear all selections
-        this.domUtils.querySelectorAll('.card.choice').forEach(card => {
-          this.domUtils.removeClass(card, 'selected');
-        });
-        
-        // Restore selections based on state
-        chosenActions.forEach(actionId => {
-          const element = this.domUtils.querySelector(`[data-action="${actionId}"]`);
-          if (element && this.domUtils.hasClass(element, 'choice')) {
-            this.domUtils.addClass(element, 'selected');
-          }
-        });
-      }
-      
-      goToPreviousPage() {
-        const url = this.state.generateURL('rank-selector.html');
-        window.location.href = url;
-      }
-      
-      goToNextPage() {
-        const currentState = this.state.getState();
-        
-        if (currentState.chosenActions.length === 0) {
-          alert('Please select at least one action before proceeding.');
+
+        // Calculate slots with the new action(s)
+        const tempState = {chosenActions: tempChosenActions};
+        const originalState = this.state.getState();
+        this.state.updateState(tempState);
+        const wouldBeSlots = this.calculateUsedSlots();
+        this.state.updateState(originalState); // Restore original state
+
+        if (wouldBeSlots > 6) {
+          alert('You can only select up to 6 actions. Please deselect one first.');
           return;
         }
-        
-        // Navigate to build sheet
-        const url = this.state.generateURL('build-sheet.html');
-        window.location.href = url;
-      }
-      
-      adjustUIForImportedCharacter() {
-        const currentState = this.state.getState();
-        
-        // If character has profileBannerUrl, it was imported from Terrarp
-        if (currentState.profileBannerUrl) {
-          // Hide "Back: Assign Ranks" button
-          const backButton = this.domUtils.getElementById('back-button');
-          if (backButton) {
-            backButton.style.display = 'none';
-          }
-          
-          // Change "Step 3: Select Actions" to just "Select Actions"
-          const charNameElement = this.domUtils.querySelector('.charname');
-          if (charNameElement && charNameElement.textContent.includes('Step 3:')) {
-            charNameElement.textContent = 'Select Actions';
-          }
+
+        // Select action (and pair if applicable)
+        if (pairId) {
+          const pairActions = this.getAllActionsInPair(pairId);
+          pairActions.forEach(pairElement => {
+            this.domUtils.addClass(pairElement, 'selected');
+            const pairActionId = pairElement.dataset.action;
+            if (!chosenActions.includes(pairActionId)) {
+              chosenActions.push(pairActionId);
+            }
+          });
+        } else {
+          this.domUtils.addClass(element, 'selected');
+          chosenActions = [...chosenActions, actionId];
         }
       }
-      
-      showError(message) {
-        const container = this.domUtils.getElementById('pickactions');
-        this.domUtils.showError(container, message);
+
+      this.state.updateState({chosenActions});
+      this.updateUI();
+    }
+
+    getAllActionsInPair(pairId) {
+      if (!pairId) return [];
+      return this.domUtils.querySelectorAll(`[data-pair="${pairId}"]`);
+    }
+
+    calculateUsedSlots() {
+      const currentState = this.state.getState();
+      const {chosenActions} = currentState;
+
+      console.log('🔍 Calculating slots for actions:', chosenActions);
+
+      // First, check what actions are selected to determine conditional free actions
+      const selectedActions = chosenActions.map(actionId =>
+        this.availableActions.find(a => a.lookup === actionId)
+      ).filter(Boolean);
+
+      const hasSupport = selectedActions.some(action =>
+        action.category === 'support' && !action.conditionalFree
+      );
+      const hasHeal = selectedActions.some(action =>
+        action.lookup === 'heal' || action.lookup === 'power-heal'
+      );
+
+      console.log('🔍 Conditional checks - hasSupport:', hasSupport, 'hasHeal:', hasHeal);
+
+      // Count non-basic actions only, with pairs counting as 1 slot
+      const pairsFound = [];
+      let total = 0;
+
+      chosenActions.forEach(actionId => {
+        const action = this.availableActions.find(a => a.lookup === actionId);
+        if (action && action.category !== 'basic') {
+          console.log(`🔍 Processing action: ${action.name}, pair: ${action.pair}, category: ${action.category}, slotCost: ${action.slotCost}, conditionalFree: ${action.conditionalFree}`);
+
+          // Check if action is free due to conditions
+          let isFree = false;
+          if (action.slotCost === 0) {
+            isFree = true; // Always free (like taunt)
+          } else if (action.conditionalFree === 'support' && hasSupport) {
+            isFree = true; // Free when support action selected (imbue)
+          } else if (action.conditionalFree === 'heal' && hasHeal) {
+            isFree = true; // Free when heal selected (smite, revive)
+          }
+
+          if (isFree) {
+            console.log(`🔍 Action ${action.name} is free, not counting toward slots`);
+            return; // Skip counting this action
+          }
+
+          if (action.pair) {
+            if (!pairsFound.includes(action.pair)) {
+              pairsFound.push(action.pair);
+              total += 1; // Pair counts as 1 slot regardless of how many actions in it
+              console.log(`🔍 Added pair ${action.pair} as 1 slot. Total slots: ${total}`);
+            } else {
+              console.log(`🔍 Pair ${action.pair} already counted, skipping`);
+            }
+          } else {
+            total += 1; // Individual action counts as 1 slot
+            console.log(`🔍 Added individual action as 1 slot. Total slots: ${total}`);
+          }
+        }
+      });
+
+      console.log('🔍 Final slot count:', total, 'Pairs found:', pairsFound);
+      return total;
+    }
+
+    updateUI() {
+      const currentState = this.state.getState();
+      const {chosenActions} = currentState;
+
+      // Update slot usage display
+      const usedSlots = this.calculateUsedSlots();
+      this.domUtils.setText(
+        this.domUtils.getElementById('used-slots'),
+        usedSlots.toString()
+      );
+
+      // Update action count display
+      const totalActions = chosenActions.filter(actionId => {
+        const action = this.availableActions.find(a => a.lookup === actionId);
+        return action && action.category !== 'basic';
+      }).length;
+
+      const totalActionsElement = this.domUtils.getElementById('total-actions');
+      console.log('🔍 Action counter element:', totalActionsElement, 'Total actions:', totalActions);
+
+      if (totalActionsElement) {
+        this.domUtils.setText(totalActionsElement, totalActions.toString());
+      } else {
+        console.error('❌ Action counter element not found!');
       }
+
+      // Update bottom action counter
+      const usedSlotsBottomElement = this.domUtils.getElementById('used-slots-bottom');
+      if (usedSlotsBottomElement) {
+        this.domUtils.setText(usedSlotsBottomElement, usedSlots.toString());
+      }
+
+      // Update next button state
+      const nextButton = this.domUtils.getElementById('next-button');
+      const canProceed = chosenActions.length > 0;
+
+      if (canProceed) {
+        nextButton.removeAttribute('disabled');
+        this.domUtils.removeClass(nextButton, 'disabled');
+      } else {
+        nextButton.setAttribute('disabled', 'true');
+        this.domUtils.addClass(nextButton, 'disabled');
+      }
+
+      // Sync UI with state
+      this.syncUIWithState();
     }
-    
-    // Initialize when page loads - use window.onload for data loading
-    window.onload = function() {
-      new ActionSelector();
-    };
-  </script>
-  
-  <style>
-    .action-info {
-      text-align: center;
-      padding: 10px;
+
+    syncUIWithState() {
+      const currentState = this.state.getState();
+      const {chosenActions} = currentState;
+
+      // Clear all selections except free actions
+      this.domUtils.querySelectorAll('.card.choice:not(.free-action)').forEach(card => {
+        this.domUtils.removeClass(card, 'selected');
+      });
+
+      // Restore selected actions
+      chosenActions.forEach(actionId => {
+        const actionElement = this.domUtils.querySelector(`.card[data-action="${actionId}"]`);
+        if (actionElement && !this.domUtils.hasClass(actionElement, 'free-action')) {
+          this.domUtils.addClass(actionElement, 'selected');
+        }
+      });
     }
-    
-    .slot-usage {
-      font-size: 1.1em;
-      font-weight: bold;
-      margin-bottom: 5px;
+
+    goToPreviousPage() {
+      const url = this.state.generateURL('rank-selector.html');
+      window.location.href = url;
     }
-    
-    .action-warnings {
-      font-size: 0.9em;
-      color: #d63384;
+
+    goToNextPage() {
+      const currentState = this.state.getState();
+
+      if (currentState.chosenActions.length === 0) {
+        alert('Please select at least one action before proceeding.');
+        return;
+      }
+
+      // Navigate to build sheet
+      const url = this.state.generateURL('build-sheet.html');
+      window.location.href = url;
     }
-    
-    .card.choice {
-      cursor: pointer;
-      transition: all 0.2s ease;
+
+    showError(message) {
+      const container = this.domUtils.getElementById('action-categories');
+      this.domUtils.showError(container, message);
     }
-    
-    .card.choice:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+
+  // Action filter functions
+  function toggleActionFilter(category) {
+    const filterButton = event.target;
+
+    // Remove active class from all tabs
+    document.querySelectorAll('.filter-tab').forEach(tab => {
+      tab.classList.remove('active');
+    });
+
+    // Add active class to clicked tab
+    filterButton.classList.add('active');
+
+    // Refresh the display based on selected filter
+    refreshAllActionFilters();
+  }
+
+  function refreshAllActionFilters() {
+    // Get the active filter (only one can be active now)
+    const activeTab = document.querySelector('.filter-tab.active');
+    const activeFilter = activeTab ? activeTab.getAttribute('data-filter') : 'all';
+
+    // Get all action cards (use the correct selector for action-selector page)
+    const actionCards = document.querySelectorAll('.card.choice');
+
+    // Show/hide actions based on selected filter
+    actionCards.forEach(actionCard => {
+      // Get action data from card attributes
+      const actionId = actionCard.getAttribute('data-action');
+      const actionCategory = actionCard.getAttribute('data-category');
+
+      if (actionId) {
+        // Always show utility actions (category 'utility')
+        if (actionCategory === 'utility') {
+          actionCard.classList.remove('filter-hidden');
+          return;
+        }
+
+        let shouldShow = false;
+
+        // Filter logic
+        if (activeFilter === 'all') {
+          shouldShow = true;
+        } else {
+          shouldShow = (actionCategory === activeFilter);
+        }
+
+        if (shouldShow) {
+          actionCard.classList.remove('filter-hidden');
+        } else {
+          actionCard.classList.add('filter-hidden');
+        }
+      }
+    });
+
+    // Also handle category headers - hide if no actions are visible
+    const categoryContainers = document.querySelectorAll('#action-categories .masterycategory');
+    categoryContainers.forEach(container => {
+      const visibleActions = container.querySelectorAll('.card.choice:not(.filter-hidden)');
+      const header = container.previousElementSibling;
+
+      // Check if this is utility category - always keep it visible
+      const isUtilityCategory = container.id === 'utility-actions' ||
+        (header && header.textContent.includes('Utility'));
+
+      if (visibleActions.length === 0 && !isUtilityCategory) {
+        container.style.display = 'none';
+        if (header && header.classList.contains('selectorheader')) {
+          header.style.display = 'none';
+        }
+      } else {
+        container.style.display = 'block';
+        if (header && header.classList.contains('selectorheader')) {
+          header.style.display = 'block';
+        }
+      }
+    });
+  }
+
+  // Initialize when page loads
+  window.onload = function () {
+    window.actionSelectorInstance = new ActionSelector();
+  };
+</script>
+
+<style>
+  .action-info {
+    text-align: center;
+    padding: 10px;
+  }
+
+  .slot-usage {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #2563eb;
+  }
+
+  .action-summary {
+    text-align: center;
+    margin: 20px 0;
+    padding: 12px;
+    background-color: #1e2131;
+    border: 1px solid #47cbdd;
+    border-radius: 4px;
+  }
+
+  .action-count {
+    font-size: 1.0em;
+    font-weight: bold;
+    color: #ffffff;
+  }
+
+  .action-count span {
+    color: #47cbdd;
+  }
+
+  .action-warnings {
+    font-size: 0.9em;
+    color: #d63384;
+  }
+
+  /* Filter tab styles */
+  .action-filters {
+    display: flex;
+    gap: 0;
+    padding-top: 24px;
+    border-bottom: 2px solid #333;
+    margin-bottom: 16px;
+  }
+
+  .filter-tab {
+    background-color: #1a1a1a;
+    color: #888;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    position: relative;
+    top: 2px;
+  }
+
+  .filter-tab:hover {
+    background-color: #222;
+    color: #aaa;
+  }
+
+  .filter-tab.active {
+    background-color: #272727;
+    color: white;
+    border-bottom-color: #a9357b;
+  }
+
+  .filter-tab[data-filter="all"].active {
+    border-bottom-color: #666;
+  }
+
+  .filter-tab[data-filter="offense"].active {
+    border-bottom-color: #ef4444;
+  }
+
+  .filter-tab[data-filter="defense"].active {
+    border-bottom-color: #f97316;
+  }
+
+  .filter-tab[data-filter="support"].active {
+    border-bottom-color: #3b82f6;
+  }
+
+  .filter-tab[data-filter="alter"].active {
+    border-bottom-color: #8b5cf6;
+  }
+
+  /* Filter hidden class - completely hide without disrupting layout */
+  .filter-hidden {
+    display: none !important;
+  }
+
+  /* Use CSS Grid for consistent alignment */
+  .masterycategory.picker {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 12px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Cards in grid layout */
+  .masterycategory.picker .card {
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  @media (max-width: 1200px) {
+    .masterycategory.picker {
+      grid-template-columns: repeat(2, 1fr) !important;
     }
-    
-    .card.selected {
-      border-width: 3px !important;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  }
+
+  @media (max-width: 768px) {
+    .masterycategory.picker {
+      grid-template-columns: 1fr !important;
     }
-    
-    .card.free-action {
-      opacity: 0.8;
-      pointer-events: none;
-    }
-    
-    .refresh-msg {
-      text-align: center;
-      padding: 10px;
-      background-color: #f8f9fa;
-      border-radius: 5px;
-      margin-bottom: 20px;
-      color: #6c757d;
-    }
-    
-    .button[disabled] {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  </style>
+  }
+</style>
 </body>
 </html>

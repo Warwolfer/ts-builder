@@ -1,4 +1,4 @@
-// TerraSphere V2 - Centralized Configuration System
+// TerraSphere - Centralized Configuration System
 // Manages all application settings, URLs, feature flags, and environment configs
 
 const Config = {
@@ -8,7 +8,7 @@ const Config = {
       window.location.hostname === "localhost" ||
       window.location.hostname === "127.0.0.1",
     isProduction: window.location.hostname.includes("terrarp.com"),
-    isV2: window.location.pathname.includes("/v2/"),
+    is: window.location.pathname.includes("/"),
 
     get current() {
       if (this.isDevelopment) return "development";
@@ -46,15 +46,15 @@ const Config = {
     },
   },
 
-  // TerraSphere V2 specific URLs
+  // TerraSphere specific URLs
   urls: {
     wiki: "https://terrarp.com/wiki",
     buildEditor: {
-      v1: "https://terrarp.com/build/",
-      v2: "https://terrarp.com/build/v2/",
+      production: "https://terrarp.com/build/",
+      legacy: "https://terrarp.com/build/legacy/",
     },
 
-    // V2 page URLs
+    // page URLs
     pages: {
       index: "index.html",
       masterySelector: "mastery-selector.html",
@@ -74,7 +74,7 @@ const Config = {
 
     // Get page URL with base path
     getPageUrl(page) {
-      const basePath = Config.environment.isV2 ? "" : "v2/";
+      const basePath = Config.environment.isProduction ? "" :";
       return `${basePath}${this.pages[page] || page}`;
     },
   },
@@ -177,7 +177,7 @@ const Config = {
   // Feature flags
   features: {
     // Core features
-    v2BuildSystem: true,
+    buildSystem: true,
     compactBuildCodes: true,
     expertiseSystem: true,
     accessorySystem: true,
@@ -219,7 +219,7 @@ const Config = {
 
   // Game-specific settings
   game: {
-    // V2 system limits
+    // system limits
     limits: {
       maxMasteries: 6,
       maxActions: 12,
@@ -305,7 +305,7 @@ const Config = {
     // Get user preference
     get(key) {
       try {
-        const stored = localStorage.getItem("ts_v2_preferences");
+        const stored = localStorage.getItem("ts_preferences");
         const preferences = stored ? JSON.parse(stored) : {};
         return preferences[key] !== undefined
           ? preferences[key]
@@ -319,10 +319,10 @@ const Config = {
     // Set user preference
     set(key, value) {
       try {
-        const stored = localStorage.getItem("ts_v2_preferences");
+        const stored = localStorage.getItem("ts_preferences");
         const preferences = stored ? JSON.parse(stored) : {};
         preferences[key] = value;
-        localStorage.setItem("ts_v2_preferences", JSON.stringify(preferences));
+        localStorage.setItem("ts_preferences", JSON.stringify(preferences));
         return true;
       } catch (error) {
         console.warn("Config: Failed to set preference:", key, value, error);
@@ -333,7 +333,7 @@ const Config = {
     // Reset to defaults
     reset() {
       try {
-        localStorage.removeItem("ts_v2_preferences");
+        localStorage.removeItem("ts_preferences");
         return true;
       } catch (error) {
         console.warn("Config: Failed to reset preferences:", error);
@@ -381,7 +381,7 @@ const Config = {
 
     // Generate cache key
     generateCacheKey(prefix, ...parts) {
-      return `ts_v2_${prefix}_${parts.join("_")}`;
+      return `ts_${prefix}_${parts.join("_")}`;
     },
   },
 
@@ -398,7 +398,7 @@ const Config = {
 
     // Log initialization in debug mode
     if (this.features.isEnabled("verboseLogging")) {
-      console.group("🔧 TerraSphere V2 Configuration");
+      console.group("🔧 TerraSphere Configuration");
       console.log("Environment:", this.environment.current);
       console.log("API Base URL:", this.api.getBaseUrl());
       console.log(
@@ -413,7 +413,7 @@ const Config = {
     }
 
     // Set global flag for other modules
-    window.TS_V2_CONFIG_LOADED = true;
+    window.TS_CONFIG_LOADED = true;
 
     // Dispatch configuration ready event
     document.dispatchEvent(

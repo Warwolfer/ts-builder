@@ -5,11 +5,17 @@ class BuildState {
       // Mastery Selection Phase
       chosenMasteries: [],
       armorType: null, // 'heavy', 'medium', 'light'
+      accessoryType: null, // 'combat', 'utility', 'magic'
+
+      // Expertise Selection Phase
+      chosenExpertise: [],
 
       // Rank Assignment Phase
       chosenMasteriesRanks: [],
+      chosenExpertiseRanks: [],
       weaponRank: 0,
       armorRank: 0,
+      accessoryRank: 0,
 
       // Action Selection Phase
       chosenActions: [],
@@ -19,9 +25,12 @@ class BuildState {
       characterRace: "",
       characterTitle: "",
       threadCode: "",
+      note: "",
+      ng: 0, // New Game Plus indicator (0 or 1)
 
       // Imported Character Data
       profileBannerUrl: "",
+      avatarUrl: "",
 
       // Build Metadata
       buildId: null,
@@ -49,7 +58,9 @@ class BuildState {
     this.state = {
       chosenMasteries: [],
       armorType: null,
+      chosenExpertise: [],
       chosenMasteriesRanks: [],
+      chosenExpertiseRanks: [],
       weaponRank: 0,
       armorRank: 0,
       chosenActions: [],
@@ -57,7 +68,9 @@ class BuildState {
       characterRace: "",
       characterTitle: "",
       threadCode: "",
+      ng: 0,
       profileBannerUrl: "",
+      avatarUrl: "",
       buildId: null,
       lastModified: new Date(),
     };
@@ -78,15 +91,9 @@ class BuildState {
   loadFromStorage() {
     try {
       const saved = localStorage.getItem("tsbuilder_state");
-      console.log(
-        "💾 StateManager: Loading from localStorage:",
-        saved ? "Found data" : "No data",
-      );
       if (saved) {
         const parsedState = JSON.parse(saved);
-        console.log("💾 StateManager: Parsed localStorage data:", parsedState);
         this.state = { ...this.state, ...parsedState };
-        console.log("💾 StateManager: State after loading:", this.state);
       }
     } catch (e) {
       console.error("💾 StateManager: Error loading from localStorage:", e);
@@ -98,8 +105,117 @@ class BuildState {
     // URL parameter loading is now disabled to avoid long, problematic URLs
     // All character data is stored in localStorage and persists across page navigation
     // Only build codes (in URL hash) are used for sharing complete builds
+  }
+
+  // Load character data from TerraSphere Character Manager
+  loadFromCharacterManager(characterData) {
+    if (!characterData) return;
+
+    const updates = {};
+
+    // Basic character info
+    if (characterData.username) {
+      updates.characterName = characterData.username;
+    }
+
+    if (characterData.Race) {
+      updates.characterRace = characterData.Race;
+    }
+
+    if (characterData.custom_title) {
+      updates.characterTitle = characterData.custom_title;
+    }
+
+    // Profile images
+    if (characterData.banner_urls?.l) {
+      updates.profileBannerUrl = characterData.banner_urls.l;
+    }
+
+    if (characterData.avatar_urls?.m) {
+      updates.avatarUrl = characterData.avatar_urls.m;
+    }
+
+    // Check for New Game Plus status
+    if (
+      characterData.secondary_user_group_ids &&
+      Array.isArray(characterData.secondary_user_group_ids)
+    ) {
+      // Set ng to true (1) if secondary_user_group_ids contains ID 30
+      updates.ng = characterData.secondary_user_group_ids.includes(30) ? 1 : 0;
+    }
+
+    // Parse character masteries for system
+    const chosenMasteries = [];
+    const chosenMasteriesRanks = [];
+
+    if (characterData.masteries && characterData.masteries.length > 0) {
+      for (let i = 0; i < characterData.masteries.length; i++) {
+        // Convert mastery name to format (lowercase with hyphens)
+        const masteryName = characterData.masteries[i].Mastery.toLowerCase().replace(/\s+/g, '-');
+        const rank = characterData.masteries[i].Rank;
+
+        chosenMasteries.push(masteryName);
+
+        // Convert rank letter to number (0=E, 1=D, 2=C, 3=B, 4=A, 5=S)
+        const rankMap = {'E': 0, 'D': 1, 'C': 2, 'B': 3, 'A': 4, 'S': 5};
+        chosenMasteriesRanks.push(rankMap[rank] || 0);
+      }
+      updates.chosenMasteries = chosenMasteries;
+      updates.chosenMasteriesRanks = chosenMasteriesRanks;
+    }
+
+    // Parse expertise for system
+    const chosenExpertise = [];
+    const chosenExpertiseRanks = [];
+    const rankMap = {'E': 0, 'D': 1, 'C': 2, 'B': 3, 'A': 4, 'S': 5};
+
+    if (characterData.expertises && characterData.expertises.length > 0) {
+      for (let i = 0; i < characterData.expertises.length; i++) {
+        // Convert expertise name to format (lowercase with hyphens)
+        const expertiseName = characterData.expertises[i].Expertise.toLowerCase().replace(/\s+/g, '-');
+        const rank = characterData.expertises[i].Rank;
+
+        chosenExpertise.push(expertiseName);
+        chosenExpertiseRanks.push(rankMap[rank] || 0);
+      }
+      updates.chosenExpertise = chosenExpertise;
+      updates.chosenExpertiseRanks = chosenExpertiseRanks;
+    }
+
+    // Parse armor and accessory types from equipment
+    if (characterData.equipment && characterData.equipment.length >= 2) {
+      // Parse armor type
+      const armorKey = Object.keys(characterData.equipment[1])[0];
+      if (armorKey === 'Heavy Armor') {
+        updates.armorType = 'heavy';
+      } else if (armorKey === 'Medium Armor') {
+        updates.armorType = 'medium';
+      } else if (armorKey === 'Light Armor') {
+        updates.armorType = 'light';
+      }
+
+      // Parse accessory type if available
+      if (characterData.equipment.length >= 3) {
+        const accessoryKey = Object.keys(characterData.equipment[2])[0];
+        if (accessoryKey === 'Cloak' || accessoryKey === 'Combat Accessory') {
+          updates.accessoryType = 'cloak';
+        } else if (accessoryKey === 'Charm' || accessoryKey === 'Social Accessory') {
+          updates.accessoryType = 'charm';
+        } else if (accessoryKey === 'Band' || accessoryKey === 'Exploration Accessory') {
+          updates.accessoryType = 'band';
+        }
+      }
+    }
+
+    // Clear chosen actions since masteries/expertise changed
+    updates.chosenActions = [];
+
+    // Update state with character data
+    this.updateState(updates);
+
     console.log(
-      "localStorage-first: URL parameter loading disabled for cleaner URLs",
+      "📋 StateManager: Loaded character from TerraSphere Character Manager",
+      updates,
     );
   }
 
@@ -134,25 +250,39 @@ class BuildState {
 
   // Validation methods
   isValidForRankSelection() {
-    const valid = this.state.chosenMasteries.length > 0;
-    console.log(
-      "🔍 StateManager: isValidForRankSelection =",
-      valid,
-      "masteries:",
-      this.state.chosenMasteries,
+    return (
+      this.state.chosenMasteries.length > 0 &&
+      this.state.chosenExpertise.length > 0
     );
-    return valid;
   }
 
   isValidForActionSelection() {
-    const valid =
+    const masteryValid =
       this.state.chosenMasteries.length > 0 &&
       this.state.chosenMasteriesRanks.length ===
         this.state.chosenMasteries.length;
-    console.log("🔍 StateManager: isValidForActionSelection =", valid, {
-      masteries: this.state.chosenMasteries.length,
-      ranks: this.state.chosenMasteriesRanks.length,
-    });
+
+    const expertiseValid =
+      this.state.chosenExpertise.length > 0 &&
+      this.state.chosenExpertiseRanks.length ===
+        this.state.chosenExpertise.length;
+
+    // : Also validate rank caps for both masteries and expertise
+    let rankCapsValid = true;
+    if (window.CharacterCalculations) {
+      const masteryRankValidation =
+        window.CharacterCalculations.validateMasteryRanks(
+          this.state.chosenMasteriesRanks,
+        );
+      const expertiseRankValidation =
+        window.CharacterCalculations.validateMasteryRanks(
+          this.state.chosenExpertiseRanks,
+        );
+      rankCapsValid =
+        masteryRankValidation.valid && expertiseRankValidation.valid;
+    }
+
+    const valid = masteryValid && expertiseValid && rankCapsValid;
     return valid;
   }
 
@@ -160,11 +290,6 @@ class BuildState {
     const actionValid = this.isValidForActionSelection();
     const actionsValid = this.state.chosenActions.length > 0;
     const valid = actionValid && actionsValid;
-    console.log("🔍 StateManager: isValidForBuildSheet =", valid, {
-      actionSelectionValid: actionValid,
-      hasActions: actionsValid,
-      actionsCount: this.state.chosenActions.length,
-    });
     return valid;
   }
 }

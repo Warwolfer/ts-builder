@@ -1,4 +1,4 @@
-const expertiseV2 = [
+const expertise = [
   // Physical Expertise
   {
     id: 1,
@@ -265,4 +265,4 @@ const expertiseV2 = [
 ];
 
 // Export to global scope
-window.expertiseV2 = expertiseV2;
+window.expertise = expertise;

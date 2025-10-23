@@ -1,4 +1,4 @@
-// TerraSphere V2 - Loading State Manager
+// TerraSphere - Loading State Manager
 // Utility for managing loading spinners and states across the application
 
 const LoadingManager = {
@@ -70,7 +70,7 @@ const LoadingManager = {
 
     const {
       type = "mastery",
-      text = "Loading TerraSphere V2...",
+      text = "Loading TerraSphere...",
       size = "large",
     } = options;
 

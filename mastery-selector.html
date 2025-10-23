@@ -15,6 +15,7 @@
   <script src="shared/data-loader.js"></script>
   <script src="shared/calculations.js"></script>
   <script src="shared/build-encoder.js"></script>
+  <script src="shared/loading-manager.js"></script>
   
   <!-- Data files -->
   <script src="resource/masteries.js"></script>
@@ -31,7 +32,7 @@
       </a>
       <div class="nav-left">
         <div class="link"><a href="https://terrarp.com/build/index.html" style="color:#47cbdd">Build Planner</a></div>
-        <div class="link"><a href="https://terrarp.com/build/v2/index.html" style="color:#47cbdd">V2 Beta</a></div>
+        
         <div class="link"><a href="https://terrarp.com/index.php">Forums</a></div>
         <div class="link"><a href="https://terrarp.com/wiki/Main_Page">Wiki</a></div>
         <div class="dropdown">
@@ -52,10 +53,10 @@
       <div class="charimg2 left"><img id="pfp2"></div>
       <div class="charcontainer left">
         <h1 class="nameheader header-info--nameheader">
-          <span class="charname">Step 1: Select Masteries</span>
-        </h1><br>
+          <span class="charname">Step 1: Select Masteries </span>
+        </h1>
         <h2 class="charinfo">
-          <span class="chartitle">Choose up to 5 masteries and your armor type</span>
+          <span class="chartitle">Choose up to 6 masteries and your armor type</span>
           <span class="charrace"></span>
         </h2>
       </div>
@@ -63,7 +64,10 @@
         <div class="masterycategory" id="inputbox">
           <div class="selection-info">
             <div class="selection-count">
-              <span id="selected-count">0</span> / 5 masteries selected
+              <span id="selected-count">0</span> / 6 masteries selected
+            </div>
+            <div class="rank-caps">
+              Rank caps: S×1, A×2, B×3
             </div>
             <div class="selection-warnings" id="selection-warnings"></div>
           </div>
@@ -99,11 +103,37 @@
         </div>
       </div>
 
+      <!-- Accessory Type -->
+      <div class="masterycategory">
+        <h1 class="selectorheader">Accessory Type</h1>
+      </div>
+      <div id="accessory" class="mcontainer">
+        <div class="mbox">
+          <div class="mselector masterycircle accessory" data-accessory="combat" id="combat">
+            <img src="https://terrarp.com/db/tool/armor-heavy.png">
+          </div>
+          <div class="tooltip">Combat</div>
+        </div>
+        <div class="mbox">
+          <div class="mselector masterycircle accessory" data-accessory="utility" id="utility">
+            <img src="https://terrarp.com/db/tool/armor-medium.png">
+          </div>
+          <div class="tooltip">Utility</div>
+        </div>
+        <div class="mbox">
+          <div class="mselector masterycircle accessory" data-accessory="magic" id="magic">
+            <img src="https://terrarp.com/db/tool/armor-light.png">
+          </div>
+          <div class="tooltip">Magic</div>
+        </div>
+      </div>
+
       <!-- Dynamic mastery containers will be populated by JavaScript -->
       <div id="mastery-categories"></div>
     </div>
 
     <div class="button-container">
+<!--      <div class="button" id="debug-state-button">Show Current State</div>-->
       <div class="button" id="reset-button">Reset All</div>
       <div class="button" id="next-button" disabled>Next</div>
     </div>
@@ -124,10 +154,16 @@
         this.init();
       }
       
-      init() {
+      async init() {
         try {
-          // Load mastery data
-          this.dataLoader.loadMasteries();
+          // Show loading while initializing
+          LoadingManager.showMasteryLoading('mastery-categories');
+          
+          // Simulate async loading for better UX
+          await new Promise(resolve => setTimeout(resolve, 200));
+          
+          // Load mastery data - use masteries instead of masterylist
+          this.loadMasteries();
           
           // Load state from URL if present
           this.state.loadFromURL();
@@ -141,8 +177,20 @@
           // Update UI with current state
           this.updateUI();
           
+          // Hide loading
+          LoadingManager.hide('mastery-categories');
+          
         } catch (error) {
           this.showError(`Failed to load mastery data: ${error.message}. Please refresh the page.`);
+        }
+      }
+      
+      loadMasteries() {
+        // Load masteries data and cache it in DataLoader format
+        if (window.masteries) {
+          this.dataLoader.cache.masteries = window.masteries;
+        } else {
+          throw new Error('masteries not found');
         }
       }
       
@@ -150,12 +198,13 @@
         const masteries = this.dataLoader.getMasteriesByCategory();
         const categories = {};
         
-        // Group masteries by role
+        // Group masteries by primaryRole
         masteries.forEach(mastery => {
-          if (!categories[mastery.role]) {
-            categories[mastery.role] = [];
+          const role = mastery.primaryRole || mastery.role; // fallback to role if primaryRole doesn't exist
+          if (!categories[role]) {
+            categories[role] = [];
           }
-          categories[mastery.role].push(mastery);
+          categories[role].push(mastery);
         });
         
         const container = this.domUtils.getElementById('mastery-categories');
@@ -173,14 +222,15 @@
           
           categories[role].forEach(mastery => {
             const tooltip = mastery.name.replace(' ', '<br>').replace(' ', '<br>');
+            const masteryRole = mastery.primaryRole || mastery.role; // use primaryRole or fallback
             html += `
               <div class="mbox">
-                <div class="mselector masterycircle mastery ${mastery.role} ${mastery.lookup}" 
+                <div class="mselector masterycircle mastery ${masteryRole} ${mastery.lookup}" 
                      data-mastery="${mastery.lookup}" 
                      id="${mastery.lookup}">
                   <img src="${mastery.image}">
                 </div>
-                <div class="tooltip">${tooltip}</div>
+                <div class="tooltip">${mastery.name}</div>
               </div>
             `;
           });
@@ -208,6 +258,13 @@
             this.selectArmor(e.target.closest('.armor'));
           });
         });
+
+        // Accessory type selection
+        this.domUtils.querySelectorAll('.accessory').forEach(element => {
+          this.domUtils.addEventListener(element, 'click', (e) => {
+            this.selectAccessory(e.target.closest('.accessory'));
+          });
+        });
         
         // Mastery selection
         this.domUtils.querySelectorAll('.mastery').forEach(element => {
@@ -228,6 +285,12 @@
           'click', 
           () => this.resetSelection()
         );
+        
+        this.domUtils.addEventListener(
+          this.domUtils.getElementById('debug-state-button'), 
+          'click', 
+          () => this.showDebugState()
+        );
       }
       
       selectArmor(element) {
@@ -245,6 +308,39 @@
         this.state.updateState({ armorType });
         this.updateUI();
       }
+
+      selectAccessory(element) {
+        if (!element) return;
+        
+        const accessoryType = element.dataset.accessory;
+        
+        // Clear other accessory selections
+        this.domUtils.clearSelection('#accessory', 'selected');
+        
+        // Select this accessory
+        this.domUtils.addClass(element, 'selected');
+        
+        // Update state
+        this.state.updateState({ accessoryType });
+        this.updateUI();
+      }
+      
+      // Apply mastery color from mastery data
+      applyMasteryColor(element, masteryId) {
+        const masteries = window.masteries || [];
+        const mastery = masteries.find(m => m.lookup === masteryId);
+        if (mastery && mastery.color) {
+          element.style.backgroundColor = mastery.color;
+          // Keep white outline for selected state
+          element.style.borderColor = 'white';
+        }
+      }
+      
+      // Remove mastery color styling
+      removeMasteryColor(element) {
+        element.style.backgroundColor = '';
+        element.style.borderColor = '';
+      }
       
       selectMastery(element) {
         if (!element) return;
@@ -257,10 +353,11 @@
           // Deselect mastery
           chosenMasteries = chosenMasteries.filter(m => m !== masteryId);
           this.domUtils.removeClass(element, 'selected');
+          this.removeMasteryColor(element);
         } else {
           // Check if we can select more masteries
-          if (chosenMasteries.length >= 5) {
-            alert('You may only select 5 masteries at maximum.');
+          if (chosenMasteries.length >= 6) {
+            alert('You may only select 6 masteries at maximum.');
             return;
           }
           
@@ -271,6 +368,7 @@
             otherAlters.forEach(other => {
               if (other !== element) {
                 this.domUtils.removeClass(other, 'selected');
+                this.removeMasteryColor(other);
                 const otherMastery = other.dataset.mastery;
                 chosenMasteries = chosenMasteries.filter(m => m !== otherMastery);
               }
@@ -280,6 +378,7 @@
           // Add this mastery
           chosenMasteries.push(masteryId);
           this.domUtils.addClass(element, 'selected');
+          this.applyMasteryColor(element, masteryId);
         }
         
         // Validate selection
@@ -299,7 +398,7 @@
       
       updateUI() {
         const currentState = this.state.getState();
-        const { chosenMasteries, armorType } = currentState;
+        const { chosenMasteries, armorType, accessoryType } = currentState;
         
         // Update selection count
         this.domUtils.setText(
@@ -309,7 +408,7 @@
         
         // Update next button state
         const nextButton = this.domUtils.getElementById('next-button');
-        const canProceed = chosenMasteries.length > 0 && armorType;
+        const canProceed = chosenMasteries.length > 0 && armorType && accessoryType;
         
         if (canProceed) {
           nextButton.removeAttribute('disabled');
@@ -325,10 +424,13 @@
       
       syncUIWithState() {
         const currentState = this.state.getState();
-        const { chosenMasteries, armorType } = currentState;
+        const { chosenMasteries, armorType, accessoryType } = currentState;
         
-        // Clear all selections
+        // Clear all selections and colors
         this.domUtils.clearSelection('#masterycontainer', 'selected');
+        this.domUtils.querySelectorAll('.mastery').forEach(element => {
+          this.removeMasteryColor(element);
+        });
         
         // Restore armor selection
         if (armorType) {
@@ -337,12 +439,21 @@
             this.domUtils.addClass(armorElement, 'selected');
           }
         }
+
+        // Restore accessory selection
+        if (accessoryType) {
+          const accessoryElement = this.domUtils.querySelector(`.accessory[data-accessory="${accessoryType}"]`);
+          if (accessoryElement) {
+            this.domUtils.addClass(accessoryElement, 'selected');
+          }
+        }
         
-        // Restore mastery selections
+        // Restore mastery selections with colors
         chosenMasteries.forEach(masteryId => {
           const masteryElement = this.domUtils.querySelector(`.mastery[data-mastery="${masteryId}"]`);
           if (masteryElement) {
             this.domUtils.addClass(masteryElement, 'selected');
+            this.applyMasteryColor(masteryElement, masteryId);
           }
         });
       }
@@ -351,10 +462,40 @@
         if (confirm('Are you sure you want to reset all selections?')) {
           this.state.updateState({
             chosenMasteries: [],
-            armorType: null
+            armorType: null,
+            accessoryType: null
           });
           this.updateUI();
         }
+      }
+      
+      showDebugState() {
+        const currentState = this.state.getState();
+        const debugInfo = `
+DEBUG STATE INFORMATION:
+
+Selected Masteries (${currentState.chosenMasteries.length}/6):
+${currentState.chosenMasteries.map((m, i) => `  ${i+1}. ${m}`).join('\n') || '  (none)'}
+
+Mastery Ranks (${currentState.chosenMasteriesRanks?.length || 0}):
+${currentState.chosenMasteriesRanks?.map((r, i) => `  ${i+1}. ${r}`).join('\n') || '  (none)'}
+
+Selected Expertise (${currentState.chosenExpertise?.length || 0}):
+${currentState.chosenExpertise?.map((e, i) => `  ${i+1}. ${e}`).join('\n') || '  (none)'}
+
+Armor Type: ${currentState.armorType || '(none)'}
+Accessory Type: ${currentState.accessoryType || '(none)'}
+
+Actions (${currentState.chosenActions?.length || 0}):
+${currentState.chosenActions?.map((a, i) => `  ${i+1}. ${a}`).join('\n') || '  (none)'}
+
+Character Info:
+  Name: ${currentState.characterName || '(none)'}
+  Race: ${currentState.characterRace || '(none)'}
+  Title: ${currentState.characterTitle || '(none)'}
+        `;
+        
+        alert(debugInfo);
       }
       
       goToNextPage() {
@@ -369,9 +510,14 @@
           alert('Please select an armor type before proceeding.');
           return;
         }
+
+        if (!currentState.accessoryType) {
+          alert('Please select an accessory type before proceeding.');
+          return;
+        }
         
-        // Navigate to rank selector
-        const url = this.state.generateURL('rank-selector.html');
+        // Navigate to expertise selector
+        const url = this.state.generateURL('expertise-selector.html');
         window.location.href = url;
       }
       

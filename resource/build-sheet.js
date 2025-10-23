@@ -3,8 +3,8 @@ window.buildState = window.buildState || new BuildState();
 window.DataLoader = window.DataLoader || new DataLoader();
 window.DOMUtils = window.DOMUtils || new DOMUtils();
 
-// Build Sheet Display Logic for V2
-class BuildSheetV2 {
+// Build Sheet Display Logic for the system
+class BuildSheet {
   constructor() {
     this.state = window.buildState;
     this.dataLoader = window.DataLoader;
@@ -64,10 +64,10 @@ class BuildSheetV2 {
 
   init() {
     try {
-      // Load V2 data
-      this.loadMasteriesV2();
-      this.loadExpertiseV2();
-      this.loadActionsV2();
+      // Load data
+      this.loadMasteries();
+      this.loadExpertise();
+      this.loadActions();
 
       // Show the build display (it's hidden by default in app.css)
       const buildDisplay = this.domUtils.getElementById("builddisplay");
@@ -94,32 +94,32 @@ class BuildSheetV2 {
       // Set up event listeners
       this.setupEventListeners();
     } catch (error) {
-      console.error("BuildSheet V2: Initialization failed:", error);
+      console.error("BuildSheet : Initialization failed:", error);
       this.showError("Failed to load build data: " + error.message);
     }
   }
 
-  loadMasteriesV2() {
-    if (window.masteriesV2) {
-      this.dataLoader.cache.masteries = window.masteriesV2;
+  loadMasteries() {
+    if (window.masteries) {
+      this.dataLoader.cache.masteries = window.masteries;
     } else {
-      throw new Error("masteriesV2 not found");
+      throw new Error("masteries not found");
     }
   }
 
-  loadExpertiseV2() {
-    if (window.expertiseV2) {
-      this.dataLoader.cache.expertise = window.expertiseV2;
+  loadExpertise() {
+    if (window.expertise) {
+      this.dataLoader.cache.expertise = window.expertise;
     } else {
-      throw new Error("expertiseV2 not found");
+      throw new Error("expertise not found");
     }
   }
 
-  loadActionsV2() {
-    if (window.actionlistV2) {
-      this.dataLoader.cache.actions = window.actionlistV2;
+  loadActions() {
+    if (window.actionlist) {
+      this.dataLoader.cache.actions = window.actionlist;
     } else {
-      throw new Error("actionlistV2 not found");
+      throw new Error("actionlist not found");
     }
   }
 
@@ -181,7 +181,7 @@ class BuildSheetV2 {
   }
 
   displayCharacterName(name) {
-    const displayName = name || "Character Build V2";
+    const displayName = name || "Character Build";
     this.domUtils.setText(
       this.domUtils.getElementById("character-name-display"),
       displayName,
@@ -349,7 +349,7 @@ class BuildSheetV2 {
     // Saves - display like equipment
     this.displaySaves(stats.saves);
 
-    // V2 has no expertise bonuses to display
+    // has no expertise bonuses to display
 
     // Calculate and display total score
     this.calculateAndDisplayTotalScore();
@@ -653,7 +653,7 @@ class BuildSheetV2 {
 
     totalScore += masteryTotal;
 
-    // Expertise scores (V2 feature)
+    // Expertise scores
     let expertiseTotal = 0;
     const expertiseRanks =
       currentState.expertiseRanks || currentState.chosenExpertiseRanks || {};
@@ -918,8 +918,8 @@ class BuildSheetV2 {
   }
 
   getArmorAbility(armorType, armorRank) {
-    // Use V2 armor abilities data
-    const armorAbilities = window.armorAbilitiesV2;
+    // Use armor abilities data
+    const armorAbilities = window.armorAbilities;
 
     if (!armorAbilities)
       return { name: "No ability", description: "", rollCode: "" };
@@ -1041,7 +1041,7 @@ class BuildSheetV2 {
     const masteries = this.dataLoader.cache.masteries;
     let html = "";
 
-    // Add base actions first (attack, rush - no recover in V2)
+    // Add base actions first (attack, rush - no recover)
     this.displayBaseActions(state, masteries);
 
     // Add chosen actions
@@ -1771,12 +1771,12 @@ class BuildSheetV2 {
           this.state.updateState(result.data);
         } else {
           console.warn(
-            "BuildSheet V2: Failed to load build from URL:",
+            "BuildSheet : Failed to load build from URL:",
             result.error,
           );
         }
       } catch (error) {
-        console.error("BuildSheet V2: Error loading build code:", error);
+        console.error("BuildSheet : Error loading build code:", error);
       }
     }
   }
@@ -2790,5 +2790,5 @@ function copyRollCode(element, event) {
 
 // Initialize when page loads
 window.onload = function () {
-  buildSheetInstance = new BuildSheetV2();
+  buildSheetInstance = new BuildSheet();
 };
