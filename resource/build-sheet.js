@@ -259,6 +259,20 @@ class BuildSheet {
           background-repeat: no-repeat;
           z-index: 10;
         }
+        .banner::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(19, 20, 25, 0.4);
+          z-index: 11;
+        }
+        .banner {
+          position: relative;
+          z-index: 12;
+        }
       `;
       if (!document.getElementById("banner-blur-style")) {
         document.head.appendChild(style);
