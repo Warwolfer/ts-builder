@@ -1991,7 +1991,10 @@ function addGlowEffect(element, containerClass) {
   let container;
   if (containerClass === "masterycircle") {
     container =
-      element.closest(".masteryicon") || element.closest("#savesicons");
+      element.closest(".masteryicon") ||
+      element.closest("#savesicons") ||
+      element.closest("#masterycheckicons") ||
+      element.closest("#expertiseicons");
   } else if (containerClass === "togglesavechecks") {
     container = element.closest(".togglecontainer");
   }

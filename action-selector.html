@@ -105,6 +105,7 @@
       <strong>Selected: <span id="total-actions">0</span> actions (<span id="used-slots-bottom">0</span>/6
         slots)</strong>
     </div>
+    <button class="clear-actions-button" id="clear-actions-button">Clear All Actions</button>
   </div>
 
   <div class="button-container">
@@ -419,6 +420,13 @@
         'click',
         () => this.goToNextPage()
       );
+
+      // Clear actions button
+      this.domUtils.addEventListener(
+        this.domUtils.getElementById('clear-actions-button'),
+        'click',
+        () => this.clearAllActions()
+      );
     }
 
     selectAction(element) {
@@ -644,6 +652,27 @@
       window.location.href = url;
     }
 
+    clearAllActions() {
+      // Confirm before clearing
+      if (!confirm('Are you sure you want to clear all selected actions?')) {
+        return;
+      }
+
+      // Clear all actions from state
+      this.state.updateState({ chosenActions: [] });
+
+      // Remove selected class from all action cards
+      const allCards = document.querySelectorAll('.card.selected');
+      allCards.forEach(card => {
+        card.classList.remove('selected');
+      });
+
+      // Update the UI (action counts, slot usage, button states)
+      this.updateUI();
+
+      console.log('✓ All actions cleared');
+    }
+
     showError(message) {
       const container = this.domUtils.getElementById('action-categories');
       this.domUtils.showError(container, message);
@@ -760,10 +789,31 @@
     font-size: 1.0em;
     font-weight: bold;
     color: #ffffff;
+    margin-bottom: 10px;
   }
 
   .action-count span {
     color: #47cbdd;
+  }
+
+  .clear-actions-button {
+    padding: 8px 16px;
+    background-color: #d63384;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: bold;
+    transition: background-color 0.2s;
+  }
+
+  .clear-actions-button:hover {
+    background-color: #d63384;
+  }
+
+  .clear-actions-button:active {
+    background-color: #d63384;
   }
 
   .action-warnings {
@@ -781,7 +831,7 @@
   }
 
   .filter-tab {
-    background-color: #1a1a1a;
+    background-color: #202632;
     color: #888;
     border: none;
     border-bottom: 3px solid transparent;
@@ -801,7 +851,7 @@
   }
 
   .filter-tab.active {
-    background-color: #272727;
+    background-color: #232937;
     color: white;
     border-bottom-color: #a9357b;
   }

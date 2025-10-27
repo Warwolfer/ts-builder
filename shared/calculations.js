@@ -279,7 +279,10 @@ const CharacterCalculations = {
     return { valid: true };
   },
 
-  // rank distribution validation: S×1, A×2, B×unlimited
+  // rank distribution validation: cumulative caps
+  // - Max 1 slot at S or above (so 1×S max)
+  // - Max 3 slots at A or above (so 1×S + 2×A max = 3 total)
+  // - Unlimited slots at B or below
   validateMasteryRanks(ranks) {
     if (!ranks || ranks.length === 0) return { valid: true };
 
@@ -289,16 +292,35 @@ const CharacterCalculations = {
       if (rankCounts.hasOwnProperty(r)) rankCounts[r]++;
     });
 
-    const maxCaps = { 5: 1, 4: 2, 3: 6, 2: 6, 1: 6, 0: 6 }; // B rank now unlimited (set to 6 = max slots)
     const rankNames = { 5: "S", 4: "A", 3: "B", 2: "C", 1: "D", 0: "E" };
 
-    for (const [rank, count] of Object.entries(rankCounts)) {
-      if (count > maxCaps[rank]) {
-        return {
-          valid: false,
-          error: `Too many ${rankNames[rank]} ranks: ${count}/${maxCaps[rank]} allowed. caps: S×1, A×2, B×unlimited.`,
-        };
-      }
+    // Check cumulative caps
+    const sRanks = rankCounts[5];
+    const aOrAbove = rankCounts[5] + rankCounts[4];
+    const bOrAbove = rankCounts[5] + rankCounts[4] + rankCounts[3];
+
+    // Max 1 S rank
+    if (sRanks > 1) {
+      return {
+        valid: false,
+        message: `Too many S ranks: ${sRanks}/1 allowed. Only 1 slot can be S rank.`,
+      };
+    }
+
+    // Max 3 ranks at A or above (S + A)
+    if (aOrAbove > 3) {
+      return {
+        valid: false,
+        message: `Too many A+ ranks: ${aOrAbove}/3 allowed. Max 3 slots can be A rank or higher (includes S ranks).`,
+      };
+    }
+
+    // Max 6 ranks at B or above (unlimited, but checking max slots)
+    if (bOrAbove > 6) {
+      return {
+        valid: false,
+        message: `Too many ranks: ${bOrAbove}/6 allowed. Maximum 6 masteries/expertise.`,
+      };
     }
 
     return { valid: true };
