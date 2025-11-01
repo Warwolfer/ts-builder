@@ -776,6 +776,37 @@
     -moz-appearance: textfield;
 }
 
+.speed-input {
+    background-color: #2d3748;
+    color: white;
+    border: 1px solid #4a5568;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 11px;
+    width: 60px;
+    transition: all 0.2s ease;
+}
+
+.speed-input:focus {
+    outline: none;
+    border-color: #63429b;
+    background-color: #1a202c;
+}
+
+.speed-input::placeholder {
+    color: #a0aec0;
+}
+
+.speed-input::-webkit-outer-spin-button,
+.speed-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.speed-input[type="number"] {
+    -moz-appearance: textfield;
+}
+
 .charging-input {
     background-color: #2d3748;
     color: white;
