@@ -178,6 +178,9 @@ class BuildSheet {
         // Auto-select single masteries for actions with only one option
         this.autoSelectSingleMasteries(currentState, actions, masteries);
 
+        // Update Engage action with Regalia tag if conditions are met
+        this.updateEngageRegalia(currentState);
+
         // Set up thread code functionality
         this.setupThreadCode();
         this.restoreThreadCode();
@@ -1760,6 +1763,31 @@ class BuildSheet {
                 });
             }
         });
+    }
+
+    updateEngageRegalia(state) {
+        // Check if Engage action is in chosen actions
+        if (!state.chosenActions.includes("engage")) return;
+
+        // Check if Light Armor is equipped
+        if (state.armorType !== "light") return;
+
+        // Check if Alter mastery is at least D rank (rank >= 1)
+        const alterRank = this.calculations.getAlterMasteryRank(state);
+        if (alterRank < 1) return;
+
+        // Find the Engage action card
+        const engageCard = this.domUtils.querySelector(".card#engagefinal");
+        if (!engageCard) return;
+
+        const rollCodeElement = engageCard.querySelector(".rollcode");
+        if (!rollCodeElement) return;
+
+        // Check if Regalia tag already exists
+        if (rollCodeElement.innerHTML.includes(" · Regalia")) return;
+
+        // Add the Regalia tag
+        rollCodeElement.innerHTML += " · Regalia";
     }
 
     autoSelectSingleMasteries(state, actions, masteries) {
