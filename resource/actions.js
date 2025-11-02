@@ -604,7 +604,7 @@ const actionlist = [
             "<p>Passive: All attack actions gain +5 extra attack modifier per mastery rank: +5 (D), +10 (C), +15 (B), +20 (A), +25 (S).</p>",
         dice: "Passive",
         use: ["passive"],
-        roll: "?r lethal <span class='masteryreplace'>MR</span> # <span class='mnamereplace'>Mastery</span> · Character Name · <span class='thrcode'>Code</span>",
+        roll: "",
         masteries: [
             "astramancy",
             "dark-magic",
@@ -744,7 +744,7 @@ const actionlist = [
             "<p>(D) Passive: Gain 1 extra movement</p><p>(S) Upgrade: 1 → 2 extra movements.</p>",
         dice: "Passive",
         use: ["passive"],
-        roll: "?r swift <span class='masteryreplace'>MR</span> # <span class='mnamereplace'>Mastery</span> · Character Name · <span class='thrcode'>Code</span>",
+        roll: "",
         masteries: [
             "astramancy",
             "dark-magic",
@@ -1004,7 +1004,7 @@ const actionlist = [
             "<p>Passive: All heal and buff actions gain +5 extra modifier per mastery rank: +5 (D), +10 (C), +15 (B), +20 (A), +25 (S).</p>",
         dice: "Passive",
         use: ["passive"],
-        roll: "?r blessed # Character Name · <span class='thrcode'>Code</span>",
+        roll: "",
         masteries: [
             "chronomancy",
             "alchemy",
@@ -1367,7 +1367,7 @@ const actionlist = [
             "<p>(D) Passive: Light Armor reduces the health cost of Engage's Bonus Actions and Empower by 5 (D), 10 (B), 15 (S).</p>",
         dice: "Passive",
         use: ["passive"],
-        roll: "?r regalia <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
+        roll: "",
         masteries: ["evoke"],
         category: "alter",
         pair: "U1",
@@ -1467,7 +1467,7 @@ const actionlist = [
             "<p>(D) Passive: Use the mastery and mastery rank of any non-support masteries to perform support actions. You must have at least 1 support mastery on your character sheet to access support actions.</p>",
         dice: "Passive",
         use: ["passive"],
-        roll: "?r bestowed <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
+        roll: "",
         masteries: ["mend"],
         category: "alter",
         pair: "W1",
@@ -1498,7 +1498,7 @@ const actionlist = [
         color: "#63429b",
         image: "https://terrarp.com/db/action/evolve.png",
         description:
-            "<p>(D) Passive: At the beginning of the thread, +10 (D) +15 (B) +20 (S) bonus to main action rolls made with a mastery and one role. All attacks will now include that mastery's damage type. You must declare this on every post afterward in the combat log.</p><p>(A) Bonus Action: Shift. Change the Evolved mastery and role and gain its bonus this cycle onward.</p>",
+            "<p>(D) Passive: At the beginning of the thread, +10 (D) +15 (B) +20 (S) bonus to main action rolls made with a mastery. All attacks will now include that mastery's damage type. You must declare this on every post afterward in the combat log.</p><p>(A) Bonus Action: Shift. Change the Evolved mastery and role and gain its bonus this cycle onward.</p>",
         dice: "Passive/Bonus Action",
         use: ["passive", "bonus"],
         roll: "?r evolve <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",

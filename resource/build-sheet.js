@@ -1118,9 +1118,26 @@ class BuildSheet {
                 ? `<div class="filler"></div><div class="cardroll"><b>Roll:</b> ${action.dice}</div>`
                 : "";
 
+        // Process rollcode - special handling for Evolve action
+        let rollCode = action.roll;
+        if (action.lookup === "evolve" && rollCode && rollCode !== "-") {
+            // Replace MR with actual Metamorph rank
+            const alterMasteryIndex = state.chosenMasteries.length - 1;
+            if (alterMasteryIndex >= 0) {
+                const alterRank = state.chosenMasteriesRanks[alterMasteryIndex];
+                const rankLetters = ["E", "D", "C", "B", "A", "S"];
+                const alterRankLetter = rankLetters[alterRank];
+                // Replace the masteryreplace span content with the actual rank
+                rollCode = rollCode.replace(
+                    /<span class=['"]masteryreplace['"]>MR<\/span>/,
+                    `<span class='masteryreplace'>${alterRankLetter}</span>`
+                );
+            }
+        }
+
         const rollCodeSection =
-            action.roll && action.roll !== "-"
-                ? `<div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">${action.roll}</div>`
+            rollCode && rollCode !== "-"
+                ? `<div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">${rollCode}</div>`
                 : "";
 
         // Generate mastery icons for this action
@@ -1333,17 +1350,16 @@ class BuildSheet {
                     text: "Charging",
                     onclick: "toggleCharging",
                     suffix: "Charging",
-                    hasInput: true,
-                    inputPlaceholder: "Charging Value",
-                    updateFunction: "updateChargingSuffix",
+                    mutuallyExclusive: ["Release"],
                 },
                 {
                     text: "Release",
                     onclick: "toggleRelease",
                     suffix: "Release",
                     hasInput: true,
-                    inputPlaceholder: "Release Value",
+                    inputPlaceholder: "Charge Value",
                     updateFunction: "updateReleaseSuffix",
+                    mutuallyExclusive: ["Charging"],
                 },
             ],
             exchange: [
@@ -1405,6 +1421,9 @@ class BuildSheet {
             momentum: {
                 speed: true,
             },
+            acceleration: {
+                speed: true,
+            },
             "wager-future": {
                 bank: true,
             },
@@ -1457,8 +1476,10 @@ class BuildSheet {
                 );
             }
             if (inputs.speed) {
+                // Determine placeholder text based on action
+                const speedPlaceholder = action.lookup === "acceleration" ? "Unspent" : "Speed";
                 buttons.push(
-                    `<input type="number" class="speed-input" placeholder="Speed" min="0" onkeydown="validateNumericInput(event)" oninput="updateSpeedSuffix('${action.lookup}')" onkeyup="updateSpeedSuffix('${action.lookup}')">`,
+                    `<input type="number" class="speed-input" placeholder="${speedPlaceholder}" min="0" onkeydown="validateNumericInput(event)" oninput="updateSpeedSuffix('${action.lookup}')" onkeyup="updateSpeedSuffix('${action.lookup}')">`,
                 );
             }
         }
@@ -1848,6 +1869,14 @@ class BuildSheet {
 
                     // Special handling for Evolve action
                     if (action.lookup === "evolve") {
+                        // For Evolve, MR should be the Metamorph (alter) mastery rank
+                        const alterMasteryIndex = state.chosenMasteries.length - 1;
+                        if (alterMasteryIndex >= 0 && masteryReplace) {
+                            const alterRank = state.chosenMasteriesRanks[alterMasteryIndex];
+                            const alterRankLetter = rankLetters[alterRank];
+                            masteryReplace.innerHTML = alterRankLetter;
+                        }
+
                         const rollCodeElement = cardElement.querySelector(".rollcode");
                         if (rollCodeElement) {
                             const existingSuffixPattern = / · Mastery \([^)]+\)/g;
@@ -2107,7 +2136,21 @@ function clickMastery(element) {
             // Check if this is the Evolve action - special handling
             const actionElement = cardElement.querySelector('[data-action="evolve"]');
             if (actionElement) {
-                // For Evolve action, add Mastery (masteryname) suffix to rollcode
+                // For Evolve action, the MR should always be the Metamorph (alter) mastery rank
+                // Find the alter mastery (last mastery in the list)
+                const alterMasteryIndex = state.chosenMasteries.length - 1;
+                if (alterMasteryIndex >= 0) {
+                    const alterRank = state.chosenMasteriesRanks[alterMasteryIndex];
+                    const rankLetters = ["E", "D", "C", "B", "A", "S"];
+                    const alterRankLetter = rankLetters[alterRank];
+
+                    // Update the MR to show Metamorph rank, not the clicked mastery rank
+                    if (masteryReplace) {
+                        masteryReplace.innerHTML = alterRankLetter;
+                    }
+                }
+
+                // Add Mastery (masteryname) suffix to rollcode
                 if (rollCodeElement) {
                     // Remove any existing Mastery suffix first
                     const existingSuffixPattern = / · Mastery \([^)]+\)/g;
@@ -2408,9 +2451,7 @@ function toggleActionButtonNoSuffix(actionId, baseText) {
             inputElement.style.display = "none";
             inputElement.value = "";
             // Trigger the update function to remove suffix
-            if (baseText === "Charging") {
-                updateChargingSuffix(actionId);
-            } else if (baseText === "Release") {
+            if (baseText === "Release") {
                 updateReleaseSuffix(actionId);
             }
         }
@@ -2836,13 +2877,7 @@ function handleMutualExclusivity(
                     excludedInput.value = ""; // Clear the input value
 
                     // Directly remove the input-based suffix from rollcode
-                    if (excludedSuffix === "Charging") {
-                        const chargingSuffixPattern = / · Charging \([^)]*\)/g;
-                        rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(
-                            chargingSuffixPattern,
-                            "",
-                        );
-                    } else if (excludedSuffix === "Release") {
+                    if (excludedSuffix === "Release") {
                         const releaseSuffixPattern = / · Release \([^)]*\)/g;
                         rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(
                             releaseSuffixPattern,
@@ -2917,8 +2952,8 @@ function toggleShareAura(actionId, suffix = "Share Aura") {
 function toggleCharging(actionId, suffix = "Charging") {
     // Handle mutual exclusivity - deactivate Release if it's active
     handleMutualExclusivity(actionId, "Charging", ["Release"]);
-    // Don't add base suffix - let the input handler manage the complete suffix
-    toggleActionButtonNoSuffix(actionId, "Charging");
+    // Add Charging suffix when activated
+    toggleActionButton(actionId, suffix, "Charging");
 }
 
 function toggleRelease(actionId, suffix = "Release") {
@@ -3050,8 +3085,15 @@ function refreshAllActionFilters() {
 
 // Copy rollcode to clipboard function
 function copyRollCode(element, event) {
-    // Get the text content without HTML tags
-    const text = element.innerText || element.textContent;
+    // Clone the element to get text without any existing tooltips
+    const clone = element.cloneNode(true);
+
+    // Remove any existing copy-tooltip elements from the clone
+    const existingTooltips = clone.querySelectorAll(".copy-tooltip");
+    existingTooltips.forEach(tooltip => tooltip.remove());
+
+    // Get the text content without HTML tags or tooltips
+    const text = clone.innerText || clone.textContent;
 
     // Copy to clipboard
     navigator.clipboard
@@ -3061,6 +3103,12 @@ function copyRollCode(element, event) {
             const originalBg = element.style.backgroundColor;
             element.style.backgroundColor = "#67a2e0";
             element.style.transition = "background-color 0.05s ease";
+
+            // Remove any existing tooltip first
+            const existingTooltip = element.querySelector(".copy-tooltip");
+            if (existingTooltip) {
+                existingTooltip.remove();
+            }
 
             // Show "Copied!" tooltip
             const copyTooltip = document.createElement("div");
