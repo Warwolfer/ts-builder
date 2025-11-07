@@ -30,7 +30,9 @@ class BuildState {
 
       // Imported Character Data
       profileBannerUrl: "",
+      bannerPositionY: 0,
       avatarUrl: "",
+      imported: false, // Flag to track if character was imported from API
 
       // Build Metadata
       buildId: null,
@@ -70,7 +72,9 @@ class BuildState {
       threadCode: "",
       ng: 0,
       profileBannerUrl: "",
+      bannerPositionY: 0,
       avatarUrl: "",
+      imported: false,
       buildId: null,
       lastModified: new Date(),
     };
@@ -129,6 +133,10 @@ class BuildState {
     // Profile images
     if (characterData.banner_urls?.l) {
       updates.profileBannerUrl = characterData.banner_urls.l;
+    }
+
+    if (characterData.banner_position_y !== undefined && characterData.banner_position_y !== null) {
+      updates.bannerPositionY = characterData.banner_position_y;
     }
 
     if (characterData.avatar_urls?.m) {
@@ -250,36 +258,35 @@ class BuildState {
 
   // Validation methods
   isValidForRankSelection() {
-    return (
-      this.state.chosenMasteries.length > 0 &&
-      this.state.chosenExpertise.length > 0
-    );
+    // Allow zero masteries/expertise - user can start with empty character
+    return true;
   }
 
   isValidForActionSelection() {
+    // Allow zero masteries/expertise
     const masteryValid =
-      this.state.chosenMasteries.length > 0 &&
-      this.state.chosenMasteriesRanks.length ===
-        this.state.chosenMasteries.length;
+      this.state.chosenMasteriesRanks.length === this.state.chosenMasteries.length;
 
     const expertiseValid =
-      this.state.chosenExpertise.length > 0 &&
-      this.state.chosenExpertiseRanks.length ===
-        this.state.chosenExpertise.length;
+      this.state.chosenExpertiseRanks.length === this.state.chosenExpertise.length;
 
-    // : Also validate rank caps for both masteries and expertise
+    // Validate rank caps for both masteries and expertise (only if they exist)
     let rankCapsValid = true;
     if (window.CharacterCalculations) {
-      const masteryRankValidation =
-        window.CharacterCalculations.validateMasteryRanks(
-          this.state.chosenMasteriesRanks,
-        );
-      const expertiseRankValidation =
-        window.CharacterCalculations.validateMasteryRanks(
-          this.state.chosenExpertiseRanks,
-        );
-      rankCapsValid =
-        masteryRankValidation.valid && expertiseRankValidation.valid;
+      if (this.state.chosenMasteriesRanks.length > 0) {
+        const masteryRankValidation =
+          window.CharacterCalculations.validateMasteryRanks(
+            this.state.chosenMasteriesRanks,
+          );
+        rankCapsValid = rankCapsValid && masteryRankValidation.valid;
+      }
+      if (this.state.chosenExpertiseRanks.length > 0) {
+        const expertiseRankValidation =
+          window.CharacterCalculations.validateMasteryRanks(
+            this.state.chosenExpertiseRanks,
+          );
+        rankCapsValid = rankCapsValid && expertiseRankValidation.valid;
+      }
     }
 
     const valid = masteryValid && expertiseValid && rankCapsValid;
@@ -288,9 +295,8 @@ class BuildState {
 
   isValidForBuildSheet() {
     const actionValid = this.isValidForActionSelection();
-    const actionsValid = this.state.chosenActions.length > 0;
-    const valid = actionValid && actionsValid;
-    return valid;
+    // No minimum actions required
+    return actionValid;
   }
 }
 

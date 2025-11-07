@@ -354,7 +354,7 @@
 }
 
 .bannercontent {
-    background: linear-gradient(0deg, transparent 0%, rgba(17, 20, 28, 1) 100%);
+    background: linear-gradient(0deg, rgba(17,17,17,0) 33%, rgba(17,17,17,0.75) 100%);
     justify-content: center;
     /*align-items: center;*/
     width: 100%;

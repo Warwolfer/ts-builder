@@ -109,7 +109,7 @@
   </div>
 
   <div class="button-container">
-    <div class="button" id="back-button">Back</div>
+    <div class="button" id="back-button" style="display: none;">Back</div>
     <div class="button" id="next-button" disabled>Next</div>
   </div>
 </div>
@@ -167,6 +167,9 @@
 
         // Set up event listeners
         this.setupEventListeners();
+
+        // Hide Back button for imported characters
+        this.hideBackButtonForImportedCharacters();
 
         // Update UI with current state
         this.updateUI();
@@ -429,6 +432,19 @@
       );
     }
 
+    hideBackButtonForImportedCharacters() {
+      const currentState = this.state.getState();
+      const backButton = this.domUtils.getElementById('back-button');
+
+      if (backButton) {
+        // Only show back button for non-imported characters
+        if (!currentState.imported) {
+          backButton.style.display = 'block';
+        }
+        // Otherwise keep it hidden (default is display: none)
+      }
+    }
+
     selectAction(element) {
       if (!element) return;
 
@@ -600,17 +616,10 @@
         this.domUtils.setText(usedSlotsBottomElement, usedSlots.toString());
       }
 
-      // Update next button state
+      // Update next button state - always allow proceeding (no minimum actions required)
       const nextButton = this.domUtils.getElementById('next-button');
-      const canProceed = chosenActions.length > 0;
-
-      if (canProceed) {
-        nextButton.removeAttribute('disabled');
-        this.domUtils.removeClass(nextButton, 'disabled');
-      } else {
-        nextButton.setAttribute('disabled', 'true');
-        this.domUtils.addClass(nextButton, 'disabled');
-      }
+      nextButton.removeAttribute('disabled');
+      this.domUtils.removeClass(nextButton, 'disabled');
 
       // Sync UI with state
       this.syncUIWithState();
@@ -642,10 +651,7 @@
     goToNextPage() {
       const currentState = this.state.getState();
 
-      if (currentState.chosenActions.length === 0) {
-        alert('Please select at least one action before proceeding.');
-        return;
-      }
+      // No minimum actions required - allow proceeding with 0 actions
 
       // Navigate to build sheet
       const url = this.state.generateURL('build-sheet.html');

@@ -254,6 +254,7 @@ class BuildSheet {
                 document.getElementById("banner-blur-style") ||
                 document.createElement("style");
             style.id = "banner-blur-style";
+            const bannerPositionY = state.bannerPositionY || 0;
             style.textContent = `
         .banner::before {
           content: '';
@@ -264,7 +265,7 @@ class BuildSheet {
           bottom: 0;
           background-image: url(${state.profileBannerUrl});
           background-size: cover;
-          background-position: center;
+          background-position: center ${bannerPositionY}%;
           background-repeat: no-repeat;
           z-index: 10;
         }
@@ -275,7 +276,7 @@ class BuildSheet {
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(19, 20, 25, 0.4);
+          background: rgba(19,20,25,0.3);
           z-index: 11;
         }
         .banner {
