@@ -62,6 +62,15 @@ const CharacterCalculations = {
           const baseSturdy = 25;
           const sturdyBonus = Math.min(50, baseSturdy + 5 * sturdyMasteryRank);
           totalHP += sturdyBonus;
+        } else if (
+          action.bonuses.hp === "rank-based" &&
+          actionName === "focus-defense"
+        ) {
+          // Focus: Defense passive: +20 HP at D, +30 at B, +40 at S
+          const alterRank = this.getAlterMasteryRank(state);
+          if (alterRank >= 1) totalHP += 20; // D rank: +20
+          if (alterRank >= 3) totalHP += 10; // B rank: +10 additional (total +30)
+          if (alterRank >= 5) totalHP += 10; // S rank: +10 additional (total +40)
         } else if (typeof action.bonuses.hp === "number") {
           totalHP += action.bonuses.hp;
         }
@@ -72,10 +81,11 @@ const CharacterCalculations = {
   },
 
   // Calculate save bonuses
-  calculateSaves(state, masteryList) {
+  calculateSaves(state, masteryList, actionList = []) {
     const {
       chosenMasteries,
       chosenMasteriesRanks,
+      chosenActions = [],
       accessoryType,
       accessoryRank,
     } = state;
@@ -106,6 +116,34 @@ const CharacterCalculations = {
           break;
       }
     }
+
+    // Action bonuses for Focus: Defense and Focus: Movement
+    if (chosenActions.includes("focus-defense")) {
+      // Focus: Defense: +10 to all saves at D, +15 at B, +20 at S
+      const alterRank = this.getAlterMasteryRank(state);
+      let saveBonus = 0;
+      if (alterRank >= 1) saveBonus = 10; // D rank: +10
+      if (alterRank >= 3) saveBonus = 15; // B rank: +15
+      if (alterRank >= 5) saveBonus = 20; // S rank: +20
+
+      saves.fortitude += saveBonus;
+      saves.reflex += saveBonus;
+      saves.will += saveBonus;
+    }
+
+    if (chosenActions.includes("focus-movement")) {
+      // Focus: Movement: +5 to all saves at D, +10 at B, +15 at S
+      const alterRank = this.getAlterMasteryRank(state);
+      let saveBonus = 0;
+      if (alterRank >= 1) saveBonus = 5; // D rank: +5
+      if (alterRank >= 3) saveBonus = 10; // B rank: +10
+      if (alterRank >= 5) saveBonus = 15; // S rank: +15
+
+      saves.fortitude += saveBonus;
+      saves.reflex += saveBonus;
+      saves.will += saveBonus;
+    }
+
     return saves;
   },
 
@@ -146,6 +184,14 @@ const CharacterCalculations = {
           if (accelerationRank >= 1) movement += 2; // D rank: +2 movement
           if (accelerationRank >= 3) movement += 1; // B rank: +1 additional (total +3)
           if (accelerationRank >= 5) movement += 1; // S rank: +1 additional (total +4)
+        } else if (
+          action.bonuses.movement === "rank-based" &&
+          actionName === "focus-movement"
+        ) {
+          // Focus: Movement passive: +1 movement at D rank, +2 at B rank
+          const alterRank = this.getAlterMasteryRank(state);
+          if (alterRank >= 1) movement += 1; // D rank: +1 movement
+          if (alterRank >= 3) movement += 1; // B rank: +1 additional (total +2)
         } else if (typeof action.bonuses.movement === "number") {
           movement += action.bonuses.movement;
         }
@@ -249,7 +295,7 @@ const CharacterCalculations = {
   getCompleteStats(state, masteryList, actionList, expertiseList) {
     const stats = {
       hp: this.calculateHP(state, masteryList, actionList),
-      saves: this.calculateSaves(state, masteryList),
+      saves: this.calculateSaves(state, masteryList, actionList),
       movement: this.calculateMovement(state, state.chosenActions, actionList),
       range: this.calculateRange(state, state.chosenActions, actionList),
       damageModifiers: this.calculateDamageModifiers(

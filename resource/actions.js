@@ -1575,6 +1575,70 @@ const actionlist = [
         pair: "Z1",
         type: "Alter - Weapon Arts",
     },
+
+    // Alter Actions - Praxis
+    {
+        id: 60,
+        lookup: "focus-defense",
+        name: "Focus: Defense",
+        color: "#63429b",
+        image: "https://terrarp.com/db/action/praxis.png",
+        description:
+            "<p>(D) Passive. Gain 20 (D), 30 (B), 40 (S) HP.</p><p>(D) Passive. Gain 10 (D), 15 (B), 20 (S) bonus to all Saves. </p>",
+        dice: "Passive",
+        use: ["passive"],
+        roll: "",
+        masteries: ["praxis"],
+        category: "alter",
+        type: "Alter - Praxis",
+        bonuses: { hp: "rank-based" },
+    },
+    {
+        id: 61,
+        lookup: "focus-offense",
+        name: "Focus: Offense",
+        color: "#63429b",
+        image: "https://terrarp.com/db/action/praxis.png",
+        description:
+            "<p>(D) Passive. Gain 5 (D), 10 (C), 15 (B), 20 (A), 25 (S) to attacks.</p><p>(D) Passive. Gain 5 (D) bonus to all sub-actions OR mastery check (or both if Better or Faster is taken). </p>",
+        dice: "Passive",
+        use: ["passive"],
+        roll: "",
+        masteries: ["praxis"],
+        category: "alter",
+        type: "Alter - Praxis",
+    },
+    {
+        id: 62,
+        lookup: "focus-support",
+        name: "Focus: Support",
+        color: "#63429b",
+        image: "https://terrarp.com/db/action/praxis.png",
+        description:
+            "<p>(D) Passive. Gain 5 (D), 10 (C), 15 (B), 20 (A), 25 (S) to buffs. </p><p>(D) Passive. Gain 5 (D), 10 (B), 15 (S) to heals. </p><p>(D) Passive. Gain 5 (D) bonus to all sub-actions OR mastery check (or both if Stronger or Faster is taken). </p>",
+        dice: "Passive",
+        use: ["passive"],
+        roll: "",
+        masteries: ["praxis"],
+        category: "alter",
+        type: "Alter - Praxis",
+    },
+    {
+        id: 63,
+        lookup: "focus-movement",
+        name: "Focus: Movement",
+        color: "#63429b",
+        image: "https://terrarp.com/db/action/praxis.png",
+        description:
+            "<p>(D) Passive. Gain extra movement: 1 (D), 2 (B) </p><p>(D) Passive. Gain 5 (D), 10 (B), 15 (S) bonus to all Saves. </p><p>(D) Passive. Gain 5 (D) bonus to all sub-actions OR mastery check (or both if Better or Faster is taken). </p>",
+        dice: "Passive",
+        use: ["passive"],
+        roll: "",
+        masteries: ["praxis"],
+        category: "alter",
+        type: "Alter - Praxis",
+        bonuses: { movement: "rank-based" },
+    },
 ];
 
 // Make available globally

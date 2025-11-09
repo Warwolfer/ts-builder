@@ -469,6 +469,18 @@
           chosenActions = chosenActions.filter(id => id !== actionId);
         }
       } else {
+        // Special handling for Praxis Focus actions - max 2 can be selected
+        const focusActions = ['focus-defense', 'focus-offense', 'focus-support', 'focus-movement'];
+        const isFocusAction = focusActions.includes(actionId);
+
+        if (isFocusAction) {
+          const selectedFocusActions = chosenActions.filter(id => focusActions.includes(id));
+          if (selectedFocusActions.length >= 2) {
+            alert('You can only select up to 2 Focus actions at a time.');
+            return;
+          }
+        }
+
         // Check slot limit (6 actions maximum, not counting basic actions)
         // Temporarily add the action to calculate slots with it included
         const tempChosenActions = [...chosenActions];
@@ -543,6 +555,8 @@
 
       // Count non-basic actions only, with pairs counting as 1 slot
       const pairsFound = [];
+      const focusActions = ['focus-defense', 'focus-offense', 'focus-support', 'focus-movement'];
+      let hasFocusAction = false;
       let total = 0;
 
       chosenActions.forEach(actionId => {
@@ -563,6 +577,18 @@
           if (isFree) {
             console.log(`🔍 Action ${action.name} is free, not counting toward slots`);
             return; // Skip counting this action
+          }
+
+          // Special handling for Praxis Focus actions - all count as 1 slot total
+          if (focusActions.includes(actionId)) {
+            if (!hasFocusAction) {
+              hasFocusAction = true;
+              total += 1; // All Focus actions count as 1 slot total
+              console.log(`🔍 Added Focus action as 1 slot. Total slots: ${total}`);
+            } else {
+              console.log(`🔍 Focus action already counted, skipping`);
+            }
+            return;
           }
 
           if (action.pair) {

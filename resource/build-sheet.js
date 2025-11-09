@@ -456,6 +456,39 @@ class BuildSheet {
             }
         }
 
+        // Calculate Focus action contributions
+        const chosenActions = currentState.chosenActions || [];
+
+        // Focus: Defense - adds to all saves
+        if (chosenActions.includes("focus-defense")) {
+            const alterRank = this.calculations.getAlterMasteryRank(currentState);
+            let saveBonus = 0;
+            if (alterRank >= 1) saveBonus = 10; // D rank: +10
+            if (alterRank >= 3) saveBonus = 15; // B rank: +15
+            if (alterRank >= 5) saveBonus = 20; // S rank: +20
+
+            if (saveBonus > 0) {
+                breakdowns.fortitude.push(`Focus: Defense (Alter): ${saveBonus}`);
+                breakdowns.reflex.push(`Focus: Defense (Alter): ${saveBonus}`);
+                breakdowns.will.push(`Focus: Defense (Alter): ${saveBonus}`);
+            }
+        }
+
+        // Focus: Movement - adds to all saves
+        if (chosenActions.includes("focus-movement")) {
+            const alterRank = this.calculations.getAlterMasteryRank(currentState);
+            let saveBonus = 0;
+            if (alterRank >= 1) saveBonus = 5;  // D rank: +5
+            if (alterRank >= 3) saveBonus = 10; // B rank: +10
+            if (alterRank >= 5) saveBonus = 15; // S rank: +15
+
+            if (saveBonus > 0) {
+                breakdowns.fortitude.push(`Focus: Movement (Alter): ${saveBonus}`);
+                breakdowns.reflex.push(`Focus: Movement (Alter): ${saveBonus}`);
+                breakdowns.will.push(`Focus: Movement (Alter): ${saveBonus}`);
+            }
+        }
+
         // Format the breakdowns as tooltip strings
         const formatBreakdown = (saveType, contributions) => {
             if (contributions.length === 0) {
@@ -521,6 +554,18 @@ class BuildSheet {
                     const baseSturdy = 25;
                     const sturdyBonus = Math.min(50, baseSturdy + 5 * sturdyMasteryRank);
                     hpBreakdown.push(`Sturdy: ${sturdyBonus}`);
+                } else if (
+                    action.bonuses.hp === "rank-based" &&
+                    actionName === "focus-defense"
+                ) {
+                    const alterRank = this.calculations.getAlterMasteryRank(currentState);
+                    let focusHPBonus = 0;
+                    if (alterRank >= 1) focusHPBonus += 20; // D rank: +20
+                    if (alterRank >= 3) focusHPBonus += 10; // B rank: +10 additional
+                    if (alterRank >= 5) focusHPBonus += 10; // S rank: +10 additional
+                    if (focusHPBonus > 0) {
+                        hpBreakdown.push(`Focus: Defense (Alter): ${focusHPBonus}`);
+                    }
                 } else if (typeof action.bonuses.hp === "number") {
                     hpBreakdown.push(`${action.name}: ${action.bonuses.hp}`);
                 }
@@ -572,6 +617,17 @@ class BuildSheet {
                     if (accelerationRank >= 5) accelerationBonus += 1;
                     if (accelerationBonus > 0) {
                         movementBreakdown.push(`Acceleration (Alter): ${accelerationBonus}`);
+                    }
+                } else if (
+                    action.bonuses.movement === "rank-based" &&
+                    actionName === "focus-movement"
+                ) {
+                    const alterRank = this.calculations.getAlterMasteryRank(currentState);
+                    let focusMovementBonus = 0;
+                    if (alterRank >= 1) focusMovementBonus += 1; // D rank: +1
+                    if (alterRank >= 3) focusMovementBonus += 1; // B rank: +1 additional
+                    if (focusMovementBonus > 0) {
+                        movementBreakdown.push(`Focus: Movement (Alter): ${focusMovementBonus}`);
                     }
                 } else if (typeof action.bonuses.movement === "number") {
                     movementBreakdown.push(`${action.name}: ${action.bonuses.movement}`);
@@ -1752,6 +1808,40 @@ class BuildSheet {
             }
         }
 
+        // Check if Focus: Offense is in chosen actions
+        const hasFocusOffense = state.chosenActions.includes("focus-offense");
+        let focusOffenseModifier = "";
+        if (hasFocusOffense) {
+            // Focus: Offense uses alter mastery rank: +5 per rank (D=+5, C=+10, B=+15, A=+20, S=+25)
+            const alterRank = this.calculations.getAlterMasteryRank(state);
+            const modifierValue = alterRank * 5;
+            if (modifierValue > 0) {
+                focusOffenseModifier = `+${modifierValue} `;
+            }
+        }
+
+        // Check if Focus: Support is in chosen actions
+        const hasFocusSupport = state.chosenActions.includes("focus-support");
+        let focusSupportBuffModifier = "";
+        let focusSupportHealModifier = "";
+        if (hasFocusSupport) {
+            // Focus: Support buff modifier: +5 per rank (D=+5, C=+10, B=+15, A=+20, S=+25)
+            const alterRank = this.calculations.getAlterMasteryRank(state);
+            const buffValue = alterRank * 5;
+            if (buffValue > 0) {
+                focusSupportBuffModifier = `+${buffValue} `;
+            }
+
+            // Focus: Support heal modifier: +5 at D, +10 at B, +15 at S
+            let healValue = 0;
+            if (alterRank >= 1) healValue = 5;  // D rank: +5
+            if (alterRank >= 3) healValue = 10; // B rank: +10
+            if (alterRank >= 5) healValue = 15; // S rank: +15
+            if (healValue > 0) {
+                focusSupportHealModifier = `+${healValue} `;
+            }
+        }
+
         // Update damagepassivemod spans in all sections
         const sectionsToUpdate = [
             "freeactiondisplay",
@@ -1768,18 +1858,26 @@ class BuildSheet {
                     if (card) {
                         const actionId = card.id.replace("final", "");
 
-                        // Attack-type actions use Lethal modifier
+                        // Attack-type actions use Lethal modifier + Focus: Offense modifier
                         const attackActions = ["attack", "protect", "ultra-protect", "counter", "ultra-counter",
                                               "stable-attack", "burst-attack", "sneak-attack", "critical-attack",
                                               "sharp-attack", "reckless-attack"];
 
-                        // Heal/Buff actions use Blessed modifier
-                        const healBuffActions = ["heal", "power-heal", "buff", "power-buff"];
+                        // Heal actions use Blessed modifier + Focus: Support heal modifier
+                        const healActions = ["heal", "power-heal"];
+
+                        // Buff actions use Blessed modifier + Focus: Support buff modifier
+                        const buffActions = ["buff", "power-buff"];
 
                         if (attackActions.includes(actionId)) {
-                            span.innerHTML = lethalModifier;
-                        } else if (healBuffActions.includes(actionId)) {
-                            span.innerHTML = blessedModifier;
+                            // Combine Lethal and Focus: Offense modifiers
+                            span.innerHTML = lethalModifier + focusOffenseModifier;
+                        } else if (healActions.includes(actionId)) {
+                            // Combine Blessed and Focus: Support heal modifiers
+                            span.innerHTML = blessedModifier + focusSupportHealModifier;
+                        } else if (buffActions.includes(actionId)) {
+                            // Combine Blessed and Focus: Support buff modifiers
+                            span.innerHTML = blessedModifier + focusSupportBuffModifier;
                         }
                     }
                 });
