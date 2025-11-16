@@ -219,7 +219,10 @@
             </div>
             <div id="${role}masteries" class="mcontainer">
           `;
-          
+
+          // Sort masteries by name within each category
+          categories[role].sort((a, b) => a.name.localeCompare(b.name));
+
           categories[role].forEach(mastery => {
             const tooltip = mastery.name.replace(' ', '<br>').replace(' ', '<br>');
             const masteryRole = mastery.primaryRole || mastery.role; // use primaryRole or fallback

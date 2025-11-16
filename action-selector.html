@@ -479,6 +479,16 @@
             alert('You can only select up to 2 Focus actions at a time.');
             return;
           }
+
+          // Defense Focus and Speed Focus are mutually exclusive
+          if (actionId === 'focus-defense' && chosenActions.includes('focus-movement')) {
+            alert('Defense Focus and Speed Focus cannot be selected together.');
+            return;
+          }
+          if (actionId === 'focus-movement' && chosenActions.includes('focus-defense')) {
+            alert('Speed Focus and Defense Focus cannot be selected together.');
+            return;
+          }
         }
 
         // Check slot limit (6 actions maximum, not counting basic actions)

@@ -236,7 +236,7 @@ const masteries = [
         color: "#ea5694",
         image: "https://terrarp.com/db/mastery/w-illusion.png",
         primaryRole: "defense",
-        secondaryRole: "offense",
+        secondaryRole: "support",
         save: "will",
         breakType: "construct",
         actions: [
@@ -594,7 +594,7 @@ const masteries = [
         color: "#53b159",
         image: "https://terrarp.com/db/mastery/w-alchemy.png",
         primaryRole: "support",
-        secondaryRole: "offense",
+        secondaryRole: "defense",
         save: "fortitude",
         breakType: "construct",
         actions: [
@@ -895,7 +895,7 @@ const masteries = [
         secondaryRole: "alter",
         save: null,
         breakType: null,
-        actions: ["Savior", "Guardian"],
+        actions: ["Savior", "Guardian", "Agress"],
     },
     {
         id: 32,
@@ -907,7 +907,7 @@ const masteries = [
         secondaryRole: "alter",
         save: null,
         breakType: null,
-        actions: ["Overdrive", "Rage"],
+        actions: ["Overdrive", "Rage", "Acrimony"],
     },
     {
         id: 33,
@@ -919,7 +919,7 @@ const masteries = [
         secondaryRole: "alter",
         save: null,
         breakType: null,
-        actions: ["Exchange", "Wager Future"],
+        actions: ["Defile", "Vitiate"],
     },
     {
         id: 34,
@@ -1003,7 +1003,7 @@ const masteries = [
         secondaryRole: "alter",
         save: null,
         breakType: null,
-        actions: ["Charge", "Follow-up"],
+        actions: ["Charge", "Follow-up", "Gift"],
     },
     {
         id: 41,
@@ -1015,7 +1015,7 @@ const masteries = [
         secondaryRole: "alter",
         save: null,
         breakType: null,
-        actions: ["Focus: Defense", "Focus: Offense", "Focus: Support", "Focus: Movement"],
+        actions: ["Defense Focus", "Combat Focus", "Utility Focus", "Speed Focus"],
     },
 ];
 

@@ -459,23 +459,8 @@ class BuildSheet {
         // Calculate Focus action contributions
         const chosenActions = currentState.chosenActions || [];
 
-        // Focus: Defense - adds to all saves
+        // Defense Focus - adds to all saves
         if (chosenActions.includes("focus-defense")) {
-            const alterRank = this.calculations.getAlterMasteryRank(currentState);
-            let saveBonus = 0;
-            if (alterRank >= 1) saveBonus = 10; // D rank: +10
-            if (alterRank >= 3) saveBonus = 15; // B rank: +15
-            if (alterRank >= 5) saveBonus = 20; // S rank: +20
-
-            if (saveBonus > 0) {
-                breakdowns.fortitude.push(`Focus: Defense (Alter): ${saveBonus}`);
-                breakdowns.reflex.push(`Focus: Defense (Alter): ${saveBonus}`);
-                breakdowns.will.push(`Focus: Defense (Alter): ${saveBonus}`);
-            }
-        }
-
-        // Focus: Movement - adds to all saves
-        if (chosenActions.includes("focus-movement")) {
             const alterRank = this.calculations.getAlterMasteryRank(currentState);
             let saveBonus = 0;
             if (alterRank >= 1) saveBonus = 5;  // D rank: +5
@@ -483,9 +468,9 @@ class BuildSheet {
             if (alterRank >= 5) saveBonus = 15; // S rank: +15
 
             if (saveBonus > 0) {
-                breakdowns.fortitude.push(`Focus: Movement (Alter): ${saveBonus}`);
-                breakdowns.reflex.push(`Focus: Movement (Alter): ${saveBonus}`);
-                breakdowns.will.push(`Focus: Movement (Alter): ${saveBonus}`);
+                breakdowns.fortitude.push(`Defense Focus (Alter): ${saveBonus}`);
+                breakdowns.reflex.push(`Defense Focus (Alter): ${saveBonus}`);
+                breakdowns.will.push(`Defense Focus (Alter): ${saveBonus}`);
             }
         }
 
@@ -560,11 +545,23 @@ class BuildSheet {
                 ) {
                     const alterRank = this.calculations.getAlterMasteryRank(currentState);
                     let focusHPBonus = 0;
-                    if (alterRank >= 1) focusHPBonus += 20; // D rank: +20
-                    if (alterRank >= 3) focusHPBonus += 10; // B rank: +10 additional
-                    if (alterRank >= 5) focusHPBonus += 10; // S rank: +10 additional
+                    if (alterRank >= 1) focusHPBonus += 15; // D rank: +15
+                    if (alterRank >= 3) focusHPBonus += 5;  // B rank: +5 additional
+                    if (alterRank >= 5) focusHPBonus += 5;  // S rank: +5 additional
                     if (focusHPBonus > 0) {
-                        hpBreakdown.push(`Focus: Defense (Alter): ${focusHPBonus}`);
+                        hpBreakdown.push(`Defense Focus (Alter): ${focusHPBonus}`);
+                    }
+                } else if (
+                    action.bonuses.hp === "rank-based" &&
+                    actionName === "focus-movement"
+                ) {
+                    const alterRank = this.calculations.getAlterMasteryRank(currentState);
+                    let focusHPBonus = 0;
+                    if (alterRank >= 1) focusHPBonus += 15; // D rank: +15
+                    if (alterRank >= 3) focusHPBonus += 5;  // B rank: +5 additional
+                    if (alterRank >= 5) focusHPBonus += 5;  // S rank: +5 additional
+                    if (focusHPBonus > 0) {
+                        hpBreakdown.push(`Speed Focus (Alter): ${focusHPBonus}`);
                     }
                 } else if (typeof action.bonuses.hp === "number") {
                     hpBreakdown.push(`${action.name}: ${action.bonuses.hp}`);
@@ -625,9 +622,9 @@ class BuildSheet {
                     const alterRank = this.calculations.getAlterMasteryRank(currentState);
                     let focusMovementBonus = 0;
                     if (alterRank >= 1) focusMovementBonus += 1; // D rank: +1
-                    if (alterRank >= 3) focusMovementBonus += 1; // B rank: +1 additional
+                    if (alterRank >= 5) focusMovementBonus += 1; // S rank: +1 additional
                     if (focusMovementBonus > 0) {
-                        movementBreakdown.push(`Focus: Movement (Alter): ${focusMovementBonus}`);
+                        movementBreakdown.push(`Speed Focus (Alter): ${focusMovementBonus}`);
                     }
                 } else if (typeof action.bonuses.movement === "number") {
                     movementBreakdown.push(`${action.name}: ${action.bonuses.movement}`);
@@ -1419,24 +1416,6 @@ class BuildSheet {
                     mutuallyExclusive: ["Charging"],
                 },
             ],
-            exchange: [
-                {
-                    text: "Defile",
-                    onclick: "toggleDefile",
-                    suffix: "Defile",
-                    hasInput: false,
-                },
-            ],
-            wager: [
-                {
-                    text: "Bank",
-                    onclick: "toggleBank",
-                    suffix: "Bank",
-                    hasInput: true,
-                    inputPlaceholder: "Action Name",
-                    updateFunction: "updateBankSuffix",
-                },
-            ],
             rage: [
                 {
                     text: "Frenzy",
@@ -1449,6 +1428,53 @@ class BuildSheet {
                     text: "Blitz",
                     onclick: "toggleBlitz",
                     suffix: "Blitz",
+                },
+            ],
+            torment: [
+                {
+                    text: "Ultra",
+                    onclick: "toggleUltra",
+                    suffix: "Ultra",
+                    mutuallyExclusive: ["Radial"],
+                },
+                {
+                    text: "Radial",
+                    onclick: "toggleRadial",
+                    suffix: "Radial",
+                    mutuallyExclusive: ["Ultra"],
+                },
+            ],
+            defile: [
+                {
+                    text: "Ally",
+                    onclick: "toggleAlly",
+                    suffix: "Ally",
+                    mutuallyExclusive: ["Enemy"],
+                },
+                {
+                    text: "Enemy",
+                    onclick: "toggleEnemy",
+                    suffix: "Enemy",
+                    mutuallyExclusive: ["Ally"],
+                },
+                {
+                    text: "Vilify",
+                    onclick: "toggleVilify",
+                    suffix: "Vilify",
+                },
+            ],
+            vitiate: [
+                {
+                    text: "Amplify",
+                    onclick: "toggleAmplify",
+                    suffix: "Amplify",
+                    mutuallyExclusive: ["Radial"],
+                },
+                {
+                    text: "Radial",
+                    onclick: "toggleRadialVitiate",
+                    suffix: "Radial",
+                    mutuallyExclusive: ["Amplify"],
                 },
             ],
             overdrive: [],
@@ -1480,9 +1506,6 @@ class BuildSheet {
             },
             acceleration: {
                 speed: true,
-            },
-            "wager-future": {
-                bank: true,
             },
         };
 
@@ -1808,37 +1831,18 @@ class BuildSheet {
             }
         }
 
-        // Check if Focus: Offense is in chosen actions
+        // Check if Combat Focus is in chosen actions
         const hasFocusOffense = state.chosenActions.includes("focus-offense");
         let focusOffenseModifier = "";
         if (hasFocusOffense) {
-            // Focus: Offense uses alter mastery rank: +5 per rank (D=+5, C=+10, B=+15, A=+20, S=+25)
+            // Combat Focus: +5 at D, +10 at B, +15 at S
             const alterRank = this.calculations.getAlterMasteryRank(state);
-            const modifierValue = alterRank * 5;
+            let modifierValue = 0;
+            if (alterRank >= 1) modifierValue = 5;  // D rank: +5
+            if (alterRank >= 3) modifierValue = 10; // B rank: +10
+            if (alterRank >= 5) modifierValue = 15; // S rank: +15
             if (modifierValue > 0) {
                 focusOffenseModifier = `+${modifierValue} `;
-            }
-        }
-
-        // Check if Focus: Support is in chosen actions
-        const hasFocusSupport = state.chosenActions.includes("focus-support");
-        let focusSupportBuffModifier = "";
-        let focusSupportHealModifier = "";
-        if (hasFocusSupport) {
-            // Focus: Support buff modifier: +5 per rank (D=+5, C=+10, B=+15, A=+20, S=+25)
-            const alterRank = this.calculations.getAlterMasteryRank(state);
-            const buffValue = alterRank * 5;
-            if (buffValue > 0) {
-                focusSupportBuffModifier = `+${buffValue} `;
-            }
-
-            // Focus: Support heal modifier: +5 at D, +10 at B, +15 at S
-            let healValue = 0;
-            if (alterRank >= 1) healValue = 5;  // D rank: +5
-            if (alterRank >= 3) healValue = 10; // B rank: +10
-            if (alterRank >= 5) healValue = 15; // S rank: +15
-            if (healValue > 0) {
-                focusSupportHealModifier = `+${healValue} `;
             }
         }
 
@@ -1856,28 +1860,38 @@ class BuildSheet {
                     // Determine which modifier to apply based on the action type
                     const card = span.closest(".card");
                     if (card) {
-                        const actionId = card.id.replace("final", "");
+                        // Get action ID from either card.id or card class
+                        let actionId = card.id ? card.id.replace("final", "") : "";
 
-                        // Attack-type actions use Lethal modifier + Focus: Offense modifier
-                        const attackActions = ["attack", "protect", "ultra-protect", "counter", "ultra-counter",
+                        // If no id, check classList for action ID
+                        if (!actionId) {
+                            const classList = Array.from(card.classList);
+                            const actionClass = classList.find(c => c.endsWith("final"));
+                            if (actionClass) {
+                                actionId = actionClass.replace("final", "");
+                            }
+                        }
+
+                        // Attack-type actions use Lethal modifier + Combat Focus modifier
+                        const attackActions = ["attack", "counter", "ultra-counter",
                                               "stable-attack", "burst-attack", "sneak-attack", "critical-attack",
                                               "sharp-attack", "reckless-attack"];
 
-                        // Heal actions use Blessed modifier + Focus: Support heal modifier
+                        // Heal actions use Blessed modifier + Utility Focus heal modifier
                         const healActions = ["heal", "power-heal"];
 
-                        // Buff actions use Blessed modifier + Focus: Support buff modifier
+                        // Buff actions use Blessed modifier + Utility Focus buff modifier
                         const buffActions = ["buff", "power-buff"];
 
                         if (attackActions.includes(actionId)) {
-                            // Combine Lethal and Focus: Offense modifiers
+                            // Combine Lethal and Combat Focus modifiers
                             span.innerHTML = lethalModifier + focusOffenseModifier;
                         } else if (healActions.includes(actionId)) {
-                            // Combine Blessed and Focus: Support heal modifiers
-                            span.innerHTML = blessedModifier + focusSupportHealModifier;
+                            // Apply Blessed modifier
+                            span.innerHTML = blessedModifier;
                         } else if (buffActions.includes(actionId)) {
-                            // Combine Blessed and Focus: Support buff modifiers
-                            span.innerHTML = blessedModifier + focusSupportBuffModifier;
+                            // Apply Blessed modifier
+                            span.innerHTML = blessedModifier;
                         }
                     }
                 });
@@ -2937,6 +2951,40 @@ function toggleBlitz(actionId, suffix = "Blitz") {
     toggleActionButton(actionId, suffix, "Blitz");
 }
 
+function toggleUltra(actionId, suffix = "Ultra") {
+    handleMutualExclusivity(actionId, "Ultra", ["Radial"]);
+    toggleActionButton(actionId, suffix, "Ultra");
+}
+
+function toggleRadial(actionId, suffix = "Radial") {
+    handleMutualExclusivity(actionId, "Radial", ["Ultra"]);
+    toggleActionButton(actionId, suffix, "Radial");
+}
+
+function toggleAlly(actionId, suffix = "Ally") {
+    handleMutualExclusivity(actionId, "Ally", ["Enemy"]);
+    toggleActionButton(actionId, suffix, "Ally");
+}
+
+function toggleEnemy(actionId, suffix = "Enemy") {
+    handleMutualExclusivity(actionId, "Enemy", ["Ally"]);
+    toggleActionButton(actionId, suffix, "Enemy");
+}
+
+function toggleVilify(actionId, suffix = "Vilify") {
+    toggleActionButton(actionId, suffix, "Vilify");
+}
+
+function toggleAmplify(actionId, suffix = "Amplify") {
+    handleMutualExclusivity(actionId, "Amplify", ["Radial"]);
+    toggleActionButton(actionId, suffix, "Amplify");
+}
+
+function toggleRadialVitiate(actionId, suffix = "Radial") {
+    handleMutualExclusivity(actionId, "Radial", ["Amplify"]);
+    toggleActionButton(actionId, suffix, "Radial");
+}
+
 // Handle mutual exclusivity for flag buttons
 function handleMutualExclusivity(
     actionId,
@@ -3060,14 +3108,6 @@ function toggleRelease(actionId, suffix = "Release") {
     handleMutualExclusivity(actionId, "Release", ["Charging"]);
     // Don't add base suffix - let the input handler manage the complete suffix
     toggleActionButtonNoSuffix(actionId, "Release");
-}
-
-function toggleDefile(actionId, suffix = "Defile") {
-    toggleActionButton(actionId, suffix, "Defile");
-}
-
-function toggleBank(actionId, suffix = "Bank") {
-    toggleActionButton(actionId, suffix, "Bank");
 }
 
 function toggleFrenzy(actionId, suffix = "Frenzy") {
