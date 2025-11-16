@@ -1206,6 +1206,27 @@ class BuildSheet {
                 ? '<div class="revive-swap-button" onclick="toggleReviveStabilize(this)" title="Toggle between Revive and Stabilize">⇄</div>'
                 : "";
 
+        // Filter description for Regalia based on equipped armor type
+        let description = action.description;
+        if (action.lookup === "regalia" && state.armorType) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(description, 'text/html');
+            const paragraphs = doc.querySelectorAll('p');
+
+            let filteredParagraph = '';
+            if (state.armorType === 'light' && paragraphs[0]) {
+                filteredParagraph = paragraphs[0].outerHTML;
+            } else if (state.armorType === 'medium' && paragraphs[1]) {
+                filteredParagraph = paragraphs[1].outerHTML;
+            } else if (state.armorType === 'heavy' && paragraphs[2]) {
+                filteredParagraph = paragraphs[2].outerHTML;
+            }
+
+            if (filteredParagraph) {
+                description = filteredParagraph;
+            }
+        }
+
         return `
       <div class="cardtop">
         <div class="cardtopleft">
@@ -1218,7 +1239,7 @@ class BuildSheet {
           ${swapButton}
         </div>
       </div>
-      <div class="cardinfo">${action.description}</div>
+      <div class="cardinfo">${description}</div>
       ${rollSection}
       ${rollCodeSection}
       ${masteryIcons}
@@ -1386,16 +1407,16 @@ class BuildSheet {
             ],
             guardian: [
                 {
-                    text: "Amplify Aura",
+                    text: "Amplify",
                     onclick: "toggleAmplifyAura",
-                    suffix: "Amplify Aura",
+                    suffix: "Amplify",
                 },
             ],
             savior: [
                 {
-                    text: "Share Aura",
+                    text: "Share",
                     onclick: "toggleShareAura",
-                    suffix: "Share Aura",
+                    suffix: "Share",
                 },
             ],
             "follow-up": [],
@@ -1477,6 +1498,34 @@ class BuildSheet {
                     mutuallyExclusive: ["Amplify"],
                 },
             ],
+            duelist: [
+                {
+                    text: "Challenge",
+                    onclick: "toggleChallenge",
+                    suffix: "Challenge",
+                },
+            ],
+            sharpshooter: [
+                {
+                    text: "Snipe",
+                    onclick: "toggleSnipe",
+                    suffix: "Snipe",
+                },
+            ],
+            acrimony: [
+                {
+                    text: "Meliorate",
+                    onclick: "toggleMeliorate",
+                    suffix: "Meliorate",
+                },
+            ],
+            locomote: [
+                {
+                    text: "Switch",
+                    onclick: "toggleSwitch",
+                    suffix: "Switch",
+                },
+            ],
             overdrive: [],
         };
 
@@ -1506,6 +1555,9 @@ class BuildSheet {
             },
             acceleration: {
                 speed: true,
+            },
+            locomote: {
+                target: true,
             },
         };
 
@@ -2985,6 +3037,22 @@ function toggleRadialVitiate(actionId, suffix = "Radial") {
     toggleActionButton(actionId, suffix, "Radial");
 }
 
+function toggleChallenge(actionId, suffix = "Challenge") {
+    toggleActionButton(actionId, suffix, "Challenge");
+}
+
+function toggleSnipe(actionId, suffix = "Snipe") {
+    toggleActionButton(actionId, suffix, "Snipe");
+}
+
+function toggleMeliorate(actionId, suffix = "Meliorate") {
+    toggleActionButton(actionId, suffix, "Meliorate");
+}
+
+function toggleSwitch(actionId, suffix = "Switch") {
+    toggleActionButton(actionId, suffix, "Switch");
+}
+
 // Handle mutual exclusivity for flag buttons
 function handleMutualExclusivity(
     actionId,
@@ -3088,12 +3156,12 @@ function toggleAccretion(actionId, suffix = "Accretion") {
     toggleActionButton(actionId, suffix, "Accretion");
 }
 
-function toggleAmplifyAura(actionId, suffix = "Amplify Aura") {
-    toggleActionButton(actionId, suffix, "Amplify Aura");
+function toggleAmplifyAura(actionId, suffix = "Amplify") {
+    toggleActionButton(actionId, suffix, "Amplify");
 }
 
-function toggleShareAura(actionId, suffix = "Share Aura") {
-    toggleActionButton(actionId, suffix, "Share Aura");
+function toggleShareAura(actionId, suffix = "Share") {
+    toggleActionButton(actionId, suffix, "Share");
 }
 
 function toggleCharging(actionId, suffix = "Charging") {

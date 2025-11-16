@@ -402,11 +402,11 @@ const actionlist = [
     {
         id: 13,
         lookup: "burst-attack",
-        name: "Burst Attack",
+        name: "Special Burst Attack",
         color: "#c72828",
         image: "https://terrarp.com/db/action/burst.png",
         description:
-            "<p>You are Vulnerable.</p><p>Explosion: Whenever you roll a 16 or higher, roll an extra d20 (25% chance).</p>",
+            "<p>You are Vulnerable.</p><p>Explosion: Whenever you roll a 16 or higher, roll an extra d20 (25% chance).</p><p>(B) Main Action. Roll 13d20 + 1d20 per mastery rank + weapon rank modifier + other bonuses.</p><p>(S) Main Action. Roll 14d20 + 1d20 per mastery rank + weapon rank modifier + other bonuses.</p>",
         dice: "12d20 + 1d20 per mastery rank + weapon rank modifier + other bonuses",
         use: ["special"],
         roll: "?r burst <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> · <span class='breaktype'>Break-Type</span> · Character Name · <span class='thrcode'>Code</span>",
@@ -665,7 +665,7 @@ const actionlist = [
         color: "#1e2131",
         image: "https://terrarp.com/db/action/oba2.png",
         description:
-            "<p>If you attacked an enemy on their space or adjacent to, you may activate the following effects:</p><p>(D) Passive: Deals an instance of 10 (D), 15 (B), 20 (S) damage.</p><p>(D) Bonus Action: Dueling. Double the Duelist passive and turn it into damage modifier.</p>",
+            "<p>If you attacked an enemy on their space or adjacent to, you may activate the following effects:</p><p>(D) Passive: Deals an instance of 15 (D), 20 (B), 25 (S) damage.</p><p>(D) Bonus Action: Challenge. Double the Duelist passive and turn it into damage modifier.</p><p>Limitation: Duelist cannot be triggered if you are adjacent to the enemy.</p>",
         dice: "Passive/Bonus Action",
         use: ["passive", "bonus"],
         roll: "?r duelist # Duelist · Character Name · <span class='thrcode'>Code</span>",
@@ -703,7 +703,7 @@ const actionlist = [
         color: "#1e2131",
         image: "https://terrarp.com/db/action/oba2.png",
         description:
-            "<p>If you attacked an enemy while not in their space, you may activate the following effects:</p><p>(D) Passive: Your main attack gains a +5 damage modifier.</p><p>(D) Bonus Action: Sharpshooting. Your main attack gains a 5 (D), 10 (C), 15 (B), 20 (A), 25 (S) damage modifier in addition to the passive amount.</p>",
+            "<p>If you attacked an enemy while not in their space, you may activate the following effects:</p><p>(D) Passive: Deals an instance of 15 (D), 20 (B), 25 (S) damage.</p><p>(D) Bonus Action: Snipe. Roll a 1d3 and add the result to the Sharpshooter passive and turn it into damage modifier.</p><p>Limitation: Sharpshooter cannot be triggered if you are adjacent to the enemy.</p>",
         dice: "Passive/Bonus Action",
         use: ["passive", "bonus"],
         roll: "?r sharpshooter <span class='masteryreplace'>MR</span> # <span class='mnamereplace'>Mastery</span> · Character Name · <span class='thrcode'>Code</span>",
@@ -770,7 +770,7 @@ const actionlist = [
         color: "#4e9be2",
         image: "https://terrarp.com/db/action/heal.png",
         description:
-            "<p>Explosion: Whenever you roll a 17 or higher, roll an extra d20 (20% chance).</p><p>Cleanse: Whenever you heal a target cleanse 1 curable condition after healing.</p>",
+            "<p>Explosion: Whenever you roll a 19 (D), 18 (B), or 17 (S) or higher, roll an extra d20.</p><p>Cleanse: Whenever you heal a target cleanse 1 curable condition after healing.</p>",
         dice: "2d20 + MR + WR + other bonuses then divide by 3 if AoE",
         use: ["main"],
         roll: "?r heal <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> · Character Name · <span class='thrcode'>Code</span>",
@@ -803,7 +803,7 @@ const actionlist = [
         color: "#3460d0",
         image: "https://terrarp.com/db/action/heal.png",
         description:
-            "<p>Explosion: Whenever you roll a 16 or higher, roll an extra d20 (25% chance).</p><p>Cleanse: Whenever you heal a target cleanse 2 (D), 3 (B), 4 (S) after healing. Gain 5 HP to your heal per unused cleanse charge.</p>",
+            "<p>Explosion: Whenever you roll a 18 (D), 17 (B), or 16 (S) or higher, roll an extra d20.</p><p>Cleanse: Whenever you heal a target cleanse 2 (D), 3 (B), 4 (S) after healing. Gain 5 HP to your heal per unused cleanse charge.</p>",
         dice: "4d20 + MR + WR + other bonuses then divide by 3 if AoE",
         use: ["special"],
         roll: "?r powerheal <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> · Character Name · <span class='thrcode'>Code</span>",
@@ -836,7 +836,7 @@ const actionlist = [
         color: "#4e9be2",
         image: "https://terrarp.com/db/action/buff.png",
         description:
-            "<p>Single-target: Give 1 target a damage buff that lasts 3 actions</p><p>Multi-targets: Give 3 targets a damage buff that lasts 1 action</p><p>May only be affected by one buff at a time.</p>",
+            "<p>(D) Main Action. Choose a target within 5ft and grant them 5 (D) or 10 (S) Charge.</p>",
         dice: "1d100 + MR + WR + other bonuses then divide by 3",
         use: ["main"],
         roll: "?r buff <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> · Character Name · <span class='thrcode'>Code</span>",
@@ -869,7 +869,7 @@ const actionlist = [
         color: "#3460d0",
         image: "https://terrarp.com/db/action/buff.png",
         description:
-            "<p>You are Vulnerable.</p><p>Single-target: Give 1 target a damage buff that lasts 3 actions</p><p>Multi-targets: Give 3 targets a damage buff that lasts 1 action</p><p>May only be affected by one buff at a time.</p>",
+            "<p>(D) Special Action. Choose a target within 5ft and grant them 5 (D), 10 (B), or 15 (S) Charge.</p>",
         dice: "2d100 + MR + WR + other bonuses then divide by 3",
         use: ["special"],
         roll: "?r powerbuff <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> · Character Name · <span class='thrcode'>Code</span>",
@@ -1033,7 +1033,7 @@ const actionlist = [
         color: "#1e2131",
         image: "https://terrarp.com/db/action/sba4.png",
         description:
-            "<p>Free Action: Apply the effects to 2 targets (instead of 3) and apply the last heal/buff amount to one of those targets.</p><p>Bonus Action: Roll both actions (both must be special or non-special) using the AoE command and choose if each target gets either the heal or buff.</p>",
+            "<p>Free Action: Apply the effects to 2 targets (instead of 3).</p><p>Bonus Action: Simulcast. Target 2 allies with Heal and Buff (both must be special or non-special) and choose if each target gets either the heal or buff.</p>",
         dice: "Free/Bonus Action",
         use: ["free", "bonus"],
         roll: "?r versatile # Character Name · <span class='thrcode'>Code</span>",
@@ -1163,7 +1163,7 @@ const actionlist = [
         color: "#63429b",
         image: "https://terrarp.com/db/action/savior.png",
         description:
-            "<p>(D) Passive: Gain 15 (D), 20 (B), 25 (S) to a save roll in the next damage phase.</p><p>(D) Bonus Action: Share Aura. 1 ally within range gains your Passive. Save bonuses cannot stack.</p><p>(S) Upgrade: Share Aura. 1 → 2 allies.</p>",
+            "<p>(D) Passive: Gain 15 (D), 20 (B), 25 (S) to a save roll in the next damage phase.</p><p>(D) Bonus Action: Share. 1 ally within range gains your Passive. Save bonuses cannot stack.</p><p>(S) Upgrade: Share. 1 → 2 allies.</p>",
         dice: "Passive/Bonus Action",
         use: ["passive", "bonus"],
         roll: "?r savior <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
@@ -1179,7 +1179,7 @@ const actionlist = [
         color: "#63429b",
         image: "https://terrarp.com/db/action/guardian.png",
         description:
-            "<p>(C) Free Action: Distribute 15 (C) 20 (B) 25 (A) 30 (S) damage mitigation between and up to 3 targets in multiple of 5s.</p><p>(A) Bonus Action: Amplify Aura. Double the mitigation amount.</p>",
+            "<p>(C) Free Action: Distribute 15 (C) 20 (B) 25 (A) 30 (S) damage mitigation between and up to 3 targets in multiple of 5s.</p><p>(A) Bonus Action: Amplify. Double the mitigation amount.</p>",
         dice: "Free/Bonus Action",
         use: ["bonus"],
         roll: "?r guardian <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
@@ -1189,11 +1189,11 @@ const actionlist = [
         type: "Alter - Aura",
     },
     {
-        id: 65,
+        id: 66,
         lookup: "agress",
         name: "Agress",
         color: "#e0b439",
-        image: "https://terrarp.com/db/action/aura.png",
+        image: "https://terrarp.com/db/action/agress.png",
         description:
             "<p>(D) Free Action. Taunt an enemy. Aggress takes higher priority than regular Taunt. If two Aggress is used on the same target, roll a 1d100, the higher result takes priority.</p>",
         dice: "Free Action",
@@ -1229,7 +1229,7 @@ const actionlist = [
         color: "#63429b",
         image: "https://terrarp.com/db/action/rage.png",
         description:
-            "<p>(C) Free Action. Deal an instance of damage to an enemy you are adjacent to or on the space of based on how much HP you lose in the last Damage Phase before statuses and mitigation. Maximum: 50 (C), 75 (B), 100 (A), 125 (S)</p><p>(B) Bonus Action: Frenzy. Double Rage damage. In addition, Rage has no maximum this cycle.</p>",
+            "<p>(C) Free Action. Deal an instance of damage to an enemy you are adjacent to or on the space of based on how much HP you lose in the last Damage Phase before statuses and mitigation. Maximum: 25 (D), 50 (C), 75 (B), 100 (A), 125 (S)</p><p>(B) Bonus Action: Frenzy. Double Rage damage. In addition, Rage has no maximum this cycle.</p>",
         dice: "Free/Bonus Action",
         use: ["bonus"],
         roll: "?r rage <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
@@ -1239,13 +1239,13 @@ const actionlist = [
         type: "Alter - Battle Spirits",
     },
     {
-        id: 66,
+        id: 67,
         lookup: "acrimony",
         name: "Acrimony",
         color: "#b72c2c",
         image: "https://terrarp.com/db/action/battle-spirits.png",
         description:
-            "<p>(D) Free Action. While Vulnerable, deal an instance of 15 (D), 25 (B), 35 (S) damage to an enemy you are adjacent to or share a space with and regain 10 (D), 15 (B), 20 (S) HP. You cannot gain the Protected State.</p><p>(D) Bonus Action. When your Acrimony target dies this cycle, gain 15 (D), 25 (B), 20 (S) HP.</p>",
+            "<p>(D) Free Action. While Vulnerable, deal an instance of 15 (D), 25 (B), 35 (S) damage to an enemy you are adjacent to or share a space with and regain 10 (D), 15 (B), 20 (S) HP. You cannot gain the Protected State.</p><p>(D) Bonus Action: Meliorate. When your Acrimony target dies this cycle, gain 15 (D), 25 (B), 20 (S) HP.</p>",
         dice: "Free/Bonus Action",
         use: ["free", "bonus"],
         roll: "?r acrimony <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
@@ -1257,13 +1257,13 @@ const actionlist = [
 
     // Alter Actions - Corrupt
     {
-        id: 67,
+        id: 68,
         lookup: "defile",
         name: "Defile",
         color: "#813090",
-        image: "https://terrarp.com/db/action/corrupt.png",
+        image: "https://terrarp.com/db/action/defile.png",
         description:
-            "<p>Free Action. Mark 2 (E), 3 (B), 4 (S) targets (self, allies, enemies); you may stack the marks on a single target. From now until the end of the next damage cycle, lose your total rolled result to all Saves to obtain the following effects:</p><p>Self & Allies: The target gains an additional X (1d20 per mark) to an attack, buff, or heal</p><p>Enemy: Deal an instance of 1d20 HP or break damage with adv per mark</p><p>(C) Bonus Action: Vilify. Add 1d20 to one of your marked targets (C), add an additional 1d20 to another target at the cost of 20 HP (S)</p>",
+            "<p>Free Action. Mark 2 (E), 3 (B), 4 (S) targets (self, allies, enemies); you may stack the marks on a single target. From now until the end of the next damage cycle, lose your total rolled result to all Saves to obtain the following effects:</p><p>Self & Allies: The target gains an additional X (1d20 per mark) to an attack, buff, or heal</p><p>Enemy: Deal an instance of 1d20 HP or break damage with adv per mark</p><p>(C) Bonus Action: Vilify. Add 1d20 to 1 (C), 2 (A) already-marked targets; lose 20 HP when you apply the second Vilify charge</p>",
         dice: "Free Action",
         use: ["free"],
         roll: "?r defile <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
@@ -1273,11 +1273,11 @@ const actionlist = [
         type: "Alter - Corrupt",
     },
     {
-        id: 68,
+        id: 69,
         lookup: "vitiate",
         name: "Vitiate",
         color: "#813090",
-        image: "https://terrarp.com/db/action/corrupt.png",
+        image: "https://terrarp.com/db/action/vitiate.png",
         description:
             "<p>(D) Free Action. Deals an instance of Break damage to an enemy adjacent to you: 5 (D), 10 (C), 15 (B), 20 (A), 25 (S)</p><p>(D) Bonus Action: Amplify. Double your Vitiate damage.</p><p>(D) Bonus Action: Radial. Apply Vitiate damage to all enemies adjacent to you. When the battle map is not in use, apply damage to all enemies narratively close to you.</p>",
         dice: "Free/Bonus Action",
@@ -1297,7 +1297,7 @@ const actionlist = [
         color: "#63429b",
         image: "https://terrarp.com/db/action/momentum.png",
         description:
-            "<p>(D) Free Action: Gain 5 damage modifiers for each (spent or unspent) movement you have this cycle.</p><p>(B) Bonus Action: Blitz. Gain 10 bonus damage for each movement used in a continuous line this cycle. When a battle map is not in use, let the narrative determine whether you can use a quarter, half, or your full movement amount for this action.</p>",
+            "<p>(D) Free Action: Gain 5 damage modifiers for each (spent or unspent) movement you have this cycle.</p><p>(C) Bonus Action: Blitz. Gain 10 bonus damage for each movement used in a continuous line this cycle. When a battle map is not in use, let the narrative determine whether you can use a quarter, half, or your full movement amount for this action. Also, reduce each charge of movement damage by 5 (C), A (10).</p>",
         dice: "Free Action/Passive",
         use: ["passive"],
         roll: "?r momentum <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
@@ -1348,7 +1348,7 @@ const actionlist = [
         color: "#63429b",
         image: "https://terrarp.com/db/action/exceed.png",
         description:
-            "<p>(D) Free Action. Reduce your maximum HP by [15 HP] to gain a [+10] bonus modifier on your next attacks, heals, or buffs.</p><p>(C) Upgrade. Bonus Modifier: +10 → +15</p><p>(B) Upgrade. Bonus Modifier: +15 → +20</p><p>(A) Upgrade. Bonus Modifier: +20 → +25</p><p>(S) Upgrade. Bonus Modifier: +25 → +30</p>",
+            "<p>(D) Free Action. Reduce your maximum HP by [15 HP] to gain a 10 (D), 15 (C), 20 (B), 25 (A), 30 (S) bonus modifier on your next attacks, heals, or buffs.</p>",
         dice: "Free Action",
         use: ["main"],
         roll: "?r exceed <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
@@ -1396,7 +1396,7 @@ const actionlist = [
         color: "#63429b",
         image: "https://terrarp.com/db/action/regalia.png",
         description:
-            "<p>(D) Passive: Light Armor reduces the health cost of Engage's Bonus Actions and Empower by 5 (D), 10 (B), 15 (S).</p>",
+            "<p>(D) Passive. Light Armor reduces the health cost of Engage and Empower by 10 (D), 15 (B), 20 (S).</p><p>(D) Passive. Medium Armor reduces the health cost of Engage and Empower by 5 (D), 10 (S). From C-rank onward, you have the option to use a sub-action twice through Empower.</p><p>(D) Passive. Heavy Armor once Immortal activates, you may ignore the HP cost of Engage and Empower, but cannot use Redo more than once. </p>",
         dice: "Passive",
         use: ["passive"],
         roll: "",
@@ -1509,14 +1509,14 @@ const actionlist = [
     // Alter Actions - Metamorph
     {
         id: 54,
-        lookup: "adapt",
-        name: "Adapt",
+        lookup: "anatomy",
+        name: "Anatomy",
         color: "#63429b",
-        image: "https://terrarp.com/db/action/adapt.png",
+        image: "https://terrarp.com/db/action/anatomy.png",
         description:
-            "<p>(D) Passive. On the first post of a thread, add 30 (D), 40 (B), 50 (S) to your current HP. This is not a heal nor does it expand your max HP.</p><p>(D) Bonus Action: Prowl. Ignore difficult terrain this cycle. (A-rank upgrade) And divide movement damage by 2.</p><p>(D) Bonus Action: Fend. +10 (D) +15 (B) +20 (S) to a save roll this cycle.</p>",
-        dice: "Passive/Bonus Action",
-        use: ["passive", "bonus"],
+            "<p>(D) Passive. On the first post of a thread, add 30 (D), 40 (B), 50 (S) to your current HP. This is not a heal nor does it expand your max HP.</p>",
+        dice: "Passive",
+        use: ["passive"],
         roll: "?r adapt <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
         masteries: ["metamorph"],
         category: "alter",
@@ -1525,6 +1525,22 @@ const actionlist = [
     },
     {
         id: 55,
+        lookup: "adapt",
+        name: "Adapt",
+        color: "#63429b",
+        image: "https://terrarp.com/db/action/adapt.png",
+        description:
+            "<p>(D) Bonus Action: Prowl. Ignore difficult terrain this cycle. (A-rank upgrade) And divide movement damage by 2.</p><p>(D) Bonus Action: Fend. +10 (D) +15 (B) +20 (S) to a save roll this cycle.</p>",
+        dice: "Bonus Action",
+        use: ["bonus"],
+        roll: "?r adapt <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
+        masteries: ["metamorph"],
+        category: "alter",
+        pair: "X1",
+        type: "Alter - Metamorph",
+    },
+    {
+        id: 70,
         lookup: "evolve",
         name: "Evolve",
         color: "#63429b",
@@ -1559,15 +1575,31 @@ const actionlist = [
     },
     {
         id: 57,
-        lookup: "aid",
-        name: "Aid",
+        lookup: "assist",
+        name: "Assist",
         color: "#63429b",
-        image: "https://terrarp.com/db/action/aid.png",
+        image: "https://terrarp.com/db/action/assist.png",
         description:
-            "<p>(D) Passive: Once per cycle, if your Coordinate target takes damage, they gain 5 HP. (B-rank upgrade) +5 for a total of 10 HP.</p><p>(D) Bonus Action: Assist. Grant 5 (D) 10 (B) 15 (S) modifier to the next mastery check made by any of your Coordinate targets.</p>",
+            "<p>(D) Passive: Once per cycle, if your Coordinate target takes damage, they gain 5 HP. (B-rank upgrade) +5 for a total of 10 HP.</p><p>(D) Bonus Action: Assign. Grant 5 (D) 10 (B) 15 (S) modifier to the next mastery check made by any of your Coordinate targets.</p>",
         dice: "Passive/Bonus Action",
         use: ["passive", "bonus"],
-        roll: "?r aid <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
+        roll: "?r assist <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
+        masteries: ["summon"],
+        category: "alter",
+        pair: "Y1",
+        type: "Alter - Summon",
+    },
+    {
+        id: 64,
+        lookup: "locomote",
+        name: "Locomote",
+        color: "#63429b",
+        image: "https://terrarp.com/db/action/locomote.png",
+        description:
+            "<p>(D) Free Action. At the start of the thread, pick a target within range, that target gets a +1 movement until you switch the target.</p><p>(D) Bonus Action: Switch. Change the Locomote target.</p><p>(B) Upgrade. If you and the Locomote target start on the same space at the start of a cycle, both get the +1 movement.</p>",
+        dice: "Free/Bonus Action",
+        use: ["free", "bonus"],
+        roll: "?r locomote <span class='masteryreplace'>MR</span> # Character Name · Target (<span class='target'>X</span>) · <span class='thrcode'>Code</span>",
         masteries: ["summon"],
         category: "alter",
         pair: "Y1",
@@ -1608,13 +1640,13 @@ const actionlist = [
         type: "Alter - Weapon Arts",
     },
     {
-        id: 64,
+        id: 65,
         lookup: "gift",
         name: "Gift",
         color: "#63429b",
-        image: "https://terrarp.com/db/action/weapon-arts.png",
+        image: "https://terrarp.com/db/action/gift.png",
         description:
-            "<p>(B) Passive. When you Release your charge, roll another set and take the higher set.</p><p>(S) Upgrade. You may reroll your Release dice set a third time and keep the highest set, but take 20 damage.</p>",
+            "<p>(B) Free Action. When you Release your charge, roll another set and take the higher set.</p><p>(S) Free Action: Ultra. You may reroll your Release dice set a third time and keep the highest set, but take 20 damage.</p>",
         dice: "Passive",
         use: ["passive"],
         roll: "?r gift <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
