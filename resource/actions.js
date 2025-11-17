@@ -523,7 +523,7 @@ const actionlist = [
         color: "#d84848",
         image: "https://terrarp.com/db/action/sharp.png",
         description:
-            "<p>Free Action: Convert other bonuses into more dice that may trigger crits. +1d100 for each 40 you spend. Leftover values are added as a modifier.</p>",
+            "<p>Free Action: Risky. Convert other bonuses into more dice that may trigger crits. +1d100 for each 40 you spend. Leftover values are added as a modifier.</p>",
         dice: "2d100kh1 + MR + WR + other bonuses",
         use: ["free", "main"],
         roll: "?r sharp <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> · <span class='breaktype'>Break-Type</span> · Character Name · <span class='thrcode'>Code</span>",
@@ -627,7 +627,7 @@ const actionlist = [
         color: "#1e2131",
         image: "https://terrarp.com/db/action/oba2.png",
         description:
-            "<p>Passive: Your attack's damage may be distributed in any amount to any enemies on or adjacent to the target. Take only the highest retaliation damage if any.</p><p>(D) Bonus Action: Splash Damage. Deal an instance of 15 (D), 20 (B), 25 (S) damage to all enemies adjacent to your attack target. Take only the highest retaliation damage if there are any.</p>",
+            "<p>Passive: Your attack's damage may be distributed in any amount to any enemies on or adjacent to the target. Take only the highest retaliation damage if any.</p><p>(D) Bonus Action: Splash. Deal an instance of 15 (D), 20 (B), 25 (S) damage to all enemies adjacent to your attack target. Take only the highest retaliation damage if there are any.</p>",
         dice: "Passive/Bonus Action",
         use: ["passive", "bonus"],
         roll: "?r areaeffect <span class='masteryreplace'>MR</span> # <span class='mnamereplace'>Mastery</span> · Character Name · <span class='thrcode'>Code</span>",
@@ -1065,7 +1065,7 @@ const actionlist = [
         color: "#1e2131",
         image: "https://terrarp.com/db/action/sba4.png",
         description:
-            "<p>(D) Passive: If you are afflicted with a curable condition, you may clear 1 stack from yourself each cycle before they take effect.</p><p>(D) Bonus Action: Distribute 2 (D), 4 (B), 6 (S) cleanses between up to 3 targets.</p>",
+            "<p>(D) Passive: If you are afflicted with a curable condition, you may clear 1 stack from yourself each cycle before they take effect.</p><p>(D) Bonus Action: Cure. Distribute 2 (D), 4 (B), 6 (S) cleanses between up to 3 targets.</p>",
         dice: "Passive/Bonus Action",
         use: ["passive", "bonus"],
         roll: "?r cleanse # Character Name · <span class='thrcode'>Code</span>",
@@ -1242,8 +1242,8 @@ const actionlist = [
         id: 67,
         lookup: "acrimony",
         name: "Acrimony",
-        color: "#b72c2c",
-        image: "https://terrarp.com/db/action/battle-spirits.png",
+        color: "#63429b",
+        image: "https://terrarp.com/db/action/acrimony.png",
         description:
             "<p>(D) Free Action. While Vulnerable, deal an instance of 15 (D), 25 (B), 35 (S) damage to an enemy you are adjacent to or share a space with and regain 10 (D), 15 (B), 20 (S) HP. You cannot gain the Protected State.</p><p>(D) Bonus Action: Meliorate. When your Acrimony target dies this cycle, gain 15 (D), 25 (B), 20 (S) HP.</p>",
         dice: "Free/Bonus Action",
@@ -1283,6 +1283,22 @@ const actionlist = [
         dice: "Free/Bonus Action",
         use: ["free", "bonus"],
         roll: "?r vitiate <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
+        masteries: ["corrupt"],
+        category: "alter",
+        pair: "Q1",
+        type: "Alter - Corrupt",
+    },
+    {
+        id: 70,
+        lookup: "profane",
+        name: "Profane",
+        color: "#813090",
+        image: "https://terrarp.com/db/action/vitiate.png",
+        description:
+            "<p>(D) Free Action: Consume. Cleanse 1 curable condition.</p><p>(B) Bonus Action: Apostasy. Gain 5 HP per active condition; max: 20 HP (B), 40 HP (S), you cannot cleanse these conditions after gaining the HP.</p>",
+        dice: "Free/Bonus Action",
+        use: ["free", "bonus"],
+        roll: "?r profane <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
         masteries: ["corrupt"],
         category: "alter",
         pair: "Q1",
@@ -1330,7 +1346,7 @@ const actionlist = [
         color: "#63429b",
         image: "https://terrarp.com/db/action/rover.png",
         description:
-            "<p>(C) Passive. You may split your movements, allowing you to move → act → move.</p><p>(C) Bonus Action. Damage resulting from moving is halved.</p>",
+            "<p>(C) Passive. You may split your movements, allowing you to move → act → move.</p><p>(C) Bonus Action: Rove. Damage resulting from moving is halved.</p>",
         dice: "Bonus Action/Passive",
         use: ["main"],
         roll: "?r rover <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
@@ -1430,7 +1446,7 @@ const actionlist = [
         color: "#63429b",
         image: "https://terrarp.com/db/action/hyper-insight.png",
         description:
-            "<p>(D) Free Action: Grant yourself or an ally within range an instance of 15 (D), 20 (B), 25 (S) Break damage and imbue the attack with one of your masteries this cycle.</p><p>(C) Bonus Action: Ultra Insight. Double Hyper Insight's damage.</p>",
+            "<p>(D) Free Action: Grant yourself or an ally within range an instance of 15 (D), 20 (B), 25 (S) Break damage and imbue the attack with one of your masteries this cycle.</p><p>(C) Bonus Action: Ultra. Double Hyper Insight's damage.</p>",
         dice: "Free/Bonus Action",
         use: ["bonus"],
         roll: "?r hyperinsight <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
@@ -1446,7 +1462,7 @@ const actionlist = [
         color: "#63429b",
         image: "https://terrarp.com/db/action/hyper-instinct.png",
         description:
-            "<p>(D) Passive: Gain 5 (D), 10 (B), 15 (S) to a save roll in the next damage phase.</p><p>(D) Bonus Action: Ultra Instinct. Double your Hyper Instinct bonus.</p>",
+            "<p>(D) Passive: Gain 5 (D), 10 (B), 15 (S) to a save roll in the next damage phase.</p><p>(D) Bonus Action: Ultra. Double your Hyper Instinct bonus.</p>",
         dice: "Passive/Bonus Action",
         use: ["passive", "bonus"],
         roll: "?r hyperinstinct <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
@@ -1464,7 +1480,7 @@ const actionlist = [
         color: "#63429b",
         image: "https://terrarp.com/db/action/regenerate.png",
         description:
-            "<p>(D) Passive: Gain 5 (D) 10 (B) 15 (S) HP every cycle.</p><p>(A) Bonus Action: Power Regenerate. Gain the rolled HP and grant an ally the same amount, or forgo your own regeneration and grant an ally double the rolled HP.</p>",
+            "<p>(D) Passive: Gain 5 (D) 10 (B) 15 (S) HP every cycle.</p><p>(A) Bonus Action: Power. Gain the rolled HP and grant an ally the same amount, or forgo your own regeneration and grant an ally double the rolled HP.</p>",
         dice: "Passive/Bonus Action",
         use: ["passive", "bonus"],
         roll: "?r regenerate <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
@@ -1517,7 +1533,7 @@ const actionlist = [
             "<p>(D) Passive. On the first post of a thread, add 30 (D), 40 (B), 50 (S) to your current HP. This is not a heal nor does it expand your max HP.</p>",
         dice: "Passive",
         use: ["passive"],
-        roll: "?r adapt <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
+        roll: "?r anatomy <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
         masteries: ["metamorph"],
         category: "alter",
         pair: "X1",
@@ -1664,7 +1680,7 @@ const actionlist = [
         color: "#63429b",
         image: "https://terrarp.com/db/action/praxis.png",
         description:
-            "<p>(D) Passive. Gain 5 (D), 10 (B), 15 (S) to attacks.</p><p>(C) Passive. Gain an additional 5 to all mastery checks. </p>",
+            "<p>(D) Passive. Gain an additional 5 (D), 10 (B), 15 (S) to attacks, buffs, and heals.</p><p>(C) Passive. Gain an additional 5 to all mastery checks. </p>",
         dice: "Passive",
         use: ["passive"],
         roll: "",
@@ -1679,7 +1695,7 @@ const actionlist = [
         color: "#63429b",
         image: "https://terrarp.com/db/action/praxis.png",
         description:
-            "<p>(D) Passive. Gain an additional 5 to all Bonus/Free Actions. Haste and Cleanse gain 1 additional charge. </p><p>(S) Upgrade. +5 → +10 to all Bonus/Free Actions. </p><p>(S) Upgrade. Haste and Cleanse charges: +1 → +2. \n </p>",
+            "<p>(D) Passive. Gain an additional 5 (D), 10 (S) to all Bonus/Free Actions. Haste and Cleanse gain 1 (D), 2 (S) additional charge. </p>",
         dice: "Passive",
         use: ["passive"],
         roll: "",

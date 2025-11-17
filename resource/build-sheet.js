@@ -1189,6 +1189,68 @@ class BuildSheet {
             }
         }
 
+        // Add automatic armor suffix for Engage and Empower actions
+        if ((action.lookup === "engage" || action.lookup === "empower") && rollCode && rollCode !== "-" && state.armorType) {
+            const armorSuffix = state.armorType.charAt(0).toUpperCase() + state.armorType.slice(1);
+            // Append armor type before the closing span
+            rollCode = rollCode.replace(
+                /<span class=['"]thrcode['"]>Code<\/span>$/,
+                `${armorSuffix} · <span class='thrcode'>Code</span>`
+            );
+        }
+
+        // Add automatic Lethal and Combat Focus suffixes for attack, heal, and buff actions
+        const attackActions = ["attack", "counter", "ultra-counter", "stable-attack", "burst-attack",
+                               "sneak-attack", "critical-attack", "sharp-attack", "reckless-attack"];
+        const healActions = ["heal", "power-heal"];
+        const buffActions = ["buff", "power-buff"];
+
+        if (rollCode && rollCode !== "-") {
+            const suffixes = [];
+
+            // For attack actions: add Lethal and Combat Focus
+            if (attackActions.includes(action.lookup)) {
+                if (state.chosenActions.includes("lethal")) {
+                    suffixes.push("Lethal");
+                }
+                if (state.chosenActions.includes("focus-offense")) {
+                    suffixes.push("Combat Focus");
+                }
+                if (state.chosenActions.includes("area-effect")) {
+                    suffixes.push("Combat Focus");
+                }
+            }
+
+            // For heal actions: add Combat Focus only
+            if (healActions.includes(action.lookup)) {
+                if (state.chosenActions.includes("focus-offense")) {
+                    suffixes.push("Combat Focus");
+                }
+                if (state.chosenActions.includes("blessed")) {
+                    suffixes.push("Blessed");
+                }
+            }
+
+            // For buff actions: add Combat Focus only
+            if (buffActions.includes(action.lookup)) {
+                if (state.chosenActions.includes("focus-offense")) {
+                    suffixes.push("Combat Focus");
+                }
+                if (state.chosenActions.includes("blessed")) {
+                    suffixes.push("Blessed");
+                }
+            }
+
+            // Append suffixes before the closing span
+            if (suffixes.length > 0) {
+                const suffixString = suffixes.join(" · ");
+                rollCode = rollCode.replace(
+                    /<span class=['"]thrcode['"]>Code<\/span>$/,
+                    `${suffixString} · <span class='thrcode'>Code</span>`
+                );
+            }
+        }
+
         const rollCodeSection =
             rollCode && rollCode !== "-"
                 ? `<div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">${rollCode}</div>`
@@ -1372,23 +1434,23 @@ class BuildSheet {
             ],
             regenerate: [
                 {
-                    text: "Power Regenerate",
+                    text: "Power",
                     onclick: "togglePowerRegenerate",
-                    suffix: "Power Regenerate",
+                    suffix: "Power",
                 },
             ],
             "hyper-instinct": [
                 {
-                    text: "Ultra Instinct",
+                    text: "Ultra",
                     onclick: "toggleUltraInstinct",
-                    suffix: "Ultra Instinct",
+                    suffix: "Ultra",
                 },
             ],
             "hyper-insight": [
                 {
-                    text: "Ultra Insight",
+                    text: "Ultra",
                     onclick: "toggleUltraInsight",
-                    suffix: "Ultra Insight",
+                    suffix: "Ultra",
                 },
             ],
             engage: [
@@ -1524,6 +1586,34 @@ class BuildSheet {
                     text: "Switch",
                     onclick: "toggleSwitch",
                     suffix: "Switch",
+                },
+            ],
+            profane: [
+                {
+                    text: "Apostasy",
+                    onclick: "toggleApostasy",
+                    suffix: "Apostasy",
+                },
+            ],
+            rover: [
+                {
+                    text: "Rove",
+                    onclick: "toggleRove",
+                    suffix: "Rove",
+                },
+            ],
+            gift: [
+                {
+                    text: "Ultra",
+                    onclick: "toggleUltraGift",
+                    suffix: "Ultra",
+                },
+            ],
+            cleanse: [
+                {
+                    text: "Cure",
+                    onclick: "toggleCure",
+                    suffix: "Cure",
                 },
             ],
             overdrive: [],
@@ -1929,21 +2019,21 @@ class BuildSheet {
                                               "stable-attack", "burst-attack", "sneak-attack", "critical-attack",
                                               "sharp-attack", "reckless-attack"];
 
-                        // Heal actions use Blessed modifier + Utility Focus heal modifier
+                        // Heal actions use Blessed modifier + Combat Focus modifier
                         const healActions = ["heal", "power-heal"];
 
-                        // Buff actions use Blessed modifier + Utility Focus buff modifier
+                        // Buff actions use Blessed modifier + Combat Focus modifier
                         const buffActions = ["buff", "power-buff"];
 
                         if (attackActions.includes(actionId)) {
                             // Combine Lethal and Combat Focus modifiers
                             span.innerHTML = lethalModifier + focusOffenseModifier;
                         } else if (healActions.includes(actionId)) {
-                            // Apply Blessed modifier
-                            span.innerHTML = blessedModifier;
+                            // Apply Blessed and Combat Focus modifiers
+                            span.innerHTML = blessedModifier + focusOffenseModifier;
                         } else if (buffActions.includes(actionId)) {
-                            // Apply Blessed modifier
-                            span.innerHTML = blessedModifier;
+                            // Apply Blessed and Combat Focus modifiers
+                            span.innerHTML = blessedModifier + focusOffenseModifier;
                         }
                     }
                 });
@@ -3053,6 +3143,22 @@ function toggleSwitch(actionId, suffix = "Switch") {
     toggleActionButton(actionId, suffix, "Switch");
 }
 
+function toggleApostasy(actionId, suffix = "Apostasy") {
+    toggleActionButton(actionId, suffix, "Apostasy");
+}
+
+function toggleRove(actionId, suffix = "Rove") {
+    toggleActionButton(actionId, suffix, "Rove");
+}
+
+function toggleUltraGift(actionId, suffix = "Ultra") {
+    toggleActionButton(actionId, suffix, "Ultra");
+}
+
+function toggleCure(actionId, suffix = "Cure") {
+    toggleActionButton(actionId, suffix, "Cure");
+}
+
 // Handle mutual exclusivity for flag buttons
 function handleMutualExclusivity(
     actionId,
@@ -3132,16 +3238,16 @@ function toggleFend(actionId, suffix = "Fend") {
     toggleActionButton(actionId, suffix, "Fend");
 }
 
-function togglePowerRegenerate(actionId, suffix = "Power Regenerate") {
-    toggleActionButton(actionId, suffix, "Power Regenerate");
+function togglePowerRegenerate(actionId, suffix = "Power") {
+    toggleActionButton(actionId, suffix, "Power");
 }
 
-function toggleUltraInstinct(actionId, suffix = "Ultra Instinct") {
-    toggleActionButton(actionId, suffix, "Ultra Instinct");
+function toggleUltraInstinct(actionId, suffix = "Ultra") {
+    toggleActionButton(actionId, suffix, "Ultra");
 }
 
-function toggleUltraInsight(actionId, suffix = "Ultra Insight") {
-    toggleActionButton(actionId, suffix, "Ultra Insight");
+function toggleUltraInsight(actionId, suffix = "Ultra") {
+    toggleActionButton(actionId, suffix, "Ultra");
 }
 
 function toggleRedo(actionId, suffix = "Redo") {

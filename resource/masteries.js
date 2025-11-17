@@ -919,7 +919,7 @@ const masteries = [
         secondaryRole: "alter",
         save: null,
         breakType: null,
-        actions: ["Defile", "Vitiate"],
+        actions: ["Defile", "Vitiate", "Profane"],
     },
     {
         id: 34,

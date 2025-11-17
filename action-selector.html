@@ -438,9 +438,10 @@
 
       if (backButton) {
         // Only show back button for non-imported characters
-        if (!currentState.imported) {
-          backButton.style.display = 'block';
-        }
+        // if (!currentState.imported) {
+        //   backButton.style.display = 'block';
+        // }
+        backButton.style.display = 'block';
         // Otherwise keep it hidden (default is display: none)
       }
     }
