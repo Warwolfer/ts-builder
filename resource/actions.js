@@ -1192,7 +1192,7 @@ const actionlist = [
         id: 66,
         lookup: "agress",
         name: "Agress",
-        color: "#e0b439",
+        color: "#63429b",
         image: "https://terrarp.com/db/action/agress.png",
         description:
             "<p>(D) Free Action. Taunt an enemy. Aggress takes higher priority than regular Taunt. If two Aggress is used on the same target, roll a 1d100, the higher result takes priority.</p>",
