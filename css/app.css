@@ -478,65 +478,55 @@ ul {
     background-color: #40883a;
 }
 
+.displaycircle.aeromancy,
 .displaycircle.arcanamancy,
-.displaycircle.astramancy,
 .displaycircle.beast-arts,
+.displaycircle.chronomancy,
+.displaycircle.cryomancy,
 .displaycircle.geomancy,
 .displaycircle.guard-arts,
 .displaycircle.hemomancy,
-.displaycircle.hydromancy,
 .displaycircle.illusion-magic,
-.displaycircle.cryomancy,
 .displaycircle.spellbane,
+.display.aeromancy,
 .display.arcanamancy,
-.display.astramancy,
 .display.beast-arts,
+.display.chronomancy,
+.display.cryomancy,
 .display.geomancy,
 .display.guard-arts,
 .display.hemomancy,
-.display.hydromancy,
 .display.illusion-magic,
-.display.cryomancy,
 .display.spellbane {
     border-color: #ce832c;
 }
 
-.displaycircle.aeromancy,
-.displaycircle.crush-weapons,
+.displaycircle.astramancy,
 .displaycircle.dark-magic,
-.displaycircle.martial-arts,
-.displaycircle.pierce-weapons,
 .displaycircle.pyromancy,
-.displaycircle.ranged-weapons,
-.displaycircle.shadow-arts,
-.displaycircle.slash-weapons,
 .displaycircle.electromancy,
 .displaycircle.power,
 .displaycircle.precision,
 .displaycircle.speed,
 .displaycircle.unarmed,
+.displaycircle.subterfuge,
 .displaycircle.ranged,
-.display.aeromancy,
-.display.crush-weapons,
+.display.astramancy,
 .display.dark-magic,
-.display.martial-arts,
-.display.pierce-weapons,
 .display.pyromancy,
-.display.ranged-weapons,
-.display.shadow-arts,
-.display.slash-weapons,
 .display.electromancy,
 .display.power,
 .display.precision,
 .display.speed,
 .display.unarmed,
+.display.subterfuge,
 .display.ranged {
     border-color: #bd4444; /*#ce2c2c*/
 }
 
+.displaycircle.hydromancy,
 .displaycircle.alchemy,
 .displaycircle.animancy,
-.displaycircle.chronomancy,
 .displaycircle.divine-magic,
 .displaycircle.harmonic-magic,
 .displaycircle.magitech,
@@ -544,9 +534,9 @@ ul {
 .displaycircle.spirit-magic,
 .displaycircle.tinker,
 .displaycircle.war-arts,
+.display.hydromancy,
 .display.alchemy,
 .display.animancy,
-.display.chronomancy,
 .display.divine-magic,
 .display.harmonic-magic,
 .display.magitech,
@@ -1400,7 +1390,7 @@ p {
 .aci-alterhinder,
 .aci-shield,
 .aci-disruptive {
-    background-image: url(https://terrarp.com/db/action/dba3.png);
+    background-image: url(https://terrarp.com/db/action/dsa.png);
     background-repeat: no-repeat;
 }
 

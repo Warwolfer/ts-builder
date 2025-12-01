@@ -895,7 +895,7 @@ const masteries = [
         secondaryRole: "alter",
         save: null,
         breakType: null,
-        actions: ["Savior", "Guardian", "Agress"],
+        actions: ["Savior", "Guardian", "Aggress"],
     },
     {
         id: 32,
