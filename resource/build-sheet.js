@@ -808,21 +808,21 @@ class BuildSheet {
             console.log("");
         }
 
-        // Calculate build rank based on total score (0-339 scale with SAABBB limits)
+        // Calculate build rank based on total score (0-358 scale with SSAABB limits)
         const getBuildRank = (score) => {
             const ranks = [
-                {grade: "E", min: 0, max: 30},
-                {grade: "E+", min: 31, max: 61},
-                {grade: "D", min: 62, max: 92},
-                {grade: "D+", min: 93, max: 123},
-                {grade: "C", min: 124, max: 154},
-                {grade: "C+", min: 155, max: 185},
-                {grade: "B", min: 186, max: 216},
-                {grade: "B+", min: 217, max: 247},
-                {grade: "A", min: 248, max: 278},
-                {grade: "A+", min: 279, max: 309},
-                {grade: "S", min: 310, max: 338},
-                {grade: "S+", min: 339, max: 339},
+                {grade: "E", min: 0, max: 29},
+                {grade: "E+", min: 30, max: 59},
+                {grade: "D", min: 60, max: 89},
+                {grade: "D+", min: 90, max: 119},
+                {grade: "C", min: 120, max: 149},
+                {grade: "C+", min: 150, max: 179},
+                {grade: "B", min: 180, max: 209},
+                {grade: "B+", min: 210, max: 239},
+                {grade: "A", min: 240, max: 269},
+                {grade: "A+", min: 270, max: 299},
+                {grade: "S", min: 300, max: 328},
+                {grade: "S+", min: 329, max: 358},
             ];
 
             const rank = ranks.find((r) => score >= r.min && score <= r.max);
@@ -838,10 +838,10 @@ class BuildSheet {
         console.log(`📊 BUILD RANK: ${buildRank}`);
         console.log("");
         console.log(
-            "Rank Scale: E (0-30), E+ (31-61), D (62-92), D+ (93-123), C (124-154), C+ (155-185)",
+            "Rank Scale: E (0-29), E+ (30-59), D (60-89), D+ (90-119), C (120-149), C+ (150-179)",
         );
         console.log(
-            "           B (186-216), B+ (217-247), A (248-278), A+ (279-309), S (310-338), S+ (339)",
+            "           B (180-209), B+ (210-239), A (240-269), A+ (270-299), S (300-328), S+ (329-358)",
         );
         console.log("");
         console.log("Scoring: E=0, D=10, C=15, B=25, A=30, S=40 points per rank");

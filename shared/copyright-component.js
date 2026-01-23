@@ -5,8 +5,8 @@
 
 class CopyrightComponent {
   constructor() {
-    this.version = "2.0";
-    this.copyrightYears = "2016-2025";
+    this.version = "3.12.18";
+    this.copyrightYears = "2016-2026";
     this.teamName = "Team Terrasphere";
   }
 
@@ -15,7 +15,7 @@ class CopyrightComponent {
   render() {
     return `
       <div id="copyright">
-        <span class="cpr">TS2 Builder <span class="version">${this.version}</span> © ${this.copyrightYears} ${this.teamName}</span>
+        <span class="cpr">TS3 Builder <span class="version">${this.version}</span> © ${this.copyrightYears} ${this.teamName}</span>
         <span class="cpr">All visuals and music belong to their respective owners.</span>
       </div>
     `;

@@ -1009,7 +1009,7 @@ const masteries = [
         id: 41,
         lookup: "praxis",
         name: "Praxis",
-        color: "#cb5050",
+        color: "#50cb50",
         image: "https://terrarp.com/db/mastery/w-praxis.png",
         primaryRole: "alter",
         secondaryRole: "alter",

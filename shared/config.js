@@ -226,13 +226,14 @@ const Config = {
       maxExpertise: 6,
       maxRank: 5,
 
-      // Rank distribution limits
+      // Rank distribution limits (cumulative caps)
+      // S: max 2, A+: max 4 (S+A combined), B and below: unlimited
       rankCaps: {
-        S: 1,
-        A: 2,
-        B: 3,
-        C: 4,
-        D: 5,
+        S: 2,
+        APlus: 4, // cumulative cap for A and above (includes S)
+        B: 6,
+        C: 6,
+        D: 6,
         E: 6,
       },
     },

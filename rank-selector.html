@@ -497,7 +497,7 @@
           ranks.push(parseInt(select.value) || 0);
         });
         
-        // Note: Validate rank caps (S×1, A×2, B×3)
+        // Note: Validate rank caps (S×2, A+×4, B×∞)
         if (window.CharacterCalculations) {
           const validation = window.CharacterCalculations.validateMasteryRanks(ranks);
           if (!validation.valid) {
@@ -507,20 +507,20 @@
             return;
           }
         }
-        
+
         this.state.updateState({ chosenMasteriesRanks: ranks });
         this.updateUI();
       }
-      
+
       updateExpertiseRanks() {
         const ranks = [];
         const selects = this.domUtils.querySelectorAll('.expertise-rank');
-        
+
         selects.forEach(select => {
           ranks.push(parseInt(select.value) || 0);
         });
-        
-        // Note: Validate rank caps (S×1, A×2, B×3) - same rules as masteries
+
+        // Note: Validate rank caps (S×2, A+×4, B×∞) - same rules as masteries
         if (window.CharacterCalculations) {
           const validation = window.CharacterCalculations.validateMasteryRanks(ranks);
           if (!validation.valid) {
@@ -610,11 +610,12 @@
             if (rankCounts.hasOwnProperty(r)) rankCounts[r]++;
           });
           
+          const aPlus = rankCounts[5] + rankCounts[4]; // S + A combined
           html += `<div class="rank-caps-status">`;
           html += `<div class="caps-title">Rank Caps:</div>`;
           html += `<div class="caps-breakdown">`;
-          html += `<span class="${rankCounts[5] > 1 ? 'over-cap' : ''}">S: ${rankCounts[5]}/1</span> `;
-          html += `<span class="${rankCounts[4] > 2 ? 'over-cap' : ''}">A: ${rankCounts[4]}/2</span> `;
+          html += `<span class="${rankCounts[5] > 2 ? 'over-cap' : ''}">S: ${rankCounts[5]}/2</span> `;
+          html += `<span class="${aPlus > 4 ? 'over-cap' : ''}">A+: ${aPlus}/4</span> `;
           html += `<span>B: ${rankCounts[3]}/∞</span>`;
           html += `</div>`;
           html += `</div>`;
@@ -656,40 +657,48 @@
       }
       
       // Note: Calculate rank availability based on current selections
+      // Cumulative caps: S×2, A+×4 (S+A combined), B×unlimited
       calculateRankAvailability() {
         const currentState = this.state.getState();
         const { chosenMasteriesRanks, chosenExpertiseRanks } = currentState;
-        
+
         // Count mastery ranks separately
         const masteryRankCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0, 0: 0 };
         chosenMasteriesRanks.forEach(rank => {
           const r = parseInt(rank) || 0;
           if (masteryRankCounts.hasOwnProperty(r)) masteryRankCounts[r]++;
         });
-        
-        // Count expertise ranks separately  
+
+        // Count expertise ranks separately
         const expertiseRankCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0, 0: 0 };
         chosenExpertiseRanks.forEach(rank => {
           const r = parseInt(rank) || 0;
           if (expertiseRankCounts.hasOwnProperty(r)) expertiseRankCounts[r]++;
         });
-        
-        // Caps: S×1, A×2, B×unlimited (separate for masteries and expertise)
-        const maxCaps = { 5: 1, 4: 2, 3: 6 }; // B rank now unlimited (set to 6 = max slots)
+
+        // Cumulative caps: S×2, A+×4 (S+A combined), B×unlimited
         const masteryAvailable = { 5: 0, 4: 0, 3: 0 };
         const expertiseAvailable = { 5: 0, 4: 0, 3: 0 };
-        
+
         // Calculate available slots for masteries
-        for (const [rank, max] of Object.entries(maxCaps)) {
-          masteryAvailable[rank] = Math.max(0, max - masteryRankCounts[rank]);
-        }
-        
+        const masteryAPlus = masteryRankCounts[5] + masteryRankCounts[4]; // S + A used
+        const masterySlotsLeftForAPlus = Math.max(0, 4 - masteryAPlus); // How many more A+ can be added
+        const masterySlotsLeftForS = Math.max(0, 2 - masteryRankCounts[5]); // How many more S can be added
+
+        masteryAvailable[5] = Math.min(masterySlotsLeftForS, masterySlotsLeftForAPlus); // S limited by both caps
+        masteryAvailable[4] = masterySlotsLeftForAPlus; // A limited only by cumulative A+ cap
+        masteryAvailable[3] = 6; // B unlimited
+
         // Calculate available slots for expertise
-        for (const [rank, max] of Object.entries(maxCaps)) {
-          expertiseAvailable[rank] = Math.max(0, max - expertiseRankCounts[rank]);
-        }
-        
-        return { 
+        const expertiseAPlus = expertiseRankCounts[5] + expertiseRankCounts[4]; // S + A used
+        const expertiseSlotsLeftForAPlus = Math.max(0, 4 - expertiseAPlus); // How many more A+ can be added
+        const expertiseSlotsLeftForS = Math.max(0, 2 - expertiseRankCounts[5]); // How many more S can be added
+
+        expertiseAvailable[5] = Math.min(expertiseSlotsLeftForS, expertiseSlotsLeftForAPlus); // S limited by both caps
+        expertiseAvailable[4] = expertiseSlotsLeftForAPlus; // A limited only by cumulative A+ cap
+        expertiseAvailable[3] = 6; // B unlimited
+
+        return {
           mastery: { used: masteryRankCounts, available: masteryAvailable },
           expertise: { used: expertiseRankCounts, available: expertiseAvailable }
         };
@@ -697,22 +706,50 @@
 
       
       // Note: Update dropdown options based on rank availability
+      // Handles A+ swaps: changing A↔S doesn't change total A+ count
       updateDropdownOptions() {
         const rankData = this.calculateRankAvailability();
-        
+
+        // Helper to check if a rank change should be allowed
+        const isRankAllowed = (targetRank, currentRank, available, used) => {
+          const currentVal = parseInt(currentRank);
+          const isCurrentSelection = targetRank === currentVal;
+          if (isCurrentSelection) return true;
+
+          const currentIsAPlus = currentVal === 4 || currentVal === 5; // Current is A or S
+          const targetIsS = targetRank === 5;
+          const targetIsA = targetRank === 4;
+
+          // If swapping within A+ tier (A↔S), only check S cap for S target
+          if (currentIsAPlus && targetIsS) {
+            // Swapping A→S or staying at S: only need S slots available
+            // Since we're removing an A+, the A+ cap is not a concern
+            const slotsLeftForS = Math.max(0, 2 - used[5]);
+            return slotsLeftForS > 0;
+          }
+
+          if (currentIsAPlus && targetIsA) {
+            // Swapping S→A or staying at A: always allowed (A+ count same or decreases)
+            return true;
+          }
+
+          // For non-A+ current selections, use normal availability check
+          return available[targetRank] > 0;
+        };
+
         // Update mastery dropdowns
         const masteryDropdowns = this.domUtils.querySelectorAll('.mastery-rank');
         masteryDropdowns.forEach(dropdown => {
           const currentValue = dropdown.value;
           const options = dropdown.querySelectorAll('option');
-          
+
           options.forEach(option => {
             const rank = parseInt(option.value);
-            const isCurrentSelection = rank.toString() === currentValue;
-            
-            // Enable/disable based on mastery availability (always allow current selection)
-            if (rank >= 3 && rank <= 5) { // Only restrict S, A, B ranks
-              if (rankData.mastery.available[rank] === 0 && !isCurrentSelection) {
+
+            // Only restrict S, A, B ranks (3, 4, 5)
+            if (rank >= 3 && rank <= 5) {
+              const allowed = isRankAllowed(rank, currentValue, rankData.mastery.available, rankData.mastery.used);
+              if (!allowed) {
                 option.disabled = true;
                 option.textContent = option.textContent.split(' ')[0];
               } else {
@@ -722,20 +759,20 @@
             }
           });
         });
-        
+
         // Update expertise dropdowns
         const expertiseDropdowns = this.domUtils.querySelectorAll('.expertise-rank');
         expertiseDropdowns.forEach(dropdown => {
           const currentValue = dropdown.value;
           const options = dropdown.querySelectorAll('option');
-          
+
           options.forEach(option => {
             const rank = parseInt(option.value);
-            const isCurrentSelection = rank.toString() === currentValue;
-            
-            // Enable/disable based on expertise availability (always allow current selection)
-            if (rank >= 3 && rank <= 5) { // Only restrict S, A, B ranks
-              if (rankData.expertise.available[rank] === 0 && !isCurrentSelection) {
+
+            // Only restrict S, A, B ranks (3, 4, 5)
+            if (rank >= 3 && rank <= 5) {
+              const allowed = isRankAllowed(rank, currentValue, rankData.expertise.available, rankData.expertise.used);
+              if (!allowed) {
                 option.disabled = true;
                 option.textContent = option.textContent.split(' ')[0];
               } else {

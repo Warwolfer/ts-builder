@@ -40,7 +40,7 @@ A web-based character build planner for the TerraSphere RPG system featuring mul
 - **Secondary Roles**: Masteries have primary and secondary roles for expanded action access
 - **Downcasting**: Visual indicators when using masteries outside primary role
 - **Expertise System**: Separate character expertise from equipment ranks
-- **Rank Validation**: Enforces 1×S, 2×A, 3×B distribution caps
+- **Rank Validation**: Enforces 2×S, 4×A+ (cumulative) distribution caps (B and below unlimited)
 
 ### Advanced Features
 - **Advanced Filtering**: Dual-layer filtering (role + use type) with AND/OR logic

@@ -322,8 +322,8 @@ const CharacterCalculations = {
   },
 
   // rank distribution validation: cumulative caps
-  // - Max 1 slot at S or above (so 1×S max)
-  // - Max 3 slots at A or above (so 1×S + 2×A max = 3 total)
+  // - Max 2 slots at S or above (so 2×S max)
+  // - Max 4 slots at A or above (so 2×S + 2×A max = 4 total)
   // - Unlimited slots at B or below
   validateMasteryRanks(ranks) {
     if (!ranks || ranks.length === 0) return { valid: true };
@@ -341,19 +341,19 @@ const CharacterCalculations = {
     const aOrAbove = rankCounts[5] + rankCounts[4];
     const bOrAbove = rankCounts[5] + rankCounts[4] + rankCounts[3];
 
-    // Max 1 S rank
-    if (sRanks > 1) {
+    // Max 2 S ranks
+    if (sRanks > 2) {
       return {
         valid: false,
-        message: `Too many S ranks: ${sRanks}/1 allowed. Only 1 slot can be S rank.`,
+        message: `Too many S ranks: ${sRanks}/2 allowed. Only 2 slots can be S rank.`,
       };
     }
 
-    // Max 3 ranks at A or above (S + A)
-    if (aOrAbove > 3) {
+    // Max 4 ranks at A or above (S + A)
+    if (aOrAbove > 4) {
       return {
         valid: false,
-        message: `Too many A+ ranks: ${aOrAbove}/3 allowed. Max 3 slots can be A rank or higher (includes S ranks).`,
+        message: `Too many A+ ranks: ${aOrAbove}/4 allowed. Max 4 slots can be A rank or higher (includes S ranks).`,
       };
     }
 
