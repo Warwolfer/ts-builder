@@ -1251,6 +1251,14 @@ class BuildSheet {
             }
         }
 
+        // Add NG1 suffix for New Game Plus characters
+        if (state.ng === 1 && rollCode && rollCode !== "-") {
+            rollCode = rollCode.replace(
+                /<span class=['"]thrcode['"]>Code<\/span>$/,
+                `NG1 · <span class='thrcode'>Code</span>`
+            );
+        }
+
         const rollCodeSection =
             rollCode && rollCode !== "-"
                 ? `<div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">${rollCode}</div>`

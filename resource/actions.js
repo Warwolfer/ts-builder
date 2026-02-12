@@ -211,7 +211,7 @@ const actionlist = [
         color: "#1e2131",
         image: "https://terrarp.com/db/action/dsa.png",
         description:
-            "<p>Free Action. When you perform any attack action on a target, you taunt that target. DM* Taunt's effect depends on the enemy and/or encounter design.</p>",
+            "<p>This action may be selected for free when you select any main defensive actions.</p><p>Free Action. When you perform any attack action on a target, you taunt that target. DM* Taunt's effect depends on the enemy and/or encounter design.</p>",
         dice: "Free Action",
         use: ["free"],
         roll: "?r taunt # Taunt · Character Name · <span class='thrcode'>Code</span>",
@@ -968,7 +968,7 @@ const actionlist = [
         color: "#1e2131",
         image: "https://terrarp.com/db/action/sba4.png",
         description:
-            "<p>This action may be selected for free when you select 'Heal'.</p><p>Bonus Action: Revive an ally within range. They regain 50% of their max HP.</p><p>Limitations: Lander characters cannot use this action card.</p>",
+            "<p>This action may be selected for free when you select 'Heal'.</p><p>Bonus Action: Revive an ally within range. They regain 50% of their max HP.</p><p>Lander characters can use the Stabilize variation by picking this card and clicking on the switch button in the character sheet.</p>",
         dice: "Bonus Action",
         use: ["bonus"],
         roll: "?r revive # Character Name · Target (<span class='target'>Target</span>) · MaxHP (<span class='maxhp'>Max Hp</span>) · <span class='thrcode'>Code</span>",
