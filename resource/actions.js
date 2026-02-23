@@ -803,7 +803,7 @@ const actionlist = [
         color: "#3460d0",
         image: "https://terrarp.com/db/action/heal.png",
         description:
-            "<p>Explosion: Whenever you roll a 18 (D), 17 (B), or 16 (S) or higher, roll an extra d20.</p><p>Cleanse: Whenever you heal a target cleanse 2 (D), 3 (B), 4 (S) after healing. Gain 5 HP to your heal per unused cleanse charge.</p>",
+            "<p>You are Vulnerable.</p><p>Explosion: Whenever you roll a 18 (D), 17 (B), or 16 (S) or higher, roll an extra d20.</p><p>Cleanse: Whenever you heal a target cleanse 2 (D), 3 (B), 4 (S) after healing. Gain 5 HP to your heal per unused cleanse charge.</p>",
         dice: "4d20 + MR + WR + other bonuses then divide by 3 if AoE",
         use: ["special"],
         roll: "?r powerheal <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> · Character Name · <span class='thrcode'>Code</span>",
@@ -836,7 +836,9 @@ const actionlist = [
         color: "#4e9be2",
         image: "https://terrarp.com/db/action/buff.png",
         description:
-            "<p>(D) Main Action. Choose a target within 5ft and grant them 5 (D) or 10 (S) Charge.</p>",
+            "<p>Single-target: Grant 1 target a damage buff that lasts 3 actions; each charge gains 5 (D), 10 (S).</p>" +
+            "<p>Multi-targets: Grant 3 targets a damage buff that lasts 1 action.</p>" +
+            "<p>May only be affected by one buff at a time.</p>",
         dice: "1d100 + MR + WR + other bonuses then divide by 3",
         use: ["main"],
         roll: "?r buff <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> · Character Name · <span class='thrcode'>Code</span>",
@@ -869,7 +871,9 @@ const actionlist = [
         color: "#3460d0",
         image: "https://terrarp.com/db/action/buff.png",
         description:
-            "<p>(D) Special Action. Choose a target within 5ft and grant them 5 (D), 10 (B), or 15 (S) Charge.</p>",
+            "<p>You are Vulnerable.</p><p>Single-target: Grant 1 target a damage buff that lasts 3 actions; each charge gains 5 (D), 10 (B), 15 (S).</p>" +
+            "<p>Multi-targets: Grant 3 targets a damage buff that lasts 1 action.</p>" +
+            "<p>May only be affected by one buff at a time.</p>",
         dice: "2d100 + MR + WR + other bonuses then divide by 3",
         use: ["special"],
         roll: "?r powerbuff <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> · Character Name · <span class='thrcode'>Code</span>",
