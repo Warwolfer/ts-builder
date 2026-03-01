@@ -172,6 +172,9 @@ class BuildSheet {
         // Replace break types in all roll codes
         this.replaceBreakTypes(currentState);
 
+        // Add NG1 suffix to saves/checks roll codes for NG+ characters
+        this.applyNgSuffixToChecks(currentState);
+
         // Update passive modifiers (Lethal/Blessed) in damagepassivemod spans
         this.updatePassiveModifiers(currentState);
 
@@ -1910,6 +1913,21 @@ class BuildSheet {
                 });
             }
         }
+    }
+
+    applyNgSuffixToChecks(state) {
+        if (state.ng !== 1) return;
+
+        const section = this.domUtils.getElementById("saveschecks");
+        if (!section) return;
+
+        const rollCodes = section.querySelectorAll(".rollcode");
+        rollCodes.forEach((el) => {
+            el.innerHTML = el.innerHTML.replace(
+                /(<span class="thrcode">)/,
+                `NG1 · $1`
+            );
+        });
     }
 
     updatePassiveModifiers(state) {
