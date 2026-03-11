@@ -1037,7 +1037,7 @@ const actionlist = [
         color: "#1e2131",
         image: "https://terrarp.com/db/action/sba4.png",
         description:
-            "<p>Free Action: Apply the effects to 2 targets (instead of 3).</p><p>Bonus Action: Simulcast. Target 2 allies with Heal and Buff (both must be special or non-special) and choose if each target gets either the heal or buff.</p>",
+            "<p>Free Action: Apply support actions effects to 2 targets (instead of 3).</p><p>Bonus Action: Simulcast. Target 2 allies with Heal and Buff (both must be special or non-special) and choose if each target gets either the heal or buff.</p>",
         dice: "Free/Bonus Action",
         use: ["free", "bonus"],
         roll: "?r versatile # Character Name · <span class='thrcode'>Code</span>",
@@ -1267,7 +1267,7 @@ const actionlist = [
         color: "#813090",
         image: "https://terrarp.com/db/action/defile.png",
         description:
-            "<p>Free Action. Mark 2 (E), 3 (B), 4 (S) targets (self, allies, enemies); you may stack the marks on a single target. From now until the end of the next damage cycle, lose your total rolled result to all Saves to obtain the following effects:</p><p>Self & Allies: The target gains an additional X (1d20 per mark) to an attack, buff, or heal</p><p>Enemy: Deal an instance of 1d20 HP or break damage with adv per mark</p><p>(C) Bonus Action: Vilify. Add 1d20 to 1 (C), 2 (A) already-marked targets; lose 20 HP when you apply the second Vilify charge</p>",
+            "<p>Free Action. Mark 2 (D), 3 (B), 4 (S) targets (self, allies, enemies); you may stack the marks on a single target. From now until the end of the next damage cycle, lose your total rolled result to all Saves to obtain the following effects:</p><p>Self & Allies: The target gains an additional X (1d20 per mark) to an attack, buff, or heal</p><p>Enemy: Deal an instance of 1d20 HP or break damage with adv per mark</p><p>(C) Bonus Action: Vilify. Add 1d20 to 1 (C), 2 (A) already-marked targets; lose 20 HP when you apply the second Vilify charge</p>",
         dice: "Free Action",
         use: ["free"],
         roll: "?r defile <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
@@ -1317,7 +1317,7 @@ const actionlist = [
         color: "#63429b",
         image: "https://terrarp.com/db/action/momentum.png",
         description:
-            "<p>(D) Free Action: Gain 5 damage modifiers for each (spent or unspent) movement you have this cycle.</p><p>(C) Bonus Action: Blitz. Gain 10 bonus damage for each movement used in a continuous line this cycle. When a battle map is not in use, let the narrative determine whether you can use a quarter, half, or your full movement amount for this action. Also, reduce each charge of movement damage by 5 (C), A (10).</p>",
+            "<p>(D) Free Action: Gain 5 damage modifiers for each (spent or unspent) movement you have this cycle.</p><p>(C) Bonus Action: Blitz. Gain 10 extra damage for each movement used in a continuous line this cycle. When a battle map is not in use, let the narrative determine whether you can use a quarter, half, or your full movement amount for this action. Also, reduce each instance of movement damage by 5 (C), A (10).</p>",
         dice: "Free Action/Passive",
         use: ["passive"],
         roll: "?r momentum <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
@@ -1384,7 +1384,7 @@ const actionlist = [
         color: "#63429b",
         image: "https://terrarp.com/db/action/engage.png",
         description:
-            "<p>(C) Bonus Action: Redo. Lose [50 HP] to reroll your main action, you must take the new result. Redo Critical Attack uses 1d100 instead of 2d100kh1.</p><p>(C) Bonus Action: Accretion. Lose [35 HP] to make your Save Roll with advantage.</p>",
+            "<p>(D) Bonus Action: Redo. Lose [50 HP] to reroll your main action, you must take the new result. Redo Critical Attack uses 1d100 instead of 2d100kh1.</p><p>(C) Bonus Action: Accretion. Lose [35 HP] to make your Save Roll with advantage.</p>",
         dice: "Bonus Action",
         use: ["bonus"],
         roll: "?r engage <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
@@ -1434,7 +1434,7 @@ const actionlist = [
         color: "#63429b",
         image: "https://terrarp.com/db/action/mark.png",
         description:
-            "<p>(D) Bonus Action: The next 2 attacks to your marked enemy gains a +10 (D) +15 (C) +20 (B) +25 (A) +30 (S) damage modifier. You cannot recast Death Mark until all charges are expended, if there are multiple Hyper Sense users, Marks may stack.</p><p>(S) Upgrade: 2 → 3 attacks.</p>",
+            "<p>(D) Bonus Action: The next 2 attacks to your marked enemy gains a +10 (D) +15 (C) +20 (B) +25 (A) +30 (S) damage modifier. You cannot recast Mark until all charges are expended, if there are multiple Hyper Sense users, Marks may stack.</p><p>(S) Upgrade: 2 → 3 attacks.</p>",
         dice: "Bonus Action",
         use: ["bonus"],
         roll: "?r mark <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span> · Target (<span class='target'>Target</span>)",
@@ -1500,7 +1500,7 @@ const actionlist = [
         color: "#63429b",
         image: "https://terrarp.com/db/action/infuse.png",
         description:
-            "<p>(D) Free Action. Heal up to 2 allies within range for 5 (D) 10 (C) 15 (B) 20 (A) 25 (S) HP. If AoE was used, distribute the heal in 5s.</p><p>(A) Upgrade. Heal up to 3 targets (instead of 2).</p>",
+            "<p>(D) Free Action. Heal up to 2 allies within range for 5 (D) 10 (C) 15 (B) 20 (A) 25 (S) HP. If AoE was used, distribute the heal in multiples of 5.</p><p>(A) Upgrade. Heal up to 3 targets (instead of 2).</p>",
         dice: "Free Action",
         use: ["main"],
         roll: "?r infuse <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
@@ -1616,7 +1616,7 @@ const actionlist = [
         color: "#63429b",
         image: "https://terrarp.com/db/action/locomote.png",
         description:
-            "<p>(D) Free Action. At the start of the thread, pick a target within range, that target gets a +1 movement until you switch the target.</p><p>(D) Bonus Action: Switch. Change the Locomote target.</p><p>(B) Upgrade. If you and the Locomote target start on the same space at the start of a cycle, both get the +1 movement.</p>",
+            "<p>(D) Free Action. At the start of the thread, choose a target within range, that target gains a +1 movement until you switch the target.</p><p>(D) Bonus Action: Switch. Change the Locomote target.</p><p>(B) Upgrade. If you and the Locomote target start on the same space at the start of a cycle, both gain the +1 movement.</p>",
         dice: "Free/Bonus Action",
         use: ["free", "bonus"],
         roll: "?r locomote <span class='masteryreplace'>MR</span> # Character Name · Target (<span class='target'>X</span>) · <span class='thrcode'>Code</span>",
@@ -1650,7 +1650,7 @@ const actionlist = [
         color: "#63429b",
         image: "https://terrarp.com/db/action/follow-up.png",
         description:
-            "<p>(C) Free Action. Whenever an ally within range performs a special attack action, either you or your ally may use a 20 (D), 25 (C), 30 (B), 35 (A), 40 (S) damage modifier in either of your posts (which must narratively feature both).</p><p>If one follow-up partner crits, this value scales with the crit. Normal attacks may trigger combo at a reduced amount 15 (C), 20 (A), 25 (S).</p>",
+            "<p>(C) Free Action. Whenever an ally within range performs a special attack action, either you or your ally may use a 20 (D), 25 (C), 30 (B), 35 (A), 40 (S) damage modifier in either of your posts, which must narratively feature both participants.</p><p>If one follow-up partner crits, this value scales with the crit. Normal attacks may trigger combo at a reduced amount 15 (C), 20 (A), 25 (S).</p>",
         dice: "Free Action",
         use: ["main"],
         roll: "?r followup <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span> · Target (<span class='target'>Target</span>)",
@@ -1666,7 +1666,7 @@ const actionlist = [
         color: "#63429b",
         image: "https://terrarp.com/db/action/gift.png",
         description:
-            "<p>(B) Free Action. When you Release your charge, roll another set and take the higher set.</p><p>(S) Free Action: Ultra. You may reroll your Release dice set a third time and keep the highest set, but take 20 damage.</p>",
+            "<p>(B) Free Action. When you Release your charge, roll another set and keep the higher set.</p><p>(S) Free Action: Ultra. You may reroll your Release dice set a third time and keep the highest set, but take 20 damage.</p>",
         dice: "Passive",
         use: ["passive"],
         roll: "?r gift <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
@@ -1699,7 +1699,7 @@ const actionlist = [
         color: "#63429b",
         image: "https://terrarp.com/db/action/praxis.png",
         description:
-            "<p>(D) Passive. Gain an additional 5 (D), 10 (S) to all Bonus/Free Actions. Haste and Cleanse gain 1 (D), 2 (S) additional charge. </p>",
+            "<p>(D) Passive. Gain an additional 5 (D), 10 (S) to all Bonus and Free Actions. Haste and Cleanse gain 1 (D), 2 (S) additional charge. </p>",
         dice: "Passive",
         use: ["passive"],
         roll: "",

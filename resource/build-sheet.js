@@ -1340,6 +1340,13 @@ class BuildSheet {
                     hasInput: true,
                 },
             ],
+            "area-effect": [
+                {
+                    text: "Splash",
+                    onclick: "toggleSplash",
+                    suffix: "Splash",
+                },
+            ],
             versatile: [
                 {
                     text: "Simulcast",
@@ -3097,6 +3104,10 @@ function toggleRisky(actionId, suffix = "Risky Mode") {
 
 function toggleSimulcast(actionId, suffix = "Simulcast") {
     toggleActionButton(actionId, suffix, "Simulcast");
+}
+
+function toggleSplash(actionId, suffix = "Splash") {
+    toggleActionButton(actionId, suffix, "Splash");
 }
 
 function toggleAoE(actionId, suffix = "AoE") {
