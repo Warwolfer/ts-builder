@@ -27,6 +27,19 @@ class BuildSheet {
 
         this.rankLabels = ["E", "D", "C", "B", "A", "S"];
 
+        this.rankColorMap = { S: "rank-s", A: "rank-a", B: "rank-b", C: "rank-c", D: "rank-d", E: "rank-e" };
+
+        // Sections that contain roll codes, used by multiple replacement methods
+        this.rollCodeSections = ["freeactiondisplay", "actionsdisplay", "saveschecks"];
+
+        // Action category lists used by both generateActionCardContent and updatePassiveModifiers
+        this.attackActions = [
+            "attack", "counter", "ultra-counter", "stable-attack", "burst-attack",
+            "sneak-attack", "critical-attack", "sharp-attack", "reckless-attack",
+        ];
+        this.healActions = ["heal", "power-heal"];
+        this.buffActions = ["buff", "power-buff"];
+
         // Helper method to safely get rank label
         this.getRankLabel = (rank) => {
             if (rank < 0 || rank >= this.rankLabels.length) {
@@ -39,27 +52,14 @@ class BuildSheet {
     }
 
     getRankColorClass(rank) {
-        // Handle undefined or invalid rank values
         if (!rank || typeof rank !== "string") {
-            return "rank-e"; // Default to gray
+            return "rank-e";
         }
+        return this.rankColorMap[rank.toUpperCase()] || "rank-e";
+    }
 
-        switch (rank.toUpperCase()) {
-            case "S":
-                return "rank-s"; // Gold
-            case "A":
-                return "rank-a"; // Orange
-            case "B":
-                return "rank-b"; // Pink
-            case "C":
-                return "rank-c"; // Green
-            case "D":
-                return "rank-d"; // Blue
-            case "E":
-                return "rank-e"; // Grey
-            default:
-                return "rank-e"; // Default to gray
-        }
+    capitalize(str) {
+        return capitalize(str);
     }
 
     init() {
@@ -99,28 +99,24 @@ class BuildSheet {
         }
     }
 
-    loadMasteries() {
-        if (window.masteries) {
-            this.dataLoader.cache.masteries = window.masteries;
+    loadDataSource(globalName, cacheKey) {
+        if (window[globalName]) {
+            this.dataLoader.cache[cacheKey] = window[globalName];
         } else {
-            throw new Error("masteries not found");
+            throw new Error(`${globalName} not found`);
         }
+    }
+
+    loadMasteries() {
+        this.loadDataSource("masteries", "masteries");
     }
 
     loadExpertise() {
-        if (window.expertise) {
-            this.dataLoader.cache.expertise = window.expertise;
-        } else {
-            throw new Error("expertise not found");
-        }
+        this.loadDataSource("expertise", "expertise");
     }
 
     loadActions() {
-        if (window.actionlist) {
-            this.dataLoader.cache.actions = window.actionlist;
-        } else {
-            throw new Error("actionlist not found");
-        }
+        this.loadDataSource("actionlist", "actions");
     }
 
     displayBuild() {
@@ -240,11 +236,7 @@ class BuildSheet {
         // Handle NG+ display - only show when ng value is 1
         const ngElement = this.domUtils.getElementsByClassName("newgameplus")[0];
         if (ngElement) {
-            if (state.ng === 1) {
-                ngElement.style.display = "block";
-            } else {
-                ngElement.style.display = "none";
-            }
+            ngElement.style.display = state.ng === 1 ? "block" : "none";
         }
 
         if (state.profileBannerUrl) {
@@ -383,24 +375,20 @@ class BuildSheet {
     }
 
     displaySaves(saves) {
-        // Calculate save breakdowns for tooltips
         const saveBreakdowns = this.calculateSaveBreakdowns();
 
-        // Display saves like equipment items with hover tooltips
-        this.domUtils.setHTML(
-            this.domUtils.querySelector(".fortitudesavedisplay"),
-            `<div class="saves-rank-display" title="${saveBreakdowns.fortitude}"><span class="mastery-with-icon"><img src="https://terrarp.com/db/tool/fortitude.png" class="mastery-icon"> Fortitude</span><span class="rank-badge save-bonus">${saves.fortitude}</span></div>`,
-        );
+        const saveTypes = [
+            { key: "fortitude", label: "Fortitude" },
+            { key: "reflex", label: "Reflex" },
+            { key: "will", label: "Will" },
+        ];
 
-        this.domUtils.setHTML(
-            this.domUtils.querySelector(".reflexsavedisplay"),
-            `<div class="saves-rank-display" title="${saveBreakdowns.reflex}"><span class="mastery-with-icon"><img src="https://terrarp.com/db/tool/reflex.png" class="mastery-icon"> Reflex</span><span class="rank-badge save-bonus">${saves.reflex}</span></div>`,
-        );
-
-        this.domUtils.setHTML(
-            this.domUtils.querySelector(".willsavedisplay"),
-            `<div class="saves-rank-display" title="${saveBreakdowns.will}"><span class="mastery-with-icon"><img src="https://terrarp.com/db/tool/will.png" class="mastery-icon"> Will</span><span class="rank-badge save-bonus">${saves.will}</span></div>`,
-        );
+        saveTypes.forEach(({ key, label }) => {
+            this.domUtils.setHTML(
+                this.domUtils.querySelector(`.${key}savedisplay`),
+                `<div class="saves-rank-display" title="${saveBreakdowns[key]}"><span class="mastery-with-icon"><img src="https://terrarp.com/db/tool/${key}.png" class="mastery-icon"> ${label}</span><span class="rank-badge save-bonus">${saves[key]}</span></div>`,
+            );
+        });
     }
 
     calculateSaveBreakdowns() {
@@ -435,10 +423,7 @@ class BuildSheet {
         // Calculate accessory contributions
         if (accessoryType && accessoryRank !== undefined) {
             const accessoryBonus = (accessoryRank + 1) * 10; // E=10, D=20, C=30, B=40, A=50, S=60
-            const accessoryName =
-                accessoryType.charAt(0).toUpperCase() +
-                accessoryType.slice(1) +
-                " Accessory";
+            const accessoryName = this.capitalize(accessoryType) + " Accessory";
 
             switch (accessoryType) {
                 case "combat":
@@ -479,10 +464,11 @@ class BuildSheet {
 
         // Format the breakdowns as tooltip strings
         const formatBreakdown = (saveType, contributions) => {
+            const label = this.capitalize(saveType);
             if (contributions.length === 0) {
-                return `${saveType.charAt(0).toUpperCase() + saveType.slice(1)}: 0 (No bonuses)`;
+                return `${label}: 0 (No bonuses)`;
             }
-            return `${saveType.charAt(0).toUpperCase() + saveType.slice(1)}: ${contributions.join(" + ")}`;
+            return `${label}: ${contributions.join(" + ")}`;
         };
 
         return {
@@ -507,10 +493,8 @@ class BuildSheet {
             const armorMultiplier = this.calculations.ARMOR_MULTIPLIERS[armorType];
             const armorBonus = parseInt(armorRank) * armorMultiplier;
             if (armorBonus > 0) {
-                const armorTypeName =
-                    armorType.charAt(0).toUpperCase() + armorType.slice(1);
-                const rankLabels = ["E", "D", "C", "B", "A", "S"];
-                const rankLabel = rankLabels[armorRank] || "E";
+                const armorTypeName = this.capitalize(armorType);
+                const rankLabel = this.getRankLabel(armorRank);
                 hpBreakdown.push(
                     `${armorTypeName} Armor (${rankLabel}): ${armorBonus}`,
                 );
@@ -881,10 +865,9 @@ class BuildSheet {
 
             if (masteryIndex !== -1) {
                 const currentRank = currentState.chosenMasteriesRanks[masteryIndex];
-                const downcastRank = Math.max(0, currentRank - 1); // Downcast by 1 rank
-                const rankLabels = ["E", "D", "C", "B", "A", "S"];
-                const currentRankLabel = rankLabels[currentRank];
-                const downcastRankLabel = rankLabels[downcastRank];
+                const downcastRank = Math.max(0, currentRank - 1);
+                const currentRankLabel = this.getRankLabel(currentRank);
+                const downcastRankLabel = this.getRankLabel(downcastRank);
 
                 // Show indicator if it doesn't exist
                 if (!indicator) {
@@ -921,13 +904,9 @@ class BuildSheet {
 
             if (masteryIndex !== -1) {
                 const currentRank = currentState.chosenMasteriesRanks[masteryIndex];
-                const rankLabels = ["E", "D", "C", "B", "A", "S"];
-                const currentRankLabel = rankLabels[currentRank];
-
-                // Update the MR display to show normal rank
                 const masteryReplace = cardElement.querySelector(".masteryreplace");
                 if (masteryReplace) {
-                    masteryReplace.innerHTML = currentRankLabel;
+                    masteryReplace.innerHTML = this.getRankLabel(currentRank);
                 }
             }
         }
@@ -975,7 +954,7 @@ class BuildSheet {
         if (armorType && this.armorImages[armorType]) {
             this.domUtils.setHTML(
                 this.domUtils.querySelector(".armorrankdisplay"),
-                `<div class="equipment-rank-display"><span class="mastery-with-icon"><img src="${this.armorImages[armorType]}" class="mastery-icon"> ${armorType.charAt(0).toUpperCase() + armorType.slice(1)}</span><span class="rank-badge ${this.getRankColorClass(this.getRankLabel(armorRank))}">${this.getRankLabel(armorRank)}</span></div>`,
+                `<div class="equipment-rank-display"><span class="mastery-with-icon"><img src="${this.armorImages[armorType]}" class="mastery-icon"> ${this.capitalize(armorType)}</span><span class="rank-badge ${this.getRankColorClass(this.getRankLabel(armorRank))}">${this.getRankLabel(armorRank)}</span></div>`,
             );
 
             // Set armor ability
@@ -986,7 +965,7 @@ class BuildSheet {
         if (accessoryType && this.accessoryImages[accessoryType]) {
             this.domUtils.setHTML(
                 this.domUtils.querySelector(".accessoryrankdisplay"),
-                `<div class="equipment-rank-display"><span class="mastery-with-icon"><img src="${this.accessoryImages[accessoryType]}" class="mastery-icon"> ${accessoryType.charAt(0).toUpperCase() + accessoryType.slice(1)}</span><span class="rank-badge ${this.getRankColorClass(this.getRankLabel(accessoryRank))}">${this.getRankLabel(accessoryRank)}</span></div>`,
+                `<div class="equipment-rank-display"><span class="mastery-with-icon"><img src="${this.accessoryImages[accessoryType]}" class="mastery-icon"> ${this.capitalize(accessoryType)}</span><span class="rank-badge ${this.getRankColorClass(this.getRankLabel(accessoryRank))}">${this.getRankLabel(accessoryRank)}</span></div>`,
             );
         }
 
@@ -1042,8 +1021,7 @@ class BuildSheet {
             return;
         }
 
-        const armorTypeName =
-            armorType.charAt(0).toUpperCase() + armorType.slice(1);
+        const armorTypeName = this.capitalize(armorType);
 
         // Create armor ability card HTML
         const armorCard = `
@@ -1060,7 +1038,7 @@ class BuildSheet {
         <div class="cardinfo">
           <p>${abilityData.description}</p>
         </div>
-        <div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">${abilityData.rollCode}</div>
+        <div class="rollcode clickable-rollcode" onclick="copyRollCode(this)" title="Click to copy">${abilityData.rollCode}</div>
         <div class="risky-toggle-container"></div>
       </div>
     `;
@@ -1099,17 +1077,14 @@ class BuildSheet {
             if (expertiseData) {
                 // Get border color based on first type
                 const firstType = expertiseData.types && expertiseData.types[0];
-                let borderColor = "#6e51cb"; // Default: Discipline
+                const expertiseBorderColors = {
+                    physical: "#ce6541",
+                    creative: "#a84b72",
+                    crafting: "#d2aa49",
+                };
+                const borderColor = expertiseBorderColors[firstType] || "#6e51cb";
 
-                if (firstType === "physical") {
-                    borderColor = "#ce6541"; // Physical
-                } else if (firstType === "creative") {
-                    borderColor = "#a84b72"; // Artistic
-                } else if (firstType === "crafting") {
-                    borderColor = "#d2aa49"; // Crafting
-                }
-
-                html += `<div class='display masterycircle ${expertiseData.lookup}' onclick='clickExpertise(this, "${expertiseId}")' style='border-color: ${borderColor};'><img src='${expertiseData.image}'></div>`;
+                html += `<div class='display masterycircle ${expertiseData.lookup}' onclick='clickExpertise(this, "${expertiseId}")' style='border-color: ${borderColor};'><img src='${expertiseData.image}' alt='${expertiseData.lookup}'></div>`;
             }
         });
 
@@ -1182,8 +1157,7 @@ class BuildSheet {
             const alterMasteryIndex = state.chosenMasteries.length - 1;
             if (alterMasteryIndex >= 0) {
                 const alterRank = state.chosenMasteriesRanks[alterMasteryIndex];
-                const rankLetters = ["E", "D", "C", "B", "A", "S"];
-                const alterRankLetter = rankLetters[alterRank];
+                const alterRankLetter = this.getRankLabel(alterRank);
                 // Replace the masteryreplace span content with the actual rank
                 rollCode = rollCode.replace(
                     /<span class=['"]masteryreplace['"]>MR<\/span>/,
@@ -1194,7 +1168,7 @@ class BuildSheet {
 
         // Add automatic armor suffix for Engage and Empower actions
         if ((action.lookup === "engage" || action.lookup === "empower") && rollCode && rollCode !== "-" && state.armorType) {
-            const armorSuffix = state.armorType.charAt(0).toUpperCase() + state.armorType.slice(1);
+            const armorSuffix = this.capitalize(state.armorType);
             // Append armor type before the closing span
             rollCode = rollCode.replace(
                 /<span class=['"]thrcode['"]>Code<\/span>$/,
@@ -1203,16 +1177,11 @@ class BuildSheet {
         }
 
         // Add automatic Lethal and Combat Focus suffixes for attack, heal, and buff actions
-        const attackActions = ["attack", "counter", "ultra-counter", "stable-attack", "burst-attack",
-                               "sneak-attack", "critical-attack", "sharp-attack", "reckless-attack"];
-        const healActions = ["heal", "power-heal"];
-        const buffActions = ["buff", "power-buff"];
-
         if (rollCode && rollCode !== "-") {
             const suffixes = [];
 
             // For attack actions: add Lethal and Combat Focus
-            if (attackActions.includes(action.lookup)) {
+            if (this.attackActions.includes(action.lookup)) {
                 if (state.chosenActions.includes("lethal")) {
                     suffixes.push("Lethal");
                 }
@@ -1225,7 +1194,7 @@ class BuildSheet {
             }
 
             // For heal actions: add Combat Focus only
-            if (healActions.includes(action.lookup)) {
+            if (this.healActions.includes(action.lookup)) {
                 if (state.chosenActions.includes("focus-offense")) {
                     suffixes.push("Combat Focus");
                 }
@@ -1235,7 +1204,7 @@ class BuildSheet {
             }
 
             // For buff actions: add Combat Focus only
-            if (buffActions.includes(action.lookup)) {
+            if (this.buffActions.includes(action.lookup)) {
                 if (state.chosenActions.includes("focus-offense")) {
                     suffixes.push("Combat Focus");
                 }
@@ -1264,7 +1233,7 @@ class BuildSheet {
 
         const rollCodeSection =
             rollCode && rollCode !== "-"
-                ? `<div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">${rollCode}</div>`
+                ? `<div class="rollcode clickable-rollcode" onclick="copyRollCode(this)" title="Click to copy">${rollCode}</div>`
                 : "";
 
         // Generate mastery icons for this action
@@ -1734,7 +1703,7 @@ class BuildSheet {
         return mastery.primaryRole !== action.category;
     }
 
-    hasDowncastMasteries(action, state, masteries) {
+    _hasDowncastMasteries(action, state, masteries) {
         if (!action.masteries) return false;
 
         const applicableMasteries = state.chosenMasteries.filter((masteryId) =>
@@ -1745,6 +1714,22 @@ class BuildSheet {
             const mastery = masteries.find((m) => m.lookup === masteryId);
             return mastery && this.isActionDowncast(action, mastery);
         });
+    }
+
+    getApplicableMasteries(action, state, masteries) {
+        if (action.lookup === "evolve" || action.lookup === "attack") {
+            // Evolve and Attack exclude alter masteries
+            return state.chosenMasteries.filter((masteryId) => {
+                const mastery = masteries.find((m) => m.lookup === masteryId);
+                return mastery && mastery.primaryRole !== "alter";
+            });
+        }
+        if (action.masteries.includes("all")) {
+            return state.chosenMasteries;
+        }
+        return state.chosenMasteries.filter((masteryId) =>
+            action.masteries.includes(masteryId),
+        );
     }
 
     generateMasteryIcons(action, state, masteries) {
@@ -1762,29 +1747,7 @@ class BuildSheet {
             return '<div class="masteryicon" style="height: 41px;"></div>';
         }
 
-        // Handle "all" masteries - if action accepts all masteries, use all chosen masteries
-        let applicableMasteries;
-        if (action.lookup === "evolve") {
-            // Special case: Evolve action shows all non-alter masteries
-            applicableMasteries = state.chosenMasteries.filter((masteryId) => {
-                const mastery = masteries.find((m) => m.lookup === masteryId);
-                return mastery && mastery.primaryRole !== "alter";
-            });
-        } else if (action.masteries.includes("all")) {
-            applicableMasteries = state.chosenMasteries;
-
-            // Special case: Attack action should not include alter masteries
-            if (action.lookup === "attack") {
-                applicableMasteries = applicableMasteries.filter((masteryId) => {
-                    const mastery = masteries.find((m) => m.lookup === masteryId);
-                    return mastery && mastery.primaryRole !== "alter";
-                });
-            }
-        } else {
-            applicableMasteries = state.chosenMasteries.filter((masteryId) =>
-                action.masteries.includes(masteryId),
-            );
-        }
+        const applicableMasteries = this.getApplicableMasteries(action, state, masteries);
 
         if (applicableMasteries.length === 0) return "";
 
@@ -1803,7 +1766,7 @@ class BuildSheet {
                     : "";
 
                 html += `<div class="display masterycircle ${masteryId}${downcastClass}" data-mastery="${masteryId}" data-action="${action.lookup}" onclick="clickMastery(this)">
-          <img class="${masteryId}" src="${mastery.image}">
+          <img class="${masteryId}" src="${mastery.image}" alt="${masteryId}">
           ${downcastIndicator}
         </div>`;
             }
@@ -1823,13 +1786,7 @@ class BuildSheet {
         if (!characterName) return;
 
         // Replace in all sections that contain roll codes
-        const sectionsToUpdate = [
-            "freeactiondisplay",
-            "actionsdisplay",
-            "saveschecks",
-        ];
-
-        sectionsToUpdate.forEach((sectionId) => {
+        this.rollCodeSections.forEach((sectionId) => {
             const section = this.domUtils.getElementById(sectionId);
             if (section) {
                 section.innerHTML = section.innerHTML.replace(
@@ -1858,18 +1815,10 @@ class BuildSheet {
     replaceWeaponRank(weaponRank) {
         if (weaponRank === undefined || weaponRank === null) return;
 
-        // Convert weapon rank number to letter
-        const rankLetters = ["E", "D", "C", "B", "A", "S"];
-        const weaponRankLetter = rankLetters[weaponRank] || "E";
+        const weaponRankLetter = this.getRankLabel(weaponRank);
 
         // Replace in all sections that contain roll codes
-        const sectionsToUpdate = [
-            "freeactiondisplay",
-            "actionsdisplay",
-            "saveschecks",
-        ];
-
-        sectionsToUpdate.forEach((sectionId) => {
+        this.rollCodeSections.forEach((sectionId) => {
             const section = this.domUtils.getElementById(sectionId);
             if (section) {
                 section.innerHTML = section.innerHTML.replace(/WR/g, weaponRankLetter);
@@ -1897,18 +1846,10 @@ class BuildSheet {
             );
 
             if (primaryMastery && primaryMastery.breakType) {
-                const breakType =
-                    primaryMastery.breakType.charAt(0).toUpperCase() +
-                    primaryMastery.breakType.slice(1);
+                const breakType = this.capitalize(primaryMastery.breakType);
 
                 // Replace break types in all sections that contain roll codes
-                const sectionsToUpdate = [
-                    "freeactiondisplay",
-                    "actionsdisplay",
-                    "saveschecks",
-                ];
-
-                sectionsToUpdate.forEach((sectionId) => {
+                this.rollCodeSections.forEach((sectionId) => {
                     const section = this.domUtils.getElementById(sectionId);
                     if (section) {
                         // Replace the breaktype span content
@@ -1937,74 +1878,45 @@ class BuildSheet {
         });
     }
 
-    updatePassiveModifiers(state) {
+    getHighestApplicableMasteryRank(state, action) {
+        if (!action || !action.masteries) return 0;
+
+        const applicableMasteries = state.chosenMasteries.filter((masteryId) =>
+            action.masteries.includes(masteryId)
+        );
+
+        let highestRank = 0;
+        applicableMasteries.forEach((masteryId) => {
+            const masteryIndex = state.chosenMasteries.indexOf(masteryId);
+            if (masteryIndex !== -1) {
+                const rank = state.chosenMasteriesRanks[masteryIndex];
+                if (rank > highestRank) {
+                    highestRank = rank;
+                }
+            }
+        });
+
+        return highestRank;
+    }
+
+    getPassiveModifier(state, actionLookup) {
         const actions = this.dataLoader.cache.actions;
-        const masteries = this.dataLoader.cache.masteries;
+        const action = actions.find((a) => a.lookup === actionLookup);
+        if (!action || !action.masteries) return "";
 
-        // Check if Lethal is in chosen actions
-        const hasLethal = state.chosenActions.includes("lethal");
-        // Check if Blessed is in chosen actions
-        const hasBlessed = state.chosenActions.includes("blessed");
+        const highestRank = this.getHighestApplicableMasteryRank(state, action);
+        const modifierValue = (highestRank + 1) * 5;
+        return modifierValue > 0 ? `+${modifierValue} ` : "";
+    }
 
-        // If Lethal is active, find its mastery rank
-        let lethalModifier = "";
-        if (hasLethal) {
-            const lethalAction = actions.find((a) => a.lookup === "lethal");
-            if (lethalAction && lethalAction.masteries) {
-                // Find which of the character's masteries matches Lethal's masteries
-                const applicableMasteries = state.chosenMasteries.filter((masteryId) =>
-                    lethalAction.masteries.includes(masteryId)
-                );
-
-                // Get the highest rank among applicable masteries
-                let highestRank = 0;
-                applicableMasteries.forEach((masteryId) => {
-                    const masteryIndex = state.chosenMasteries.indexOf(masteryId);
-                    if (masteryIndex !== -1) {
-                        const rank = state.chosenMasteriesRanks[masteryIndex];
-                        if (rank > highestRank) {
-                            highestRank = rank;
-                        }
-                    }
-                });
-
-                // Calculate modifier: +5 per rank (D=1, C=2, B=3, A=4, S=5)
-                const modifierValue = (highestRank + 1) * 5;
-                if (modifierValue > 0) {
-                    lethalModifier = `+${modifierValue} `;
-                }
-            }
-        }
-
-        // If Blessed is active, find its mastery rank
-        let blessedModifier = "";
-        if (hasBlessed) {
-            const blessedAction = actions.find((a) => a.lookup === "blessed");
-            if (blessedAction && blessedAction.masteries) {
-                // Find which of the character's masteries matches Blessed's masteries
-                const applicableMasteries = state.chosenMasteries.filter((masteryId) =>
-                    blessedAction.masteries.includes(masteryId)
-                );
-
-                // Get the highest rank among applicable masteries
-                let highestRank = 0;
-                applicableMasteries.forEach((masteryId) => {
-                    const masteryIndex = state.chosenMasteries.indexOf(masteryId);
-                    if (masteryIndex !== -1) {
-                        const rank = state.chosenMasteriesRanks[masteryIndex];
-                        if (rank > highestRank) {
-                            highestRank = rank;
-                        }
-                    }
-                });
-
-                // Calculate modifier: +5 per rank (D=1, C=2, B=3, A=4, S=5)
-                const modifierValue = (highestRank + 1) * 5;
-                if (modifierValue > 0) {
-                    blessedModifier = `+${modifierValue} `;
-                }
-            }
-        }
+    updatePassiveModifiers(state) {
+        // Calculate passive modifiers for Lethal and Blessed
+        const lethalModifier = state.chosenActions.includes("lethal")
+            ? this.getPassiveModifier(state, "lethal")
+            : "";
+        const blessedModifier = state.chosenActions.includes("blessed")
+            ? this.getPassiveModifier(state, "blessed")
+            : "";
 
         // Check if Combat Focus is in chosen actions
         const hasFocusOffense = state.chosenActions.includes("focus-offense");
@@ -2021,13 +1933,8 @@ class BuildSheet {
             }
         }
 
-        // Update damagepassivemod spans in all sections
-        const sectionsToUpdate = [
-            "freeactiondisplay",
-            "actionsdisplay",
-        ];
-
-        sectionsToUpdate.forEach((sectionId) => {
+        // Update damagepassivemod spans in action sections
+        ["freeactiondisplay", "actionsdisplay"].forEach((sectionId) => {
             const section = this.domUtils.getElementById(sectionId);
             if (section) {
                 const passiveModSpans = section.querySelectorAll(".damagepassivemod");
@@ -2047,25 +1954,9 @@ class BuildSheet {
                             }
                         }
 
-                        // Attack-type actions use Lethal modifier + Combat Focus modifier
-                        const attackActions = ["attack", "counter", "ultra-counter",
-                                              "stable-attack", "burst-attack", "sneak-attack", "critical-attack",
-                                              "sharp-attack", "reckless-attack"];
-
-                        // Heal actions use Blessed modifier + Combat Focus modifier
-                        const healActions = ["heal", "power-heal"];
-
-                        // Buff actions use Blessed modifier + Combat Focus modifier
-                        const buffActions = ["buff", "power-buff"];
-
-                        if (attackActions.includes(actionId)) {
-                            // Combine Lethal and Combat Focus modifiers
+                        if (this.attackActions.includes(actionId)) {
                             span.innerHTML = lethalModifier + focusOffenseModifier;
-                        } else if (healActions.includes(actionId)) {
-                            // Apply Blessed and Combat Focus modifiers
-                            span.innerHTML = blessedModifier + focusOffenseModifier;
-                        } else if (buffActions.includes(actionId)) {
-                            // Apply Blessed and Combat Focus modifiers
+                        } else if (this.healActions.includes(actionId) || this.buffActions.includes(actionId)) {
                             span.innerHTML = blessedModifier + focusOffenseModifier;
                         }
                     }
@@ -2115,26 +2006,7 @@ class BuildSheet {
                 return;
             }
 
-            // Determine applicable masteries
-            let applicableMasteries;
-            if (action.lookup === "evolve") {
-                applicableMasteries = state.chosenMasteries.filter((masteryId) => {
-                    const mastery = masteries.find((m) => m.lookup === masteryId);
-                    return mastery && mastery.primaryRole !== "alter";
-                });
-            } else if (action.masteries.includes("all")) {
-                applicableMasteries = state.chosenMasteries;
-                if (action.lookup === "attack") {
-                    applicableMasteries = applicableMasteries.filter((masteryId) => {
-                        const mastery = masteries.find((m) => m.lookup === masteryId);
-                        return mastery && mastery.primaryRole !== "alter";
-                    });
-                }
-            } else {
-                applicableMasteries = state.chosenMasteries.filter((masteryId) =>
-                    action.masteries.includes(masteryId),
-                );
-            }
+            const applicableMasteries = this.getApplicableMasteries(action, state, masteries);
 
             // If there's exactly one applicable mastery, auto-select it
             if (applicableMasteries.length === 1) {
@@ -2143,8 +2015,7 @@ class BuildSheet {
                 const mastery = masteries.find((m) => m.lookup === masteryId);
 
                 if (masteryIndex !== -1 && mastery) {
-                    const rankLetters = ["E", "D", "C", "B", "A", "S"];
-                    const rankLetter = rankLetters[state.chosenMasteriesRanks[masteryIndex]];
+                    const rankLetter = this.getRankLabel(state.chosenMasteriesRanks[masteryIndex]);
                     const masteryName = mastery.name;
 
                     // Find the card for this action
@@ -2161,8 +2032,7 @@ class BuildSheet {
                         const alterMasteryIndex = state.chosenMasteries.length - 1;
                         if (alterMasteryIndex >= 0 && masteryReplace) {
                             const alterRank = state.chosenMasteriesRanks[alterMasteryIndex];
-                            const alterRankLetter = rankLetters[alterRank];
-                            masteryReplace.innerHTML = alterRankLetter;
+                            masteryReplace.innerHTML = this.getRankLabel(alterRank);
                         }
 
                         const rollCodeElement = cardElement.querySelector(".rollcode");
@@ -2189,10 +2059,7 @@ class BuildSheet {
 
                     // Update the break type
                     if (breakTypeReplace && mastery.breakType) {
-                        const breakType =
-                            mastery.breakType.charAt(0).toUpperCase() +
-                            mastery.breakType.slice(1);
-                        breakTypeReplace.innerHTML = breakType;
+                        breakTypeReplace.innerHTML = this.capitalize(mastery.breakType);
                     }
                 }
             }
@@ -2306,8 +2173,7 @@ class BuildSheet {
     }
 
     goToPreviousPage() {
-        const url = this.state.generateURL("action-selector.html");
-        window.location.href = url;
+        window.location.href = this.state.generateURL("action-selector.html");
     }
 
     editBuild() {
@@ -2316,12 +2182,10 @@ class BuildSheet {
         // If character was imported from Terrarp, skip to action selection
         // since masteries and ranks are already set from the API
         if (currentState.profileBannerUrl) {
-            const url = this.state.generateURL("action-selector.html");
-            window.location.href = url;
+            window.location.href = this.state.generateURL("action-selector.html");
         } else {
             // For manual builds, go back to mastery selection
-            const url = this.state.generateURL("mastery-selector.html");
-            window.location.href = url;
+            window.location.href = this.state.generateURL("mastery-selector.html");
         }
     }
 
@@ -2378,6 +2242,11 @@ class BuildSheet {
 // Global reference to BuildSheet instance
 let buildSheetInstance = null;
 
+// Standalone capitalize for use in global functions
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 // Global click functions for roll code interaction
 function clickMastery(element) {
     if (!buildSheetInstance) return;
@@ -2406,9 +2275,8 @@ function clickMastery(element) {
     }
 
     if (masteryIndex !== -1) {
-        // Get rank letter
-        const rankLetters = ["E", "D", "C", "B", "A", "S"];
-        const rankLetter = rankLetters[state.chosenMasteriesRanks[masteryIndex]];
+        const getRankLabel = buildSheetInstance.getRankLabel;
+        const rankLetter = getRankLabel(state.chosenMasteriesRanks[masteryIndex]);
 
         // Find mastery name
         const mastery = masteries.find((m) => m.lookup === masteryId);
@@ -2425,12 +2293,9 @@ function clickMastery(element) {
             const actionElement = cardElement.querySelector('[data-action="evolve"]');
             if (actionElement) {
                 // For Evolve action, the MR should always be the Metamorph (alter) mastery rank
-                // Find the alter mastery (last mastery in the list)
                 const alterMasteryIndex = state.chosenMasteries.length - 1;
                 if (alterMasteryIndex >= 0) {
-                    const alterRank = state.chosenMasteriesRanks[alterMasteryIndex];
-                    const rankLetters = ["E", "D", "C", "B", "A", "S"];
-                    const alterRankLetter = rankLetters[alterRank];
+                    const alterRankLetter = getRankLabel(state.chosenMasteriesRanks[alterMasteryIndex]);
 
                     // Update the MR to show Metamorph rank, not the clicked mastery rank
                     if (masteryReplace) {
@@ -2464,10 +2329,7 @@ function clickMastery(element) {
             // Update break type
             const breakTypeReplace = cardElement.querySelector(".breaktype");
             if (breakTypeReplace && mastery && mastery.breakType) {
-                const breakType =
-                    mastery.breakType.charAt(0).toUpperCase() +
-                    mastery.breakType.slice(1);
-                breakTypeReplace.innerHTML = breakType;
+                breakTypeReplace.innerHTML = capitalize(mastery.breakType);
             }
 
             // Update downcast indicators based on clicked mastery
@@ -2480,10 +2342,9 @@ function clickMastery(element) {
     }
 }
 
-function clickFortitude(element) {
+function clickSave(element, saveType) {
     if (!buildSheetInstance) return;
 
-    // Add glow effect
     addGlowEffect(element, "masterycircle");
 
     const state = buildSheetInstance.state.getState();
@@ -2496,52 +2357,23 @@ function clickFortitude(element) {
         expertise,
     );
 
-    document.querySelector(".savereplace").innerHTML = "Fortitude";
-    document.querySelector(".savebonusreplace").innerHTML = stats.saves.fortitude;
-    document.querySelector(".reflexmodifiers").innerHTML = "";
+    const saveKey = saveType.toLowerCase();
+    document.querySelector(".savereplace").innerHTML = saveType;
+    document.querySelector(".savebonusreplace").innerHTML = stats.saves[saveKey];
+    document.querySelector(".reflexmodifiers").innerHTML =
+        saveKey === "reflex" ? (stats.saves.reflexmod || "") : "";
+}
+
+function clickFortitude(element) {
+    clickSave(element, "Fortitude");
 }
 
 function clickReflex(element) {
-    if (!buildSheetInstance) return;
-
-    // Add glow effect
-    addGlowEffect(element, "masterycircle");
-
-    const state = buildSheetInstance.state.getState();
-    const masteries = buildSheetInstance.dataLoader.cache.masteries;
-    const expertise = buildSheetInstance.dataLoader.cache.expertise;
-    const stats = buildSheetInstance.calculations.getCompleteStats(
-        state,
-        masteries,
-        [],
-        expertise,
-    );
-
-    document.querySelector(".savereplace").innerHTML = "Reflex";
-    document.querySelector(".savebonusreplace").innerHTML = stats.saves.reflex;
-    document.querySelector(".reflexmodifiers").innerHTML =
-        stats.saves.reflexmod || "";
+    clickSave(element, "Reflex");
 }
 
 function clickWill(element) {
-    if (!buildSheetInstance) return;
-
-    // Add glow effect
-    addGlowEffect(element, "masterycircle");
-
-    const state = buildSheetInstance.state.getState();
-    const masteries = buildSheetInstance.dataLoader.cache.masteries;
-    const expertise = buildSheetInstance.dataLoader.cache.expertise;
-    const stats = buildSheetInstance.calculations.getCompleteStats(
-        state,
-        masteries,
-        [],
-        expertise,
-    );
-
-    document.querySelector(".savereplace").innerHTML = "Will";
-    document.querySelector(".savebonusreplace").innerHTML = stats.saves.will;
-    document.querySelector(".reflexmodifiers").innerHTML = "";
+    clickSave(element, "Will");
 }
 
 function clickExpertise(element, expertiseId) {
@@ -2558,8 +2390,7 @@ function clickExpertise(element, expertiseId) {
     if (expertiseIndex !== -1) {
         const expertiseData = expertiseList.find((e) => e.lookup === expertiseId);
         const rank = state.chosenExpertiseRanks[expertiseIndex];
-        const rankLetters = ["E", "D", "C", "B", "A", "S"];
-        const rankLetter = rankLetters[rank];
+        const rankLetter = buildSheetInstance.getRankLabel(rank);
 
         document.querySelector(".expertisereplace").innerHTML = expertiseData
             ? expertiseData.name
@@ -2592,71 +2423,26 @@ function addGlowEffect(element, containerClass) {
     element.classList.add("active-glow");
 }
 
+// Generic advantage/disadvantage toggle
+function setAdvantageState(selector, value) {
+    addGlowEffect(event.target, "togglesavechecks");
+    document.querySelector(selector).innerHTML = value;
+}
+
 // Advantage/disadvantage toggle functions for saves
-function advantageSave(element) {
-    // Add glow effect
-    addGlowEffect(event.target, "togglesavechecks");
-
-    document.querySelector(".saveadv").innerHTML = "adv ";
-}
-
-function normalSave(element) {
-    // Add glow effect
-    addGlowEffect(event.target, "togglesavechecks");
-
-    document.querySelector(".saveadv").innerHTML = "";
-}
-
-function disadvantageSave(element) {
-    // Add glow effect
-    addGlowEffect(event.target, "togglesavechecks");
-
-    document.querySelector(".saveadv").innerHTML = "dis ";
-}
+function advantageSave() { setAdvantageState(".saveadv", "adv "); }
+function normalSave() { setAdvantageState(".saveadv", ""); }
+function disadvantageSave() { setAdvantageState(".saveadv", "dis "); }
 
 // Advantage/disadvantage toggle functions for expertise
-function advantageExpertise(element) {
-    // Add glow effect
-    addGlowEffect(event.target, "togglesavechecks");
-
-    document.querySelector(".expertiseadv").innerHTML = "adv ";
-}
-
-function normalExpertise(element) {
-    // Add glow effect
-    addGlowEffect(event.target, "togglesavechecks");
-
-    document.querySelector(".expertiseadv").innerHTML = "";
-}
-
-function disadvantageExpertise(element) {
-    // Add glow effect
-    addGlowEffect(event.target, "togglesavechecks");
-
-    document.querySelector(".expertiseadv").innerHTML = "dis ";
-}
+function advantageExpertise() { setAdvantageState(".expertiseadv", "adv "); }
+function normalExpertise() { setAdvantageState(".expertiseadv", ""); }
+function disadvantageExpertise() { setAdvantageState(".expertiseadv", "dis "); }
 
 // Advantage/disadvantage toggle functions for mastery
-function advantageMastery(element) {
-    // Add glow effect
-    addGlowEffect(event.target, "togglesavechecks");
-
-    document.querySelector(".masteryadv").innerHTML = "adv ";
-}
-
-function normalMastery(element) {
-    // Add glow effect
-    addGlowEffect(event.target, "togglesavechecks");
-
-    document.querySelector(".masteryadv").innerHTML = "";
-}
-
-function disadvantageMastery(element) {
-    // Add glow effect
-    addGlowEffect(event.target, "togglesavechecks");
-
-    document.querySelector(".masteryadv").innerHTML = "dis ";
-}
+function advantageMastery() { setAdvantageState(".masteryadv", "adv "); }
+function normalMastery() { setAdvantageState(".masteryadv", ""); }
+function disadvantageMastery() { setAdvantageState(".masteryadv", "dis "); }
 
 // Generic toggle function for action buttons
 function toggleActionButton(actionId, suffix, baseText) {
@@ -2804,7 +2590,7 @@ function updateRiskySuffix(actionId) {
 }
 
 // Function to update the target suffix based on input value
-function updateTargetSuffix(actionId) {
+function updateTargetSuffix() {
     const inputElement = event.target;
     const cardElement = inputElement.closest(".card");
     const rollCodeElement = cardElement.querySelector(".rollcode");
@@ -2847,7 +2633,7 @@ function validateNumericInput(event) {
 }
 
 // Function to update the MaxHP suffix based on input value
-function updateMaxHPSuffix(actionId) {
+function updateMaxHPSuffix() {
     const inputElement = event.target;
     const cardElement = inputElement.closest(".card");
     const rollCodeElement = cardElement.querySelector(".rollcode");
@@ -2874,223 +2660,49 @@ function updateMaxHPSuffix(actionId) {
     }
 }
 
-// Function to update the damage taken suffix
-function updateDamageTakenSuffix(actionId) {
+// Generic function to update a numeric rollcode suffix from an input field
+function updateNumericRollcodeSuffix(suffixLabel, isNumericOnly) {
     const inputElement = event.target;
     const cardElement = inputElement.closest(".card");
     const rollCodeElement = cardElement.querySelector(".rollcode");
 
-    if (!rollCodeElement) {
-        return;
+    if (!rollCodeElement) return;
+
+    let inputText = inputElement.value.trim();
+
+    // Filter non-numeric characters if needed
+    if (isNumericOnly) {
+        const numericValue = inputText.replace(/[^0-9]/g, "");
+        if (inputText !== numericValue) {
+            inputElement.value = numericValue;
+            inputText = numericValue;
+        }
     }
 
-    let damageText = inputElement.value.trim();
+    // Always remove existing suffix first
+    const suffixPattern = new RegExp(` · ${suffixLabel} \\([^)]*\\)`, "g");
+    rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(suffixPattern, "");
 
-    // Filter out non-numeric characters and ensure positive numbers only
-    const numericValue = damageText.replace(/[^0-9]/g, "");
-
-    // Update input field to show only numeric value
-    if (damageText !== numericValue) {
-        inputElement.value = numericValue;
-        damageText = numericValue;
-    }
-
-    // Add or update the Taken-damage suffix
-    if (damageText) {
-        // Remove existing Taken-damage suffix if it exists
-        const suffixPattern = / · Taken-damage \([^)]*\)/g;
-        rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(
-            suffixPattern,
-            "",
-        );
-        // Add new suffix
-        rollCodeElement.innerHTML += ` · Taken-damage (${damageText})`;
-    } else {
-        // Remove suffix if input is empty
-        const suffixPattern = / · Taken-damage \([^)]*\)/g;
-        rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(
-            suffixPattern,
-            "",
-        );
+    // Add new suffix if input has value
+    if (inputText) {
+        rollCodeElement.innerHTML += ` · ${suffixLabel} (${inputText})`;
     }
 }
 
-// Function to update the overdrive damage suffix
-function updateOverdriveDamageSuffix(actionId) {
-    const inputElement = event.target;
-    const cardElement = inputElement.closest(".card");
-    const rollCodeElement = cardElement.querySelector(".rollcode");
-
-    if (!rollCodeElement) {
-        return;
-    }
-
-    let odDamageText = inputElement.value.trim();
-
-    // Filter out non-numeric characters and ensure positive numbers only
-    const numericValue = odDamageText.replace(/[^0-9]/g, "");
-
-    // Update input field to show only numeric value
-    if (odDamageText !== numericValue) {
-        inputElement.value = numericValue;
-        odDamageText = numericValue;
-    }
-
-    // Add or update the OD-damage suffix
-    if (odDamageText) {
-        // Remove existing OD-damage suffix if it exists
-        const suffixPattern = / · OD-damage \([^)]*\)/g;
-        rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(
-            suffixPattern,
-            "",
-        );
-        // Add new suffix
-        rollCodeElement.innerHTML += ` · OD-damage (${odDamageText})`;
-    } else {
-        // Remove suffix if input is empty
-        const suffixPattern = / · OD-damage \([^)]*\)/g;
-        rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(
-            suffixPattern,
-            "",
-        );
-    }
+function updateDamageTakenSuffix() {
+    updateNumericRollcodeSuffix("Taken-damage", true);
 }
 
-// Function to update the speed suffix for momentum
-function updateSpeedSuffix(actionId) {
-    const inputElement = event.target;
-    const cardElement = inputElement.closest(".card");
-    const rollCodeElement = cardElement.querySelector(".rollcode");
-
-    if (!rollCodeElement) {
-        return;
-    }
-
-    let speedText = inputElement.value.trim();
-
-    // Filter out non-numeric characters and ensure positive numbers only
-    const numericValue = speedText.replace(/[^0-9]/g, "");
-
-    // Update input field to show only numeric value
-    if (speedText !== numericValue) {
-        inputElement.value = numericValue;
-        speedText = numericValue;
-    }
-
-    // Add or update the Speed suffix
-    if (speedText) {
-        // Remove existing Speed suffix if it exists
-        const suffixPattern = / · Speed \([^)]*\)/g;
-        rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(
-            suffixPattern,
-            "",
-        );
-        // Add new suffix
-        rollCodeElement.innerHTML += ` · Speed (${speedText})`;
-    } else {
-        // Remove suffix if input is empty
-        const suffixPattern = / · Speed \([^)]*\)/g;
-        rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(
-            suffixPattern,
-            "",
-        );
-    }
+function updateOverdriveDamageSuffix() {
+    updateNumericRollcodeSuffix("OD-damage", true);
 }
 
-// Function to update the charging suffix
-function updateChargingSuffix(actionId, suffix) {
-    const inputElement = event.target;
-    const cardElement = inputElement.closest(".card");
-    const rollCodeElement = cardElement.querySelector(".rollcode");
-
-    if (!rollCodeElement) {
-        return;
-    }
-
-    const chargingText = inputElement.value.trim();
-
-    // Add or update the Charging suffix
-    if (chargingText) {
-        // Remove existing Charging suffix if it exists
-        const suffixPattern = / · Charging \([^)]*\)/g;
-        rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(
-            suffixPattern,
-            "",
-        );
-        // Add new suffix
-        rollCodeElement.innerHTML += ` · Charging (${chargingText})`;
-    } else {
-        // Remove suffix if input is empty
-        const suffixPattern = / · Charging \([^)]*\)/g;
-        rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(
-            suffixPattern,
-            "",
-        );
-    }
+function updateSpeedSuffix() {
+    updateNumericRollcodeSuffix("Speed", true);
 }
 
-// Function to update the release suffix
-function updateReleaseSuffix(actionId, suffix) {
-    const inputElement = event.target;
-    const cardElement = inputElement.closest(".card");
-    const rollCodeElement = cardElement.querySelector(".rollcode");
-
-    if (!rollCodeElement) {
-        return;
-    }
-
-    const releaseText = inputElement.value.trim();
-
-    // Add or update the Release suffix
-    if (releaseText) {
-        // Remove existing Release suffix if it exists
-        const suffixPattern = / · Release \([^)]*\)/g;
-        rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(
-            suffixPattern,
-            "",
-        );
-        // Add new suffix
-        rollCodeElement.innerHTML += ` · Release (${releaseText})`;
-    } else {
-        // Remove suffix if input is empty
-        const suffixPattern = / · Release \([^)]*\)/g;
-        rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(
-            suffixPattern,
-            "",
-        );
-    }
-}
-
-// Function to update the bank suffix
-function updateBankSuffix(actionId, suffix) {
-    const inputElement = event.target;
-    const cardElement = inputElement.closest(".card");
-    const rollCodeElement = cardElement.querySelector(".rollcode");
-
-    if (!rollCodeElement) {
-        return;
-    }
-
-    const bankText = inputElement.value.trim();
-
-    // Add or update the Bank suffix
-    if (bankText) {
-        // Remove existing Bank suffix if it exists
-        const suffixPattern = / · Bank \([^)]*\)/g;
-        rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(
-            suffixPattern,
-            "",
-        );
-        // Add new suffix
-        rollCodeElement.innerHTML += ` · Bank (${bankText})`;
-    } else {
-        // Remove suffix if input is empty
-        const suffixPattern = / · Bank \([^)]*\)/g;
-        rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(
-            suffixPattern,
-            "",
-        );
-    }
+function updateReleaseSuffix() {
+    updateNumericRollcodeSuffix("Release", false);
 }
 
 // Wrapper functions for backward compatibility
@@ -3314,7 +2926,7 @@ function toggleCharging(actionId, suffix = "Charging") {
     toggleActionButton(actionId, suffix, "Charging");
 }
 
-function toggleRelease(actionId, suffix = "Release") {
+function toggleRelease(actionId) {
     // Handle mutual exclusivity - deactivate Charging if it's active
     handleMutualExclusivity(actionId, "Release", ["Charging"]);
     // Don't add base suffix - let the input handler manage the complete suffix
@@ -3385,7 +2997,7 @@ function toggleReviveStabilize(buttonElement) {
 }
 
 // Function to toggle action filters
-function toggleActionFilter(category) {
+function toggleActionFilter() {
     const filterButton = event.target;
 
     // Remove active class from all tabs
@@ -3413,14 +3025,7 @@ function refreshAllActionFilters() {
     actions.forEach((action) => {
         const actionCard = document.getElementById(action.lookup + "final");
         if (actionCard) {
-            let shouldShow = false;
-
-            // Filter logic
-            if (activeFilter === "all") {
-                shouldShow = true;
-            } else {
-                shouldShow = action.category === activeFilter;
-            }
+            const shouldShow = activeFilter === "all" || action.category === activeFilter;
 
             actionCard.style.display = shouldShow ? "flex" : "none";
         }
@@ -3434,7 +3039,7 @@ function refreshAllActionFilters() {
 }
 
 // Copy rollcode to clipboard function
-function copyRollCode(element, event) {
+function copyRollCode(element) {
     // Clone the element to get text without any existing tooltips
     const clone = element.cloneNode(true);
 

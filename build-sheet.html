@@ -146,7 +146,7 @@
       <div class="masterycategory" id="saveschecks">
         <div class="card">
           <div class="cardtitle">Saves</div>
-          <div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">?r save <span class='saveadv'></span><span class='savebonusreplace'>X</span> <span class='reflexmodifiers'></span> # <span class='savereplace'>Type</span> · Character Name · <span class="thrcode">Thread Code</span></div>
+          <div class="rollcode clickable-rollcode" onclick="copyRollCode(this)" title="Click to copy">?r save <span class='saveadv'></span><span class='savebonusreplace'>X</span> <span class='reflexmodifiers'></span> # <span class='savereplace'>Type</span> · Character Name · <span class="thrcode">Thread Code</span></div>
           <div id="savesicons">
             <div class='display masterycircle aci-fortitude' onclick='clickFortitude(this)'>
               <img src='https://terrarp.com/db/tool/fortitude.png'>
@@ -166,7 +166,7 @@
         </div>
         <div class="card">
           <div class="cardtitle">Expertise Check</div>
-          <div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">?r expertise <span class='expertiseadv'></span><span class='expertisebonusreplace'>ER</span> # <span class='expertisereplace'>Type</span> · Character Name · <span class="thrcode">Thread Code</span></div>
+          <div class="rollcode clickable-rollcode" onclick="copyRollCode(this)" title="Click to copy">?r expertise <span class='expertiseadv'></span><span class='expertisebonusreplace'>ER</span> # <span class='expertisereplace'>Type</span> · Character Name · <span class="thrcode">Thread Code</span></div>
           <div id="expertiseicons">
             <!-- expertise icons will be populated by JavaScript based on selected expertise -->
           </div>
@@ -178,7 +178,7 @@
         </div>
         <div class="card">
           <div class="cardtitle">Mastery Check</div>
-          <div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">?r mastery <span class='masteryadv'></span><span class='masteryreplace'>MR</span> # <span class='mnamereplace'>Type</span> · <span class='breaktype'>Break-Type</span> · Character Name · <span class="thrcode">Thread Code</span></div>
+          <div class="rollcode clickable-rollcode" onclick="copyRollCode(this)" title="Click to copy">?r mastery <span class='masteryadv'></span><span class='masteryreplace'>MR</span> # <span class='mnamereplace'>Type</span> · <span class='breaktype'>Break-Type</span> · Character Name · <span class="thrcode">Thread Code</span></div>
           <div id="masterycheckicons"></div>
           <div class="togglecontainer">
             <div class="togglesavechecks" onclick="advantageMastery(this)">Adv</div>
@@ -215,14 +215,14 @@
             <p>Perform a basic attack.</p>
           </div>
           <div class="cardroll"><b>Roll:</b> 1d100 + MR + WR + other bonuses</div>
-          <div class="rollcode clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">?r attack <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> · <span class='breaktype'>Break-Type</span> · Character Name · <span class='thrcode'>Code</span></div>
+          <div class="rollcode clickable-rollcode" onclick="copyRollCode(this)" title="Click to copy">?r attack <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> · <span class='breaktype'>Break-Type</span> · Character Name · <span class='thrcode'>Code</span></div>
           <div class="risky-toggle-container"></div>
         </div>
         <div class="card rushfinal">
           <div class="cardinfo">
             <p><b>Bonus.</b> Gain 2 extra movements this cycle.</p>
           </div>
-          <div class="rollcode rushrc clickable-rollcode" onclick="copyRollCode(this, event)" title="Click to copy">?r rush # Character Name · <span class="thrcode">Code</span></div>
+          <div class="rollcode rushrc clickable-rollcode" onclick="copyRollCode(this)" title="Click to copy">?r rush # Character Name · <span class="thrcode">Code</span></div>
         </div>
       </div>
       <div class="masterycategory" id="actionsdisplay"></div>
