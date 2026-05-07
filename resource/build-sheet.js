@@ -146,7 +146,6 @@ class BuildSheet {
             currentState,
             masteries,
             actions,
-            expertise,
         );
         this.displayStats(stats);
 
@@ -1131,11 +1130,9 @@ class BuildSheet {
         // Process rollcode - special handling for Evolve action
         let rollCode = action.roll;
         if (action.lookup === "evolve" && rollCode && rollCode !== "-") {
-            // Replace MR with actual Metamorph rank
             const metamorphRank = this.calculations.getMasteryRankByLookup(state, "metamorph");
-            if (state.chosenMasteries.includes("metamorph")) {
+            if (metamorphRank > 0) {
                 const metamorphRankLetter = this.getRankLabel(metamorphRank);
-                // Replace the masteryreplace span content with the actual rank
                 rollCode = rollCode.replace(
                     /<span class=['"]masteryreplace['"]>MR<\/span>/,
                     `<span class='masteryreplace'>${metamorphRankLetter}</span>`
@@ -1698,8 +1695,8 @@ class BuildSheet {
     }
 
     getApplicableMasteries(action, state, masteries) {
-        if (action.lookup === "evolve" || action.lookup === "attack") {
-            // Evolve and Attack exclude alter masteries
+        if (action.lookup === "evolve" || action.lookup === "attack" || action.lookup === "imbue") {
+            // Evolve, Attack, and Imbue allow any non-alter mastery
             return state.chosenMasteries.filter((masteryId) => {
                 const mastery = masteries.find((m) => m.lookup === masteryId);
                 return mastery && mastery.primaryRole !== "alter";
@@ -1736,10 +1733,11 @@ class BuildSheet {
         applicableMasteries.forEach((masteryId) => {
             const mastery = masteries.find((m) => m.lookup === masteryId);
             if (mastery) {
-                // Basic actions like Attack and Evolve should never be downcasted
+                // Attack, Evolve, and Imbue allow free mastery choice and should never show downcast
                 const isDowncast =
                     action.lookup !== "attack" &&
                     action.lookup !== "evolve" &&
+                    action.lookup !== "imbue" &&
                     this.isActionDowncast(action, mastery);
                 const downcastClass = isDowncast ? " downcast" : "";
                 const downcastIndicator = isDowncast
@@ -2009,9 +2007,8 @@ class BuildSheet {
 
                     // Special handling for Evolve action
                     if (action.lookup === "evolve") {
-                        // For Evolve, MR should be the Metamorph mastery rank
-                        if (state.chosenMasteries.includes("metamorph") && masteryReplace) {
-                            const metamorphRank = this.calculations.getMasteryRankByLookup(state, "metamorph");
+                        const metamorphRank = this.calculations.getMasteryRankByLookup(state, "metamorph");
+                        if (metamorphRank > 0 && masteryReplace) {
                             masteryReplace.innerHTML = this.getRankLabel(metamorphRank);
                         }
 
@@ -2329,12 +2326,11 @@ function clickSave(element, saveType) {
 
     const state = buildSheetInstance.state.getState();
     const masteries = buildSheetInstance.dataLoader.cache.masteries;
-    const expertise = buildSheetInstance.dataLoader.cache.expertise;
+    const actions = buildSheetInstance.dataLoader.cache.actions;
     const stats = buildSheetInstance.calculations.getCompleteStats(
         state,
         masteries,
-        [],
-        expertise,
+        actions,
     );
 
     const saveKey = saveType.toLowerCase();
@@ -2695,7 +2691,10 @@ function toggleDC(button) {
         if (inputElement) {
             inputElement.style.display = "none";
             inputElement.value = "";
-            updateDCSuffixForCard(cardElement, "");
+            const rollCodeElement = cardElement.querySelector(".rollcode");
+            if (rollCodeElement) {
+                rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(/ · DC \([^)]*\)/g, "");
+            }
         }
     } else {
         button.classList.add("active");
@@ -2703,32 +2702,6 @@ function toggleDC(button) {
             inputElement.style.display = "inline-block";
             inputElement.focus();
         }
-    }
-}
-
-function updateDCSuffix(inputElement) {
-    const input = inputElement || event.target;
-    const cardElement = input.closest(".card");
-
-    let inputText = input.value.trim();
-    const numericValue = inputText.replace(/[^0-9]/g, "");
-    if (inputText !== numericValue) {
-        input.value = numericValue;
-        inputText = numericValue;
-    }
-
-    updateDCSuffixForCard(cardElement, inputText);
-}
-
-function updateDCSuffixForCard(cardElement, inputText) {
-    const rollCodeElement = cardElement.querySelector(".rollcode");
-    if (!rollCodeElement) return;
-
-    const suffixPattern = / · DC \([^)]*\)/g;
-    rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(suffixPattern, "");
-
-    if (inputText) {
-        rollCodeElement.innerHTML += ` · DC (${inputText})`;
     }
 }
 

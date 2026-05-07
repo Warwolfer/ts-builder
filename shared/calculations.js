@@ -245,15 +245,13 @@ const CharacterCalculations = {
   },
 
   // Get complete character stats
-  getCompleteStats(state, masteryList, actionList, expertiseList) {
-    const stats = {
+  getCompleteStats(state, masteryList, actionList) {
+    return {
       hp: this.calculateHP(state, masteryList, actionList),
       saves: this.calculateSaves(state, masteryList, actionList),
       movement: this.calculateMovement(state, state.chosenActions, actionList),
       range: this.calculateRange(state, state.chosenActions, actionList),
     };
-
-    return stats;
   },
 
   // Validate mastery selection
