@@ -329,7 +329,7 @@ const actionlist = [
             "<p>(D) Passive. Gain 25 + 5 per MR: +30 (D), +35 (C), +40 (B), +45 (A), +50 (S). Maximum +50 HP.</p>",
         dice: "Passive",
         use: ["passive"],
-        roll: "?r sturdy # Sturdy · Character Name · <span class='thrcode'>Code</span>",
+        roll: "?r sturdy <span class='masteryreplace'>MR</span> # Sturdy · Character Name · <span class='thrcode'>Code</span>",
         masteries: [
             "aeromancy",
             "arcanamancy",
@@ -665,7 +665,7 @@ const actionlist = [
         color: "#1e2131",
         image: "https://terrarp.com/db/action/oba2.png",
         description:
-            "<p>If you attacked an enemy on their space or adjacent to, you may activate the following effects:</p><p>(D) Passive: Deals an instance of 15 (D), 20 (B), 25 (S) damage.</p><p>(D) Bonus Action: Challenge. Double the Duelist passive and turn it into damage modifier.</p>",
+            "<p>If you attacked an enemy on their space or adjacent to, you may activate the following effects:</p><p>(D) Passive: Deals an instance of 15 (D), 20 (B), 25 (S) damage.</p><p>(D) Bonus Action: Challenge. Double the Duelist passive and turn it into damage modifier.</p><p>Limitation: Sharpshooter cannot be triggered if you are adjacent to the enemy.</p>",
         dice: "Passive/Bonus Action",
         use: ["passive", "bonus"],
         roll: "?r duelist <span class='masteryreplace'>MR</span> # Duelist · Character Name · <span class='thrcode'>Code</span>",
@@ -703,7 +703,7 @@ const actionlist = [
         color: "#1e2131",
         image: "https://terrarp.com/db/action/oba2.png",
         description:
-            "<p>If you attacked an enemy while not in their space, you may activate the following effects:</p><p>(D) Passive: Deals an instance of 15 (D), 20 (B), 25 (S) damage.</p><p>(D) Bonus Action: Snipe. Roll a 1d3 and add the result to the Sharpshooter passive and turn it into damage modifier.</p><p>Limitation: Sharpshooter cannot be triggered if you are adjacent to the enemy.</p>",
+            "<p>If you attacked an enemy while not in their space, you may activate the following effects:</p><p>(D) Passive: Deals an instance of 5 (D), 10 (B), 15 (S) damage.</p><p>(D) Bonus Action: Snipe. Roll 1d3, on a 2 or 3, your passive becomes 15 (D), 30 (B), 40 (S) damage.</p><p>Limitation: Duelist cannot be triggered if you are adjacent to the enemy.</p>",
         dice: "Passive/Bonus Action",
         use: ["passive", "bonus"],
         roll: "?r sharpshooter <span class='masteryreplace'>MR</span> # <span class='mnamereplace'>Mastery</span> · Character Name · <span class='thrcode'>Code</span>",
@@ -770,6 +770,8 @@ const actionlist = [
         color: "#4e9be2",
         image: "https://terrarp.com/db/action/heal.png",
         description:
+            "<p>Single-target: Grant 1 target heal.</p>" +
+            "<p>Multi-targets: Grant 3 targets heal, each receiving 1/3 of the final value.</p>" +
             "<p>Explosion: Whenever you roll a 19 (D), 18 (B), or 17 (S) or higher, roll an extra d20.</p><p>Cleanse: Whenever you heal a target cleanse 1 curable condition after healing.</p>",
         dice: "2d20 + MR + WR + other bonuses then divide by 3 if AoE",
         use: ["main"],
@@ -803,7 +805,10 @@ const actionlist = [
         color: "#3460d0",
         image: "https://terrarp.com/db/action/heal.png",
         description:
-            "<p>You are Vulnerable.</p><p>Explosion: Whenever you roll a 18 (D), 17 (B), or 16 (S) or higher, roll an extra d20.</p><p>Cleanse: Whenever you heal a target cleanse 2 (D), 3 (B), 4 (S) after healing. Gain 5 HP to your heal per unused cleanse charge.</p>",
+            "<p>You are Vulnerable.</p>" +
+            "<p>Single-target: Grant 1 target heal.</p>" +
+            "<p>Multi-targets: Grant 3 targets heal, each receiving 1/3 of the final value.</p>" +
+            "<p>Explosion: Whenever you roll a 18 (D), 17 (B), or 16 (S) or higher, roll an extra d20.</p><p>Cleanse: Whenever you heal a target cleanse 2 (D), 3 (B), 4 (S) after healing. Gain 5 HP to your heal per unused cleanse charge.</p>",
         dice: "4d20 + MR + WR + other bonuses then divide by 3 if AoE",
         use: ["special"],
         roll: "?r powerheal <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> · Character Name · <span class='thrcode'>Code</span>",
@@ -1037,7 +1042,7 @@ const actionlist = [
         color: "#1e2131",
         image: "https://terrarp.com/db/action/sba4.png",
         description:
-            "<p>Free Action: Apply support actions effects to 2 targets (instead of 3).</p><p>Bonus Action: Simulcast. Target 2 allies with Heal and Buff (both must be special or non-special) and choose if each target gets either the heal or buff.</p>",
+            "<p>Free Action: Apply support actions effects to 2 targets and divide their value by 2 (instead of 3).</p><p>Bonus Action: Simulcast. Target 2 allies with Heal and Buff (both must be special or non-special) and choose if each target gets either the heal or buff.</p>",
         dice: "Free/Bonus Action",
         use: ["free", "bonus"],
         roll: "?r versatile # Character Name · <span class='thrcode'>Code</span>",
@@ -1072,7 +1077,7 @@ const actionlist = [
             "<p>(D) Passive: If you are afflicted with a curable condition, you may clear 1 stack from yourself each cycle before they take effect.</p><p>(D) Bonus Action: Cure. Distribute 2 (D), 4 (B), 6 (S) cleanses between up to 3 targets.</p>",
         dice: "Passive/Bonus Action",
         use: ["passive", "bonus"],
-        roll: "?r cleanse # Character Name · <span class='thrcode'>Code</span>",
+        roll: "?r cleanse <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
         masteries: [
             "chronomancy",
             "alchemy",
@@ -1104,7 +1109,7 @@ const actionlist = [
             "<p>(D) Bonus Action: Distribute 2 (D), 3 (B), 4 (S) movements between up to 3 targets.</p><p>Limitations: Each target may gain a max of 2 movements from Haste.</p>",
         dice: "Bonus Action",
         use: ["bonus"],
-        roll: "?r haste # Character Name · <span class='thrcode'>Code</span>",
+        roll: "?r haste <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
         masteries: [
             "chronomancy",
             "alchemy",
@@ -1136,7 +1141,7 @@ const actionlist = [
             "<p>(D) Bonus Action: Distribute 5 (D), 10 (B), 15 (S) extra modifiers between up to 3 allies in multiple of 5s toward any mastery check or save rolls.</p><p>Limitations: This bonus cannot be stacked.</p>",
         dice: "Bonus Action",
         use: ["bonus"],
-        roll: "?r inspire # Character Name · <span class='thrcode'>Code</span>",
+        roll: "?r inspire <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
         masteries: [
             "chronomancy",
             "alchemy",
@@ -1560,7 +1565,7 @@ const actionlist = [
         type: "Alter - Metamorph",
     },
     {
-        id: 70,
+        id: 71,
         lookup: "evolve",
         name: "Evolve",
         color: "#63429b",

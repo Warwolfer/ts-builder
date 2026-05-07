@@ -162,7 +162,7 @@ class CardTemplates {
       ],
       heal: [
         {
-          text: "AoE",
+          text: "Multi",
           onclick: "toggleAoE",
           suffix: "AoE",
         },

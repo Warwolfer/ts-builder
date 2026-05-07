@@ -163,6 +163,10 @@
             <div class="togglesavechecks" onclick="normalSave(this)">Normal</div>
             <div class="togglesavechecks" onclick="disadvantageSave(this)">Dis</div>
           </div>
+          <div class="risky-toggle-container">
+            <button class="risky-toggle" onclick="toggleDC(this)">DC</button>
+            <input type="number" class="risky-input dc-input" placeholder="Value" min="0" style="display: none;" onkeydown="validateNumericInput(event)" oninput="updateDCSuffix(this)" onkeyup="updateDCSuffix(this)">
+          </div>
         </div>
         <div class="card">
           <div class="cardtitle">Expertise Check</div>
@@ -175,6 +179,10 @@
             <div class="togglesavechecks" onclick="normalExpertise(this)">Normal</div>
             <div class="togglesavechecks" onclick="disadvantageExpertise(this)">Dis</div>
           </div>
+          <div class="risky-toggle-container">
+            <button class="risky-toggle" onclick="toggleDC(this)">DC</button>
+            <input type="number" class="risky-input dc-input" placeholder="Value" min="0" style="display: none;" onkeydown="validateNumericInput(event)" oninput="updateDCSuffix(this)" onkeyup="updateDCSuffix(this)">
+          </div>
         </div>
         <div class="card">
           <div class="cardtitle">Mastery Check</div>
@@ -184,6 +192,10 @@
             <div class="togglesavechecks" onclick="advantageMastery(this)">Adv</div>
             <div class="togglesavechecks" onclick="normalMastery(this)">Normal</div>
             <div class="togglesavechecks" onclick="disadvantageMastery(this)">Dis</div>
+          </div>
+          <div class="risky-toggle-container">
+            <button class="risky-toggle" onclick="toggleDC(this)">DC</button>
+            <input type="number" class="risky-input dc-input" placeholder="Value" min="0" style="display: none;" onkeydown="validateNumericInput(event)" oninput="updateDCSuffix(this)" onkeyup="updateDCSuffix(this)">
           </div>
         </div>
       </div>

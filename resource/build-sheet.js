@@ -34,7 +34,7 @@ class BuildSheet {
 
         // Action category lists used by both generateActionCardContent and updatePassiveModifiers
         this.attackActions = [
-            "attack", "counter", "ultra-counter", "stable-attack", "burst-attack",
+            "attack", "counter", "protect", "ultra-protect", "ultra-counter", "stable-attack", "burst-attack",
             "sneak-attack", "critical-attack", "sharp-attack", "reckless-attack",
         ];
         this.healActions = ["heal", "power-heal"];
@@ -449,11 +449,11 @@ class BuildSheet {
 
         // Defense Focus - adds to all saves
         if (chosenActions.includes("focus-defense")) {
-            const alterRank = this.calculations.getAlterMasteryRank(currentState);
+            const praxisRank = this.calculations.getMasteryRankByLookup(currentState, "praxis");
             let saveBonus = 0;
-            if (alterRank >= 1) saveBonus = 5;  // D rank: +5
-            if (alterRank >= 3) saveBonus = 10; // B rank: +10
-            if (alterRank >= 5) saveBonus = 15; // S rank: +15
+            if (praxisRank >= 1) saveBonus = 5;  // D rank: +5
+            if (praxisRank >= 3) saveBonus = 10; // B rank: +10
+            if (praxisRank >= 5) saveBonus = 15; // S rank: +15
 
             if (saveBonus > 0) {
                 breakdowns.fortitude.push(`Defense Focus (Alter): ${saveBonus}`);
@@ -481,8 +481,7 @@ class BuildSheet {
     calculateStatBreakdowns(stats) {
         const currentState = this.state.getState();
         const actions = this.dataLoader.cache.actions;
-        const {armorType, armorRank, chosenActions, chosenMasteriesRanks} =
-            currentState;
+        const {armorType, armorRank, chosenActions} = currentState;
 
         // Health breakdown
         const hpBreakdown = [];
@@ -505,16 +504,7 @@ class BuildSheet {
         for (const actionName of chosenActions) {
             const action = actions.find((a) => a.lookup === actionName);
             if (action && action.bonuses && action.bonuses.hp) {
-                if (action.bonuses.hp === "rank-based" && actionName === "defense") {
-                    if (chosenMasteriesRanks.length > 0) {
-                        const alterRank =
-                            chosenMasteriesRanks[chosenMasteriesRanks.length - 1];
-                        const bonus = this.calculations.getRankBonus(alterRank);
-                        if (bonus > 0) {
-                            hpBreakdown.push(`Defense (Alter): ${bonus}`);
-                        }
-                    }
-                } else if (
+                if (
                     action.bonuses.hp === "rank-based" &&
                     actionName === "sturdy"
                 ) {
@@ -530,11 +520,11 @@ class BuildSheet {
                     action.bonuses.hp === "rank-based" &&
                     actionName === "focus-defense"
                 ) {
-                    const alterRank = this.calculations.getAlterMasteryRank(currentState);
+                    const praxisRank = this.calculations.getMasteryRankByLookup(currentState, "praxis");
                     let focusHPBonus = 0;
-                    if (alterRank >= 1) focusHPBonus += 15; // D rank: +15
-                    if (alterRank >= 3) focusHPBonus += 5;  // B rank: +5 additional
-                    if (alterRank >= 5) focusHPBonus += 5;  // S rank: +5 additional
+                    if (praxisRank >= 1) focusHPBonus += 15; // D rank: +15
+                    if (praxisRank >= 3) focusHPBonus += 5;  // B rank: +5 additional
+                    if (praxisRank >= 5) focusHPBonus += 5;  // S rank: +5 additional
                     if (focusHPBonus > 0) {
                         hpBreakdown.push(`Defense Focus (Alter): ${focusHPBonus}`);
                     }
@@ -542,11 +532,11 @@ class BuildSheet {
                     action.bonuses.hp === "rank-based" &&
                     actionName === "focus-movement"
                 ) {
-                    const alterRank = this.calculations.getAlterMasteryRank(currentState);
+                    const praxisRank = this.calculations.getMasteryRankByLookup(currentState, "praxis");
                     let focusHPBonus = 0;
-                    if (alterRank >= 1) focusHPBonus += 15; // D rank: +15
-                    if (alterRank >= 3) focusHPBonus += 5;  // B rank: +5 additional
-                    if (alterRank >= 5) focusHPBonus += 5;  // S rank: +5 additional
+                    if (praxisRank >= 1) focusHPBonus += 15; // D rank: +15
+                    if (praxisRank >= 3) focusHPBonus += 5;  // B rank: +5 additional
+                    if (praxisRank >= 5) focusHPBonus += 5;  // S rank: +5 additional
                     if (focusHPBonus > 0) {
                         hpBreakdown.push(`Speed Focus (Alter): ${focusHPBonus}`);
                     }
@@ -565,18 +555,6 @@ class BuildSheet {
             if (action && action.bonuses && action.bonuses.movement) {
                 if (
                     action.bonuses.movement === "rank-based" &&
-                    actionName === "speed"
-                ) {
-                    const speedRank = this.calculations.getAlterMasteryRank(currentState);
-                    let speedBonus = 0;
-                    if (speedRank >= 1) speedBonus += 1;
-                    if (speedRank >= 3) speedBonus += 1;
-                    if (speedRank >= 5) speedBonus += 1;
-                    if (speedBonus > 0) {
-                        movementBreakdown.push(`Speed (Alter): ${speedBonus}`);
-                    }
-                } else if (
-                    action.bonuses.movement === "rank-based" &&
                     actionName === "swift"
                 ) {
                     const swiftMasteryRank =
@@ -594,7 +572,7 @@ class BuildSheet {
                     action.bonuses.movement === "rank-based" &&
                     actionName === "acceleration"
                 ) {
-                    const accelerationRank = this.calculations.getAlterMasteryRank(currentState);
+                    const accelerationRank = this.calculations.getMasteryRankByLookup(currentState, "dynamism");
                     let accelerationBonus = 0;
                     if (accelerationRank >= 1) accelerationBonus += 2;
                     if (accelerationRank >= 3) accelerationBonus += 1;
@@ -606,10 +584,10 @@ class BuildSheet {
                     action.bonuses.movement === "rank-based" &&
                     actionName === "focus-movement"
                 ) {
-                    const alterRank = this.calculations.getAlterMasteryRank(currentState);
+                    const praxisRank = this.calculations.getMasteryRankByLookup(currentState, "praxis");
                     let focusMovementBonus = 0;
-                    if (alterRank >= 1) focusMovementBonus += 1; // D rank: +1
-                    if (alterRank >= 5) focusMovementBonus += 1; // S rank: +1 additional
+                    if (praxisRank >= 1) focusMovementBonus += 1; // D rank: +1
+                    if (praxisRank >= 5) focusMovementBonus += 1; // S rank: +1 additional
                     if (focusMovementBonus > 0) {
                         movementBreakdown.push(`Speed Focus (Alter): ${focusMovementBonus}`);
                     }
@@ -1154,14 +1132,13 @@ class BuildSheet {
         let rollCode = action.roll;
         if (action.lookup === "evolve" && rollCode && rollCode !== "-") {
             // Replace MR with actual Metamorph rank
-            const alterMasteryIndex = state.chosenMasteries.length - 1;
-            if (alterMasteryIndex >= 0) {
-                const alterRank = state.chosenMasteriesRanks[alterMasteryIndex];
-                const alterRankLetter = this.getRankLabel(alterRank);
+            const metamorphRank = this.calculations.getMasteryRankByLookup(state, "metamorph");
+            if (state.chosenMasteries.includes("metamorph")) {
+                const metamorphRankLetter = this.getRankLabel(metamorphRank);
                 // Replace the masteryreplace span content with the actual rank
                 rollCode = rollCode.replace(
                     /<span class=['"]masteryreplace['"]>MR<\/span>/,
-                    `<span class='masteryreplace'>${alterRankLetter}</span>`
+                    `<span class='masteryreplace'>${metamorphRankLetter}</span>`
                 );
             }
         }
@@ -1186,9 +1163,6 @@ class BuildSheet {
                     suffixes.push("Lethal");
                 }
                 if (state.chosenActions.includes("focus-offense")) {
-                    suffixes.push("Combat Focus");
-                }
-                if (state.chosenActions.includes("area-effect")) {
                     suffixes.push("Combat Focus");
                 }
             }
@@ -1316,6 +1290,13 @@ class BuildSheet {
                     suffix: "Splash",
                 },
             ],
+            range: [
+                {
+                    text: "Extend",
+                    onclick: "toggleExtend",
+                    suffix: "Extend",
+                },
+            ],
             versatile: [
                 {
                     text: "Simulcast",
@@ -1325,7 +1306,7 @@ class BuildSheet {
             ],
             heal: [
                 {
-                    text: "AoE",
+                    text: "Multi",
                     onclick: "toggleAoE",
                     suffix: "AoE",
                 },
@@ -1342,7 +1323,7 @@ class BuildSheet {
             ],
             buff: [
                 {
-                    text: "AoE",
+                    text: "Multi",
                     onclick: "toggleAoE",
                     suffix: "AoE",
                 },
@@ -1359,7 +1340,7 @@ class BuildSheet {
             ],
             "power-heal": [
                 {
-                    text: "AoE",
+                    text: "Multi",
                     onclick: "toggleAoE",
                     suffix: "AoE",
                 },
@@ -1376,7 +1357,7 @@ class BuildSheet {
             ],
             "power-buff": [
                 {
-                    text: "AoE",
+                    text: "Multi",
                     onclick: "toggleAoE",
                     suffix: "AoE",
                 },
@@ -1905,7 +1886,7 @@ class BuildSheet {
         if (!action || !action.masteries) return "";
 
         const highestRank = this.getHighestApplicableMasteryRank(state, action);
-        const modifierValue = (highestRank + 1) * 5;
+        const modifierValue = highestRank * 5;
         return modifierValue > 0 ? `+${modifierValue} ` : "";
     }
 
@@ -1923,11 +1904,11 @@ class BuildSheet {
         let focusOffenseModifier = "";
         if (hasFocusOffense) {
             // Combat Focus: +5 at D, +10 at B, +15 at S
-            const alterRank = this.calculations.getAlterMasteryRank(state);
+            const praxisRank = this.calculations.getMasteryRankByLookup(state, "praxis");
             let modifierValue = 0;
-            if (alterRank >= 1) modifierValue = 5;  // D rank: +5
-            if (alterRank >= 3) modifierValue = 10; // B rank: +10
-            if (alterRank >= 5) modifierValue = 15; // S rank: +15
+            if (praxisRank >= 1) modifierValue = 5;  // D rank: +5
+            if (praxisRank >= 3) modifierValue = 10; // B rank: +10
+            if (praxisRank >= 5) modifierValue = 15; // S rank: +15
             if (modifierValue > 0) {
                 focusOffenseModifier = `+${modifierValue} `;
             }
@@ -1972,9 +1953,9 @@ class BuildSheet {
         // Check if Light Armor is equipped
         if (state.armorType !== "light") return;
 
-        // Check if Alter mastery is at least D rank (rank >= 1)
-        const alterRank = this.calculations.getAlterMasteryRank(state);
-        if (alterRank < 1) return;
+        // Check if Evoke mastery is at least D rank (rank >= 1)
+        const evokeRank = this.calculations.getMasteryRankByLookup(state, "evoke");
+        if (evokeRank < 1) return;
 
         // Find the Engage action card
         const engageCard = this.domUtils.querySelector(".card#engagefinal");
@@ -2028,11 +2009,10 @@ class BuildSheet {
 
                     // Special handling for Evolve action
                     if (action.lookup === "evolve") {
-                        // For Evolve, MR should be the Metamorph (alter) mastery rank
-                        const alterMasteryIndex = state.chosenMasteries.length - 1;
-                        if (alterMasteryIndex >= 0 && masteryReplace) {
-                            const alterRank = state.chosenMasteriesRanks[alterMasteryIndex];
-                            masteryReplace.innerHTML = this.getRankLabel(alterRank);
+                        // For Evolve, MR should be the Metamorph mastery rank
+                        if (state.chosenMasteries.includes("metamorph") && masteryReplace) {
+                            const metamorphRank = this.calculations.getMasteryRankByLookup(state, "metamorph");
+                            masteryReplace.innerHTML = this.getRankLabel(metamorphRank);
                         }
 
                         const rollCodeElement = cardElement.querySelector(".rollcode");
@@ -2292,14 +2272,14 @@ function clickMastery(element) {
             // Check if this is the Evolve action - special handling
             const actionElement = cardElement.querySelector('[data-action="evolve"]');
             if (actionElement) {
-                // For Evolve action, the MR should always be the Metamorph (alter) mastery rank
-                const alterMasteryIndex = state.chosenMasteries.length - 1;
-                if (alterMasteryIndex >= 0) {
-                    const alterRankLetter = getRankLabel(state.chosenMasteriesRanks[alterMasteryIndex]);
+                // For Evolve action, the MR should always be the Metamorph mastery rank
+                const metamorphIndex = state.chosenMasteries.indexOf("metamorph");
+                if (metamorphIndex !== -1) {
+                    const metamorphRankLetter = getRankLabel(state.chosenMasteriesRanks[metamorphIndex]);
 
                     // Update the MR to show Metamorph rank, not the clicked mastery rank
                     if (masteryReplace) {
-                        masteryReplace.innerHTML = alterRankLetter;
+                        masteryReplace.innerHTML = metamorphRankLetter;
                     }
                 }
 
@@ -2705,6 +2685,53 @@ function updateReleaseSuffix() {
     updateNumericRollcodeSuffix("Release", false);
 }
 
+function toggleDC(button) {
+    const cardElement = button.closest(".card");
+    const inputElement = cardElement.querySelector(".dc-input");
+    const isActive = button.classList.contains("active");
+
+    if (isActive) {
+        button.classList.remove("active");
+        if (inputElement) {
+            inputElement.style.display = "none";
+            inputElement.value = "";
+            updateDCSuffixForCard(cardElement, "");
+        }
+    } else {
+        button.classList.add("active");
+        if (inputElement) {
+            inputElement.style.display = "inline-block";
+            inputElement.focus();
+        }
+    }
+}
+
+function updateDCSuffix(inputElement) {
+    const input = inputElement || event.target;
+    const cardElement = input.closest(".card");
+
+    let inputText = input.value.trim();
+    const numericValue = inputText.replace(/[^0-9]/g, "");
+    if (inputText !== numericValue) {
+        input.value = numericValue;
+        inputText = numericValue;
+    }
+
+    updateDCSuffixForCard(cardElement, inputText);
+}
+
+function updateDCSuffixForCard(cardElement, inputText) {
+    const rollCodeElement = cardElement.querySelector(".rollcode");
+    if (!rollCodeElement) return;
+
+    const suffixPattern = / · DC \([^)]*\)/g;
+    rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(suffixPattern, "");
+
+    if (inputText) {
+        rollCodeElement.innerHTML += ` · DC (${inputText})`;
+    }
+}
+
 // Wrapper functions for backward compatibility
 function toggleMelee(actionId, suffix = "Melee") {
     toggleActionButton(actionId, suffix, "Melee");
@@ -2720,6 +2747,10 @@ function toggleSimulcast(actionId, suffix = "Simulcast") {
 
 function toggleSplash(actionId, suffix = "Splash") {
     toggleActionButton(actionId, suffix, "Splash");
+}
+
+function toggleExtend(actionId, suffix = "Extend") {
+    toggleActionButton(actionId, suffix, "Extend");
 }
 
 function toggleAoE(actionId, suffix = "AoE") {
