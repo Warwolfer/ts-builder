@@ -16,7 +16,9 @@
   <script src="shared/data-loader.js"></script>
   <script src="shared/calculations.js"></script>
   <script src="shared/build-encoder.js"></script>
+  <script src="shared/saved-builds-store.js"></script>
   <script src="shared/loading-manager.js"></script>
+  <script src="shared/xenforo-api.js"></script>
   
   <!-- Data files -->
   <script src="resource/masteries.js"></script>
@@ -37,17 +39,7 @@
       <div class="nav-left">
         <div class="link"><a href="https://terrarp.com/build/index.html" style="color:#47cbdd">Build Planner</a></div>
         
-        <div class="link"><a href="https://terrarp.com/index.php">Forums</a></div>
-        <div class="link"><a href="https://terrarp.com/wiki/Main_Page">Wiki</a></div>
-        <div class="dropdown">
-          <button class="dropbtn">Important <i class="fa fa-caret-down"></i></button>
-          <div class="dropdown-content">
-            <a href="https://terrarp.com/wiki/Mastery">Mastery List</a>
-            <a href="https://terrarp.com/wiki/Races">Playable Races</a>
-            <a href="https://terrarp.com/wiki/RPG_Mechanics">RPG Mechanics</a>
-            <a href="https://terrarp.com/wiki/Actions">Action List</a>
-          </div>
-        </div>
+        <div class="link"><a href="saved-builds.html" style="color:#f97316">Saved Builds</a></div>
       </div>
     </div>
   </nav>
@@ -75,6 +67,7 @@
             <div class="header-info--functions right">
               <div class="masterycategory" id="inputbox">
                 <input type="text" id="threadcodereplace" autocomplete="off" placeholder="Thread code (510C5)...">
+                <div id="threadnamedisplay" class="threadname" style="display:none;" title="Click to edit thread code"></div>
               </div>
               <div id="finalbuild"></div>
             </div>
@@ -267,6 +260,7 @@
     <div class="button-container">
       <div class="button" id="back-button">< Select Actions</div>
       <div class="button" id="edit-build-button">Edit This Build</div>
+      <div class="button" id="save-build-button">Save This Build</div>
     </div>
   </div>
 

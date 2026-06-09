@@ -47,10 +47,11 @@ const CharacterCalculations = {
           actionName === "sturdy"
         ) {
           // Sturdy passive: 25 base + 5 per MR (D:+30, C:+35, B:+40, A:+45, S:+50), max +50
-          // Find the mastery used for this action and get its rank
-          const sturdyMasteryRank = this.getHighestDefenseMasteryRank(
+          // Use the highest effective defense rank (accounts for downcast when
+          // defense is only a secondary role on the mastery).
+          const sturdyMasteryRank = this.getHighestDefenseRank(
             state,
-            actionList,
+            masteryList,
           );
           const baseSturdy = 25;
           const sturdyBonus = Math.min(50, baseSturdy + 5 * sturdyMasteryRank);
@@ -149,10 +150,8 @@ const CharacterCalculations = {
           actionName === "swift"
         ) {
           // Swift passive: +1 movement at D rank, +2 at S rank
-          const swiftMasteryRank = this.getHighestOffenseMasteryRank(
-            state,
-            actionList,
-          );
+          // Use the highest effective offense rank (accounts for downcast).
+          const swiftMasteryRank = this.getHighestOffenseRank(state);
           if (swiftMasteryRank >= 1) movement += 1; // D rank: +1 movement
           if (swiftMasteryRank >= 5) movement += 1; // S rank: +1 additional (total +2)
         } else if (
@@ -206,42 +205,41 @@ const CharacterCalculations = {
     return parseInt(chosenMasteriesRanks[index]) || 0;
   },
 
-  // Get highest defense mastery rank for sturdy calculation
-  getHighestDefenseMasteryRank(state, actionList) {
+  // Get the highest effective mastery rank for a given role, accounting for
+  // downcasting (a mastery used outside its primary role loses 1 rank).
+  // Used by passive actions like Sturdy/Lethal/Blessed/Swift whose bonus
+  // scales with the best mastery rank in their role category.
+  getHighestRankForRole(state, masteryList, role) {
     const { chosenMasteries, chosenMasteriesRanks } = state;
-    const sturdyAction = actionList.find((a) => a.lookup === "sturdy");
+    const list = masteryList || window.masteries || window.masterylist;
+    if (!list || !chosenMasteries) return 0;
 
-    if (!sturdyAction || !sturdyAction.masteries) return 0;
-
-    let highestRank = 0;
+    let highest = 0;
     for (let i = 0; i < chosenMasteries.length; i++) {
-      const masteryId = chosenMasteries[i];
-      if (sturdyAction.masteries.includes(masteryId)) {
-        const rank = parseInt(chosenMasteriesRanks[i]) || 0;
-        highestRank = Math.max(highestRank, rank);
+      const mastery = list.find((m) => m.lookup === chosenMasteries[i]);
+      if (!mastery) continue;
+      const rawRank = parseInt(chosenMasteriesRanks[i]) || 0;
+      let effectiveRank = -1;
+      if (mastery.primaryRole === role) {
+        effectiveRank = rawRank;
+      } else if (mastery.secondaryRole === role) {
+        effectiveRank = Math.max(0, rawRank - 1);
       }
+      if (effectiveRank > highest) highest = effectiveRank;
     }
-
-    return highestRank;
+    return highest;
   },
 
-  // Get highest offense mastery rank for swift calculation
-  getHighestOffenseMasteryRank(state, actionList) {
-    const { chosenMasteries, chosenMasteriesRanks } = state;
-    const swiftAction = actionList.find((a) => a.lookup === "swift");
+  getHighestDefenseRank(state, masteryList) {
+    return this.getHighestRankForRole(state, masteryList, "defense");
+  },
 
-    if (!swiftAction || !swiftAction.masteries) return 0;
+  getHighestOffenseRank(state, masteryList) {
+    return this.getHighestRankForRole(state, masteryList, "offense");
+  },
 
-    let highestRank = 0;
-    for (let i = 0; i < chosenMasteries.length; i++) {
-      const masteryId = chosenMasteries[i];
-      if (swiftAction.masteries.includes(masteryId)) {
-        const rank = parseInt(chosenMasteriesRanks[i]) || 0;
-        highestRank = Math.max(highestRank, rank);
-      }
-    }
-
-    return highestRank;
+  getHighestSupportRank(state, masteryList) {
+    return this.getHighestRankForRole(state, masteryList, "support");
   },
 
   // Get complete character stats

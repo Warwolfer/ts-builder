@@ -302,7 +302,7 @@
 
     .header-info--functions {
         padding-right: 10px;
-        width: 100px !important;
+        width: 180px !important;
     }
 }
 
@@ -1070,7 +1070,7 @@
 .header-info--functions {
     display: block !important;
     float: right;
-    width: 160px;
+    width: 320px;
 }
 
 #inputbox {
@@ -1079,7 +1079,10 @@
 }
 
 #threadcodereplace {
-    width: 100% !important;
+    /* Pinned to its original width so it doesn't stretch with the widened
+       .header-info--functions container; right-aligned via margin-left:auto. */
+    width: 160px !important;
+    margin-left: auto !important;
     height: 40px !important;
     padding: 10px !important;
     font-size: 14px !important;
@@ -1095,8 +1098,34 @@
     display: block !important;
 }
 
+@media (max-width: 475px) {
+    #threadcodereplace {
+        width: 100px !important;
+    }
+}
+
 #threadcodereplace:focus {
     outline: none !important;
     border: 1px solid #a9357b !important;
     box-shadow: 0 0 5px rgba(71, 203, 221, 0.3) !important;
+}
+
+.threadname {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: -4px;
+    padding-right: 0; !important;
+    font-size: 1.15rem;
+    font-weight: bolder;
+    line-height: 1.2;
+    color: #fff;
+    text-align: right;
+    text-transform: uppercase;
+    cursor: pointer;
+    word-break: break-word;
+    user-select: none;
+}
+
+.threadname:hover {
+    color: #47cbdd;
 }

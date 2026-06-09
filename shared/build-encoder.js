@@ -113,19 +113,22 @@ const BuildEncoder = {
     const charData = charParts.join("&");
 
     // Create ultra-compact build string (new format with expertise and accessory)
+    // NOTE: do NOT filter empty parts — the decoder uses fixed indices (0-10).
+    // Filtering empty strings (e.g. actionCode when no actions are selected)
+    // shifts charData from index 10 to 9 and it never gets decoded.
     const compactParts = [
-      masteryIds, // "17,15,5,20,31" - mastery IDs
-      rankString, // "55555" - mastery ranks
-      expertiseIds, // "1,2,3,4,5,6" - expertise IDs
-      expertiseRankString, // "555555" - expertise ranks
-      armorShort, // "h" - armor type
-      armorRank, // "5" - armor rank
-      accessoryShort, // "c" - accessory type
-      accessoryRank, // "5" - accessory rank
-      weaponRank, // "5" - weapon rank
-      actionCode, // action IDs or names
-      charData, // "n:Lune&r:Human&t:Steel_Reclaimer&note:..."
-    ].filter((part) => part !== "");
+      masteryIds,          // 0: mastery IDs
+      rankString,          // 1: mastery ranks
+      expertiseIds,        // 2: expertise IDs
+      expertiseRankString, // 3: expertise ranks
+      armorShort,          // 4: armor type
+      armorRank,           // 5: armor rank
+      accessoryShort,      // 6: accessory type
+      accessoryRank,       // 7: accessory rank
+      weaponRank,          // 8: weapon rank
+      actionCode,          // 9: action IDs (may be empty — must stay to keep charData at index 10)
+      charData,            // 10: character data
+    ];
 
     const compactDetails = compactParts.join("|");
 
@@ -317,15 +320,25 @@ const BuildEncoder = {
         }
       }
 
-      // Correct part indices for format with accessory
-      // Based on the actual structure: masteryIds|masteryRanks|expertiseIds|expertiseRanks|armorType|armorRank|accessoryType|accessoryRank|weaponRank|actionIds|charData
+      // Fixed part indices
       const armorTypeIndex = 4;
       const armorRankIndex = 5;
       const accessoryTypeIndex = 6;
       const accessoryRankIndex = 7;
       const weaponRankIndex = 8;
-      const actionIndex = 9;
-      const charDataIndex = 10;
+      let actionIndex = 9;
+      let charDataIndex = 10;
+
+      // Backward-compat: older codes filtered empty actionCode, shifting charData to index 9.
+      // Detect this by checking if parts[9] looks like charData rather than action IDs.
+      if (
+        !parts[charDataIndex] &&
+        parts[actionIndex] &&
+        /^(?:n:|r:|t:|b:|a:|c:|ng:|note:)/.test(parts[actionIndex])
+      ) {
+        actionIndex = -1;   // no actions
+        charDataIndex = 9;
+      }
 
       // Expand armor type
       const armorTypeMap = { h: "heavy", m: "medium", l: "light" };
@@ -342,7 +355,7 @@ const BuildEncoder = {
       // Convert action IDs back to names
       let chosenActions = [];
       const actionData = window.actionlist || window.actionlist;
-      if (actionData && parts[actionIndex]) {
+      if (actionIndex >= 0 && actionData && parts[actionIndex]) {
         const actionIds = parts[actionIndex]
           .split(",")
           .map((id) => parseInt(id));
@@ -352,7 +365,7 @@ const BuildEncoder = {
             return action ? action.lookup : "";
           })
           .filter((name) => name);
-      } else {
+      } else if (actionIndex >= 0) {
         // Fallback for non-ID format
         chosenActions = parts[actionIndex]
           ? parts[actionIndex].split(",").filter((a) => a)

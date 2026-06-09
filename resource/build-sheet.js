@@ -508,9 +508,9 @@ class BuildSheet {
                     actionName === "sturdy"
                 ) {
                     const sturdyMasteryRank =
-                        this.calculations.getHighestDefenseMasteryRank(
+                        this.calculations.getHighestDefenseRank(
                             currentState,
-                            actions,
+                            this.dataLoader.cache.masteries,
                         );
                     const baseSturdy = 25;
                     const sturdyBonus = Math.min(50, baseSturdy + 5 * sturdyMasteryRank);
@@ -557,9 +557,9 @@ class BuildSheet {
                     actionName === "swift"
                 ) {
                     const swiftMasteryRank =
-                        this.calculations.getHighestOffenseMasteryRank(
+                        this.calculations.getHighestOffenseRank(
                             currentState,
-                            actions,
+                            this.dataLoader.cache.masteries,
                         );
                     let swiftBonus = 0;
                     if (swiftMasteryRank >= 1) swiftBonus += 1;
@@ -2038,6 +2038,10 @@ class BuildSheet {
                     if (breakTypeReplace && mastery.breakType) {
                         breakTypeReplace.innerHTML = this.capitalize(mastery.breakType);
                     }
+
+                    // Apply downcast styling/MR adjustment for the auto-picked
+                    // mastery (e.g. lone Hydromancy on a Defense action).
+                    this.updateDowncastIndicators(cardElement, masteryId, mastery);
                 }
             }
         });
@@ -2045,18 +2049,29 @@ class BuildSheet {
 
     setupThreadCode() {
         const threadCodeInput = this.domUtils.getElementById("threadcodereplace");
+        const threadNameDisplay = this.domUtils.getElementById("threadnamedisplay");
 
         if (threadCodeInput) {
-            // Update in real-time as user types
+            // Keep roll-code text and persisted state in sync as the user types.
             this.domUtils.addEventListener(threadCodeInput, "input", () =>
                 this.updateThreadCode(),
             );
 
-            // Also update on enter key
+            // API lookup happens on blur (and on Enter, which also blurs).
+            this.domUtils.addEventListener(threadCodeInput, "blur", () =>
+                this.resolveThreadName(),
+            );
+
             this.domUtils.addEventListener(threadCodeInput, "keypress", (e) => {
                 if (e.key === "Enter") {
-                    this.updateThreadCode();
+                    threadCodeInput.blur();
                 }
+            });
+        }
+
+        if (threadNameDisplay) {
+            this.domUtils.addEventListener(threadNameDisplay, "click", () => {
+                this.showThreadCodeInput(true);
             });
         }
     }
@@ -2074,6 +2089,9 @@ class BuildSheet {
 
             // Update all thread code displays
             this.updateThreadCode();
+
+            // Resolve name on initial load too.
+            this.resolveThreadName();
         }
     }
 
@@ -2094,6 +2112,66 @@ class BuildSheet {
         // Regenerate build codes with new thread code
         const currentState = this.state.getState();
         this.generateBuildCodes(currentState);
+    }
+
+    showThreadCodeInput(focus) {
+        const threadCodeInput = this.domUtils.getElementById("threadcodereplace");
+        const threadNameDisplay = this.domUtils.getElementById("threadnamedisplay");
+        if (threadNameDisplay) {
+            threadNameDisplay.style.setProperty("display", "none", "important");
+        }
+        if (threadCodeInput) {
+            // CSS uses `display: block !important`, so we have to win the
+            // specificity fight with !important on the inline style too.
+            threadCodeInput.style.setProperty("display", "block", "important");
+            if (focus) {
+                threadCodeInput.focus();
+                if (typeof threadCodeInput.select === "function") {
+                    threadCodeInput.select();
+                }
+            }
+        }
+    }
+
+    showThreadNameDisplay(name) {
+        const threadCodeInput = this.domUtils.getElementById("threadcodereplace");
+        const threadNameDisplay = this.domUtils.getElementById("threadnamedisplay");
+        if (threadNameDisplay) {
+            this.domUtils.setText(threadNameDisplay, name);
+            threadNameDisplay.style.setProperty("display", "block", "important");
+        }
+        if (threadCodeInput) {
+            threadCodeInput.style.setProperty("display", "none", "important");
+        }
+    }
+
+    async resolveThreadName() {
+        if (typeof window === "undefined" || !window.XenForoAPI) return;
+
+        const threadCodeInput = this.domUtils.getElementById("threadcodereplace");
+        if (!threadCodeInput) return;
+
+        const rawCode = this.domUtils.getValue(threadCodeInput);
+        const threadId = window.XenForoAPI.extractThreadId(rawCode);
+        if (!threadId) return;
+
+        // Guard against overlapping requests for stale values.
+        this._threadLookupToken = (this._threadLookupToken || 0) + 1;
+        const token = this._threadLookupToken;
+
+        try {
+            const title = await window.XenForoAPI.getThreadTitle(threadId);
+            if (token !== this._threadLookupToken) return; // a newer lookup superseded us
+            if (!title) return; // silent no-op on missing title
+
+            // Only swap to display if the input value hasn't changed since lookup started.
+            const currentRaw = this.domUtils.getValue(threadCodeInput);
+            if (currentRaw !== rawCode) return;
+
+            this.showThreadNameDisplay(title);
+        } catch (e) {
+            // Silent no-op on API failure per spec.
+        }
     }
 
     updateNote() {
@@ -2140,12 +2218,79 @@ class BuildSheet {
             () => this.editBuild(),
         );
 
+        this.domUtils.addEventListener(
+            this.domUtils.getElementById("save-build-button"),
+            "click",
+            () => this.saveCurrentBuild(),
+        );
+
         // Note textarea - save on input and update build URL
         const noteTextarea = this.domUtils.getElementById("note");
         if (noteTextarea) {
             this.domUtils.addEventListener(noteTextarea, "input", () =>
                 this.updateNote(),
             );
+        }
+    }
+
+    async saveCurrentBuild() {
+        const state = this.state.getState();
+
+        // Build the encoded payload (the part after "#import.").
+        const fullUrl = this.buildEncoder.generateCompactBuildCode(state);
+        const marker = "#import.";
+        const idx = fullUrl.indexOf(marker);
+        const buildCode = idx >= 0 ? fullUrl.slice(idx + marker.length) : "";
+        if (!buildCode) {
+            console.warn("BuildSheet: could not generate build code to save.");
+            return;
+        }
+
+        // Resolve the thread name from the on-sheet display, if shown.
+        let threadName = "";
+        const threadNameDisplay =
+            this.domUtils.getElementById("threadnamedisplay");
+        if (
+            threadNameDisplay &&
+            threadNameDisplay.style.display !== "none"
+        ) {
+            threadName = (threadNameDisplay.textContent || "").trim();
+        }
+
+        const createdAt = Date.now();
+        const defaultName = window.SavedBuildsStore.computeDefaultName({
+            threadName,
+            threadCode: state.threadCode,
+            note: state.note,
+            createdAt,
+        });
+
+        const entered = window.prompt("Build name:", defaultName);
+        if (entered === null) return; // cancelled
+        const name = entered.trim() || defaultName;
+
+        const record = {
+            id: window.SavedBuildsStore.generateId(),
+            name,
+            buildCode,
+            threadCode: state.threadCode || "",
+            threadName,
+            note: state.note || "",
+            createdAt,
+        };
+
+        try {
+            await window.SavedBuildsStore.save(record);
+            const btn = this.domUtils.getElementById("save-build-button");
+            if (btn) {
+                const original = btn.textContent;
+                btn.textContent = "Saved!";
+                setTimeout(() => {
+                    btn.textContent = original;
+                }, 2000);
+            }
+        } catch (e) {
+            console.error("BuildSheet: failed to save build:", e);
         }
     }
 
@@ -2303,10 +2448,24 @@ function clickMastery(element) {
                 mnameReplace.innerHTML = masteryName;
             }
 
-            // Update break type
+            // Update break type. Alter masteries have no breakType, so we drop the
+            // whole " · <breaktype>" segment to avoid stale text and a doubled "· ·".
             const breakTypeReplace = cardElement.querySelector(".breaktype");
-            if (breakTypeReplace && mastery && mastery.breakType) {
-                breakTypeReplace.innerHTML = capitalize(mastery.breakType);
+            if (mastery && mastery.breakType) {
+                const breakTypeText = capitalize(mastery.breakType);
+                if (breakTypeReplace) {
+                    breakTypeReplace.innerHTML = breakTypeText;
+                } else if (rollCodeElement) {
+                    rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(
+                        /(<span class=["']mnamereplace["'][^>]*>[^<]*<\/span>)/,
+                        `$1 · <span class='breaktype'>${breakTypeText}</span>`,
+                    );
+                }
+            } else if (breakTypeReplace && rollCodeElement) {
+                rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(
+                    / · <span class=["']breaktype["'][^>]*>[^<]*<\/span>/,
+                    "",
+                );
             }
 
             // Update downcast indicators based on clicked mastery

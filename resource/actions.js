@@ -1322,7 +1322,7 @@ const actionlist = [
         color: "#63429b",
         image: "https://terrarp.com/db/action/momentum.png",
         description:
-            "<p>(D) Free Action: Gain 5 damage modifiers for each (spent or unspent) movement you have this cycle.</p><p>(C) Bonus Action: Blitz. Gain 10 extra damage for each movement used in a continuous line this cycle. When a battle map is not in use, let the narrative determine whether you can use a quarter, half, or your full movement amount for this action. Also, reduce each instance of movement damage by 5 (C), A (10).</p>",
+            "<p>(D) Free Action: Gain 5 damage modifiers for each (spent or unspent) movement you have this cycle.</p><p>(C) Bonus Action: Blitz. Gain 10 damage modifier instead for each movement used in a continuous line this cycle. When a battle map is not in use, let the narrative determine whether you can use a quarter, half, or your full movement amount for this action. Also, reduce each instance of movement damage by 5 (C), A (10).</p>",
         dice: "Free Action/Passive",
         use: ["passive"],
         roll: "?r momentum <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",

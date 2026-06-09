@@ -12,6 +12,7 @@
   <script src="shared/build-encoder.js"></script>
   <script src="shared/loading-manager.js"></script>
   <script src="shared/calculations.js"></script>
+  <script src="shared/xenforo-api.js"></script>
 
   <!-- Data files -->
   <script src="resource/masteries.js"></script>
@@ -136,38 +137,7 @@
       });
       console.log('📥 Index: Loading character profile:', charId);
 
-      // Production API endpoint
-      // const response = await fetch(`https://terrarp.com/api/terrasphere-charactermanager/?id=${charId}`, {
-      //   method: 'GET',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Xf-Api-Key': 'nY3YHH7VMoIIVj8WgvmFfBG2tLeWyzUj'
-      //   }
-      // });
-
-      // Development API endpoint
-
-      // const response = await fetch(`http://localhost:3001/api/terrarp-user/${charId}`, {
-      //   method: 'GET',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Xf-Api-Key': 'nY3YHH7VMoIIVj8WgvmFfBG2tLeWyzUj'
-      //   }
-      // });
-
-      const response = await fetch(`https://spherical-worlds.com/tsbeta/api/terrasphere-charactermanager/?id=${charId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Xf-Api-Key': 'nY3YHH7VMoIIVj8WgvmFfBG2tLeWyzUj'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to load character data');
-      }
-
-      const characterData = await response.json();
+      const characterData = await XenForoAPI.getCharacterProfile(charId);
       console.log('✅ Index: Character data received:', characterData);
       console.log('🔍 Index: Expertises data:', characterData.expertises);
       console.log('🔍 Index: Equipment data:', characterData.equipment);
@@ -282,6 +252,8 @@
         armorType: armorType,
         accessoryType: accessoryType,
         chosenActions: [],
+        threadCode: '',
+        note: '',
         imported: true // Mark character as imported from API
       });
 

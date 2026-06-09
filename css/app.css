@@ -2815,3 +2815,75 @@ border-color:#6436b1!important;
         grid-template-columns: 1fr;
     }
 }
+
+/* Saved Builds page */
+#saved-builds-page {
+    max-width: 800px;
+    margin: 80px auto 40px auto;
+    padding: 0 15px;
+}
+
+.saved-builds-title {
+    color: #f97316;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.saved-builds-empty {
+    color: #cccccc;
+    text-align: center;
+}
+
+.saved-build-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #1e2131;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+}
+
+.saved-build-name {
+    color: #ffffff;
+    cursor: pointer;
+    flex: 1;
+    margin-right: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.saved-build-name:hover {
+    color: #47cbdd;
+}
+
+.saved-build-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.saved-build-edit,
+.saved-build-delete {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.saved-build-edit {
+    color: #47cbdd;
+}
+
+.saved-build-delete {
+    color: #ef4444;
+}
+
+.saved-build-edit:hover,
+.saved-build-delete:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
