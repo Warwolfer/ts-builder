@@ -7,9 +7,10 @@ A web-based character build planner for the TerraSphere RPG system featuring mul
 ```
 /
 ├── mastery-selector.html    # Page 1: Select masteries + equipment types
-├── expertise-selector.html  # Page 2: Assign ranks to masteries and expertise
-├── action-selector.html     # Page 3: Choose actions based on masteries
-├── build-sheet.html         # Page 4: Final build display and sharing
+├── expertise-selector.html  # Page 2: Choose expertise
+├── rank-selector.html       # Page 3: Assign ranks to masteries and expertise
+├── action-selector.html     # Page 4: Choose actions based on masteries
+├── build-sheet.html         # Page 5: Final build display and sharing
 ├── index.html               # Entry point for imports and character loading
 ├── shared/                  # Shared modules
 │   ├── state-manager.js     # Global state + localStorage persistence
@@ -36,7 +37,7 @@ A web-based character build planner for the TerraSphere RPG system featuring mul
 ## Features
 
 ### Core Systems
-- **Multi-Page Flow**: Structured progression through mastery → expertise → action → build
+- **Multi-Page Flow**: Structured progression through mastery → expertise → rank → action → build
 - **Secondary Roles**: Masteries have primary and secondary roles for expanded action access
 - **Downcasting**: Visual indicators when using masteries outside primary role
 - **Expertise System**: Separate character expertise from equipment ranks
