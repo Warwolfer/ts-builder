@@ -19,7 +19,6 @@ A web-based character build planner for the TerraSphere RPG system featuring mul
 │   ├── build-encoder.js     # Build code encoding/decoding
 │   ├── data-loader.js       # Data loading and caching
 │   ├── loading-manager.js   # Loading spinners and status
-│   ├── config.js            # Configuration constants
 │   └── components/          # Reusable UI components
 ├── resource/                # Data files
 │   ├── masteries.js         # 40+ mastery definitions with roles
