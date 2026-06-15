@@ -370,8 +370,12 @@
         throw new Error('action data not loaded');
       }
 
-      // Decode the build using unified decode method
-      const buildData = window.BuildEncoder.decodeBuildString(buildCode);
+      // Validate and decode the build using unified validation method
+      const result = window.BuildEncoder.validateBuildCode(buildCode);
+      if (!result.success) {
+        throw new Error(result.error || 'Invalid build code');
+      }
+      const buildData = result.data;
       console.log('✅ Index: Build imported successfully:', buildData);
 
       // Update state with imported data

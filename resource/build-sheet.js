@@ -248,7 +248,11 @@ class BuildSheet {
                 document.getElementById("banner-blur-style") ||
                 document.createElement("style");
             style.id = "banner-blur-style";
-            const bannerPositionY = state.bannerPositionY || 0;
+            const rawBanner = state.profileBannerUrl || "";
+            const safeBanner = /^https:\/\/(www\.)?terrarp\.com\//.test(rawBanner)
+                ? rawBanner
+                : "";
+            const bannerPositionY = Number(state.bannerPositionY) || 0;
             style.textContent = `
         .banner::before {
           content: '';
@@ -257,7 +261,7 @@ class BuildSheet {
           left: 0;
           right: 0;
           bottom: 0;
-          background-image: url(${state.profileBannerUrl});
+          background-image: url(${safeBanner});
           background-size: cover;
           background-position: center ${bannerPositionY}%;
           background-repeat: no-repeat;
@@ -1761,8 +1765,16 @@ class BuildSheet {
         this.domUtils.setValue(this.domUtils.getElementById("build-url"), buildURL);
     }
 
+    escapeHtml(str) {
+        const div = document.createElement("div");
+        div.textContent = str == null ? "" : String(str);
+        return div.innerHTML;
+    }
+
     replaceCharacterName(characterName) {
         if (!characterName) return;
+
+        const safeName = this.escapeHtml(characterName);
 
         // Replace in all sections that contain roll codes
         this.rollCodeSections.forEach((sectionId) => {
@@ -1770,7 +1782,7 @@ class BuildSheet {
             if (section) {
                 section.innerHTML = section.innerHTML.replace(
                     /Character Name/g,
-                    characterName,
+                    safeName,
                 );
             }
         });
@@ -1780,14 +1792,14 @@ class BuildSheet {
         if (armorPassive) {
             armorPassive.innerHTML = armorPassive.innerHTML.replace(
                 /Character Name/g,
-                characterName,
+                safeName,
             );
         }
 
         // Update character name display
         const charNameElement = this.domUtils.querySelector(".charname");
         if (charNameElement) {
-            charNameElement.innerHTML = characterName;
+            charNameElement.innerHTML = safeName;
         }
     }
 
