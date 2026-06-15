@@ -14,7 +14,7 @@ const BuildEncoder = {
     const masteryData = window.masteries || window.masterylist;
     if (!masteryData) {
       console.warn("Mastery data not loaded, using regular format");
-      return this.generateBuildCode(state, baseURL);
+      return this.generateJSONBuildCode(state, baseURL);
     }
 
     const {
@@ -72,7 +72,7 @@ const BuildEncoder = {
 
     // Convert action names to IDs for even more space savings
     let actionCode = chosenActions.join(","); // fallback
-    const actionData = window.actionlist || window.actionlist;
+    const actionData = window.actionlist;
     if (actionData) {
       const actionIds = chosenActions
         .map((actionName) => {
