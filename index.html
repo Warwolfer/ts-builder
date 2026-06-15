@@ -142,6 +142,9 @@
       console.log('🔍 Index: Expertises data:', characterData.expertises);
       console.log('🔍 Index: Equipment data:', characterData.equipment);
 
+      // Convert rank letter to number (0=E, 1=D, 2=C, 3=B, 4=A, 5=S)
+      const rankMap = {'E': 0, 'D': 1, 'C': 2, 'B': 3, 'A': 4, 'S': 5};
+
       // Parse character masteries for the system
       const chosenMasteries = [];
       const chosenMasteriesRanks = [];
@@ -154,14 +157,11 @@
 
           chosenMasteries.push(masteryName);
 
-          // Convert rank letter to number (0=E, 1=D, 2=C, 3=B, 4=A, 5=S)
-          const rankMap = {'E': 0, 'D': 1, 'C': 2, 'B': 3, 'A': 4, 'S': 5};
           chosenMasteriesRanks.push(rankMap[rank] || 0);
         }
       }
 
       // Parse equipment ranks (separate from expertise)
-      const rankMap = {'E': 0, 'D': 1, 'C': 2, 'B': 3, 'A': 4, 'S': 5};
       let armorType = 'medium';
       let accessoryType = 'cloak';
       let weaponRank = 0;
