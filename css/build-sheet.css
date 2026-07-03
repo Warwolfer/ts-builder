@@ -1153,6 +1153,29 @@
     display: none;
 }
 
+/* Compact: shrink title/icon/text a bit to reduce card height */
+#builddisplay.compact .cardtitle {
+    font-size: 17px;
+}
+
+#builddisplay.compact .type {
+    font-size: 11px;
+}
+
+#builddisplay.compact .cardicon {
+    width: 46px;
+    height: 46px;
+    margin-bottom: 8px;
+}
+
+#builddisplay.compact .cardtop {
+    padding: 7px;
+}
+
+#builddisplay.compact .rollcode {
+    font-size: 0.85em;
+}
+
 /* Drag-to-reorder action cards (F2) */
 #actionsdisplay .cardtop {
     cursor: grab;
