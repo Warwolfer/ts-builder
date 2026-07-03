@@ -1,3 +1,6 @@
+// Base URL of the embed image server (Deliverable B). Final domain TBD.
+const EMBED_BASE = "https://embed.terrarp.com";
+
 // Initialize global objects
 window.buildState = window.buildState || new BuildState();
 window.DataLoader = window.DataLoader || new DataLoader();
@@ -1923,6 +1926,19 @@ class BuildSheet {
         // Generate compact build URL
         const buildURL = this.buildEncoder.generateCompactBuildCode(state);
         this.domUtils.setValue(this.domUtils.getElementById("build-url"), buildURL);
+
+        // Generate forum embed BBCode (Deliverable A): clickable image that
+        // links back to the interactive build. Image is served by the embed
+        // server (Deliverable B); the code is the segment after "#import.".
+        const code = buildURL.split("#import.")[1] || "";
+        const embedUrl = `${EMBED_BASE}/embed/${encodeURIComponent(code)}.webp`;
+        const bbcode = code
+            ? `[URL=${buildURL}][IMG]${embedUrl}[/IMG][/URL]`
+            : "";
+        this.domUtils.setValue(
+            this.domUtils.getElementById("embed-code"),
+            bbcode,
+        );
     }
 
     escapeHtml(str) {
