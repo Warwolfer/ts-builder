@@ -1929,9 +1929,10 @@ class BuildSheet {
         this.domUtils.setValue(this.domUtils.getElementById("build-url"), buildURL);
 
         // Generate forum embed BBCode (Deliverable A): clickable image that
-        // links back to the interactive build. Image is served by the embed
-        // server (Deliverable B); the code is the segment after "#import.".
-        const code = buildURL.split("#import.")[1] || "";
+        // links back to the interactive build. The image code omits character
+        // data (name/title/notes/thread code) the embedder doesn't need, so
+        // it's much shorter than the full build code.
+        const code = this.buildEncoder.generateEmbedCode(state);
         const embedUrl = `${EMBED_BASE}/embed/${encodeURIComponent(code)}.webp`;
         const bbcode = code
             ? `[URL=${buildURL}][IMG]${embedUrl}[/IMG][/URL]`
