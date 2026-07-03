@@ -17,10 +17,11 @@
 - Content: mastery icons+ranks, expertise icons+ranks, saves, gear (armor shows its **type**), action names. **No** character name, **no** avatar. The server never fetches user-supplied URLs — only `mastery.image` / `expertise.image` values from vendored static data.
 - **Action filtering + abbreviation:** exclude universal-action lookups `attack` and `rush`. Abbreviate leading words in action names: `Power ` → `P. `, `Ultra ` → `U. `, `Special ` → `Sp. `.
 - Success responses: `Content-Type: image/webp`, `Cache-Control: public, max-age=31536000, immutable`. Error/invalid responses: `Cache-Control: no-store`, status 200, static placeholder image.
-- Render params (query flags, default off, both folded into the cache key):
+- Render params (query flags, default off, all folded into the cache key):
   - `mono=1` — ranks + save/gear numbers plain white instead of rank colors.
+  - `gold=1` — ranks + save/gear numbers a single gold `#edab2d` (takes precedence over `mono`).
   - `flat=1` — action pills rendered **without** the type-colored bottom border.
-  - Cache key: `sha256(code + "|mono=" + m + "|flat=" + f)`.
+  - Cache key: `sha256(code + "|mono=" + m + "|flat=" + f + "|gold=" + g)`.
 - Reference spec: `ts-builder/docs/superpowers/specs/2026-07-03-build-embed-image-design.md`.
 
 ### Palette (verbatim, from the builder)
@@ -635,7 +636,7 @@ git commit -m "feat: in-memory icon fetch cache returning data URIs"
 
 **Interfaces:**
 - Consumes: model (Task 3), `getIconDataUri` (Task 4), palette (`rankColor`).
-- Produces: `async renderWebp(model, { mono=false, flat=false }) -> Buffer` (a WebP with alpha).
+- Produces: `async renderWebp(model, { mono=false, flat=false, gold=false }) -> Buffer` (a WebP with alpha).
 
 - [ ] **Step 1: Add bundled fonts**
 
@@ -679,6 +680,12 @@ test("flat variant (no action border) also renders a WebP", async () => {
   const buf = await renderWebp(m, { flat: true });
   assert.ok(isWebp(buf));
 });
+
+test("gold variant also renders a WebP", async () => {
+  const m = await buildModel(FIXTURE);
+  const buf = await renderWebp(m, { gold: true });
+  assert.ok(isWebp(buf));
+});
 ```
 
 - [ ] **Step 3: Run test — expect fail**
@@ -698,8 +705,10 @@ const { getIconDataUri } = require("./icons.js");
 const el = (type, style, children) => ({ type, props: { style, children } });
 const text = (s) => s;
 
-async function template(model, { mono, flat }) {
-  const rankInk = (letter) => (mono ? "#ffffff" : rankColor(letter));
+async function template(model, { mono, flat, gold }) {
+  // gold beats mono beats per-rank color. Saves have no rank letter -> neutral ink by default.
+  const rankInk = (letter) => (gold ? "#edab2d" : mono ? "#ffffff" : rankColor(letter));
+  const saveInk = gold ? "#edab2d" : mono ? "#ffffff" : "#eef1f7";
 
   // Preload all icon data URIs (parallel, cached).
   const allIcons = [...model.masteries, ...model.expertise];
@@ -778,11 +787,9 @@ async function template(model, { mono, flat }) {
       ],
     );
 
-  const savePills = model.saves.map((s) => pill(s.key, s.value, mono ? "#ffffff" : rankColor(s.value.replace(/[+\-\d]/g, "") ? s.value : s.value)));
-  // saves have no rank letter; use white in mono, else a neutral accent
-  const savePillsFixed = model.saves.map((s) => pill(s.key, s.value, mono ? "#ffffff" : "#eef1f7"));
+  const savePillsFixed = model.saves.map((s) => pill(s.key, s.value, saveInk));
   const gearPills = model.gear.map((g) =>
-    pill(g.type ? `${g.key} ${g.type.toUpperCase()}` : g.key, g.rank, mono ? "#ffffff" : rankColor(g.rank)),
+    pill(g.type ? `${g.key} ${g.type.toUpperCase()}` : g.key, g.rank, rankInk(g.rank)),
   );
 
   const actionPills = model.actions.map((a) =>
@@ -829,7 +836,7 @@ async function template(model, { mono, flat }) {
 
 module.exports = { template };
 ```
-Note: Satori requires explicit `display:flex` on every element with children and does not support `gap` in all versions — if `gap` misbehaves, replace with per-child `marginRight`/`marginBottom` (already used on pills). The `savePills` line above is dead/incorrect; use `savePillsFixed`. Remove the unused `savePills` const when implementing.
+Note: Satori requires explicit `display:flex` on every element with children and does not support `gap` in all versions — if `gap` misbehaves, replace with per-child `marginRight`/`marginBottom` (already used on pills).
 
 - [ ] **Step 5: Implement render**
 
@@ -851,7 +858,7 @@ const fonts = [
 const WIDTH = 738;
 
 async function renderWebp(model, opts = {}) {
-  const tree = await template(model, { mono: !!opts.mono, flat: !!opts.flat });
+  const tree = await template(model, { mono: !!opts.mono, flat: !!opts.flat, gold: !!opts.gold });
   const svg = await satori(tree, { width: WIDTH, fonts });
   const png = new Resvg(svg, {
     background: "rgba(0,0,0,0)", // transparent
@@ -1031,13 +1038,14 @@ test("bad code returns placeholder with no-store, still 200", async () => {
   await app.close();
 });
 
-test("mono + flat variants each render a webp", async () => {
+test("mono + flat + gold variants each render a webp", async () => {
   const app = buildServer();
   const base = `/embed/${encodeURIComponent(FIXTURE)}.webp`;
   const a = await app.inject({ method: "GET", url: base });
   const b = await app.inject({ method: "GET", url: base + "?mono=1" });
   const c = await app.inject({ method: "GET", url: base + "?flat=1" });
-  assert.ok(isWebp(a.rawPayload) && isWebp(b.rawPayload) && isWebp(c.rawPayload));
+  const g = await app.inject({ method: "GET", url: base + "?gold=1" });
+  assert.ok([a, b, c, g].every((r) => isWebp(r.rawPayload)));
   await app.close();
 });
 ```
@@ -1082,6 +1090,7 @@ function buildServer() {
     const truthy = (v) => v === "1" || v === "true";
     const mono = truthy(req.query.mono);
     const flat = truthy(req.query.flat);
+    const gold = truthy(req.query.gold);
 
     if (typeof raw !== "string" || raw.length > 4096) {
       reply.header("Content-Type", "image/webp").header("Cache-Control", "no-store");
@@ -1089,12 +1098,17 @@ function buildServer() {
     }
 
     const code = decodeURIComponent(raw);
-    const key = sha(code + "|mono=" + (mono ? "1" : "0") + "|flat=" + (flat ? "1" : "0"));
+    const key = sha(
+      code +
+        "|mono=" + (mono ? "1" : "0") +
+        "|flat=" + (flat ? "1" : "0") +
+        "|gold=" + (gold ? "1" : "0"),
+    );
 
     try {
       const buf = await getOrRender(key, async () => {
         const model = buildModel(code); // throws InvalidBuildError
-        return renderWebp(model, { mono, flat });
+        return renderWebp(model, { mono, flat, gold });
       });
       reply.header("Content-Type", "image/webp").header("Cache-Control", IMMUTABLE);
       return reply.send(buf);
@@ -1164,7 +1178,7 @@ git commit -m "docs: README with deploy + vendoring notes"
 - Separate repo, vendored decode/data → Tasks 1–2. ✓
 - No-disk stateless + LRU + in-flight dedupe → Task 6, wired Task 7. ✓
 - immutable header on success, no-store on invalid, 200 placeholder → Task 7. ✓
-- `mono` + `flat` render params, both part of cache key → Tasks 5 & 7. ✓
+- `mono` + `flat` + `gold` render params, all part of cache key → Tasks 5 & 7. ✓
 - Action filtering (`attack`/`rush` excluded) + abbreviation (Power→P., Ultra→U., Special→Sp.) → Task 3 model + test. ✓
 - Design 4 layout (transparent, 738px, 32px role-ring icons + corner rank badge, save/gear pills w/ armor type, action pills w/ type-color bottom border, rank colors) → Task 5 template + palette. ✓
 - No name/avatar; icons only from static `.image` by lookup (no SSRF) → Task 3 model, Task 4 icons. ✓

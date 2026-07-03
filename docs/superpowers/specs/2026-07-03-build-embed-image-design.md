@@ -67,10 +67,12 @@ inlines real terrarp icons as data URIs). `src/template.js` must reproduce it:
 ### Render parameters (query flags, all default off)
 The renderer MUST accept these optional flags on the image URL; each is folded
 into the cache key so variants cache independently
-(`sha256(code + "|mono=" + m + "|flat=" + f)`):
+(`sha256(code + "|mono=" + m + "|flat=" + f + "|gold=" + g)`):
 
 - **`mono=1`** — draw all ranks and save/gear numbers **plain white** instead of
   the rank colors.
+- **`gold=1`** — draw all ranks and save/gear numbers a single gold `#edab2d`.
+  Takes precedence over `mono` if both are set.
 - **`flat=1`** — render action pills **without the type-colored bottom border**
   (drop the border entirely; pill keeps its panel background).
 
