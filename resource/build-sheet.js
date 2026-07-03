@@ -1,5 +1,6 @@
-// Base URL of the embed image server (Deliverable B). Final domain TBD.
-const EMBED_BASE = "https://embed.terrarp.com";
+// Base URL of the embed image server (Deliverable B). Local testing default;
+// change to the production domain when deployed.
+const EMBED_BASE = "http://localhost:8080";
 
 // Initialize global objects
 window.buildState = window.buildState || new BuildState();
