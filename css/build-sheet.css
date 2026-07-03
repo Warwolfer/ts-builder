@@ -1148,7 +1148,8 @@
     color: #fff;
 }
 
-#builddisplay.compact .cardinfo {
+#builddisplay.compact .cardinfo,
+#builddisplay.compact .cardroll {
     display: none;
 }
 
