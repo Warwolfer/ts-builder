@@ -213,6 +213,24 @@ class BuildSheet {
         container.dataset.dragReady = "1";
 
         let draggedCard = null;
+        let dropRef = null; // card to insert before on drop (null = append at end)
+        let marker = null; // fixed-position insertion indicator (no layout impact)
+
+        const removeMarker = () => {
+            if (marker && marker.parentNode) marker.parentNode.removeChild(marker);
+        };
+        const endDrag = () => {
+            if (!draggedCard) return;
+            const card = draggedCard;
+            draggedCard = null;
+            card.classList.remove("dragging", "drag-hidden");
+            card.removeAttribute("draggable");
+            removeMarker();
+            // Reinsert at the computed slot (dropRef === card means no move).
+            if (dropRef !== card) container.insertBefore(card, dropRef);
+            dropRef = null;
+            this.persistCardOrder();
+        };
 
         // Only allow a drag to begin from a card's header (.cardtop)
         container.addEventListener("mousedown", (e) => {
@@ -230,37 +248,41 @@ class BuildSheet {
             const card = e.target.closest(".card[data-action-id]");
             if (!card) return;
             draggedCard = card;
+            dropRef = card; // default: stay in place
             card.classList.add("dragging");
             if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
+            // Pull the card out of flow AFTER the browser snapshots the drag
+            // image, so the remaining cards keep stable geometry for the whole
+            // drag (no reflow -> no oscillation).
+            setTimeout(() => {
+                if (draggedCard) draggedCard.classList.add("drag-hidden");
+            }, 0);
         });
 
         container.addEventListener("dragover", (e) => {
             if (!draggedCard) return;
             e.preventDefault();
-            const after = this.getDragAfterElement(container, e.clientX, e.clientY);
-            if (after == null) {
-                container.appendChild(draggedCard);
-            } else if (after !== draggedCard) {
-                container.insertBefore(draggedCard, after);
-            }
+            if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
+            dropRef = this.getDropReference(container, e.clientX, e.clientY);
+            marker = this.showDropMarker(container, dropRef, marker);
         });
 
-        container.addEventListener("dragend", () => {
-            if (!draggedCard) return;
-            draggedCard.classList.remove("dragging");
-            draggedCard.removeAttribute("draggable");
-            draggedCard = null;
-            this.persistCardOrder();
+        // dragend fires for every drag conclusion (valid drop or cancel).
+        container.addEventListener("drop", (e) => {
+            e.preventDefault();
         });
+        container.addEventListener("dragend", endDrag);
     }
 
-    getDragAfterElement(container, x, y) {
+    // Returns the card to insert the dragged card before (null = append at end).
+    // Only considers cards still in flow (dragged card is .drag-hidden).
+    getDropReference(container, x, y) {
         const cards = [
-            ...container.querySelectorAll(".card[data-action-id]:not(.dragging)"),
+            ...container.querySelectorAll(
+                ".card[data-action-id]:not(.dragging)",
+            ),
         ];
-        // Grid wraps into rows/columns, so pick the card whose center is
-        // nearest the pointer (2D), then insert before it or after it based on
-        // which horizontal half the pointer is in.
+        if (cards.length === 0) return null;
         let nearest = null;
         let nearestDist = Number.POSITIVE_INFINITY;
         for (const card of cards) {
@@ -273,9 +295,42 @@ class BuildSheet {
                 nearest = { card, cx };
             }
         }
-        if (!nearest) return null;
-        // Pointer left of the card's center -> drop before it, else after it.
-        return x < nearest.cx ? nearest.card : nearest.card.nextElementSibling;
+        // Left of center -> before this card; right -> before the next card.
+        if (x < nearest.cx) return nearest.card;
+        let ref = nearest.card.nextElementSibling;
+        while (ref && ref.classList.contains("dragging")) {
+            ref = ref.nextElementSibling; // skip the hidden dragged card
+        }
+        return ref; // null => append at end
+    }
+
+    // Draws a fixed-position vertical bar at the insertion point. Because it is
+    // position:fixed it does not affect grid layout, so it cannot cause the
+    // reflow-driven flicker that live-moving the card did.
+    showDropMarker(container, ref, marker) {
+        if (!marker) {
+            marker = document.createElement("div");
+            marker.className = "drop-marker";
+        }
+        let box, left;
+        if (ref) {
+            box = ref.getBoundingClientRect();
+            left = box.left - 4;
+        } else {
+            // Append at end: mark the right edge of the last in-flow card.
+            const cards = container.querySelectorAll(
+                ".card[data-action-id]:not(.dragging)",
+            );
+            const last = cards[cards.length - 1];
+            if (!last) return marker;
+            box = last.getBoundingClientRect();
+            left = box.right + 1;
+        }
+        marker.style.top = `${box.top}px`;
+        marker.style.height = `${box.height}px`;
+        marker.style.left = `${left}px`;
+        if (!marker.parentNode) document.body.appendChild(marker);
+        return marker;
     }
 
     persistCardOrder() {
