@@ -33,12 +33,45 @@ under pm2 on a VPS (persistent process, no cold starts).
    Only a small bounded in-memory LRU + in-flight dedupe live in-process. Zero
    persistent storage, no eviction/cleanup, nothing lost on restart.
 
+## Chosen layout — "Design 4" (decided 2026-07-04)
+
+The image layout is locked. Reference mockup lives at
+`docs/superpowers/assets/embed-mockup-design4.html` (open in a browser; it
+inlines real terrarp icons as data URIs). `src/template.js` must reproduce it:
+
+- **Dark, transparent background.** No card fill — the whole image is
+  transparent so it blends into the forum. Dark-mode styling only (no light
+  variant).
+- **Width 738px**, compact height. Rows stacked with a small (~5px) gap.
+- **Row 1 — Masteries + Expertise:** two groups on one line (`gap:28px`). Each
+  entry is a 32px circular icon (the real mastery/expertise PNG) with a 2px ring
+  in the builder **role/type color** (offense `#bd4444`, defense `#ce832c`,
+  support `#589edc`, alter `#6436b1`; expertise by first type: physical
+  `#ce6541`, creative `#a84b72`, crafting `#d2aa49`, else `#6e51cb`). A small
+  rank badge sits at the icon's bottom-right corner. Icon background transparent.
+- **Row 2 — Saves + Gear:** compact pills (`Fort +30`, `Ref +15`, `Will +10`,
+  `WPN A`, `ARM HEAVY B`, `ACC C`). Armor pill includes the armor **type**.
+  Label and value share font-size 11px + `line-height:1` so they align.
+- **Row 3 — Actions:** full-width row of compact pills, each with a
+  **role-colored bottom border** (same role palette as masteries). All actions
+  on one line.
+- **Rank / value colors:** by builder rank color (S `#fbbf24`, A `#fb923c`,
+  B `#f472b6`, C `#4ade80`, D `#60a5fa`) by default.
+
+### Render parameter — `ranksWhite` (toggle)
+The renderer MUST accept an optional flag to draw all ranks and save/gear
+numbers **plain white** instead of the rank colors. Surface it in the image URL,
+e.g. `/embed/{code}.webp?mono=1` (query flag; default off = colored ranks). Keep
+the flag part of the cache key (`sha256(code + "|mono=" + flag)`) so the two
+variants cache independently. Deliverable A's BBCode builder can later append
+the flag if the user wants the white variant; default emits no flag.
+
 ## Deferred (design later, not in this spec)
 
-- Exact visual layout / styling of the image (`src/template.js` ships a
-  functional placeholder layout; a follow-up pass designs the final look).
 - Final `EMBED_BASE` / `PUBLIC_BASE_URL` domain value.
 - New repo filesystem path (default: sibling `../terrasphere-embed`).
+- Whether to expose the `ranksWhite` toggle in the builder UI (the client can
+  emit the flag; a UI switch for it is a later, optional nicety).
 
 ---
 
@@ -108,7 +141,7 @@ server.js             Fastify app + routes
 src/build-data.js     window-shim loader; exports decode + data
 src/model.js          code -> normalized render model
 src/render.js         model -> WebP buffer (satori -> resvg -> sharp)
-src/template.js       satori layout (placeholder; visuals deferred)
+src/template.js       satori layout (reproduce "Design 4" — see Chosen layout)
 src/icons.js          fetch + in-memory cache icon images by lookup
 src/lru.js            bounded in-memory render cache + in-flight dedupe (no disk)
 assets/font.ttf       bundled font for satori
