@@ -185,6 +185,102 @@ class BuildSheet {
 
         // Hide navigation for imported characters
         this.adjustNavigationForImportedCharacter();
+
+        // Enable drag-to-reorder for dynamic action cards (F2)
+        this.setupDragReorder();
+
+        // Apply persisted Compact preference (F3)
+        this.applyCompactPreference();
+    }
+
+    applyCompactPreference() {
+        let saved = null;
+        try {
+            saved = localStorage.getItem("tsbuilder_compact");
+        } catch (e) {
+            saved = null;
+        }
+        if (saved !== "1") return;
+        const container = this.domUtils.getElementById("builddisplay");
+        if (container) container.classList.add("compact");
+        const toggle = this.domUtils.getElementById("compact-toggle");
+        if (toggle) toggle.classList.add("active");
+    }
+
+    setupDragReorder() {
+        const container = this.domUtils.getElementById("actionsdisplay");
+        if (!container || container.dataset.dragReady === "1") return;
+        container.dataset.dragReady = "1";
+
+        let draggedCard = null;
+
+        // Only allow a drag to begin from a card's header (.cardtop)
+        container.addEventListener("mousedown", (e) => {
+            const top = e.target.closest(".cardtop");
+            const card = top ? top.closest(".card[data-action-id]") : null;
+            if (card) card.setAttribute("draggable", "true");
+        });
+
+        container.addEventListener("mouseup", (e) => {
+            const card = e.target.closest(".card[data-action-id]");
+            if (card) card.removeAttribute("draggable");
+        });
+
+        container.addEventListener("dragstart", (e) => {
+            const card = e.target.closest(".card[data-action-id]");
+            if (!card) return;
+            draggedCard = card;
+            card.classList.add("dragging");
+            if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
+        });
+
+        container.addEventListener("dragover", (e) => {
+            if (!draggedCard) return;
+            e.preventDefault();
+            const after = this.getDragAfterElement(container, e.clientX, e.clientY);
+            if (after == null) {
+                container.appendChild(draggedCard);
+            } else if (after !== draggedCard) {
+                container.insertBefore(draggedCard, after);
+            }
+        });
+
+        container.addEventListener("dragend", () => {
+            if (!draggedCard) return;
+            draggedCard.classList.remove("dragging");
+            draggedCard.removeAttribute("draggable");
+            draggedCard = null;
+            this.persistCardOrder();
+        });
+    }
+
+    getDragAfterElement(container, x, y) {
+        const cards = [
+            ...container.querySelectorAll(".card[data-action-id]:not(.dragging)"),
+        ];
+        let closest = { offset: Number.NEGATIVE_INFINITY, element: null };
+        for (const card of cards) {
+            const box = card.getBoundingClientRect();
+            // Use vertical midpoint primarily; grid wraps so this is a good-enough heuristic
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) {
+                closest = { offset, element: card };
+            }
+        }
+        return closest.element;
+    }
+
+    persistCardOrder() {
+        const container = this.domUtils.getElementById("actionsdisplay");
+        if (!container) return;
+        const domOrder = [
+            ...container.querySelectorAll(".card[data-action-id]"),
+        ].map((c) => c.dataset.actionId);
+        const state = this.state.getState();
+        // Keep any chosenActions entries that don't render as cards here
+        // (e.g. base/modifier lookups) in their existing relative order, appended after.
+        const hidden = state.chosenActions.filter((a) => !domOrder.includes(a));
+        this.state.updateState({ chosenActions: [...domOrder, ...hidden] });
     }
 
     displayCharacterName(name) {
@@ -1120,7 +1216,7 @@ class BuildSheet {
 
     generateActionCard(action, state, masteries) {
         // Don't show downcast indicators by default - they only appear when mastery is clicked
-        return `<div class="card" id="${action.lookup}final" style="border-color: ${action.color}">
+        return `<div class="card" id="${action.lookup}final" data-action-id="${action.lookup}" style="border-color: ${action.color}">
       ${this.generateActionCardContent(action, state, masteries)}
     </div>`;
     }
@@ -1699,8 +1795,8 @@ class BuildSheet {
     }
 
     getApplicableMasteries(action, state, masteries) {
-        if (action.lookup === "evolve" || action.lookup === "attack" || action.lookup === "imbue") {
-            // Evolve, Attack, and Imbue allow any non-alter mastery
+        if (action.lookup === "evolve" || action.lookup === "attack" || action.lookup === "imbue" || action.lookup === "hyper-insight") {
+            // Evolve, Attack, Imbue, and Hyper Insight allow any non-alter mastery
             return state.chosenMasteries.filter((masteryId) => {
                 const mastery = masteries.find((m) => m.lookup === masteryId);
                 return mastery && mastery.primaryRole !== "alter";
@@ -1742,6 +1838,7 @@ class BuildSheet {
                     action.lookup !== "attack" &&
                     action.lookup !== "evolve" &&
                     action.lookup !== "imbue" &&
+                    action.lookup !== "hyper-insight" &&
                     this.isActionDowncast(action, mastery);
                 const downcastClass = isDowncast ? " downcast" : "";
                 const downcastIndicator = isDowncast
@@ -2452,6 +2549,26 @@ function clickMastery(element) {
                 return; // Don't do normal mastery replacement for Evolve
             }
 
+            // Hyper Insight - keep MR at Hyper Sense rank, append Imbue (BreakType)
+            const hyperInsightElement = cardElement.querySelector('[data-action="hyper-insight"]');
+            if (hyperInsightElement) {
+                const hyperSenseRank = buildSheetInstance.calculations.getMasteryRankByLookup(state, "hyper-sense");
+                if (hyperSenseRank > 0 && masteryReplace) {
+                    masteryReplace.innerHTML = getRankLabel(hyperSenseRank);
+                }
+                if (rollCodeElement) {
+                    // Remove any existing Imbue suffix first
+                    rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(
+                        / · Imbue \([^)]+\)/g,
+                        "",
+                    );
+                    if (mastery && mastery.breakType) {
+                        rollCodeElement.innerHTML += ` · Imbue (${capitalize(mastery.breakType)})`;
+                    }
+                }
+                return; // Don't do normal mastery replacement for Hyper Insight
+            }
+
             // Update the spans FIRST, then update the command
             if (masteryReplace) {
                 masteryReplace.innerHTML = rankLetter;
@@ -2487,6 +2604,22 @@ function clickMastery(element) {
                 mastery,
             );
         }
+    }
+}
+
+function toggleCompact(element) {
+    const container = document.getElementById("builddisplay");
+    if (!container) return;
+    const nowCompact = container.classList.toggle("compact");
+    element.classList.toggle("active", nowCompact);
+    try {
+        if (nowCompact) {
+            localStorage.setItem("tsbuilder_compact", "1");
+        } else {
+            localStorage.removeItem("tsbuilder_compact");
+        }
+    } catch (e) {
+        // Ignore localStorage write errors (private mode, etc.)
     }
 }
 
