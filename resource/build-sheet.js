@@ -258,16 +258,24 @@ class BuildSheet {
         const cards = [
             ...container.querySelectorAll(".card[data-action-id]:not(.dragging)"),
         ];
-        let closest = { offset: Number.NEGATIVE_INFINITY, element: null };
+        // Grid wraps into rows/columns, so pick the card whose center is
+        // nearest the pointer (2D), then insert before it or after it based on
+        // which horizontal half the pointer is in.
+        let nearest = null;
+        let nearestDist = Number.POSITIVE_INFINITY;
         for (const card of cards) {
             const box = card.getBoundingClientRect();
-            // Use vertical midpoint primarily; grid wraps so this is a good-enough heuristic
-            const offset = y - box.top - box.height / 2;
-            if (offset < 0 && offset > closest.offset) {
-                closest = { offset, element: card };
+            const cx = box.left + box.width / 2;
+            const cy = box.top + box.height / 2;
+            const dist = Math.hypot(x - cx, y - cy);
+            if (dist < nearestDist) {
+                nearestDist = dist;
+                nearest = { card, cx };
             }
         }
-        return closest.element;
+        if (!nearest) return null;
+        // Pointer left of the card's center -> drop before it, else after it.
+        return x < nearest.cx ? nearest.card : nearest.card.nextElementSibling;
     }
 
     persistCardOrder() {
