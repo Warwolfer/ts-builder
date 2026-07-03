@@ -52,19 +52,30 @@ inlines real terrarp icons as data URIs). `src/template.js` must reproduce it:
 - **Row 2 — Saves + Gear:** compact pills (`Fort +30`, `Ref +15`, `Will +10`,
   `WPN A`, `ARM HEAVY B`, `ACC C`). Armor pill includes the armor **type**.
   Label and value share font-size 11px + `line-height:1` so they align.
-- **Row 3 — Actions:** full-width row of compact pills, each with a
-  **role-colored bottom border** (same role palette as masteries). All actions
-  on one line.
+- **Row 3 — Actions:** full-width row of compact pills, each with a bottom
+  border in the action's own **type color** (`action.color` from `actions.js`).
+  - **Exclude universal actions** available to everyone: lookups `attack` and
+    `rush` (armor-granted actions are not part of `chosenActions` — they come
+    from armor abilities — so nothing extra to filter; extend the exclude set if
+    that changes).
+  - **Abbreviate** leading words in action names: `Power ` → `P. `, `Ultra ` →
+    `U. `, `Special ` → `Sp. ` (e.g. "Special Burst Attack" → "Sp. Burst
+    Attack", "Power Buff" → "P. Buff", "Ultra Protect" → "U. Protect").
 - **Rank / value colors:** by builder rank color (S `#fbbf24`, A `#fb923c`,
   B `#f472b6`, C `#4ade80`, D `#60a5fa`) by default.
 
-### Render parameter — `ranksWhite` (toggle)
-The renderer MUST accept an optional flag to draw all ranks and save/gear
-numbers **plain white** instead of the rank colors. Surface it in the image URL,
-e.g. `/embed/{code}.webp?mono=1` (query flag; default off = colored ranks). Keep
-the flag part of the cache key (`sha256(code + "|mono=" + flag)`) so the two
-variants cache independently. Deliverable A's BBCode builder can later append
-the flag if the user wants the white variant; default emits no flag.
+### Render parameters (query flags, all default off)
+The renderer MUST accept these optional flags on the image URL; each is folded
+into the cache key so variants cache independently
+(`sha256(code + "|mono=" + m + "|flat=" + f)`):
+
+- **`mono=1`** — draw all ranks and save/gear numbers **plain white** instead of
+  the rank colors.
+- **`flat=1`** — render action pills **without the type-colored bottom border**
+  (drop the border entirely; pill keeps its panel background).
+
+Deliverable A's BBCode builder can append these flags later if the user wants a
+variant; default emits none.
 
 ## Deferred (design later, not in this spec)
 

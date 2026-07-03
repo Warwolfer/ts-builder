@@ -15,8 +15,12 @@
 - Fully stateless — **no disk writes at all** (no cache dir). In-memory LRU + in-flight dedupe only.
 - Image: transparent background, dark-mode only, **738px** wide, compact. Layout = "Design 4" — reference `docs/superpowers/assets/embed-mockup-design4.html` in `ts-builder` (copy it into the new repo as `reference/design4.html`).
 - Content: mastery icons+ranks, expertise icons+ranks, saves, gear (armor shows its **type**), action names. **No** character name, **no** avatar. The server never fetches user-supplied URLs — only `mastery.image` / `expertise.image` values from vendored static data.
+- **Action filtering + abbreviation:** exclude universal-action lookups `attack` and `rush`. Abbreviate leading words in action names: `Power ` → `P. `, `Ultra ` → `U. `, `Special ` → `Sp. `.
 - Success responses: `Content-Type: image/webp`, `Cache-Control: public, max-age=31536000, immutable`. Error/invalid responses: `Cache-Control: no-store`, status 200, static placeholder image.
-- Render param `mono` (query `?mono=1`): draws ranks + save/gear numbers plain white instead of rank colors. Default off (colored). Part of the cache key.
+- Render params (query flags, default off, both folded into the cache key):
+  - `mono=1` — ranks + save/gear numbers plain white instead of rank colors.
+  - `flat=1` — action pills rendered **without** the type-colored bottom border.
+  - Cache key: `sha256(code + "|mono=" + m + "|flat=" + f)`.
 - Reference spec: `ts-builder/docs/superpowers/specs/2026-07-03-build-embed-image-design.md`.
 
 ### Palette (verbatim, from the builder)
@@ -442,10 +446,16 @@ test("model gear: armor carries its type", () => {
   assert.strictEqual(arm.rank, "B"); // rank index 3 -> "B"
 });
 
-test("model actions have name + color", () => {
+test("model actions: excluded universals dropped, names abbreviated", () => {
   const m = buildModel(FIXTURE);
+  // fixture has 11 actions, none are attack/rush, so all 11 remain
   assert.strictEqual(m.actions.length, 11);
   assert.ok(m.actions.every((a) => a.name && /^#/.test(a.color)));
+  const names = m.actions.map((a) => a.name);
+  assert.ok(names.includes("U. Protect")); // Ultra Protect
+  assert.ok(names.includes("P. Buff")); // Power Buff
+  assert.ok(names.includes("Sp. Burst Attack")); // Special Burst Attack
+  assert.ok(!names.includes("Attack") && !names.includes("Rush"));
 });
 
 test("bad code throws InvalidBuildError", () => {
@@ -513,10 +523,18 @@ function buildModel(code) {
     { key: "ACC", type: null, rank: bd.getRankLabel(d.accessoryRank) },
   ];
 
-  const actions = (d.chosenActions || []).map((lookup) => {
-    const o = A.get(lookup) || {};
-    return { name: o.name || lookup, color: o.color || "#555555" };
-  });
+  const EXCLUDED = new Set(["attack", "rush"]); // universal actions
+  const abbr = (name) =>
+    name
+      .replace(/^Power /, "P. ")
+      .replace(/^Ultra /, "U. ")
+      .replace(/^Special /, "Sp. ");
+  const actions = (d.chosenActions || [])
+    .filter((lookup) => !EXCLUDED.has(lookup))
+    .map((lookup) => {
+      const o = A.get(lookup) || {};
+      return { name: abbr(o.name || lookup), color: o.color || "#555555" };
+    });
 
   return { masteries, expertise, saves, gear, actions };
 }
@@ -617,7 +635,7 @@ git commit -m "feat: in-memory icon fetch cache returning data URIs"
 
 **Interfaces:**
 - Consumes: model (Task 3), `getIconDataUri` (Task 4), palette (`rankColor`).
-- Produces: `async renderWebp(model, { mono=false }) -> Buffer` (a WebP with alpha).
+- Produces: `async renderWebp(model, { mono=false, flat=false }) -> Buffer` (a WebP with alpha).
 
 - [ ] **Step 1: Add bundled fonts**
 
@@ -655,6 +673,12 @@ test("mono variant also renders a WebP", async () => {
   const buf = await renderWebp(m, { mono: true });
   assert.ok(isWebp(buf));
 });
+
+test("flat variant (no action border) also renders a WebP", async () => {
+  const m = await buildModel(FIXTURE);
+  const buf = await renderWebp(m, { flat: true });
+  assert.ok(isWebp(buf));
+});
 ```
 
 - [ ] **Step 3: Run test — expect fail**
@@ -674,7 +698,7 @@ const { getIconDataUri } = require("./icons.js");
 const el = (type, style, children) => ({ type, props: { style, children } });
 const text = (s) => s;
 
-async function template(model, { mono }) {
+async function template(model, { mono, flat }) {
   const rankInk = (letter) => (mono ? "#ffffff" : rankColor(letter));
 
   // Preload all icon data URIs (parallel, cached).
@@ -774,7 +798,7 @@ async function template(model, { mono }) {
         marginBottom: 6,
         borderRadius: 6,
         backgroundColor: "#232937",
-        borderBottom: `2px solid ${a.color}`,
+        borderBottom: flat ? "2px solid transparent" : `2px solid ${a.color}`,
         color: "#aeb6c6",
         fontSize: 11,
       },
@@ -827,7 +851,7 @@ const fonts = [
 const WIDTH = 738;
 
 async function renderWebp(model, opts = {}) {
-  const tree = await template(model, { mono: !!opts.mono });
+  const tree = await template(model, { mono: !!opts.mono, flat: !!opts.flat });
   const svg = await satori(tree, { width: WIDTH, fonts });
   const png = new Resvg(svg, {
     background: "rgba(0,0,0,0)", // transparent
@@ -1007,11 +1031,13 @@ test("bad code returns placeholder with no-store, still 200", async () => {
   await app.close();
 });
 
-test("mono variant differs from default and caches separately", async () => {
+test("mono + flat variants each render a webp", async () => {
   const app = buildServer();
-  const a = await app.inject({ method: "GET", url: `/embed/${encodeURIComponent(FIXTURE)}.webp` });
-  const b = await app.inject({ method: "GET", url: `/embed/${encodeURIComponent(FIXTURE)}.webp?mono=1` });
-  assert.ok(isWebp(a.rawPayload) && isWebp(b.rawPayload));
+  const base = `/embed/${encodeURIComponent(FIXTURE)}.webp`;
+  const a = await app.inject({ method: "GET", url: base });
+  const b = await app.inject({ method: "GET", url: base + "?mono=1" });
+  const c = await app.inject({ method: "GET", url: base + "?flat=1" });
+  assert.ok(isWebp(a.rawPayload) && isWebp(b.rawPayload) && isWebp(c.rawPayload));
   await app.close();
 });
 ```
@@ -1053,7 +1079,9 @@ function buildServer() {
 
   app.get("/embed/:code.webp", async (req, reply) => {
     const raw = req.params.code;
-    const mono = req.query.mono === "1" || req.query.mono === "true";
+    const truthy = (v) => v === "1" || v === "true";
+    const mono = truthy(req.query.mono);
+    const flat = truthy(req.query.flat);
 
     if (typeof raw !== "string" || raw.length > 4096) {
       reply.header("Content-Type", "image/webp").header("Cache-Control", "no-store");
@@ -1061,12 +1089,12 @@ function buildServer() {
     }
 
     const code = decodeURIComponent(raw);
-    const key = sha(code + "|mono=" + (mono ? "1" : "0"));
+    const key = sha(code + "|mono=" + (mono ? "1" : "0") + "|flat=" + (flat ? "1" : "0"));
 
     try {
       const buf = await getOrRender(key, async () => {
         const model = buildModel(code); // throws InvalidBuildError
-        return renderWebp(model, { mono });
+        return renderWebp(model, { mono, flat });
       });
       reply.header("Content-Type", "image/webp").header("Cache-Control", IMMUTABLE);
       return reply.send(buf);
@@ -1136,8 +1164,9 @@ git commit -m "docs: README with deploy + vendoring notes"
 - Separate repo, vendored decode/data → Tasks 1–2. ✓
 - No-disk stateless + LRU + in-flight dedupe → Task 6, wired Task 7. ✓
 - immutable header on success, no-store on invalid, 200 placeholder → Task 7. ✓
-- `mono` render param, part of cache key → Tasks 5 & 7. ✓
-- Design 4 layout (transparent, 738px, 32px role-ring icons + corner rank badge, save/gear pills w/ armor type, action pills w/ role-color bottom border, rank colors) → Task 5 template + palette. ✓
+- `mono` + `flat` render params, both part of cache key → Tasks 5 & 7. ✓
+- Action filtering (`attack`/`rush` excluded) + abbreviation (Power→P., Ultra→U., Special→Sp.) → Task 3 model + test. ✓
+- Design 4 layout (transparent, 738px, 32px role-ring icons + corner rank badge, save/gear pills w/ armor type, action pills w/ type-color bottom border, rank colors) → Task 5 template + palette. ✓
 - No name/avatar; icons only from static `.image` by lookup (no SSRF) → Task 3 model, Task 4 icons. ✓
 - Saves via vendored calculations (matches builder) → Task 3, verified against fixture (60/15/30). ✓
 
