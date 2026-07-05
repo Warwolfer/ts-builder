@@ -151,12 +151,15 @@ const BuildEncoder = {
   // character-data segment omitted (name/title/notes/thread code/banner/avatar/
   // ng). Returns just the encoded blob (the part after "#import."), not a URL.
   generateEmbedCode(state) {
-    const url = this.generateCompactBuildCode(state, "https://terrarp.com/build/", {
-      omitCharData: true,
+    // Dedicated bit-packed embed format (see shared/embedcode.js) — far shorter
+    // than the build code and carries only what the embed image needs.
+    const EmbedCode =
+      typeof window !== "undefined" ? window.EmbedCode : require("./embedcode.js");
+    return EmbedCode.encode(state, {
+      masteries: window.masteries || window.masterylist,
+      expertise: window.expertise || window.expertiselist,
+      actionlist: window.actionlist,
     });
-    const b64 = url.split("#import.")[1] || "";
-    // base64url so the code is URL-path-safe (no + / =) and needs no encoding.
-    return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   },
 
   // Generate JSON-based build code (most compact and reliable)
