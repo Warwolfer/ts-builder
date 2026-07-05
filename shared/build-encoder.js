@@ -154,7 +154,9 @@ const BuildEncoder = {
     const url = this.generateCompactBuildCode(state, "https://terrarp.com/build/", {
       omitCharData: true,
     });
-    return url.split("#import.")[1] || "";
+    const b64 = url.split("#import.")[1] || "";
+    // base64url so the code is URL-path-safe (no + / =) and needs no encoding.
+    return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   },
 
   // Generate JSON-based build code (most compact and reliable)

@@ -1932,8 +1932,8 @@ class BuildSheet {
         // links back to the interactive build. The image code omits character
         // data (name/title/notes/thread code) the embedder doesn't need, so
         // it's much shorter than the full build code.
-        const code = this.buildEncoder.generateEmbedCode(state);
-        const embedUrl = `${EMBED_BASE}/embed/${encodeURIComponent(code)}.webp`;
+        const code = this.buildEncoder.generateEmbedCode(state); // base64url, path-safe
+        const embedUrl = `${EMBED_BASE}/embed/${code}.webp`;
         const bbcode = code
             ? `[URL=${buildURL}][IMG]${embedUrl}[/IMG][/URL]`
             : "";
