@@ -104,7 +104,17 @@ const BuildEncoder = {
       charParts.push("b:" + shortBanner);
     }
     if (state.avatarUrl) {
-      charParts.push("a:" + encodeURIComponent(state.avatarUrl));
+      // Store just the user id when the avatar is a standard terrarp avatar URL
+      // (https://terrarp.com/data/avatars/{size}/{shard}/{id}.jpg?ts). The full
+      // URL is reconstructed on decode. Fall back to the encoded URL otherwise.
+      const avatarMatch = state.avatarUrl.match(
+        /\/avatars\/[^\/]+\/[^\/]+\/(\d+)\.(?:jpg|png|gif|webp)/i,
+      );
+      charParts.push(
+        avatarMatch
+          ? "a:" + avatarMatch[1]
+          : "a:" + encodeURIComponent(state.avatarUrl),
+      );
     }
     if (ng === 1) {
       charParts.push("ng:1");
@@ -411,8 +421,17 @@ const BuildEncoder = {
             threadCode = part.substring(2).replace(/_/gi, " ");
           if (part.startsWith("note:"))
             note = decodeURIComponent(part.substring(5));
-          if (part.startsWith("a:"))
-            avatarUrl = decodeURIComponent(part.substring(2));
+          if (part.startsWith("a:")) {
+            const av = part.substring(2);
+            if (/^\d+$/.test(av)) {
+              // New compact form: bare user id -> reconstruct medium avatar URL.
+              const shard = Math.floor(parseInt(av, 10) / 1000);
+              avatarUrl = `https://terrarp.com/data/avatars/m/${shard}/${av}.jpg`;
+            } else {
+              // Legacy form: full encoded URL.
+              avatarUrl = decodeURIComponent(av);
+            }
+          }
           if (part.startsWith("ng:")) ng = parseInt(part.substring(3)) || 0;
           if (part.startsWith("b:")) {
             const shortBanner = part.substring(2);
