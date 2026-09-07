@@ -1,6 +1,6 @@
 // Base URL of the embed image server (Deliverable B). Local testing default;
 // change to the production domain when deployed.
-const EMBED_BASE = "http://localhost:8080";
+const EMBED_BASE = "https://cv.terrarp.com";
 
 // Initialize global objects
 window.buildState = window.buildState || new BuildState();
@@ -348,6 +348,7 @@ class BuildSheet {
         // (e.g. base/modifier lookups) in their existing relative order, appended after.
         const hidden = state.chosenActions.filter((a) => !domOrder.includes(a));
         this.state.updateState({ chosenActions: [...domOrder, ...hidden] });
+        this.generateBuildCodes(this.state.getState());
     }
 
     displayCharacterName(name) {
@@ -1430,372 +1431,20 @@ class BuildSheet {
     generateToggleButtons(action) {
         const buttons = [];
 
-        // Define button configurations for specific actions
-        const buttonConfigs = {
-            "ultra-counter": [
-                {
-                    text: "Melee",
-                    onclick: "toggleMelee",
-                    suffix: "Melee",
-                },
-            ],
-            "reckless-attack": [
-                {
-                    text: "Risky",
-                    onclick: "toggleRisky",
-                    suffix: "Risky Mode",
-                    hasInput: true,
-                },
-            ],
-            "area-effect": [
-                {
-                    text: "Splash",
-                    onclick: "toggleSplash",
-                    suffix: "Splash",
-                },
-            ],
-            range: [
-                {
-                    text: "Extend",
-                    onclick: "toggleExtend",
-                    suffix: "Extend",
-                },
-            ],
-            versatile: [
-                {
-                    text: "Simulcast",
-                    onclick: "toggleSimulcast",
-                    suffix: "Simulcast",
-                },
-            ],
-            heal: [
-                {
-                    text: "Multi",
-                    onclick: "toggleAoE",
-                    suffix: "AoE",
-                },
-                {
-                    text: "Versatile",
-                    onclick: "toggleVersatile",
-                    suffix: "Versatile",
-                },
-                {
-                    text: "Simulcast",
-                    onclick: "toggleSimulcast",
-                    suffix: "Simulcast",
-                },
-            ],
-            buff: [
-                {
-                    text: "Multi",
-                    onclick: "toggleAoE",
-                    suffix: "AoE",
-                },
-                {
-                    text: "Versatile",
-                    onclick: "toggleVersatile",
-                    suffix: "Versatile",
-                },
-                {
-                    text: "Simulcast",
-                    onclick: "toggleSimulcast",
-                    suffix: "Simulcast",
-                },
-            ],
-            "power-heal": [
-                {
-                    text: "Multi",
-                    onclick: "toggleAoE",
-                    suffix: "AoE",
-                },
-                {
-                    text: "Versatile",
-                    onclick: "toggleVersatile",
-                    suffix: "Versatile",
-                },
-                {
-                    text: "Simulcast",
-                    onclick: "toggleSimulcast",
-                    suffix: "Simulcast",
-                },
-            ],
-            "power-buff": [
-                {
-                    text: "Multi",
-                    onclick: "toggleAoE",
-                    suffix: "AoE",
-                },
-                {
-                    text: "Versatile",
-                    onclick: "toggleVersatile",
-                    suffix: "Versatile",
-                },
-                {
-                    text: "Simulcast",
-                    onclick: "toggleSimulcast",
-                    suffix: "Simulcast",
-                },
-            ],
-            aid: [
-                {
-                    text: "Assist",
-                    onclick: "toggleAssist",
-                    suffix: "Assist",
-                },
-            ],
-            evolve: [
-                {
-                    text: "Shift",
-                    onclick: "toggleShift",
-                    suffix: "Shift",
-                },
-            ],
-            adapt: [
-                {
-                    text: "Prowl",
-                    onclick: "toggleProwl",
-                    suffix: "Prowl",
-                    mutuallyExclusive: ["Fend"],
-                },
-                {
-                    text: "Fend",
-                    onclick: "toggleFend",
-                    suffix: "Fend",
-                    mutuallyExclusive: ["Prowl"],
-                },
-            ],
-            regenerate: [
-                {
-                    text: "Power",
-                    onclick: "togglePowerRegenerate",
-                    suffix: "Power",
-                },
-            ],
-            "hyper-instinct": [
-                {
-                    text: "Ultra",
-                    onclick: "toggleUltraInstinct",
-                    suffix: "Ultra",
-                },
-            ],
-            "hyper-insight": [
-                {
-                    text: "Ultra",
-                    onclick: "toggleUltraInsight",
-                    suffix: "Ultra",
-                },
-            ],
-            engage: [
-                {
-                    text: "Redo",
-                    onclick: "toggleRedo",
-                    suffix: "Redo",
-                    mutuallyExclusive: ["Accretion"],
-                },
-                {
-                    text: "Accretion",
-                    onclick: "toggleAccretion",
-                    suffix: "Accretion",
-                    mutuallyExclusive: ["Redo"],
-                },
-            ],
-            guardian: [
-                {
-                    text: "Amplify",
-                    onclick: "toggleAmplifyAura",
-                    suffix: "Amplify",
-                },
-            ],
-            savior: [
-                {
-                    text: "Share",
-                    onclick: "toggleShareAura",
-                    suffix: "Share",
-                },
-            ],
-            "follow-up": [],
-            charge: [
-                {
-                    text: "Charging",
-                    onclick: "toggleCharging",
-                    suffix: "Charging",
-                    mutuallyExclusive: ["Release"],
-                },
-                {
-                    text: "Release",
-                    onclick: "toggleRelease",
-                    suffix: "Release",
-                    hasInput: true,
-                    inputPlaceholder: "Charge Value",
-                    updateFunction: "updateReleaseSuffix",
-                    mutuallyExclusive: ["Charging"],
-                },
-            ],
-            rage: [
-                {
-                    text: "Frenzy",
-                    onclick: "toggleFrenzy",
-                    suffix: "Frenzy",
-                },
-            ],
-            momentum: [
-                {
-                    text: "Blitz",
-                    onclick: "toggleBlitz",
-                    suffix: "Blitz",
-                },
-            ],
-            torment: [
-                {
-                    text: "Ultra",
-                    onclick: "toggleUltra",
-                    suffix: "Ultra",
-                    mutuallyExclusive: ["Radial"],
-                },
-                {
-                    text: "Radial",
-                    onclick: "toggleRadial",
-                    suffix: "Radial",
-                    mutuallyExclusive: ["Ultra"],
-                },
-            ],
-            defile: [
-                {
-                    text: "Ally",
-                    onclick: "toggleAlly",
-                    suffix: "Ally",
-                    mutuallyExclusive: ["Enemy"],
-                },
-                {
-                    text: "Enemy",
-                    onclick: "toggleEnemy",
-                    suffix: "Enemy",
-                    mutuallyExclusive: ["Ally"],
-                },
-                {
-                    text: "Vilify",
-                    onclick: "toggleVilify",
-                    suffix: "Vilify",
-                },
-            ],
-            vitiate: [
-                {
-                    text: "Amplify",
-                    onclick: "toggleAmplify",
-                    suffix: "Amplify",
-                    mutuallyExclusive: ["Radial"],
-                },
-                {
-                    text: "Radial",
-                    onclick: "toggleRadialVitiate",
-                    suffix: "Radial",
-                    mutuallyExclusive: ["Amplify"],
-                },
-            ],
-            duelist: [
-                {
-                    text: "Challenge",
-                    onclick: "toggleChallenge",
-                    suffix: "Challenge",
-                },
-            ],
-            sharpshooter: [
-                {
-                    text: "Snipe",
-                    onclick: "toggleSnipe",
-                    suffix: "Snipe",
-                },
-            ],
-            acrimony: [
-                {
-                    text: "Meliorate",
-                    onclick: "toggleMeliorate",
-                    suffix: "Meliorate",
-                },
-            ],
-            locomote: [
-                {
-                    text: "Switch",
-                    onclick: "toggleSwitch",
-                    suffix: "Switch",
-                },
-            ],
-            profane: [
-                {
-                    text: "Apostasy",
-                    onclick: "toggleApostasy",
-                    suffix: "Apostasy",
-                },
-            ],
-            rover: [
-                {
-                    text: "Rove",
-                    onclick: "toggleRove",
-                    suffix: "Rove",
-                },
-            ],
-            gift: [
-                {
-                    text: "Ultra",
-                    onclick: "toggleUltraGift",
-                    suffix: "Ultra",
-                },
-            ],
-            cleanse: [
-                {
-                    text: "Cure",
-                    onclick: "toggleCure",
-                    suffix: "Cure",
-                },
-            ],
-            overdrive: [],
-        };
-
-        // Define input configurations for actions that need custom inputs
-        const inputConfigs = {
-            imbue: {
-                target: true,
-            },
-            revive: {
-                target: true,
-                maxhp: true,
-            },
-            "follow-up": {
-                target: true,
-            },
-            rage: {
-                damageTaken: true,
-            },
-            overdrive: {
-                overdriveDamage: true,
-            },
-            mark: {
-                target: true,
-            },
-            momentum: {
-                speed: true,
-            },
-            acceleration: {
-                speed: true,
-            },
-            locomote: {
-                target: true,
-            },
-        };
-
-        const configs = buttonConfigs[action.lookup];
-        const inputs = inputConfigs[action.lookup];
+        const configs = window.actionToggleButtons[action.lookup];
+        const inputs = window.actionToggleInputs[action.lookup];
 
         if (configs) {
             configs.forEach((config) => {
                 let buttonHtml = `<button class="risky-toggle" onclick="${config.onclick}('${action.lookup}', '${config.suffix}')">${config.text}</button>`;
 
-                // Add input field for buttons that have hasInput
+                // Add input field for buttons that have hasInput. The handlers
+                // read the input and its card off the event, so they take no
+                // arguments.
                 if (config.hasInput) {
                     const placeholder = config.inputPlaceholder || "Modifiers";
-                    const updateFunction = config.updateFunction || "updateRiskySuffix";
-                    const inputClass = `risky-input ${config.suffix.toLowerCase()}-input`;
-                    buttonHtml += `<input type="text" class="${inputClass}" placeholder="${placeholder}" style="display: none;" oninput="${updateFunction}('${action.lookup}', '${config.suffix}')" onkeyup="${updateFunction}('${action.lookup}', '${config.suffix}')">`;
+                    const inputClass = `risky-input ${window.DOMUtils.slugify(config.suffix)}-input`;
+                    buttonHtml += `<input type="text" class="${inputClass}" placeholder="${placeholder}" style="display: none;" oninput="${config.updateFunction}()" onkeyup="${config.updateFunction}()">`;
                 }
 
                 buttons.push(buttonHtml);
@@ -1923,6 +1572,38 @@ class BuildSheet {
         return html;
     }
 
+    // Embed flag state — persisted in localStorage
+    getEmbedFlags() {
+        try {
+            const raw = localStorage.getItem("ts_embed_flags");
+            const parsed = raw ? JSON.parse(raw) : {};
+            return {
+                flat:            !!parsed.flat,
+                mono:            !!parsed.mono,
+                gold:            !!parsed.gold,
+                center:          !!parsed.center,
+                compact_mastery: !!parsed.compact_mastery,
+                // on-by-default: undefined in storage → true
+                mastery:   parsed.mastery   !== false,
+                expertise: parsed.expertise !== false,
+                saves:     parsed.saves     !== false,
+                equipment: parsed.equipment !== false,
+                actions:   parsed.actions   !== false,
+            };
+        } catch (_) {
+            return {
+                flat: false, mono: false, gold: false, center: false, compact_mastery: false,
+                mastery: true, expertise: true, saves: true, equipment: true, actions: true,
+            };
+        }
+    }
+
+    setEmbedFlag(flag, value) {
+        const flags = this.getEmbedFlags();
+        flags[flag] = !!value;
+        localStorage.setItem("ts_embed_flags", JSON.stringify(flags));
+    }
+
     generateBuildCodes(state) {
         // Generate compact build URL
         const buildURL = this.buildEncoder.generateCompactBuildCode(state);
@@ -1933,20 +1614,35 @@ class BuildSheet {
         // data (name/title/notes/thread code) the embedder doesn't need, so
         // it's much shorter than the full build code.
         const code = this.buildEncoder.generateEmbedCode(state); // base64url, path-safe
-        const embedUrl = `${EMBED_BASE}/embed/${code}.webp`;
-        const bbcode = code
-            ? `[URL=${buildURL}][IMG]${embedUrl}[/IMG][/URL]`
-            : "";
+        const flags = this.getEmbedFlags();
+        const params = [];
+        // off-by-default: include when active
+        ["flat", "mono", "gold", "center", "compact_mastery"].forEach((f) => {
+            if (flags[f]) params.push(`${f}=1`);
+        });
+        // on-by-default: include only when turned off
+        ["mastery", "expertise", "saves", "equipment", "actions"].forEach((f) => {
+            if (!flags[f]) params.push(`${f}=0`);
+        });
+        const embedUrl = `${EMBED_BASE}/embed/${code}.webp${params.length ? "?" + params.join("&") : ""}`;
+        const bbcode = code ? `[URL=${buildURL}][IMG]${embedUrl}[/IMG][/URL]` : "";
+
+        // Show live preview image; hidden textarea holds BBCode for copy button
+        const preview = this.domUtils.getElementById("embed-preview");
+        if (preview && code) preview.src = embedUrl;
         this.domUtils.setValue(
             this.domUtils.getElementById("embed-code"),
             bbcode,
         );
+
+        // Sync toggle button active states
+        this.domUtils.querySelectorAll(".embed-flag-btn").forEach((btn) => {
+            btn.classList.toggle("active", !!flags[btn.dataset.flag]);
+        });
     }
 
     escapeHtml(str) {
-        const div = document.createElement("div");
-        div.textContent = str == null ? "" : String(str);
-        return div.innerHTML;
+        return this.domUtils.escapeHtml(str);
     }
 
     replaceCharacterName(characterName) {
@@ -2379,6 +2075,17 @@ class BuildSheet {
     }
 
     setupEventListeners() {
+        // Embed flag toggles — persist in localStorage, regenerate BBCode on change
+        this.domUtils.querySelectorAll(".embed-flag-btn").forEach((btn) => {
+            this.domUtils.addEventListener(btn, "click", () => {
+                const flag = btn.dataset.flag;
+                const current = this.getEmbedFlags()[flag];
+                this.setEmbedFlag(flag, !current);
+                const state = this.state.getState();
+                this.generateBuildCodes(state);
+            });
+        });
+
         // Copy buttons
         this.domUtils.querySelectorAll(".copy-button").forEach((button) => {
             this.domUtils.addEventListener(button, "click", (e) => {
@@ -2805,67 +2512,54 @@ function advantageMastery() { setAdvantageState(".masteryadv", "adv "); }
 function normalMastery() { setAdvantageState(".masteryadv", ""); }
 function disadvantageMastery() { setAdvantageState(".masteryadv", "dis "); }
 
+// Finds the config an action's toggle button was generated from, so handlers
+// can read the same declaration the renderer used.
+function findToggleConfig(actionId, suffix) {
+    const configs = window.actionToggleButtons[actionId] || [];
+    return configs.find((config) => config.suffix === suffix) || null;
+}
+
 // Generic toggle function for action buttons
 function toggleActionButton(actionId, suffix, baseText) {
     const button = event.target;
     const cardElement = button.closest(".card");
     const rollCodeElement = cardElement.querySelector(".rollcode");
-    const inputClass = `.${suffix.toLowerCase()}-input`;
-    const inputElement = cardElement.querySelector(inputClass);
+    const inputElement = cardElement.querySelector(
+        `.${window.DOMUtils.slugify(suffix)}-input`,
+    );
 
     if (!rollCodeElement) return;
 
     const isActive = button.classList.contains("active");
+    const config = findToggleConfig(actionId, suffix);
+    const beforeThreadCode = !!(config && config.beforeThreadCode);
+    let html = rollCodeElement.innerHTML;
 
-    if (isActive) {
-        // Remove active state
-        button.classList.remove("active");
-        button.textContent = baseText;
-        // Hide input if it exists
-        if (inputElement) {
-            inputElement.style.display = "none";
+    button.classList.toggle("active", !isActive);
+    button.textContent = baseText;
+
+    if (inputElement) {
+        inputElement.style.display = isActive ? "none" : "inline-block";
+        if (isActive) {
             inputElement.value = "";
-            // Clear any custom text from reckless attack
-            if (actionId === "reckless-attack") {
-                updateRiskySuffix(actionId);
-            }
-        }
-
-        // Handle different actions differently
-        if (actionId === "reckless-attack") {
-            // For reckless attack, remove ". Risky Mode" suffix
-            const suffixPattern = new RegExp(` · Risky Mode$`);
-            rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(
-                suffixPattern,
-                "",
-            );
+            // Drop the extra modifier the input had spliced into the roll code
+            html = window.RollCodeUtils.setRollExtraMod(html, "");
         } else {
-            // For other actions, remove suffix from the end of roll code
-            const suffixPattern = new RegExp(` · ${suffix}`);
-            rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(
-                suffixPattern,
-                "",
-            );
-        }
-    } else {
-        // Add active state
-        button.classList.add("active");
-        button.textContent = baseText;
-        // Show input if it exists
-        if (inputElement) {
-            inputElement.style.display = "inline-block";
             inputElement.focus();
         }
-
-        // Handle different actions differently
-        if (actionId === "reckless-attack") {
-            // For reckless attack, add ". Risky Mode" suffix at the end
-            rollCodeElement.innerHTML += ` · Risky Mode`;
-        } else {
-            // For other actions, add suffix to the end of roll code
-            rollCodeElement.innerHTML += ` · ${suffix}`;
-        }
     }
+
+    if (isActive) {
+        html = beforeThreadCode
+            ? window.RollCodeUtils.removeRollTag(html, suffix)
+            : html.replace(new RegExp(` · ${suffix}`), "");
+    } else {
+        html = beforeThreadCode
+            ? window.RollCodeUtils.insertRollTag(html, suffix)
+            : `${html} · ${suffix}`;
+    }
+
+    rollCodeElement.innerHTML = html;
 }
 
 // Function to toggle action button without adding/removing suffix (for input-driven suffixes)
@@ -2902,52 +2596,19 @@ function toggleActionButtonNoSuffix(actionId, baseText) {
     }
 }
 
-// Function to update the risky suffix based on input value
-function updateRiskySuffix(actionId) {
+// Splices the extra modifier bought by the Risky free action into the dice half
+// of the roll code, next to (not over) the Lethal/Combat Focus passive modifier.
+function updateRiskyMod() {
     const inputElement = event.target;
     const cardElement = inputElement.closest(".card");
     const rollCodeElement = cardElement.querySelector(".rollcode");
 
-    if (!rollCodeElement) {
-        console.log("No roll code element found");
-        return;
-    }
+    if (!rollCodeElement) return;
 
-    const customText = inputElement.value.trim();
-    console.log("Updating risky suffix:", actionId, customText);
-
-    if (actionId === "reckless-attack") {
-        // For reckless attack, insert the custom text before the # symbol
-        const currentHtml = rollCodeElement.innerHTML;
-        console.log("Current HTML:", currentHtml);
-
-        // Target the damagepassivemod span - insert text inside it
-        if (customText) {
-            // Insert custom text inside the damagepassivemod span
-            const updatedHtml = currentHtml.replace(
-                /(<span class="damagepassivemod">)[^<]*(<\/span>)/,
-                `$1${customText}$2 `,
-            );
-            console.log("Updated HTML:", updatedHtml);
-            rollCodeElement.innerHTML = updatedHtml;
-        } else {
-            // Clear the damagepassivemod span
-            const updatedHtml = currentHtml.replace(
-                /(<span class="damagepassivemod">)[^<]*(<\/span>)/,
-                "$1$2",
-            );
-            console.log("Cleaned HTML:", updatedHtml);
-            rollCodeElement.innerHTML = updatedHtml;
-        }
-    } else {
-        // For other actions, use the old suffix replacement method
-        const newSuffix = customText || "Risky Mode";
-        const suffixPattern = / \. [^.]*$/;
-        rollCodeElement.innerHTML = rollCodeElement.innerHTML.replace(
-            suffixPattern,
-            ` . ${newSuffix}`,
-        );
-    }
+    rollCodeElement.innerHTML = window.RollCodeUtils.setRollExtraMod(
+        rollCodeElement.innerHTML,
+        inputElement.value,
+    );
 }
 
 // Function to update the target suffix based on input value
@@ -3229,7 +2890,7 @@ function handleMutualExclusivity(
                 excludedButton.classList.remove("active");
 
                 // Hide the input field for the excluded button
-                const excludedInputClass = `.${excludedSuffix.toLowerCase()}-input`;
+                const excludedInputClass = `.${window.DOMUtils.slugify(excludedSuffix)}-input`;
                 const excludedInput = cardElement.querySelector(excludedInputClass);
                 if (excludedInput) {
                     excludedInput.style.display = "none";

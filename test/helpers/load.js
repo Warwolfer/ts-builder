@@ -19,6 +19,9 @@ function load() {
   }
 
   const files = [
+    "shared/dom-utils.js",
+    "shared/rollcode-utils.js",
+    "resource/action-toggles.js",
     "resource/safecharacters.js",
     "resource/masteries.js",
     "resource/expertise.js",
@@ -45,6 +48,10 @@ function load() {
     masteries: global.window.masteries,
     expertise: global.window.expertise,
     actionlist: global.window.actionlist,
+    DOMUtils: global.window.DOMUtils,
+    RollCodeUtils: global.window.RollCodeUtils,
+    actionToggleButtons: global.window.actionToggleButtons,
+    actionToggleInputs: global.window.actionToggleInputs,
   };
 }
 

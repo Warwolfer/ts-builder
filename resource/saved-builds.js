@@ -2,12 +2,6 @@
 // Renders the saved builds list and wires load / rename / delete actions.
 
 (function () {
-  function escapeHtml(str) {
-    const div = document.createElement("div");
-    div.textContent = str == null ? "" : String(str);
-    return div.innerHTML;
-  }
-
   function render(records) {
     const list = document.getElementById("saved-builds-list");
     if (!list) return;
@@ -20,8 +14,8 @@
     list.innerHTML = records
       .map(
         (r) => `
-        <div class="saved-build-row" data-id="${escapeHtml(r.id)}">
-          <span class="saved-build-name" data-action="load">${escapeHtml(r.name)}</span>
+        <div class="saved-build-row" data-id="${window.DOMUtils.escapeHtml(r.id)}">
+          <span class="saved-build-name" data-action="load">${window.DOMUtils.escapeHtml(r.name)}</span>
           <div class="saved-build-actions">
             <button class="saved-build-edit" data-action="rename" title="Rename">&#9998;</button>
             <button class="saved-build-delete" data-action="delete" title="Delete">&#128465;</button>

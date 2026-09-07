@@ -17,16 +17,18 @@ A web-based character build planner for the TerraSphere RPG system featuring mul
 │   ├── dom-utils.js         # DOM manipulation helpers
 │   ├── calculations.js      # Stat calculations and validations
 │   ├── build-encoder.js     # Build code encoding/decoding
+│   ├── buildpack.js         # v1 bit-packed build code codec
 │   ├── data-loader.js       # Data loading and caching
 │   ├── loading-manager.js   # Loading spinners and status
+│   ├── rollcode-utils.js    # Roll code tag/modifier splicing helpers
 │   └── components/          # Reusable UI components
 ├── resource/                # Data files
 │   ├── masteries.js         # 40+ mastery definitions with roles
 │   ├── expertise.js         # Expertise system definitions
-│   ├── actions.js           # 700+ action definitions
+│   ├── actions.js           # 60+ action definitions
 │   ├── armor-abilities.js   # Equipment abilities by type/rank
 │   ├── build-sheet.js       # Build sheet rendering logic
-│   └── card-templates.js    # Action card templates
+│   └── action-toggles.js    # Per-action toggle buttons and inputs
 └── css/                     # Styling
     ├── app.css              # Main application styles
     ├── build-sheet.css      # Build sheet specific styles

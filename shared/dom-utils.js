@@ -421,6 +421,24 @@ const DOMUtils = {
 
     return cache;
   },
+
+  // Escape text destined for innerHTML. Kept as pure string work rather than a
+  // throwaway element so it is usable before the document exists (and testable
+  // outside a browser).
+  escapeHtml(str) {
+    return (str == null ? "" : String(str))
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  },
+
+  // Turns a human label into one valid class name: "Risky Mode" -> "risky-mode".
+  // Naive `toLowerCase()` leaves the space in, which silently yields a
+  // two-part selector (`.risky mode-input`) that can never match.
+  slugify(label) {
+    return String(label).trim().toLowerCase().replace(/\s+/g, "-");
+  },
 };
 
 // Make available globally

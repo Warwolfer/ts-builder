@@ -163,19 +163,38 @@ const BuildEncoder = {
       charData,            // 10: character data
     ];
 
-    const compactDetails = compactParts.join("|");
-
     // Always use #import for system
     const hashType = "#import.";
 
-    // Encode (handle Unicode)
-    const encodedBuild = btoa(
-      encodeURIComponent(compactDetails).replace(
-        /%([0-9A-F]{2})/g,
-        (match, p1) => String.fromCharCode("0x" + p1),
+    // Opt-in v1 bit-packed format (see shared/buildpack.js). Default stays
+    // legacy: every decoder in the wild must ship the packed reader before any
+    // encoder starts emitting "!" codes.
+    if (opts.pack) {
+      const BuildPack = this._buildPack();
+      const packed = BuildPack.encode(
+        state,
+        {
+          masteries: masteryData,
+          expertise: expertiseData,
+          actionlist: actionData,
+        },
+        charData,
+      );
+      return baseURL + targetPage + hashType + packed;
+    }
+
+    const compactDetails = compactParts.join("|");
+
+    return baseURL + targetPage + hashType + this._toBase64Utf8(compactDetails);
+  },
+
+  // base64 of a string's UTF-8 bytes (btoa alone is latin1-only).
+  _toBase64Utf8(str) {
+    return btoa(
+      encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) =>
+        String.fromCharCode("0x" + p1),
       ),
     );
-    return baseURL + targetPage + hashType + encodedBuild;
   },
 
   // Build code for the forum embed image: same compact format but with the
@@ -232,7 +251,28 @@ const BuildEncoder = {
   },
 
   // Decode build string (JSON or Compact format only)
+  // Resolve the packed codec in both the browser and Node.
+  _buildPack() {
+    if (typeof window !== "undefined" && window.BuildPack) return window.BuildPack;
+    if (typeof require === "function") return require("./buildpack.js");
+    throw new Error("shared/buildpack.js is not loaded");
+  },
+
   decodeBuildString(encodedString) {
+    // The packed marker must be checked BEFORE any atob attempt: "!" is not in
+    // the base64 alphabet, but lenient decoders (notably Node's Buffer) drop it
+    // silently and hand back plausible-looking garbage.
+    const packedInput = String(encodedString).replace(/^#(?:import|compact-import|compact)\./, "");
+    const BuildPack = this._buildPack();
+    if (BuildPack.isPackedCode(packedInput)) {
+      const { segments, charData } = BuildPack.decode(packedInput);
+      const compactResult = this.decodeCompactBuildCode(
+        "#import." + this._toBase64Utf8(segments.concat(charData).join("|")),
+      );
+      if (compactResult.success) return compactResult.data;
+      throw new Error("Invalid packed build code: " + compactResult.error);
+    }
+
     // First try JSON format (most efficient)
     try {
       const decoded = atob(encodedString);

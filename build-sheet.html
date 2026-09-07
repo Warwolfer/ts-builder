@@ -15,7 +15,9 @@
   <script src="shared/dom-utils.js"></script>
   <script src="shared/data-loader.js"></script>
   <script src="shared/calculations.js"></script>
+  <script src="shared/rollcode-utils.js"></script>
   <script src="shared/embedcode.js"></script>
+  <script src="shared/buildpack.js"></script>
   <script src="shared/build-encoder.js"></script>
   <script src="shared/saved-builds-store.js"></script>
   <script src="shared/loading-manager.js"></script>
@@ -27,7 +29,7 @@
   <script src="resource/actions.js"></script>
   <script src="resource/safecharacters.js"></script>
   <script src="resource/armor-abilities.js"></script>
-  <script src="resource/card-templates.js"></script>
+  <script src="resource/action-toggles.js"></script>
   <script src="resource/build-sheet.js"></script>
 </head>
 
@@ -256,9 +258,25 @@
             </div>
             <!-- Points at the local embed server (http://localhost:8080) for testing -->
             <div class="share-option" id="embed-share-option">
-              <label>Embed (forum BBCode):</label>
-              <textarea id="embed-code" readonly></textarea>
-              <button class="copy-button" data-target="embed-code">Copy</button>
+              <div class="embed-label-row">
+                <label>Embed (forum BBCode):</label>
+                <div class="embed-flag-toggles">
+                  <button class="embed-flag-btn" data-flag="flat">Flat</button>
+                  <button class="embed-flag-btn" data-flag="mono">Mono</button>
+                  <button class="embed-flag-btn" data-flag="gold">Gold</button>
+                  <button class="embed-flag-btn" data-flag="center">Center</button>
+                  <button class="embed-flag-btn" data-flag="compact_mastery">Compact M</button>
+                  <span class="embed-flag-separator"></span>
+                  <button class="embed-flag-btn embed-flag-btn--default-on" data-flag="mastery">Mastery</button>
+                  <button class="embed-flag-btn embed-flag-btn--default-on" data-flag="expertise">Expertise</button>
+                  <button class="embed-flag-btn embed-flag-btn--default-on" data-flag="saves">Saves</button>
+                  <button class="embed-flag-btn embed-flag-btn--default-on" data-flag="equipment">Equipment</button>
+                  <button class="embed-flag-btn embed-flag-btn--default-on" data-flag="actions">Actions</button>
+                </div>
+              </div>
+              <img id="embed-preview" class="embed-preview" alt="Build embed preview" />
+              <textarea id="embed-code" class="embed-code-hidden" readonly></textarea>
+              <button class="copy-button" data-target="embed-code">Copy BBCode</button>
             </div>
           </div>
         </div>

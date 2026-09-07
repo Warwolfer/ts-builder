@@ -262,6 +262,14 @@ const expertise = [
     image: "https://terrarp.com/db/expertise/s-voyaging.png",
     types: ["insight", "fitness"],
   },
+  {
+    id: 33,
+    lookup: "mineralogy",
+    name: "Mineralogy",
+    color: "#7d6b8a",
+    image: "https://terrarp.com/db/expertise/s-mineralogy.png",
+    types: ["knowledge", "insight"],
+  },
 ];
 
 // Export to global scope
