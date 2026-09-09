@@ -43,7 +43,14 @@ const PlanQueue = (function () {
             row.manualMod = fields.manualMod;
         }
         if (fields.dismissed) row.dismissed = fields.dismissed.slice();
-        if (fields.uid) row.uid = fields.uid;
+        if (fields.uid) {
+            row.uid = fields.uid;
+            // Keep the counter ahead of any restored id. Stored uids are not
+            // dense after deletions, so a queue that persisted r4,r5,r6 would
+            // otherwise let the next add reuse one of them.
+            const n = parseInt(String(fields.uid).replace(/^r/, ""), 10);
+            if (!isNaN(n) && n >= nextUid) nextUid = n + 1;
+        }
         return row;
     }
 
@@ -61,6 +68,8 @@ const PlanQueue = (function () {
         if (entry.requiresTag && row.tags.indexOf(entry.requiresTag) === -1) return null;
         if (!row.targetSelf) return null;
 
+        // A zero value produces nothing on purpose: every table entry pays 0
+        // at E rank, and a "+0" chip would be noise rather than information.
         const value = window.PlanBuffs.valueFor(entry, row.rankLetter);
         if (!value) return null;
 
@@ -116,7 +125,12 @@ const PlanQueue = (function () {
 
             total += toNumber(row.manualMod);
 
+            // tags and dismissed are cloned, not aliased. Object.assign copies
+            // arrays by reference, which would leave every resolved row sharing
+            // the queue row's arrays — and the renderer writing through to them.
             resolved.push(Object.assign({}, row, {
+                tags: row.tags.slice(),
+                dismissed: row.dismissed.slice(),
                 families: families,
                 chips: chips,
                 total: total,

@@ -132,6 +132,24 @@ test("makeRow fills defaults and assigns a unique id", () => {
     assert.strictEqual(a.manualMod, 0);
 });
 
+test("makeRow keeps its counter ahead of a restored uid", () => {
+    // Stored uids are not dense after deletions: a queue that lost rows can
+    // persist r4, r5, r6, and rebuilding those must not let a later add reuse one.
+    const restored = ["r4", "r5", "r6"].map((uid) => makeRow({ lookup: "attack", uid: uid }));
+    assert.deepStrictEqual(restored.map((r) => r.uid), ["r4", "r5", "r6"]);
+    const fresh = makeRow({ lookup: "attack" });
+    assert.ok(!restored.some((r) => r.uid === fresh.uid), `fresh uid ${fresh.uid} collided`);
+});
+
+test("resolved rows do not alias the queue row's arrays", () => {
+    const rows = [row("mark", { rankLetter: "B" }), row("attack")];
+    const resolved = resolveQueue(rows);
+    resolved[1].dismissed.push("mark");
+    resolved[0].tags.push("Bogus");
+    assert.deepStrictEqual(rows[1].dismissed, []);
+    assert.deepStrictEqual(rows[0].tags, []);
+});
+
 test("makeRow defaults targetSelf from the buff's target", () => {
     // Mark is target "self" even though it renders a checkbox; Coordinate is not.
     assert.strictEqual(makeRow({ lookup: "mark" }).targetSelf, true);
