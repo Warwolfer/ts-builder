@@ -26,6 +26,7 @@ function load() {
     "resource/masteries.js",
     "resource/expertise.js",
     "resource/actions.js",
+    "resource/action-families.js",
     "shared/embedcode.js",
     "shared/buildpack.js", // may not exist yet — tolerated below
     "shared/build-encoder.js",
@@ -48,6 +49,7 @@ function load() {
     masteries: global.window.masteries,
     expertise: global.window.expertise,
     actionlist: global.window.actionlist,
+    ActionFamilies: global.window.ActionFamilies,
     DOMUtils: global.window.DOMUtils,
     RollCodeUtils: global.window.RollCodeUtils,
     actionToggleButtons: global.window.actionToggleButtons,

@@ -1,0 +1,63 @@
+// Which family of roll each action belongs to.
+//
+// Consumed by BuildSheet (for the Lethal / Blessed / Combat Focus passive
+// splices) and by shared/plan-queue.js, which is pure and cannot construct a
+// BuildSheet. Lives here rather than being derived from actions.js because the
+// attack family cannot be expressed as a query: it includes Protect, Counter,
+// Ultra Protect and Ultra Counter, which are Defense-category actions.
+//
+// test/action-families.test.js pins mainAction to use.includes("main").
+const ActionFamilies = (function () {
+    // Attacks that take the Lethal and Combat Focus modifiers.
+    const attack = [
+        "attack", "counter", "protect", "ultra-protect", "ultra-counter",
+        "stable-attack", "burst-attack", "sneak-attack", "critical-attack",
+        "sharp-attack", "reckless-attack",
+    ];
+    const heal = ["heal", "power-heal"];
+    const buff = ["buff", "power-buff"];
+
+    // Everything occupying the Main Action slot: the 15 actions whose roll is
+    // "MR + WR + other bonuses". Equal to use.includes("main") in actions.js.
+    const mainAction = attack.concat(heal, buff);
+
+    // The three cards in #saveschecks have no actions.js entry, so queue rows
+    // built from them carry these reserved lookups. The "@" prefix cannot
+    // collide with a real lookup. They only ever consume buffs, never produce.
+    const save = ["@save"];
+    const masteryCheck = ["@mastery-check"];
+    const expertiseCheck = ["@expertise-check"];
+
+    const ALL = {
+        attack: attack,
+        heal: heal,
+        buff: buff,
+        mainAction: mainAction,
+        save: save,
+        masteryCheck: masteryCheck,
+        expertiseCheck: expertiseCheck,
+    };
+
+    // A lookup belongs to several families at once — Reckless Attack is both
+    // "attack" and "mainAction" — so this returns all of them.
+    function familiesOf(lookup) {
+        const out = [];
+        for (const name of Object.keys(ALL)) {
+            if (ALL[name].indexOf(lookup) !== -1) out.push(name);
+        }
+        return out;
+    }
+
+    return {
+        attack: attack,
+        heal: heal,
+        buff: buff,
+        mainAction: mainAction,
+        save: save,
+        masteryCheck: masteryCheck,
+        expertiseCheck: expertiseCheck,
+        familiesOf: familiesOf,
+    };
+})();
+
+window.ActionFamilies = ActionFamilies;

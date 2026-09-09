@@ -36,13 +36,12 @@ class BuildSheet {
         // Sections that contain roll codes, used by multiple replacement methods
         this.rollCodeSections = ["freeactiondisplay", "actionsdisplay", "saveschecks"];
 
-        // Action category lists used by both generateActionCardContent and updatePassiveModifiers
-        this.attackActions = [
-            "attack", "counter", "protect", "ultra-protect", "ultra-counter", "stable-attack", "burst-attack",
-            "sneak-attack", "critical-attack", "sharp-attack", "reckless-attack",
-        ];
-        this.healActions = ["heal", "power-heal"];
-        this.buffActions = ["buff", "power-buff"];
+        // Action category lists used by both generateActionCardContent and
+        // updatePassiveModifiers. Defined in resource/action-families.js so
+        // the pure plan-queue engine can share them.
+        this.attackActions = window.ActionFamilies.attack;
+        this.healActions = window.ActionFamilies.heal;
+        this.buffActions = window.ActionFamilies.buff;
 
         // Helper method to safely get rank label
         this.getRankLabel = (rank) => {
