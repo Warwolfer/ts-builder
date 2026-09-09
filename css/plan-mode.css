@@ -47,16 +47,28 @@
 }
 
 /* The Add button */
+/* Add sits where the action icon used to be. A full-width bar under the toggles
+   overflowed the card and made every card taller for a control used once. */
+#builddisplay.plan .card {
+    position: relative;
+}
+
 .plan-add {
     display: none;
-    width: calc(100% - 16px);
-    margin: 6px 8px 8px;
-    padding: 5px 10px;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    z-index: 2;
+    width: 21px;
+    height: 21px;
+    padding: 0;
     background-color: #2c3448;
     color: #cfd3e0;
     border: 1px solid #3d475f;
-    border-radius: 6px;
-    font-size: 11px;
+    border-radius: 5px;
+    font-size: 14px;
+    line-height: 19px;
+    text-align: center;
     cursor: pointer;
     user-select: none;
 }

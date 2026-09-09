@@ -211,11 +211,17 @@ const PlanMode = (function () {
 
         const resolved = window.PlanQueue.resolveQueue(rows);
 
-        let html = '<div class="plan-rail-head">Queue · Turn';
-        html += '<span class="plan-rail-clear" data-clear="1">Clear</span></div>';
+        const count = resolved.length;
+        let html = '<div class="plan-rail-head">Queue';
+        html += count ? " · " + count + (count === 1 ? " action" : " actions") : "";
+        // One queue is one turn. Clearing it IS starting the next one, so the
+        // control says so rather than leaving "Turn" to imply a switcher.
+        html += '<span class="plan-rail-clear" data-clear="1" ' +
+                'title="Clear the queue and start the next turn">New turn</span></div>';
 
-        if (!resolved.length) {
-            html += '<div class="plan-empty">Configure a card, then press + Add.</div>';
+        if (!count) {
+            html += '<div class="plan-empty">Nothing queued yet. Set up a card, ' +
+                    'then press + in its corner.</div>';
         } else {
             html += '<div class="plan-head-row"><span>#</span><span>Action</span>' +
                     '<span>Mod</span><span>Roll code</span><span></span></div>';
@@ -316,7 +322,8 @@ const PlanMode = (function () {
                 if (!lookupForCard(card)) continue;
                 const button = document.createElement("div");
                 button.className = "plan-add";
-                button.textContent = "+ Add";
+                button.textContent = "+";
+                button.title = "Add to queue";
                 button.addEventListener("click", function () {
                     add(card);
                     // A moment of feedback, since the card itself does not change.
@@ -326,6 +333,12 @@ const PlanMode = (function () {
                 card.appendChild(button);
             }
         }
+
+        // Render once on load. Without this the rail is an empty box whenever
+        // Plan was already on from a previous session: applyPlanPreference
+        // unhides it but never draws it, and togglePlan only fires on a click
+        // the user never makes because the preference restored it for them.
+        refresh();
     }
 
     return {
