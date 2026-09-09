@@ -96,7 +96,7 @@ const actionlist = [
         description:
             "<p>You are Vulnerable.</p><p>Protect: Grant up to 3 allies within range the Protected State. You do not have to attack to activate this effect.</p><p>Self-protect: You cannot self-protect</p>",
         dice: "1d100 + MR + WR + other bonuses",
-        use: ["special"],
+        use: ["main", "special"],
         roll: "?r ultraprotect <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> · <span class='breaktype'>Break-Type</span> · Character Name · <span class='thrcode'>Code</span>",
         masteries: [
             "aeromancy",
@@ -174,7 +174,7 @@ const actionlist = [
         description:
             "<p>You are Vulnerable.</p><p>Success: Whenever you roll 35 (D), 30 (B), 25 (S) or higher, your attack gains 30 (D), 40 (B), 50 (S) extra damage and you negate the Vulnerability status from this attack.</p><p>Melee: If you are adjacent to or on the space as your attack target, gain 30 extra damage.</p>",
         dice: "1d100 + [30*] + [ x ] + MR + WR + other bonuses",
-        use: ["special"],
+        use: ["main", "special"],
         roll: "?r ultracounter <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> · <span class='breaktype'>Break-Type</span> · Character Name · <span class='thrcode'>Code</span>",
         masteries: [
             "aeromancy",
@@ -408,7 +408,7 @@ const actionlist = [
         description:
             "<p>You are Vulnerable.</p><p>Explosion: Whenever you roll a 16 or higher, roll an extra d20 (25% chance).</p><p>(B) Main Action. Roll 13d20 + 1d20 per mastery rank + weapon rank modifier + other bonuses.</p><p>(S) Main Action. Roll 14d20 + 1d20 per mastery rank + weapon rank modifier + other bonuses.</p>",
         dice: "12d20 + 1d20 per mastery rank + weapon rank modifier + other bonuses",
-        use: ["special"],
+        use: ["main", "special"],
         roll: "?r burst <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> · <span class='breaktype'>Break-Type</span> · Character Name · <span class='thrcode'>Code</span>",
         masteries: [
             "astramancy",
@@ -486,7 +486,7 @@ const actionlist = [
         description:
             "<p>You are Vulnerable.</p><p>Crit: On a roll of 85 or higher, your damage multiplier becomes 1.5 (D), 1.6 (C), 1.7 (B), 1.8 (A), 2 (S).</p><p>Perfect Crit: Multiply your total damage by 3.</p>",
         dice: "2d100 + (MR) + (WR) + other bonuses and then multiply the final damage by 1.2",
-        use: ["special"],
+        use: ["main", "special"],
         roll: "?r critical <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> · <span class='breaktype'>Break-Type</span> · Character Name · <span class='thrcode'>Code</span>",
         masteries: [
             "astramancy",
@@ -564,7 +564,7 @@ const actionlist = [
         description:
             "<p>You are Vulnerable.</p><p>Free Action: Convert other bonuses into more dice that may trigger crits. +1d100 for each 40 you spend. Leftover values are added as a modifier.</p><p>(E, D, C) Main Action. Roll 1d200 + 1d100 + MR + WR + other bonuses.</p><p>(B, A) Main Action. Roll 1d200 + 1d100 + 1d100 + MR + WR + other bonuses.</p><p>(S) Main Action. Roll 1d200 + 2d100kh1 + 1d100 + MR + WR + other bonuses.</p>",
         dice: "1d200 + 1d100 (+1d100 at B+) + MR + WR + other bonuses",
-        use: ["free", "special"],
+        use: ["free", "main", "special"],
         roll: "?r reckless <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> · <span class='breaktype'>Break-Type</span> · Character Name · <span class='thrcode'>Code</span>",
         masteries: [
             "astramancy",
@@ -834,7 +834,7 @@ const actionlist = [
             "<p>Multi-targets: Grant 3 targets heal, each receiving 1/3 of the final value.</p>" +
             "<p>Explosion: Whenever you roll a 18 (D), 17 (B), or 16 (S) or higher, roll an extra d20.</p><p>Cleanse: Whenever you heal a target cleanse 2 (D), 3 (B), 4 (S) after healing. Gain 5 HP to your heal per unused cleanse charge.</p>",
         dice: "4d20 + MR + WR + other bonuses then divide by 3 if AoE",
-        use: ["special"],
+        use: ["main", "special"],
         roll: "?r powerheal <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> · Character Name · <span class='thrcode'>Code</span>",
         masteries: [
             "chronomancy",
@@ -904,7 +904,7 @@ const actionlist = [
             "<p>Multi-targets: Grant 3 targets a damage buff that lasts 1 action.</p>" +
             "<p>May only be affected by one buff at a time.</p>",
         dice: "2d100 + MR + WR + other bonuses then divide by 3",
-        use: ["special"],
+        use: ["main", "special"],
         roll: "?r powerbuff <span class='masteryreplace'>MR</span> WR <span class='damagepassivemod'></span># <span class='mnamereplace'>Mastery</span> · Character Name · <span class='thrcode'>Code</span>",
         masteries: [
             "chronomancy",
@@ -1381,7 +1381,7 @@ const actionlist = [
         description:
             "<p>(C) Passive. You may split your movements, allowing you to move → act → move.</p><p>(C) Bonus Action: Rove. Damage resulting from moving is halved.</p>",
         dice: "Bonus Action/Passive",
-        use: ["main"],
+        use: ["passive", "bonus"],
         roll: "?r rover <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
         masteries: ["dynamism"],
         category: "alter",
@@ -1399,7 +1399,7 @@ const actionlist = [
         description:
             "<p>(D) Free Action. Reduce your maximum HP by [15 HP] to gain a 10 (D), 15 (C), 20 (B), 25 (A), 30 (S) bonus modifier on your next attacks, heals, or buffs.</p>",
         dice: "Free Action",
-        use: ["main"],
+        use: ["free"],
         roll: "?r exceed <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
         masteries: ["evoke"],
         category: "alter",
@@ -1431,7 +1431,7 @@ const actionlist = [
         description:
             "<p>(A) Free Action: Once per cycle, reduce your HP by [50 HP] and gain 1 extra bonus action, you cannot use the same BA twice.</p>",
         dice: "Free Action",
-        use: ["main"],
+        use: ["free"],
         roll: "?r empower <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
         masteries: ["evoke"],
         category: "alter",
@@ -1531,7 +1531,7 @@ const actionlist = [
         description:
             "<p>(D) Free Action. Heal up to 2 allies within range for 5 (D) 10 (C) 15 (B) 20 (A) 25 (S) HP. If AoE was used, distribute the heal in multiples of 5.</p><p>(A) Upgrade. Heal up to 3 targets (instead of 2).</p>",
         dice: "Free Action",
-        use: ["main"],
+        use: ["free"],
         roll: "?r infuse <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
         masteries: ["mend"],
         category: "alter",
@@ -1615,7 +1615,7 @@ const actionlist = [
         description:
             "<p>(D) Free Action: Grant 2 targets a +5 (D) +10 (C) +15 (B) +20 (A) +25 (S) modifier to their next attack, heal, or buff action.</p><p>(S) Upgrade: 3 targets gain the coordinate bonus (instead of 2).</p>",
         dice: "Free Action",
-        use: ["main"],
+        use: ["free"],
         roll: "?r coordinate <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span>",
         masteries: ["summon"],
         category: "alter",
@@ -1681,7 +1681,7 @@ const actionlist = [
         description:
             "<p>(C) Free Action. Whenever an ally within range performs a special attack action, either you or your ally may use a 20 (D), 25 (C), 30 (B), 35 (A), 40 (S) damage modifier in either of your posts, which must narratively feature both participants.</p><p>If one follow-up partner crits, this value scales with the crit. Normal attacks may trigger combo at a reduced amount 15 (C), 20 (A), 25 (S).</p>",
         dice: "Free Action",
-        use: ["main"],
+        use: ["free"],
         roll: "?r followup <span class='masteryreplace'>MR</span> # Character Name · <span class='thrcode'>Code</span> · Target (<span class='target'>Target</span>)",
         masteries: ["weapon-arts"],
         category: "alter",
