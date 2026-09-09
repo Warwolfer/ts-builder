@@ -49,12 +49,16 @@ const PlanMode = (function () {
         return icon ? icon.getAttribute("data-mastery") : null;
     }
 
-    // Which toggles are lit. The engine matches these against requiresTag.
+    // Which toggles are lit. The engine matches these against requiresTag, which
+    // is the configured suffix — and a toggle's visible label can differ from it
+    // (the Heal/Buff "Multi" button carries suffix "AoE"). Static buttons in
+    // build-sheet.html carry no data-suffix, so their label is the fallback.
     function activeTags(card) {
         const tags = [];
         const buttons = card.querySelectorAll(".risky-toggle.active");
         for (let i = 0; i < buttons.length; i++) {
-            const text = (buttons[i].textContent || "").trim();
+            const suffix = buttons[i].getAttribute("data-suffix");
+            const text = (suffix || buttons[i].textContent || "").trim();
             if (text) tags.push(text);
         }
         return tags;

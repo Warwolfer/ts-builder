@@ -1223,7 +1223,7 @@ class BuildSheet {
         state.chosenMasteries.forEach((masteryId) => {
             const mastery = masteries.find((m) => m.lookup === masteryId);
             if (mastery) {
-                html += `<div class='display masterycircle ${mastery.lookup}' onclick='clickMastery(this)'><img src='${mastery.image}'></div>`;
+                html += `<div class='display masterycircle ${mastery.lookup}' data-mastery='${mastery.lookup}' onclick='clickMastery(this)'><img src='${mastery.image}'></div>`;
             }
         });
 
@@ -1460,7 +1460,7 @@ class BuildSheet {
 
         if (configs) {
             configs.forEach((config) => {
-                let buttonHtml = `<button class="risky-toggle" onclick="${config.onclick}('${action.lookup}', '${config.suffix}')">${config.text}</button>`;
+                let buttonHtml = `<button class="risky-toggle" data-suffix="${config.suffix}" onclick="${config.onclick}('${action.lookup}', '${config.suffix}')">${config.text}</button>`;
 
                 // Add input field for buttons that have hasInput. The handlers
                 // read the input and its card off the event, so they take no
