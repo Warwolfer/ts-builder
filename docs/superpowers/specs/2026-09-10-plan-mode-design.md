@@ -123,9 +123,34 @@ respectively, and never produce buffs — only consume them.
 Special actions count as Main Actions: each is a roll-formula upgrade of a
 main action, and all seven carry the same `MR + WR + other bonuses` shape.
 
-The `use: ["main"]` discrepancy on those six actions is a real data bug that
-affects the Main filter in `action-selector.html`. Plan Mode does not read
-`use`, so it is unaffected. Tracked separately, not fixed here.
+### The `use` data fix
+
+The `use: ["main"]` discrepancy on those six actions is a real data bug, and
+it is fixed as part of this work.
+
+Nothing currently reads `use`. The only filters wired up in
+`action-selector.html` are the role tabs; the "use filters
+(Main/Bonus/Free/Passive/Special)" described in `CLAUDE.md` do not exist in
+the code. So the field is dead data that happens to be wrong — zero risk to
+correct, and a trap for whoever trusts it next.
+
+Corrected values, confirmed by both the `dice` field and the description text:
+
+| Action | Was | Becomes | Evidence |
+| --- | --- | --- | --- |
+| `rover` | `["main"]` | `["passive","bonus"]` | "(C) Passive… (C) Bonus Action: Rove" |
+| `exceed` | `["main"]` | `["free"]` | "(D) Free Action." |
+| `empower` | `["main"]` | `["free"]` | "(A) Free Action:" |
+| `infuse` | `["main"]` | `["free"]` | "(D) Free Action." |
+| `coordinate` | `["main"]` | `["free"]` | "(D) Free Action:" |
+| `follow-up` | `["main"]` | `["free"]` | "(C) Free Action." |
+
+Plan Mode does not read `use` — the Main Action family is defined explicitly
+in `action-families.js` — so this fix is independent of the rest of the
+feature and lands first, on its own.
+
+The stale `CLAUDE.md` line describing use-filters should be corrected at the
+same time.
 
 ## Data model
 
@@ -142,7 +167,8 @@ Plain object. Everything the engine needs, nothing from the DOM.
   tags: ["Challenge"],     // active toggles, read off the snapshot
   rollHtml,                // snapshot of .rollcode innerHTML
   dice,                    // carried for the deferred range feature
-  targetSelf: false,       // only meaningful when a buff has target:"other"
+  targetSelf: true,        // initialised from the buff's `target`; editable
+                           // only when the buff sets `selfToggle`
   manualMod: 0,            // the "+X from anyone else" field
   dismissed: ["evolve"]    // chip sources clicked off on this row
 }
@@ -168,8 +194,25 @@ evolve: {
 
 Fields: `requiresTag` (buff exists only when that toggle is active),
 `rankFrom` (`"clicked"` or a fixed mastery lookup), `values` (rank map),
-`appliesTo` (families), `duration`, `target` (`"self"` or `"other"`),
-`stackable` (default true), `requiresMasteryMatch`.
+`appliesTo` (families), `duration`, `target`, `selfToggle`, `stackable`
+(default true), `requiresMasteryMatch`.
+
+`target` (`"self"` or `"other"`) sets whether the buff feeds your own later
+rows by default. `selfToggle: true` additionally renders a Self checkbox on
+the producing row, initialised from `target`. The two combine into three
+behaviours:
+
+| `target` | `selfToggle` | Behaviour | Examples |
+| --- | --- | --- | --- |
+| `"self"` | absent | No checkbox. Always feeds your rows. | Evolve, Exceed, Duelist·Challenge, Adapt·Fend |
+| `"self"` | `true` | Checkbox, **checked** by default. | Mark |
+| `"other"` | `true` | Checkbox, **unchecked** by default. | Coordinate, Assist·Assign |
+
+Mark is `"self"` + `selfToggle` rather than plain `"self"` because its charges
+can be spent by other Hyper Sense users before you attack — you marked the
+enemy but someone else consumed it. Unchecking Self models that without
+deleting the Mark row, which you still need in the queue for its own roll
+code.
 
 `duration` is `"once"`, `"persistent"`, or `{charges: <rank map>}`. Mark's
 charge count scales with rank ("(S) Upgrade: 2 to 3 attacks"), so charges take
@@ -181,15 +224,15 @@ mark: { duration: { charges: { d:2, c:2, b:2, a:2, s:3 } }, … }
 
 ### Seed table — 7 entries
 
-| Action | Tag | Rank from | Values (d/c/b/a/s) | Applies to | Duration | Target |
+| Action | Tag | Rank from | Values (d/c/b/a/s) | Applies to | Duration | Self checkbox |
 | --- | --- | --- | --- | --- | --- | --- |
-| Evolve | — | metamorph | 10/10/15/15/20 | mainAction | persistent | self |
-| Duelist | Challenge | clicked | 30/30/40/40/50 | attack | once | self |
-| Mark | — | clicked | 10/15/20/25/30 | attack | charges 2, 3 at S | self |
-| Exceed | — | clicked | 10/15/20/25/30 (e:5) | mainAction | persistent | self |
-| Coordinate | — | clicked | 5/10/15/20/25 | mainAction | once | other |
-| Assist | Assign | clicked | 5/5/10/10/15 | masteryCheck | once | other |
-| Adapt | Fend | clicked | 10/10/15/15/20 | save | once | self |
+| Evolve | — | metamorph | 10/10/15/15/20 | mainAction | persistent | none, always self |
+| Duelist | Challenge | clicked | 30/30/40/40/50 | attack | once | none, always self |
+| Mark | — | clicked | 10/15/20/25/30 | attack | charges 2, 3 at S | **checked** by default |
+| Exceed | — | clicked | 10/15/20/25/30 (e:5) | mainAction | persistent | none, always self |
+| Coordinate | — | clicked | 5/10/15/20/25 | mainAction | once | unchecked by default |
+| Assist | Assign | clicked | 5/5/10/10/15 | masteryCheck | once | unchecked by default |
+| Adapt | Fend | clicked | 10/10/15/15/20 | save | once | none, always self |
 
 Duelist's values are the bot's `DUEL_DMG` doubled, which is what Challenge
 does. Every number is copied from the bot's own tables so the two repos
@@ -222,8 +265,12 @@ unspent buffs. For each row:
    this is a set, not a single value.
 2. Collect pool entries where **any** of the row's families appears in
    `appliesTo`, the condition passes, the source is not dismissed on this row,
-   and the buff is either `target: "self"` or its producing row has
-   `targetSelf` checked.
+   and the producing row's `targetSelf` is true.
+
+   `targetSelf` is set once when the row is created, defaulting from the
+   buff's `target`, so the engine consults a single flag rather than
+   branching on `target` and `selfToggle`. Only the UI cares which rows let
+   you change it.
 3. Resolve non-stackable duplicates: keep the highest, mark the rest
    `superseded`.
 4. Emit chips `[{source, label, value, state}]` and a total of their sum plus
@@ -286,10 +333,16 @@ existing `damagepassivemod` / `extramod` precedent.
 
 ### Target Self
 
-Only actions whose table entry has `target: "other"` — Coordinate and
-Assist·Assign in the seed set — render a `Self` checkbox on their queue row.
-Unchecked, the buff is for an ally and contributes nothing to your rows.
-Checked, it feeds your subsequent eligible rows.
+Actions whose table entry sets `selfToggle` render a `Self` checkbox on their
+queue row, initialised from `target`. Unchecked, the buff contributes nothing
+to your rows. Checked, it feeds your subsequent eligible rows.
+
+Coordinate and Assist·Assign start unchecked, since they normally go to an
+ally. Mark starts **checked**, since marking an enemy you then attack is the
+normal case; unchecking covers the enemy being marked but its charges spent by
+another Hyper Sense user before your attack. Evolve, Exceed, Duelist·Challenge
+and Adapt·Fend render no checkbox at all — they are inherently self-targeted
+and a checkbox would be noise.
 
 The roll code is left untouched. The bot has no `self` trigger in
 `parseTriggers()`, so a tag would be cosmetic, and the pasted output should
@@ -325,7 +378,8 @@ build code for something nobody wants to share.
 | Action with `roll: "-"` | Queues fine; the roll code cell shows an em dash. |
 | Risky Mode and a plan bonus on one row | Separate spans, both render. |
 | Card reconfigured after being added | The row is frozen by design. Delete and re-add. |
-| Mark targets one specific enemy | Not tracked. All queued attacks are assumed to hit the marked enemy. Documented assumption. |
+| Mark targets one specific enemy | Not tracked; queued attacks are assumed to hit the marked enemy, so Mark's Self checkbox starts checked. Uncheck it when another Hyper Sense user spent the charges first. |
+| `use` fix changes an action's filtering | It cannot — nothing reads `use` today. Verified by search across all `.js` and `.html`. |
 | Queue restored for a different character | Fingerprint mismatch clears it. |
 
 ## Testing
