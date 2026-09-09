@@ -133,12 +133,26 @@ test("makeRow fills defaults and assigns a unique id", () => {
 });
 
 test("makeRow keeps its counter ahead of a restored uid", () => {
-    // Stored uids are not dense after deletions: a queue that lost rows can
-    // persist r4, r5, r6, and rebuilding those must not let a later add reuse one.
-    const restored = ["r4", "r5", "r6"].map((uid) => makeRow({ lookup: "attack", uid: uid }));
-    assert.deepStrictEqual(restored.map((r) => r.uid), ["r4", "r5", "r6"]);
+    // Assert the invariant — a fresh uid outranks any uid restored before it —
+    // rather than mere non-collision. `nextUid` is module state shared across
+    // this whole file, so by the time this test runs the ambient counter is
+    // already well past any small literal; a non-collision assertion would pass
+    // even against the bug. Ordering is what actually fails without the fix.
+    const HIGH = 9000;
+    const restored = makeRow({ lookup: "attack", uid: "r" + HIGH });
+    assert.strictEqual(restored.uid, "r" + HIGH);
     const fresh = makeRow({ lookup: "attack" });
-    assert.ok(!restored.some((r) => r.uid === fresh.uid), `fresh uid ${fresh.uid} collided`);
+    const n = parseInt(String(fresh.uid).replace(/^r/, ""), 10);
+    assert.ok(n > HIGH, `fresh uid ${fresh.uid} must outrank the restored r${HIGH}`);
+});
+
+test("a malformed restored uid cannot poison the counter", () => {
+    // A hand-edited or corrupted storage value must not turn every later uid
+    // into "rNaN", which would collide with itself.
+    makeRow({ lookup: "attack", uid: "not-a-uid" });
+    makeRow({ lookup: "attack", uid: "r" });
+    const fresh = makeRow({ lookup: "attack" });
+    assert.match(fresh.uid, /^r\d+$/);
 });
 
 test("resolved rows do not alias the queue row's arrays", () => {
