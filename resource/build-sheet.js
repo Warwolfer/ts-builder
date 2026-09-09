@@ -197,6 +197,7 @@ class BuildSheet {
     }
 
     applyCompactPreference() {
+        this.applyPlanPreference();
         let saved = null;
         try {
             saved = localStorage.getItem("tsbuilder_compact");
@@ -208,6 +209,22 @@ class BuildSheet {
         if (container) container.classList.add("compact");
         const toggle = this.domUtils.getElementById("compact-toggle");
         if (toggle) toggle.classList.add("active");
+    }
+
+    applyPlanPreference() {
+        let saved = null;
+        try {
+            saved = localStorage.getItem("tsbuilder_plan");
+        } catch (e) {
+            saved = null;
+        }
+        if (saved !== "1") return;
+        const container = this.domUtils.getElementById("builddisplay");
+        if (container) container.classList.add("plan");
+        const toggle = this.domUtils.getElementById("plan-toggle");
+        if (toggle) toggle.classList.add("active");
+        const rail = this.domUtils.getElementById("plan-rail");
+        if (rail) rail.hidden = false;
     }
 
     setupDragReorder() {
@@ -2408,6 +2425,31 @@ function toggleCompact(element) {
     } catch (e) {
         // Ignore localStorage write errors (private mode, etc.)
     }
+}
+
+// Plan Mode is a third view state on top of Compact. Its rules win, and the
+// Compact button goes inert while it is on, so the two never fight over the
+// same card.
+function togglePlan(element) {
+    const container = document.getElementById("builddisplay");
+    if (!container) return;
+    const nowPlan = container.classList.toggle("plan");
+    element.classList.toggle("active", nowPlan);
+
+    const rail = document.getElementById("plan-rail");
+    if (rail) rail.hidden = !nowPlan;
+
+    try {
+        if (nowPlan) {
+            localStorage.setItem("tsbuilder_plan", "1");
+        } else {
+            localStorage.removeItem("tsbuilder_plan");
+        }
+    } catch (e) {
+        // Ignore localStorage write errors (private mode, etc.)
+    }
+
+    if (window.PlanMode && nowPlan) window.PlanMode.refresh();
 }
 
 function clickSave(element, saveType) {

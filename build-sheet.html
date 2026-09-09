@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="css/app.css">
   <link rel="stylesheet" href="css/index.css">
   <link rel="stylesheet" href="css/build-sheet.css">
+  <link rel="stylesheet" href="css/plan-mode.css">
   <link rel="shortcut icon" href="https://www.terrarp.com//favicon.ico">
   <link rel="preconnect" href="https://fonts.gstatic.com">
   
@@ -210,6 +211,7 @@
           <div class="filter-tab" onclick="toggleActionFilter('alter')" data-filter="alter">Alter</div>
         </div>
         <div class="compact-toggle" id="compact-toggle" onclick="toggleCompact(this)">Compact</div>
+        <div class="compact-toggle plan-toggle" id="plan-toggle" onclick="togglePlan(this)">Plan</div>
       </h3>
       <div class="masterycategory" id="freeactiondisplay">
         <!-- Free actions -->
@@ -237,7 +239,10 @@
           <div class="rollcode rushrc clickable-rollcode" onclick="copyRollCode(this)" title="Click to copy">?r rush # Character Name · <span class="thrcode">Code</span></div>
         </div>
       </div>
-      <div class="masterycategory" id="actionsdisplay"></div>
+      <div class="plan-layout">
+        <div class="masterycategory" id="actionsdisplay"></div>
+        <aside id="plan-rail" class="plan-rail" hidden></aside>
+      </div>
 
       <!-- Note -->
       <div class="masterycategory" id="notedisplay">

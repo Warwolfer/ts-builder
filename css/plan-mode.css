@@ -1,0 +1,286 @@
+/* Plan Mode — a third view state of the action cards, on top of Compact.
+   Plan rules win over .compact, and the Compact button is inert while Plan is
+   active, so the two can never fight over the same card. */
+
+.plan-toggle {
+    margin-left: 8px;
+}
+
+#builddisplay.plan .compact-toggle#compact-toggle {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+/* Strip the card down to what you need to configure it: title, type, mastery
+   icons, toggles, Add. The roll code stays in the DOM because it is what Add
+   snapshots — it is hidden, not removed. */
+#builddisplay.plan .cardinfo,
+#builddisplay.plan .cardroll,
+#builddisplay.plan .cardicon,
+#builddisplay.plan #actionsdisplay .rollcode,
+#builddisplay.plan #freeactiondisplay .rollcode,
+#builddisplay.plan #saveschecks .rollcode {
+    display: none;
+}
+
+#builddisplay.plan .cardtitle {
+    font-size: 15px;
+}
+
+#builddisplay.plan .type {
+    font-size: 10px;
+}
+
+#builddisplay.plan .cardtop {
+    padding: 6px 8px;
+}
+
+#builddisplay.plan .risky-toggle {
+    padding: 2px 7px;
+    font-size: 10px;
+}
+
+#builddisplay.plan .risky-input {
+    padding: 2px 6px;
+    font-size: 10px;
+    width: 46px;
+}
+
+/* The Add button */
+.plan-add {
+    display: none;
+    width: calc(100% - 16px);
+    margin: 6px 8px 8px;
+    padding: 5px 10px;
+    background-color: #2c3448;
+    color: #cfd3e0;
+    border: 1px solid #3d475f;
+    border-radius: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    user-select: none;
+}
+
+#builddisplay.plan .plan-add {
+    display: block;
+}
+
+.plan-add:hover {
+    background-color: #6e51cb;
+    border-color: #6e51cb;
+    color: #fff;
+}
+
+.plan-add.just-added {
+    background-color: #67a2e0;
+    border-color: #67a2e0;
+    color: #fff;
+}
+
+/* Layout: cards narrow, rail docks to the right and stays put while you scroll
+   the card list, so you can Add from anywhere without losing the running order. */
+.plan-layout {
+    display: block;
+}
+
+#builddisplay.plan .plan-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+#builddisplay.plan .plan-layout #actionsdisplay {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.plan-rail {
+    flex: 0 0 clamp(320px, 34%, 460px);
+    position: sticky;
+    top: 12px;
+    max-height: calc(100vh - 24px);
+    overflow-y: auto;
+    background-color: #1b2030;
+    border: 1px solid #2f374a;
+    border-radius: 8px;
+    padding: 10px;
+    color: #cfd3e0;
+}
+
+.plan-rail-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.plan-rail-clear {
+    margin-left: auto;
+    padding: 2px 9px;
+    background-color: #2c3448;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+.plan-rail-clear:hover {
+    background-color: #a33b3b;
+    color: #fff;
+}
+
+.plan-empty {
+    padding: 14px 6px;
+    color: #7d879e;
+    font-size: 12px;
+    text-align: center;
+}
+
+/* Queue rows */
+.plan-row {
+    border-top: 1px solid #2a3145;
+    padding: 7px 4px;
+}
+
+.plan-row:first-of-type {
+    border-top: none;
+}
+
+.plan-row.dragging {
+    opacity: 0.4;
+}
+
+.plan-row-main {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+}
+
+.plan-row-index {
+    flex: 0 0 16px;
+    color: #7d879e;
+    cursor: grab;
+}
+
+.plan-row-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.plan-row-mastery {
+    color: #8e97ad;
+}
+
+.plan-row-total {
+    flex: 0 0 auto;
+    font-variant-numeric: tabular-nums;
+    color: #47cbdd;
+}
+
+.plan-row-total.zero {
+    color: #5b6478;
+}
+
+.plan-row-remove {
+    flex: 0 0 auto;
+    padding: 0 4px;
+    color: #7d879e;
+    cursor: pointer;
+}
+
+.plan-row-remove:hover {
+    color: #e06767;
+}
+
+/* The roll code cell reuses .rollcode so click-to-copy and the Copied! tooltip
+   behave exactly as they do on the cards. */
+.plan-rail .rollcode {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.78em;
+    word-break: break-word;
+}
+
+.plan-row-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.plan-chip {
+    padding: 1px 7px;
+    border-radius: 10px;
+    background-color: #2c3448;
+    font-size: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.plan-chip.applied {
+    background-color: #34506e;
+    color: #d5e6f5;
+}
+
+.plan-chip.dismissed,
+.plan-chip.superseded {
+    background-color: #262c3c;
+    color: #6a7386;
+    text-decoration: line-through;
+}
+
+.plan-chip.blocked {
+    background-color: #262c3c;
+    color: #7d879e;
+    cursor: default;
+    font-style: italic;
+}
+
+.plan-manual {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    font-size: 10px;
+    color: #7d879e;
+}
+
+.plan-manual input {
+    width: 46px;
+    padding: 1px 5px;
+    background-color: #131722;
+    border: 1px solid #333c52;
+    border-radius: 4px;
+    color: #cfd3e0;
+    font-size: 10px;
+}
+
+.plan-self {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 10px;
+    color: #8e97ad;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Narrow screens: the rail stops being a rail. */
+@media (max-width: 900px) {
+    #builddisplay.plan .plan-layout {
+        display: block;
+    }
+
+    .plan-rail {
+        position: static;
+        max-height: none;
+        margin-top: 14px;
+    }
+}
