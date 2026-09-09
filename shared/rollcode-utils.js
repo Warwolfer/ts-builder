@@ -62,7 +62,9 @@ const RollCodeUtils = (function () {
     function setRollPlanMod(html, mod) {
         const cleared = html.replace(PLAN_MOD, "");
         const text = String(mod == null ? "" : mod).trim();
-        if (!text || text === "0") return cleared;
+        // Numeric compare, not a string one: the manual "+X" field feeds this
+        // path, and "+0" is a natural way to type "no modifier".
+        if (!text || Number(text) === 0) return cleared;
 
         // Computed here, but the manual "+X from anyone else" field feeds the
         // same path, so it is escaped before reaching innerHTML.

@@ -59,11 +59,27 @@ test("coexists with the Risky Mode modifier, neither clobbering the other", () =
     const noPlan = setRollPlanMod(html, "");
     assert.match(noPlan, /extramod/);
     assert.doesNotMatch(noPlan, /planmod/);
+
+    // And the same holds with the insertion order reversed.
+    let other = setRollPlanMod(RECKLESS, 55);
+    other = setRollExtraMod(other, "15");
+    assert.match(other, /<span class="extramod">\+15 <\/span>/);
+    assert.match(other, /<span class="planmod">\+55 <\/span>/);
+    const noExtra = setRollExtraMod(other, "");
+    assert.match(noExtra, /planmod/);
+    assert.doesNotMatch(noExtra, /extramod/);
 });
 
 test("escapes user-supplied text before it reaches innerHTML", () => {
     const out = setRollPlanMod(RECKLESS, '<img src=x onerror="alert(1)">');
     assert.doesNotMatch(out, /<img/);
+});
+
+test("a signed zero clears the span, like a bare zero", () => {
+    const set = setRollPlanMod(RECKLESS, 55);
+    for (const zero of ["+0", "-0", "0", " 0 "]) {
+        assert.doesNotMatch(setRollPlanMod(set, zero), /planmod/);
+    }
 });
 
 test("appends at the end when the roll code has no hash", () => {
