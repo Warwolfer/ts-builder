@@ -194,6 +194,8 @@ class BuildSheet {
 
         // Apply persisted Compact preference (F3)
         this.applyCompactPreference();
+
+        if (window.PlanMode) window.PlanMode.installAddButtons();
     }
 
     applyCompactPreference() {
@@ -1288,6 +1290,12 @@ class BuildSheet {
                         existingIndicator.remove();
                     }
                     container.classList.remove("downcast-action");
+
+                    // Unlike generateActionCard(), the static free-action markup for
+                    // this card never carries data-action-id - only its innerHTML is
+                    // replaced here. Plan Mode's lookupForCard() needs it to identify
+                    // this card the same way it identifies a dynamic action card.
+                    container.setAttribute("data-action-id", actionId);
 
                     this.domUtils.setHTML(
                         container,
