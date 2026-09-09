@@ -171,3 +171,153 @@ test("makeRow defaults targetSelf from the buff's target", () => {
     // An action with no buff entry is self by default; nothing reads it.
     assert.strictEqual(makeRow({ lookup: "attack" }).targetSelf, true);
 });
+
+test("a charge buff feeds exactly its charge count", () => {
+    // Mark at B rank: 2 charges.
+    const rows = [row("mark", { rankLetter: "B" }), row("attack"), row("attack"), row("attack")];
+    assert.deepStrictEqual(totals(rows), [0, 20, 20, 0]);
+});
+
+test("Mark gains a third charge at S rank", () => {
+    const rows = [
+        row("mark", { rankLetter: "S" }),
+        row("attack"), row("attack"), row("attack"), row("attack"),
+    ];
+    assert.deepStrictEqual(totals(rows), [0, 30, 30, 30, 0]);
+});
+
+test("charges are only spent by rows the buff applies to", () => {
+    // The Heal between the attacks is not an attack, so it consumes no charge.
+    const rows = [row("mark", { rankLetter: "B" }), row("attack"), row("heal"), row("attack")];
+    assert.deepStrictEqual(totals(rows), [0, 20, 0, 20]);
+});
+
+test("an applied charge chip reports how many charges remain", () => {
+    const resolved = resolveQueue([row("mark", { rankLetter: "S" }), row("attack")]);
+    assert.strictEqual(resolved[1].chips[0].remaining, 2);
+});
+
+test("Evolve applies only to main actions using the evolved mastery", () => {
+    const rows = [
+        row("evolve", { rankLetter: "B", masteryId: "power" }),
+        row("attack", { masteryId: "power" }),
+        row("attack", { masteryId: "precision" }),
+    ];
+    assert.deepStrictEqual(totals(rows), [0, 15, 0]);
+});
+
+test("a mastery mismatch is reported as blocked, not hidden", () => {
+    // The chip must still render, greyed with a reason. Silently vanishing
+    // would leave you wondering whether the tool forgot.
+    const resolved = resolveQueue([
+        row("evolve", { rankLetter: "B", masteryId: "power" }),
+        row("attack", { masteryId: "precision" }),
+    ]);
+    const chip = resolved[1].chips[0];
+    assert.strictEqual(chip.state, "blocked");
+    assert.match(chip.reason, /mastery/i);
+});
+
+test("a blocked mastery match does not consume a persistent buff", () => {
+    const rows = [
+        row("evolve", { rankLetter: "B", masteryId: "power" }),
+        row("attack", { masteryId: "precision" }),
+        row("attack", { masteryId: "power" }),
+    ];
+    assert.deepStrictEqual(totals(rows), [0, 0, 15]);
+});
+
+test("dismissing a chip zeroes it without removing the producing row", () => {
+    // You cast Mark, but someone else spent the charges before your attack.
+    const rows = [
+        row("mark", { rankLetter: "B" }),
+        row("attack", { dismissed: ["mark"] }),
+    ];
+    assert.deepStrictEqual(totals(rows), [0, 0]);
+    const resolved = resolveQueue(rows);
+    assert.strictEqual(resolved[1].chips[0].state, "dismissed");
+});
+
+test("a dismissed chip does not consume a charge, leaving it for a later row", () => {
+    const rows = [
+        row("mark", { rankLetter: "B" }),
+        row("attack", { dismissed: ["mark"] }),
+        row("attack"),
+        row("attack"),
+    ];
+    assert.deepStrictEqual(totals(rows), [0, 0, 20, 20]);
+});
+
+test("dismissal is per row, not global", () => {
+    const rows = [
+        row("duelist", { rankLetter: "A", tags: ["Challenge"] }),
+        row("attack", { dismissed: ["duelist"] }),
+        row("attack"),
+    ];
+    assert.deepStrictEqual(totals(rows), [0, 0, 40]);
+});
+
+test("an unchecked Self stops an ally-targeted buff feeding your rows", () => {
+    const rows = [row("coordinate", { rankLetter: "S" }), row("attack")];
+    assert.deepStrictEqual(totals(rows), [0, 0]);
+});
+
+test("checking Self makes an ally-targeted buff feed your rows", () => {
+    const rows = [row("coordinate", { rankLetter: "S", targetSelf: true }), row("attack")];
+    assert.deepStrictEqual(totals(rows), [0, 25]);
+});
+
+test("unchecking Self on Mark stops it without deleting the row", () => {
+    const rows = [row("mark", { rankLetter: "B", targetSelf: false }), row("attack")];
+    assert.deepStrictEqual(totals(rows), [0, 0]);
+    // The Mark row survives, because you still need its roll code.
+    assert.strictEqual(resolveQueue(rows).length, 2);
+});
+
+test("two non-stackable sources keep only the highest", () => {
+    // No seed buff is non-stackable — Inspire was, and is being removed from
+    // the rules — so the rule is exercised against a temporary entry.
+    PlanBuffs.table.__nonstack = {
+        label: "Test Non-Stackable",
+        rankFrom: "clicked",
+        values: { d: 5, c: 5, b: 10, a: 10, s: 15 },
+        appliesTo: ["attack"],
+        duration: "persistent",
+        target: "self",
+        stackable: false,
+        source: "ts-discord-bot (test fixture)",
+    };
+    try {
+        const rows = [
+            row("__nonstack", { rankLetter: "D" }),
+            row("__nonstack", { rankLetter: "S" }),
+            row("attack"),
+        ];
+        assert.deepStrictEqual(totals(rows), [0, 0, 15]);
+        assert.deepStrictEqual(
+            resolveQueue(rows)[2].chips.map((c) => c.state).sort(),
+            ["applied", "superseded"],
+        );
+    } finally {
+        delete PlanBuffs.table.__nonstack;
+    }
+});
+
+test("stackable buffs from different sources both apply", () => {
+    const rows = [
+        row("mark", { rankLetter: "B" }),
+        row("duelist", { rankLetter: "A", tags: ["Challenge"] }),
+        row("attack"),
+    ];
+    assert.deepStrictEqual(totals(rows), [0, 0, 60]);
+});
+
+test("two rows of the same stackable buff both apply", () => {
+    // Marks may stack when there are multiple Hyper Sense users.
+    const rows = [
+        row("mark", { rankLetter: "B" }),
+        row("mark", { rankLetter: "S" }),
+        row("attack"),
+    ];
+    assert.deepStrictEqual(totals(rows), [0, 0, 50]);
+});

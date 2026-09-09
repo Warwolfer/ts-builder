@@ -95,6 +95,38 @@ const PlanQueue = (function () {
         return false;
     }
 
+    // Conditions the app can actually verify. Narrative ones — Duelist's
+    // adjacency, Mark's "your marked enemy" — are not checkable here, so those
+    // buffs default on and the chip is there to click off.
+    function blockedReason(pooled, row) {
+        if (pooled.entry.requiresMasteryMatch && pooled.masteryId &&
+            row.masteryId && pooled.masteryId !== row.masteryId) {
+            return "needs the evolved mastery";
+        }
+        return null;
+    }
+
+    // A non-stackable buff cannot double up: the highest wins and the rest are
+    // marked superseded so you can see they were considered.
+    function markSuperseded(candidates) {
+        const bestBySource = {};
+        for (let i = 0; i < candidates.length; i++) {
+            const c = candidates[i];
+            if (c.pooled.entry.stackable === false) {
+                const key = c.pooled.source;
+                if (!bestBySource[key] || c.pooled.value > bestBySource[key].pooled.value) {
+                    bestBySource[key] = c;
+                }
+            }
+        }
+        for (let i = 0; i < candidates.length; i++) {
+            const c = candidates[i];
+            if (c.pooled.entry.stackable !== false) continue;
+            if (bestBySource[c.pooled.source] !== c) c.superseded = true;
+        }
+        return candidates;
+    }
+
     // Walks the queue once, front to back. Returns new objects; the input rows
     // are never mutated.
     function resolveQueue(rows) {
@@ -107,18 +139,45 @@ const PlanQueue = (function () {
             const chips = [];
             let total = 0;
 
+            // Gather every pooled buff that could reach this row, decide each
+            // one's fate, then spend only the ones that actually applied.
+            const candidates = [];
             for (let p = 0; p < pool.length; p++) {
                 const pooled = pool[p];
                 if (!appliesToRow(pooled, families)) continue;
+                candidates.push({ pooled: pooled, superseded: false });
+            }
+            markSuperseded(candidates);
+
+            for (let c = 0; c < candidates.length; c++) {
+                const pooled = candidates[c].pooled;
+
+                if (candidates[c].superseded) {
+                    chips.push(chip(pooled, "superseded"));
+                    continue;
+                }
+
+                const reason = blockedReason(pooled, row);
+                if (reason) {
+                    // Blocked buffs are neither spent nor charged — a wrong
+                    // mastery must not burn Mark's charge or consume Evolve.
+                    const blocked = chip(pooled, "blocked");
+                    blocked.reason = reason;
+                    chips.push(blocked);
+                    continue;
+                }
 
                 if (row.dismissed.indexOf(pooled.source) !== -1) {
+                    // Same rule: dismissing leaves the charge for a later row.
                     chips.push(chip(pooled, "dismissed"));
                     continue;
                 }
 
-                chips.push(chip(pooled, "applied"));
+                const applied = chip(pooled, "applied");
                 total += pooled.value;
                 spend(pooled);
+                if (pooled.remaining !== null) applied.remaining = pooled.remaining;
+                chips.push(applied);
             }
 
             drainSpent(pool);
