@@ -171,6 +171,8 @@ const PlanMode = (function () {
             ? (resolved.total > 0 ? "+" : "") + resolved.total
             : "—";
 
+        const roll = rollHtmlFor(resolved);
+
         let html = '<div class="plan-row" data-uid="' + escape(resolved.uid) + '" draggable="true">';
         html += '<div class="plan-row-main">';
         html += '<span class="plan-row-index" title="Drag to reorder">' + (index + 1) + "</span>";
@@ -178,17 +180,13 @@ const PlanMode = (function () {
                 '<span class="plan-row-mastery">' + escape(mastery) + "</span></span>";
         html += '<span class="plan-row-total' + (resolved.total ? "" : " zero") + '">' +
                 escape(totalText) + "</span>";
+        html += roll
+            ? '<div class="rollcode clickable-rollcode" onclick="copyRollCode(this)" ' +
+              'title="Click to copy">' + roll + "</div>"
+            : '<div class="plan-row-noroll">—</div>';
         html += '<span class="plan-row-remove" data-remove="' + escape(resolved.uid) +
                 '" title="Remove from queue">×</span>';
         html += "</div>";
-
-        const roll = rollHtmlFor(resolved);
-        if (roll) {
-            html += '<div class="rollcode clickable-rollcode" onclick="copyRollCode(this)" ' +
-                    'title="Click to copy">' + roll + "</div>";
-        } else {
-            html += '<div class="plan-row-mastery">—</div>';
-        }
 
         html += '<div class="plan-row-meta">';
         for (let i = 0; i < resolved.chips.length; i++) {
@@ -219,6 +217,8 @@ const PlanMode = (function () {
         if (!resolved.length) {
             html += '<div class="plan-empty">Configure a card, then press + Add.</div>';
         } else {
+            html += '<div class="plan-head-row"><span>#</span><span>Action</span>' +
+                    '<span>Mod</span><span>Roll code</span><span></span></div>';
             for (let i = 0; i < resolved.length; i++) {
                 html += rowHtml(resolved[i], i);
             }
@@ -273,6 +273,11 @@ const PlanMode = (function () {
                 if (row) {
                     row.targetSelf = event.target.checked;
                     refresh();
+                    // The checkbox the user just toggled was destroyed by the
+                    // re-render; put focus back on its replacement so keyboard
+                    // navigation through the rail survives.
+                    const again = document.querySelector('[data-self="' + selfUid + '"]');
+                    if (again) again.focus();
                 }
             }
         });
