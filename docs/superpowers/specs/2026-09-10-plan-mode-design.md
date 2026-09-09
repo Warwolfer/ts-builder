@@ -62,7 +62,6 @@ New:
 | `shared/plan-queue.js` | Pure resolve engine. No DOM. Unit-tested. |
 | `resource/plan-mode.js` | DOM controller: Add buttons, snapshot, rail, persistence. |
 | `css/plan-mode.css` | Plan card and rail styling. |
-
 | `resource/action-families.js` | Family definitions. Receives three arrays moved out of `BuildSheet`. |
 
 Edited:
@@ -117,8 +116,10 @@ masteryCheck    = the Mastery Check card
 The three cards in `#saveschecks` have no entry in `actions.js`, so queue rows
 built from them carry the reserved pseudo-lookups `@save`, `@expertise-check`
 and `@mastery-check`. The `@` prefix cannot collide with a real action lookup.
-They belong to the `save`, `masteryCheck` and `masteryCheck` families
-respectively, and never produce buffs — only consume them.
+They belong to the `save`, `expertiseCheck` and `masteryCheck` families
+respectively, and never produce buffs — only consume them. An expertise check
+is not a mastery check, so they are separate families; no seed buff targets
+`expertiseCheck`, but conflating them would be wrong the moment one does.
 
 Special actions count as Main Actions: each is a roll-formula upgrade of a
 main action, and all seven carry the same `MR + WR + other bonuses` shape.
@@ -273,6 +274,12 @@ the same rank-map shape as `values` rather than a bare integer:
 mark: { duration: { charges: { d:2, c:2, b:2, a:2, s:3 } }, … }
 ```
 
+The bot's Mark embed hardcodes "next 2 attacks" in its display string even at
+S rank, while the `actions.js` description says "(S) Upgrade: 2 to 3 attacks".
+The description is the rules source and the bot's string is not a computed
+value, so the table keeps 3 at S. Recorded in `plan-buffs.js` so the
+divergence is not later "fixed" the wrong way.
+
 ### Seed table — 7 entries
 
 | Action | Tag | Rank from | Values (d/c/b/a/s) | Applies to | Duration | Self checkbox |
@@ -280,9 +287,10 @@ mark: { duration: { charges: { d:2, c:2, b:2, a:2, s:3 } }, … }
 | Evolve | — | metamorph | 10/10/15/15/20 | mainAction | persistent | none, always self |
 | Duelist | Challenge | clicked | 30/30/40/40/50 | attack | once | none, always self |
 | Mark | — | clicked | 10/15/20/25/30 | attack | charges 2, 3 at S | **checked** by default |
+
 | Exceed | — | clicked | 10/15/20/25/30 (e:5) | mainAction | persistent | none, always self |
 | Coordinate | — | clicked | 5/10/15/20/25 | mainAction | once | unchecked by default |
-| Assist | Assign | clicked | 5/5/10/10/15 | masteryCheck | once | unchecked by default |
+| Assist | — | clicked | 5/5/10/10/15 | masteryCheck | once | unchecked by default |
 | Adapt | Fend | clicked | 10/10/15/15/20 | save | once | none, always self |
 
 Duelist's values are the bot's `DUEL_DMG` doubled, which is what Challenge
@@ -389,7 +397,9 @@ queue row, initialised from `target`. Unchecked, the buff contributes nothing
 to your rows. Checked, it feeds your subsequent eligible rows.
 
 Coordinate and Assist·Assign start unchecked, since they normally go to an
-ally. Mark starts **checked**, since marking an enemy you then attack is the
+ally. Assist carries no `requiresTag`: the bot's `handleAssist` parses no
+triggers, so `?r assist <MR>` always grants the Assign bonus and the card
+correctly has no toggle to require. Mark starts **checked**, since marking an enemy you then attack is the
 normal case; unchecking covers the enemy being marked but its charges spent by
 another Hyper Sense user before your attack. Evolve, Exceed, Duelist·Challenge
 and Adapt·Fend render no checkbox at all — they are inherently self-targeted
