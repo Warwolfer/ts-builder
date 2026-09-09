@@ -28,6 +28,7 @@ function load() {
     "resource/actions.js",
     "resource/action-families.js",
     "resource/plan-buffs.js",
+    "shared/plan-queue.js",
     "shared/embedcode.js",
     "shared/buildpack.js", // may not exist yet — tolerated below
     "shared/build-encoder.js",
@@ -52,6 +53,7 @@ function load() {
     actionlist: global.window.actionlist,
     ActionFamilies: global.window.ActionFamilies,
     PlanBuffs: global.window.PlanBuffs,
+    PlanQueue: global.window.PlanQueue,
     DOMUtils: global.window.DOMUtils,
     RollCodeUtils: global.window.RollCodeUtils,
     actionToggleButtons: global.window.actionToggleButtons,
