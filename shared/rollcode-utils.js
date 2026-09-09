@@ -13,6 +13,7 @@
 const RollCodeUtils = (function () {
     const THRCODE = /(<span class=['"]thrcode['"]>)/;
     const EXTRA_MOD = /<span class=['"]extramod['"]>[^<]*<\/span>/;
+    const PLAN_MOD = /<span class=['"]planmod['"]>[^<]*<\/span>/;
 
     function escapeRe(text) {
         return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -53,10 +54,32 @@ const RollCodeUtils = (function () {
         return `${cleared}<span class="extramod"> ${signed}</span>`;
     }
 
+    // Sets (or clears) the modifier Plan Mode computes from earlier entries in
+    // the queue. It gets its own span rather than reusing extramod, which
+    // belongs to Risky Mode: a Reckless Attack row can be both Risky and
+    // buffed, and the two must render side by side instead of overwriting
+    // each other.
+    function setRollPlanMod(html, mod) {
+        const cleared = html.replace(PLAN_MOD, "");
+        const text = String(mod == null ? "" : mod).trim();
+        if (!text || text === "0") return cleared;
+
+        // Computed here, but the manual "+X from anyone else" field feeds the
+        // same path, so it is escaped before reaching innerHTML.
+        const signed = window.DOMUtils.escapeHtml(
+            /^[+-]/.test(text) ? text : `+${text}`,
+        );
+        if (cleared.includes("#")) {
+            return cleared.replace("#", `<span class="planmod">${signed} </span>#`);
+        }
+        return `${cleared}<span class="planmod"> ${signed}</span>`;
+    }
+
     return {
         insertRollTag,
         removeRollTag,
         setRollExtraMod,
+        setRollPlanMod,
     };
 })();
 
