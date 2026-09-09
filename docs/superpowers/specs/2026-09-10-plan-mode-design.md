@@ -123,18 +123,54 @@ respectively, and never produce buffs — only consume them.
 Special actions count as Main Actions: each is a roll-formula upgrade of a
 main action, and all seven carry the same `MR + WR + other bonuses` shape.
 
+### Why the family is a list, not a `use` query
+
+`action-families.js` holds the explicit lists and is the runtime source. It
+does not derive `mainAction` from `use`, for two reasons.
+
+The `attack`, `heal` and `buff` sub-families cannot be derived from any field.
+Mark and Duelist·Challenge apply to attacks but not to heals or buffs, and
+`attack` includes Protect, Counter, Ultra Protect and Ultra Counter — which
+are Defense-category actions. No combination of `use`, `category` or `type`
+picks out that set. Those three lists already exist and are already load-
+bearing for Lethal and Combat Focus, so they stay.
+
+Given the lists exist anyway, deriving `mainAction` separately from `use`
+would create a second source of truth that could disagree with the union of
+the three. Instead `mainAction` is defined as that union, and a test pins it
+to `use`:
+
+```js
+assert.deepStrictEqual(
+  [...ActionFamilies.mainAction].sort(),
+  actionlist.filter(a => a.use.includes("main")).map(a => a.lookup).sort()
+);
+```
+
+Add a main action to `actions.js` and forget the family list, and the test
+fails loudly. Without it, Evolve would silently under-apply and the only
+symptom would be a wrong number in a roll code already pasted into a thread.
+`use` was wrong in 13 of 69 entries before this fix, so a loud failure is
+worth more here than self-maintenance.
+
 ### The `use` data fix
 
-The `use: ["main"]` discrepancy on those six actions is a real data bug, and
-it is fixed as part of this work.
+`use` is repaired as part of this work so that `use.includes("main")` becomes
+a true test for the Main Action family — 13 of 69 entries change.
 
 Nothing currently reads `use`. The only filters wired up in
-`action-selector.html` are the role tabs; the "use filters
-(Main/Bonus/Free/Passive/Special)" described in `CLAUDE.md` do not exist in
-the code. So the field is dead data that happens to be wrong — zero risk to
-correct, and a trap for whoever trusts it next.
+`action-selector.html` are the role tabs; the use-filters described in
+`CLAUDE.md` were removed. So the field is dead data that happens to be wrong:
+zero risk to correct, and a trap for whoever trusts it next.
 
-Corrected values, confirmed by both the `dice` field and the description text:
+**Semantics.** `use` records which slot an action occupies, plus any tags that
+qualify it. `main` and `special` are orthogonal — an action can occupy the
+main slot *and* be a Special Action. This is why `resource/armor-abilities.js:45`
+has to say a second main action "cannot be a Special Action"; the restriction
+only needs stating because a Special normally *is* your main action.
+
+**Group 1 — declare `main` but are not.** Confirmed by both the `dice` field
+and the description text.
 
 | Action | Was | Becomes | Evidence |
 | --- | --- | --- | --- |
@@ -145,12 +181,27 @@ Corrected values, confirmed by both the `dice` field and the description text:
 | `coordinate` | `["main"]` | `["free"]` | "(D) Free Action:" |
 | `follow-up` | `["main"]` | `["free"]` | "(C) Free Action." |
 
-Plan Mode does not read `use` — the Main Action family is defined explicitly
-in `action-families.js` — so this fix is independent of the rest of the
-feature and lands first, on its own.
+**Group 2 — are main actions but omit `main`.** All seven carry the
+`MR + WR + other bonuses` roll shape.
 
-The stale `CLAUDE.md` line describing use-filters should be corrected at the
-same time.
+| Action | Was | Becomes |
+| --- | --- | --- |
+| `ultra-protect` | `["special"]` | `["main","special"]` |
+| `ultra-counter` | `["special"]` | `["main","special"]` |
+| `burst-attack` | `["special"]` | `["main","special"]` |
+| `critical-attack` | `["special"]` | `["main","special"]` |
+| `power-heal` | `["special"]` | `["main","special"]` |
+| `power-buff` | `["special"]` | `["main","special"]` |
+| `reckless-attack` | `["free","special"]` | `["free","main","special"]` |
+
+After both groups, `actionlist.filter(a => a.use.includes("main"))` returns
+exactly the 15 Main Actions.
+
+Plan Mode still does not read `use` at runtime — see below — so this fix is
+independent of the rest of the feature and lands first, on its own.
+
+`CLAUDE.md`'s mention of use-filters is removed, since the filter itself was
+deleted. Nothing else in that document is touched.
 
 ## Data model
 
@@ -380,6 +431,7 @@ build code for something nobody wants to share.
 | Card reconfigured after being added | The row is frozen by design. Delete and re-add. |
 | Mark targets one specific enemy | Not tracked; queued attacks are assumed to hit the marked enemy, so Mark's Self checkbox starts checked. Uncheck it when another Hyper Sense user spent the charges first. |
 | `use` fix changes an action's filtering | It cannot — nothing reads `use` today. Verified by search across all `.js` and `.html`. |
+| A new main action added to `actions.js` later | `test/action-families.test.js` fails until it is added to the family list. |
 | Queue restored for a different character | Fingerprint mismatch clears it. |
 
 ## Testing
@@ -390,6 +442,7 @@ TDD throughout, `node --test`, loading browser-style modules through
 | File | Covers |
 | --- | --- |
 | `test/plan-queue.test.js` | The resolve algorithm: charge spending, persistence, mastery match, non-stackable resolution, dismissal, target-self gating, reorder recomputation. |
+| `test/action-families.test.js` | `mainAction` equals `use.includes("main")` across `actions.js`; `mainAction` is exactly `attack` + `heal` + `buff`; every family member names a real action. |
 | `test/plan-buffs.test.js` | Every seed value pinned against its cited bot table; every entry's `appliesTo` names a real family; every `lookup` names a real action. |
 | `test/rollcode-utils.test.js` | `setRollPlanMod` set, clear, and coexistence with `setRollExtraMod`, alongside the existing Risky tests. |
 
