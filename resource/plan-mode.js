@@ -127,13 +127,179 @@ const PlanMode = (function () {
         return null;
     }
 
-    // Task 9 replaces this with the real renderer.
+    function escape(text) {
+        return window.DOMUtils.escapeHtml(String(text == null ? "" : text));
+    }
+
+    // The roll code as it should be pasted: the snapshot with this row's
+    // computed total spliced into its own planmod span. setRollPlanMod leaves
+    // the Lethal passive and any Risky modifier alone.
+    function rollHtmlFor(resolved) {
+        if (!resolved.rollHtml) return "";
+        return window.RollCodeUtils.setRollPlanMod(resolved.rollHtml, resolved.total);
+    }
+
+    function chipHtml(chip) {
+        const sign = chip.value >= 0 ? "+" : "";
+        let text = chip.label + " " + sign + chip.value;
+        let title = "Click to ignore this buff on this row";
+
+        if (chip.state === "applied" && typeof chip.remaining === "number") {
+            text += " ·" + chip.remaining + " left";
+        } else if (chip.state === "blocked") {
+            text += " · " + chip.reason;
+            title = "Not applied: " + chip.reason;
+        } else if (chip.state === "superseded") {
+            title = "A higher source of the same buff applies instead";
+        } else if (chip.state === "dismissed") {
+            title = "Click to apply this buff again";
+        }
+
+        return '<span class="plan-chip ' + chip.state + '" data-source="' +
+            escape(chip.source) + '" title="' + escape(title) + '">' +
+            escape(text) + "</span>";
+    }
+
+    function rowHtml(resolved, index) {
+        const entry = window.PlanBuffs.table[resolved.lookup];
+        const mastery = resolved.masteryName
+            ? " (" + resolved.masteryName +
+              (resolved.rankLetter ? " " + resolved.rankLetter : "") + ")"
+            : "";
+        const tags = resolved.tags.length ? " · " + resolved.tags.join(" · ") : "";
+        const totalText = resolved.total
+            ? (resolved.total > 0 ? "+" : "") + resolved.total
+            : "—";
+
+        let html = '<div class="plan-row" data-uid="' + escape(resolved.uid) + '" draggable="true">';
+        html += '<div class="plan-row-main">';
+        html += '<span class="plan-row-index" title="Drag to reorder">' + (index + 1) + "</span>";
+        html += '<span class="plan-row-name">' + escape(resolved.name + tags) +
+                '<span class="plan-row-mastery">' + escape(mastery) + "</span></span>";
+        html += '<span class="plan-row-total' + (resolved.total ? "" : " zero") + '">' +
+                escape(totalText) + "</span>";
+        html += '<span class="plan-row-remove" data-remove="' + escape(resolved.uid) +
+                '" title="Remove from queue">×</span>';
+        html += "</div>";
+
+        const roll = rollHtmlFor(resolved);
+        if (roll) {
+            html += '<div class="rollcode clickable-rollcode" onclick="copyRollCode(this)" ' +
+                    'title="Click to copy">' + roll + "</div>";
+        } else {
+            html += '<div class="plan-row-mastery">—</div>';
+        }
+
+        html += '<div class="plan-row-meta">';
+        for (let i = 0; i < resolved.chips.length; i++) {
+            html += chipHtml(resolved.chips[i]);
+        }
+        if (entry && entry.selfToggle) {
+            html += '<label class="plan-self"><input type="checkbox" data-self="' +
+                    escape(resolved.uid) + '"' + (resolved.targetSelf ? " checked" : "") +
+                    "> Self</label>";
+        }
+        html += '<span class="plan-manual">+<input type="number" data-manual="' +
+                escape(resolved.uid) + '" value="' + escape(resolved.manualMod) +
+                '" title="Extra modifier from anyone else"></span>';
+        html += "</div></div>";
+
+        return html;
+    }
+
     function refresh() {
-        window.PlanQueue.resolveQueue(rows);
+        const rail = document.getElementById("plan-rail");
+        if (!rail) return;
+
+        const resolved = window.PlanQueue.resolveQueue(rows);
+
+        let html = '<div class="plan-rail-head">Queue · Turn';
+        html += '<span class="plan-rail-clear" data-clear="1">Clear</span></div>';
+
+        if (!resolved.length) {
+            html += '<div class="plan-empty">Configure a card, then press + Add.</div>';
+        } else {
+            for (let i = 0; i < resolved.length; i++) {
+                html += rowHtml(resolved[i], i);
+            }
+        }
+
+        rail.innerHTML = html;
+        if (window.PlanMode && window.PlanMode.persist) window.PlanMode.persist();
+    }
+
+    // One delegated listener set on the rail, so re-rendering never leaves
+    // stale handlers behind.
+    let railBound = false;
+
+    function bindRail() {
+        if (railBound) return;
+        const rail = document.getElementById("plan-rail");
+        if (!rail) return;
+        railBound = true;
+
+        rail.addEventListener("click", function (event) {
+            const target = event.target;
+
+            if (target.getAttribute("data-clear")) {
+                clear();
+                return;
+            }
+
+            const removeUid = target.getAttribute("data-remove");
+            if (removeUid) {
+                remove(removeUid);
+                return;
+            }
+
+            // Chips toggle themselves off and back on for the row they sit in.
+            if (target.classList.contains("plan-chip") && !target.classList.contains("blocked")) {
+                const rowEl = target.closest(".plan-row");
+                const row = rowEl ? rowByUid(rowEl.getAttribute("data-uid")) : null;
+                const source = target.getAttribute("data-source");
+                if (row && source) {
+                    const at = row.dismissed.indexOf(source);
+                    if (at === -1) row.dismissed.push(source);
+                    else row.dismissed.splice(at, 1);
+                    refresh();
+                }
+            }
+        });
+
+        rail.addEventListener("change", function (event) {
+            const selfUid = event.target.getAttribute("data-self");
+            if (selfUid) {
+                const row = rowByUid(selfUid);
+                if (row) {
+                    row.targetSelf = event.target.checked;
+                    refresh();
+                }
+            }
+        });
+
+        // Re-resolve as you type, so the total and every downstream roll code
+        // update live.
+        rail.addEventListener("input", function (event) {
+            const manualUid = event.target.getAttribute("data-manual");
+            if (!manualUid) return;
+            const row = rowByUid(manualUid);
+            if (!row) return;
+            row.manualMod = event.target.value;
+
+            // Keep focus and caret: a full re-render would steal both.
+            const caret = event.target.selectionStart;
+            refresh();
+            const again = document.querySelector('[data-manual="' + manualUid + '"]');
+            if (again) {
+                again.focus();
+                try { again.setSelectionRange(caret, caret); } catch (e) { /* number inputs */ }
+            }
+        });
     }
 
     // Adds an Add button to every card that can be queued, once.
     function installAddButtons() {
+        bindRail();
         const containers = ["actionsdisplay", "freeactiondisplay", "saveschecks"];
         for (let c = 0; c < containers.length; c++) {
             const container = document.getElementById(containers[c]);
