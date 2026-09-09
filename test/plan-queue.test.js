@@ -303,6 +303,34 @@ test("two non-stackable sources keep only the highest", () => {
     }
 });
 
+test("an applied once buff carries no charge count", () => {
+    // "once" is not charge-based — chargesFor returns null for it — so a chip
+    // reading "0 left" would be indistinguishable from a spent charge buff.
+    const resolved = resolveQueue([
+        row("duelist", { rankLetter: "A", tags: ["Challenge"] }),
+        row("attack"),
+    ]);
+    const applied = resolved[1].chips[0];
+    assert.strictEqual(applied.state, "applied");
+    assert.ok(!("remaining" in applied), `once chip carried remaining=${applied.remaining}`);
+});
+
+test("a mastery-match buff is blocked when either mastery is unknown", () => {
+    const noConsumerMastery = resolveQueue([
+        row("evolve", { rankLetter: "B", masteryId: "power" }),
+        row("attack"),
+    ]);
+    assert.deepStrictEqual(noConsumerMastery.map((r) => r.total), [0, 0]);
+    assert.strictEqual(noConsumerMastery[1].chips[0].state, "blocked");
+
+    const noProducerMastery = resolveQueue([
+        row("evolve", { rankLetter: "B" }),
+        row("attack", { masteryId: "power" }),
+    ]);
+    assert.deepStrictEqual(noProducerMastery.map((r) => r.total), [0, 0]);
+    assert.strictEqual(noProducerMastery[1].chips[0].state, "blocked");
+});
+
 test("stackable buffs from different sources both apply", () => {
     const rows = [
         row("mark", { rankLetter: "B" }),

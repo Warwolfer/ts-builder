@@ -99,8 +99,13 @@ const PlanQueue = (function () {
     // adjacency, Mark's "your marked enemy" — are not checkable here, so those
     // buffs default on and the chip is there to click off.
     function blockedReason(pooled, row) {
-        if (pooled.entry.requiresMasteryMatch && pooled.masteryId &&
-            row.masteryId && pooled.masteryId !== row.masteryId) {
+        // Unverifiable is not the same as satisfied. If either side's mastery is
+        // unset we cannot confirm the match, and over-applying is worse than
+        // under-applying here — these totals get pasted into a live thread. The
+        // blocked chip tells the player exactly what to go and set.
+        if (pooled.entry.requiresMasteryMatch &&
+            (!pooled.masteryId || !row.masteryId ||
+             pooled.masteryId !== row.masteryId)) {
             return "needs the evolved mastery";
         }
         return null;
@@ -108,6 +113,10 @@ const PlanQueue = (function () {
 
     // A non-stackable buff cannot double up: the highest wins and the rest are
     // marked superseded so you can see they were considered.
+    //
+    // Mutates the candidate wrappers in place, setting `superseded` on the
+    // losers. In-place is the contract, not an accident: the caller keeps its
+    // own array reference.
     function markSuperseded(candidates) {
         const bestBySource = {};
         for (let i = 0; i < candidates.length; i++) {
@@ -124,7 +133,6 @@ const PlanQueue = (function () {
             if (c.pooled.entry.stackable !== false) continue;
             if (bestBySource[c.pooled.source] !== c) c.superseded = true;
         }
-        return candidates;
     }
 
     // Walks the queue once, front to back. Returns new objects; the input rows
@@ -173,10 +181,14 @@ const PlanQueue = (function () {
                     continue;
                 }
 
+                // Capture charge-ness BEFORE spending: spend() turns a null
+                // remaining into 0 for any non-persistent buff, so reading it
+                // afterwards would hang a bogus "0 left" on every once buff.
+                const wasCharge = pooled.remaining !== null;
                 const applied = chip(pooled, "applied");
                 total += pooled.value;
                 spend(pooled);
-                if (pooled.remaining !== null) applied.remaining = pooled.remaining;
+                if (wasCharge) applied.remaining = pooled.remaining;
                 chips.push(applied);
             }
 
