@@ -256,13 +256,46 @@
     word-break: break-word;
 }
 
+/* Line two of every row, on the same grid as line one so Result and Crit sit
+   under the roll code and Extra Mods rather than floating. */
 .plan-row-meta {
+    display: grid;
+    grid-template-columns: 34px minmax(92px, 0.82fr) 46px 40px minmax(0, 1.98fr) 62px 18px;
+    align-items: center;
+    gap: 8px;
+    margin-top: 3px;
+}
+
+.plan-row-chips {
+    grid-column: 2 / 5;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 5px;
-    margin-top: 5px;
-    padding-left: 32px;
+}
+
+.plan-row-result {
+    grid-column: 5;
+    font-size: 11px;
+    color: #cfd3e0;
+    font-variant-numeric: tabular-nums;
+}
+
+.plan-row-crit {
+    grid-column: 6 / -1;
+    font-size: 11px;
+    color: #e0a367;
+    font-variant-numeric: tabular-nums;
+}
+
+.plan-row-result i,
+.plan-row-crit i {
+    color: #7d879e;
+    font-style: normal;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-right: 3px;
 }
 
 .plan-chip {
@@ -350,9 +383,15 @@
         grid-column: 1 / -1;
     }
 
+    /* Line two stacks: chips, then Result and Crit side by side. */
     .plan-row-meta {
-        padding-left: 0;
+        grid-template-columns: 1fr auto auto;
+        gap: 6px;
     }
+
+    .plan-row-chips { grid-column: 1 / -1; }
+    .plan-row-result { grid-column: 2; }
+    .plan-row-crit { grid-column: 3; }
 }
 
 /* Plan mode drives a turn; it does not share a build. The note, build code,

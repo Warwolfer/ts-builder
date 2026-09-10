@@ -230,6 +230,27 @@ const PlanMode = (function () {
             "</span>";
     }
 
+    // What the roll will land between, and what a crit turns it into. Both are
+    // derived from the rendered roll code, so they account for every modifier
+    // already spliced into it. An action with no projectable roll shows a dash.
+    function resultCellsHtml(resolved) {
+        const roll = rollHtmlFor(resolved);
+        const text = roll ? roll.replace(/<[^>]*>/g, "") : "";
+        const res = window.PlanResult
+            ? window.PlanResult.forRow(resolved.lookup, text, resolved.tags)
+            : null;
+        const range = res ? window.PlanResult.formatRange(res) : "";
+        const crit = res ? window.PlanResult.formatCrit(res) : "";
+        const note = res && res.divisor > 1 ? " (per target)" : "";
+
+        return '<span class="plan-row-result"' +
+            (range ? ' title="Projected roll range' + escape(note) + '"' : "") +
+            ">" + (range ? '<i>Result</i> ' + escape(range) : "—") + "</span>" +
+            '<span class="plan-row-crit"' +
+            (crit ? ' title="Damage on a critical hit"' : "") +
+            ">" + (crit ? '<i>Crit</i> ' + escape(crit) : "—") + "</span>";
+    }
+
     function rowHtml(resolved, index) {
         const entry = window.PlanBuffs.table[resolved.lookup];
         const tags = resolved.tags.length ? " · " + resolved.tags.join(" · ") : "";
@@ -259,19 +280,22 @@ const PlanMode = (function () {
                 '" title="Remove from queue">×</span>';
         html += "</div>";
 
+        // The second line is always present: it carries Result and Crit, so the
+        // space a chip-less row used to waste is now the projection.
         const showSelf = !!(entry && entry.selfToggle);
-        if (resolved.chips.length || showSelf) {
-            html += '<div class="plan-row-meta">';
-            for (let i = 0; i < resolved.chips.length; i++) {
-                html += chipHtml(resolved.chips[i]);
-            }
-            if (showSelf) {
-                html += '<label class="plan-self"><input type="checkbox" data-self="' +
-                        escape(resolved.uid) + '"' + (resolved.targetSelf ? " checked" : "") +
-                        "> Self</label>";
-            }
-            html += "</div>";
+        html += '<div class="plan-row-meta">';
+        html += '<span class="plan-row-chips">';
+        for (let i = 0; i < resolved.chips.length; i++) {
+            html += chipHtml(resolved.chips[i]);
         }
+        if (showSelf) {
+            html += '<label class="plan-self"><input type="checkbox" data-self="' +
+                    escape(resolved.uid) + '"' + (resolved.targetSelf ? " checked" : "") +
+                    "> Self</label>";
+        }
+        html += "</span>";
+        html += resultCellsHtml(resolved);
+        html += "</div>";
         html += "</div>";
 
         return html;
