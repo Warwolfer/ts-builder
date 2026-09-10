@@ -230,6 +230,18 @@ const PlanMode = (function () {
             "</span>";
     }
 
+    // The projection is named for what it actually produces, so a heal does not
+    // read "Damage". The families already encode this - heal and buff are their
+    // own, and everything else that rolls a projectable result deals damage.
+    function resultLabel(lookup) {
+        const families = window.ActionFamilies
+            ? window.ActionFamilies.familiesOf(lookup)
+            : [];
+        if (families.indexOf("heal") !== -1) return "Heal";
+        if (families.indexOf("buff") !== -1) return "Buff";
+        return "Damage";
+    }
+
     // What the roll will land between, and what a crit turns it into. Both are
     // derived from the rendered roll code, so they account for every modifier
     // already spliced into it. An action with no projectable roll shows a dash.
@@ -242,13 +254,16 @@ const PlanMode = (function () {
         const range = res ? window.PlanResult.formatRange(res) : "";
         const crit = res ? window.PlanResult.formatCrit(res) : "";
         const note = res && res.divisor > 1 ? " (per target)" : "";
+        const label = resultLabel(resolved.lookup);
 
         return '<span class="plan-row-result"' +
-            (range ? ' title="Projected roll range' + escape(note) + '"' : "") +
-            ">" + (range ? '<i>Result</i> ' + escape(range) : "—") + "</span>" +
+            (range ? ' title="Projected ' + escape(label.toLowerCase()) +
+                     " range" + escape(note) + '"' : "") +
+            ">" + (range ? "<i>" + escape(label) + "</i> " + escape(range) : "—") +
+            "</span>" +
             '<span class="plan-row-crit"' +
-            (crit ? ' title="Damage on a critical hit"' : "") +
-            ">" + (crit ? '<i>Crit</i> ' + escape(crit) : "—") + "</span>";
+            (crit ? ' title="' + escape(label) + ' on a critical hit"' : "") +
+            ">" + (crit ? '<i>Crit Damage</i> ' + escape(crit) : "—") + "</span>";
     }
 
     function rowHtml(resolved, index) {
