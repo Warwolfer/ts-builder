@@ -330,6 +330,12 @@
     color: #62a8ea;
 }
 
+/* A save or check is a number to beat a DC, not damage — neutral rather than
+   borrowing a role colour that would imply one. */
+.plan-row-result.is-check b {
+    color: #cfd3e0;
+}
+
 .plan-row-crit b {
     color: #e06767;
 }

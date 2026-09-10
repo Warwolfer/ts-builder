@@ -78,7 +78,12 @@ const PlanMode = (function () {
     function addBlockedReason(card) {
         const icons = card.querySelectorAll(".masterycircle");
         if (icons.length && !card.querySelector(".masterycircle.active-glow")) {
-            return "Choose a mastery first";
+            // The Saves and Expertise Check cards light a save type and an
+            // expertise, not a mastery, so name what the card is actually
+            // asking for.
+            return icons[0].getAttribute("data-mastery")
+                ? "Choose a mastery first"
+                : "Choose a type first";
         }
         return null;
     }
@@ -96,12 +101,41 @@ const PlanMode = (function () {
         }
     }
 
+    // Whatever icon is lit, whether or not it is a mastery. The Saves card
+    // lights a save type and the Expertise Check card an expertise; neither
+    // carries data-mastery, so the icon's own image is the only thing that
+    // identifies all three uniformly.
+    function selectedTypeIcon(card) {
+        const icon = card.querySelector(".masterycircle.active-glow");
+        if (!icon) return { image: "", label: "" };
+        const img = icon.querySelector("img");
+
+        // The roll code already names what was picked — clickSave writes into
+        // .savereplace, clickExpertise into .expertisereplace, clickMastery
+        // into .mnamereplace. That is the authoritative label, and the only one
+        // the Saves card has at all: its icons carry no alt and no
+        // data-mastery, so reading the image would give an empty name.
+        const named = card.querySelector(
+            ".rollcode .savereplace, .rollcode .expertisereplace, .rollcode .mnamereplace",
+        );
+        const name = named ? (named.textContent || "").trim() : "";
+        const placeholder = /^(type|mastery|break-type)$/i.test(name);
+
+        return {
+            image: img ? img.getAttribute("src") || "" : "",
+            label: (!placeholder && name) ||
+                   (img && (img.getAttribute("alt") || "")) ||
+                   (icon.getAttribute("data-mastery") || ""),
+        };
+    }
+
     function snapshotCard(card) {
         const lookup = lookupForCard(card);
         if (!lookup) return null;
 
         const rollCode = card.querySelector(".rollcode");
         const masteryId = selectedMastery(card);
+        const typeIcon = selectedTypeIcon(card);
         const mastery = masteryId && window.masteries
             ? window.masteries.find(function (m) { return m.lookup === masteryId; })
             : null;
@@ -111,7 +145,8 @@ const PlanMode = (function () {
             name: textOf(card, ".cardtitle") || lookup,
             masteryId: masteryId,
             masteryName: mastery ? mastery.name : "",
-            masteryImage: mastery ? mastery.image : "",
+            masteryImage: mastery ? mastery.image : typeIcon.image,
+            typeLabel: mastery ? mastery.name : typeIcon.label,
             rankLetter: rankLetterOf(card),
             tags: activeTags(card),
             rollHtml: rollCode ? rollCode.innerHTML : "",
@@ -210,17 +245,19 @@ const PlanMode = (function () {
     // the action name — the icon is recognisable at a glance and the name column
     // stops being two things at once.
     function masteryCellHtml(resolved) {
-        if (!resolved.masteryId) return '<span class="plan-row-mastery"></span>';
-
-        // Look the image up live rather than trusting the snapshot: a queue
-        // persisted before masteryImage existed restores without one, and the
-        // cell would fall back to a bare rank letter. masteryId is all we need.
-        const mastery = window.masteries
+        // Look the image up live when this is a mastery, rather than trusting
+        // the snapshot: a queue persisted before masteryImage existed restores
+        // without one. For a save or expertise icon there is nothing to look
+        // up, so the captured image is the source.
+        const mastery = resolved.masteryId && window.masteries
             ? window.masteries.find(function (m) { return m.lookup === resolved.masteryId; })
             : null;
         const src = (mastery && mastery.image) || resolved.masteryImage || "";
-        const label = (mastery ? mastery.name : resolved.masteryName) +
-            (resolved.rankLetter ? " " + resolved.rankLetter : "");
+        if (!src && !resolved.rankLetter) return '<span class="plan-row-mastery"></span>';
+
+        const name = (mastery && mastery.name) || resolved.typeLabel ||
+            resolved.masteryName || "";
+        const label = name + (resolved.rankLetter ? " " + resolved.rankLetter : "");
 
         return '<span class="plan-row-mastery" title="' + escape(label) + '">' +
             (src ? '<img class="plan-row-masteryicon" src="' + escape(src) + '" alt="">' : "") +
@@ -237,6 +274,13 @@ const PlanMode = (function () {
         const families = window.ActionFamilies
             ? window.ActionFamilies.familiesOf(lookup)
             : [];
+        // A save or check produces a number to compare against a DC, not damage.
+        if (families.indexOf("save") !== -1 ||
+            families.indexOf("masteryCheck") !== -1 ||
+            families.indexOf("expertiseCheck") !== -1) {
+            return "Result";
+        }
+
         const isHeal = families.indexOf("heal") !== -1;
         const isBuff = families.indexOf("buff") !== -1;
         if (!isHeal && !isBuff) return "Damage";
@@ -270,6 +314,7 @@ const PlanMode = (function () {
         // The colour keys off what it produces, not the spread prefix.
         const kind = /Heal$/.test(label) ? "heal"
             : /Buff$/.test(label) ? "buff"
+            : label === "Result" ? "check"
             : "damage";
 
         // With no crit to sit beside it — heals and buffs never crit — the
@@ -374,7 +419,7 @@ const PlanMode = (function () {
                     'then press + in its corner.</div>';
         } else {
             html += '<div class="plan-head-row"><span>#</span><span>Action</span>' +
-                    '<span>Mastery</span><span>Mod</span><span>Roll code</span>' +
+                    '<span>Type</span><span>Mod</span><span>Roll code</span>' +
                     '<span>Extra Mods</span><span></span></div>';
             for (let i = 0; i < resolved.length; i++) {
                 html += rowHtml(resolved[i], i);

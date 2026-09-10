@@ -44,12 +44,23 @@ const PlanResult = (function () {
     }
 
     // The flat addition every roll gets: the rank values plus the modifiers.
+    // Unsigned numbers, which are a real addend only on the save card — see the
+    // "@save" builder. Everywhere else they are dice counts or noise.
+    function bareNumbersIn(dice) {
+        let sum = 0;
+        const tokens = dice.split(/\s+/);
+        for (let i = 0; i < tokens.length; i++) {
+            if (/^\d+$/.test(tokens[i])) sum += parseInt(tokens[i], 10);
+        }
+        return sum;
+    }
+
     function baseOf(rollText) {
         const dice = diceHalf(String(rollText || ""));
         const ranks = ranksIn(dice);
         let sum = modsIn(dice);
         for (let i = 0; i < ranks.length; i++) sum += ranks[i];
-        return { base: sum, ranks: ranks };
+        return { base: sum, ranks: ranks, bare: bareNumbersIn(dice) };
     }
 
     // The mastery rank drives several rank-scaled rules. It is the first rank
@@ -91,6 +102,15 @@ const PlanResult = (function () {
             critMax: null,
             exploding: true,
         };
+    }
+
+    // basic.js handleSave / handleExpertise / handleMastery: 1d100 plus a bonus
+    // and any modifiers, with no crit multiplier — a natural 100 is just 100.
+    // Advantage and disadvantage roll a second d100 and keep the higher or
+    // lower, which changes the odds but not the bounds, so the range is the
+    // same either way.
+    function check(base) {
+        return { min: 1 + base, max: 100 + base, critMin: null, critMax: null };
     }
 
     const BUILDERS = {
@@ -160,6 +180,14 @@ const PlanResult = (function () {
             };
         },
 
+        // --- basic.js handleSave / handleExpertise / handleMastery -------------
+        // The save card writes its bonus as a bare number rather than a rank
+        // letter (clickSave stamps the computed save value), so this is the one
+        // roll code where an unsigned number is a real addend.
+        "@save": function (base, rank, bare) { return check(base + bare); },
+        "@expertise-check": check,
+        "@mastery-check": check,
+
         // --- offense.js handleReckless ----------------------------------------
         // 1d200 plus d100s that scale with the mastery rank: one at E/D/C, two
         // at B/A, and at S one plus a kept-highest pair. Crit runs ×2 to ×7.
@@ -224,7 +252,7 @@ const PlanResult = (function () {
         }
 
         if (!BUILDERS.hasOwnProperty(lookup)) return null;
-        return BUILDERS[lookup](parsed.base, rank);
+        return BUILDERS[lookup](parsed.base, rank, parsed.bare);
     }
 
     // "21-119", or "7-140 ↑" when the dice explode past the stated ceiling.

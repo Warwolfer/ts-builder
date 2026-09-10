@@ -169,7 +169,7 @@ test("support actions have no crit figure", () => {
 test("an action with no projectable roll returns null", () => {
     // Torment, Evolve, the save and check cards: either no dice or a result
     // that is not a number. The renderer shows a dash for these.
-    for (const lookup of ["torment", "evolve", "duelist", "@save", "not-an-action"]) {
+    for (const lookup of ["torment", "evolve", "duelist", "not-an-action"]) {
         assert.strictEqual(forRow(lookup, "?r x A # y", []), null, lookup);
     }
 });
@@ -183,4 +183,32 @@ test("a missing or empty roll code returns null rather than throwing", () => {
 test("formatters tolerate a null result", () => {
     assert.strictEqual(formatRange(null), "");
     assert.strictEqual(formatCrit(null), "");
+});
+
+test("saves and checks project a range with no crit", () => {
+    // basic.js handleSave/handleExpertise/handleMastery: 1d100 plus a bonus,
+    // no multiplier — a natural 100 is just 100, so the span runs to 100+base.
+    const save = forRow("@save", "?r save 70 # Reflex · Lune", []);
+    assert.strictEqual(formatRange(save), "71-170");
+    assert.strictEqual(formatCrit(save), "");
+
+    // Expertise and mastery checks carry a rank letter instead of a number.
+    assert.strictEqual(formatRange(forRow("@expertise-check", "?r expertise B # x", [])), "26-125");
+    assert.strictEqual(formatRange(forRow("@mastery-check", "?r mastery S # x", [])), "41-140");
+});
+
+test("only the save card treats an unsigned number as a bonus", () => {
+    // clickSave stamps the computed save value as a bare number, so it has to
+    // count there. Anywhere else an unsigned number is a dice count or noise,
+    // and counting it would inflate the projection.
+    assert.strictEqual(formatRange(forRow("@save", "?r save 70 # x", [])), "71-170");
+    assert.strictEqual(formatRange(forRow("attack", "?r attack E E 70 # x", [])), "1-99");
+});
+
+test("advantage does not change a check's bounds", () => {
+    // adv/dis roll a second d100 and keep the higher or lower, which shifts the
+    // odds but not the range.
+    const plain = forRow("@save", "?r save 70 # x", []);
+    const adv = forRow("@save", "?r save adv 70 # x", []);
+    assert.strictEqual(formatRange(plain), formatRange(adv));
 });

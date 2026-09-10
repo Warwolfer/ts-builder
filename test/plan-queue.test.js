@@ -466,3 +466,13 @@ test("a blank modifier still resolves to zero", () => {
     const rows = [makeRow({ lookup: "attack", manualMod: "" })];
     assert.strictEqual(resolveQueue(rows)[0].total, 0);
 });
+
+test("makeRow carries the type label, not just the mastery name", () => {
+    // The Saves and Expertise Check cards light an icon that is not a mastery,
+    // so the row needs its own label for the Type column. makeRow copies a
+    // fixed set of fields, and a field it does not know is silently dropped.
+    const row = makeRow({ lookup: "@save", typeLabel: "Reflex" });
+    assert.strictEqual(row.typeLabel, "Reflex");
+    assert.strictEqual(resolveQueue([row])[0].typeLabel, "Reflex");
+    assert.strictEqual(makeRow({ lookup: "attack" }).typeLabel, "");
+});
