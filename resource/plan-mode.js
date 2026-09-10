@@ -261,7 +261,7 @@ const PlanMode = (function () {
         ]);
     }
 
-    function persist() {
+    function persistNow() {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify({
                 fingerprint: fingerprint(),
@@ -271,6 +271,32 @@ const PlanMode = (function () {
             // Private mode or a full quota: the queue simply will not survive
             // a reload, which is not worth interrupting planning over.
         }
+    }
+
+    // refresh() calls this on every mutation, including once per keystroke in
+    // the manual-modifier field - a short debounce keeps that from hitting
+    // localStorage on every keystroke. The window is short enough that no
+    // user-visible action (add/remove/move/clear) reads it back before it
+    // fires; only a navigation inside the window could lose the very last
+    // write, which is the same "queue is scratch" trade-off already made for
+    // private mode and quota failures above.
+    let persistTimer = null;
+    function persist() {
+        if (persistTimer) clearTimeout(persistTimer);
+        persistTimer = setTimeout(persistNow, 250);
+    }
+
+    // rollHtml is markup, so it cannot be escaped on the way out - it reaches
+    // innerHTML intact by design (see rowHtml/rollHtmlFor). A live row gets it
+    // from the app's own rendered card; a stored row comes from localStorage,
+    // which anyone can edit in DevTools. Keep only what still looks like a
+    // roll code and let the rest render without one - rowHtml already handles
+    // a missing roll code with the em-dash placeholder.
+    function safeRollHtml(html) {
+        if (typeof html !== "string" || html.length > 2000) return "";
+        if (/<\s*(script|iframe|object|embed|link|style|img|svg)\b/i.test(html)) return "";
+        if (/\son[a-z]+\s*=/i.test(html)) return "";
+        return html;
     }
 
     function restore() {
@@ -296,9 +322,26 @@ const PlanMode = (function () {
             return;
         }
 
-        rows.length = 0;
-        for (let i = 0; i < parsed.rows.length; i++) {
-            rows.push(window.PlanQueue.makeRow(parsed.rows[i]));
+        try {
+            rows.length = 0;
+            for (let i = 0; i < parsed.rows.length; i++) {
+                const fields = parsed.rows[i];
+                // Mutating this in place is fine: fields is part of the
+                // object graph JSON.parse just built for this call alone. A
+                // malformed entry (null, a primitive, missing fields) throws
+                // here or inside makeRow - deliberately not guarded - so the
+                // catch below can drop the whole queue rather than leave a
+                // reconstructed row half-built.
+                fields.rollHtml = safeRollHtml(fields.rollHtml);
+                rows.push(window.PlanQueue.makeRow(fields));
+            }
+        } catch (e) {
+            // The queue is turn-scoped scratch: a malformed stored row costs
+            // the user their queue, never their build sheet. Anything that
+            // survives JSON.parse but not reconstruction gets dropped, same
+            // as a fingerprint mismatch.
+            rows.length = 0;
+            try { localStorage.removeItem(STORAGE_KEY); } catch (e2) { /* ignore */ }
         }
     }
 
@@ -451,7 +494,9 @@ const PlanMode = (function () {
         if (!restored) {
             restored = true;
             restore();
-            refresh();
+            // No refresh() here: the unconditional one at the end of this
+            // function (below) is the first paint. Calling both rendered the
+            // same rail twice on every first load.
         }
 
         const containers = ["actionsdisplay", "freeactiondisplay", "saveschecks"];
