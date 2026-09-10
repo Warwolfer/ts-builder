@@ -48,16 +48,12 @@ const ActionFamilies = (function () {
         return out;
     }
 
-    return {
-        attack: attack,
-        heal: heal,
-        buff: buff,
-        mainAction: mainAction,
-        save: save,
-        masteryCheck: masteryCheck,
-        expertiseCheck: expertiseCheck,
-        familiesOf: familiesOf,
-    };
+    // Returning ALL itself (plus familiesOf) rather than restating the seven
+    // keys in a second literal: familiesOf() reads ALL, so a family added only
+    // to a hand-restated return object would be invisible to it — appliesTo
+    // would silently never match, and the appliesTo test validates against
+    // this same returned object, so it would pass regardless.
+    return Object.assign({}, ALL, { familiesOf: familiesOf });
 })();
 
 window.ActionFamilies = ActionFamilies;

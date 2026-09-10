@@ -44,6 +44,22 @@ test("pseudo-lookups are @-prefixed so they cannot collide with real actions", (
     }
 });
 
+test("M1: the returned family arrays are the same ones familiesOf reads", () => {
+    // familiesOf() reads the internal ALL object. Regression for a bug where
+    // the module returned a second literal restating the same keys instead of
+    // ALL itself — a family added to only one of the two would desync
+    // silently, and this is what would have caught it: mutate the array the
+    // caller was handed and confirm familiesOf sees the change, proving there
+    // is only one array, not a copy.
+    const marker = "__test-marker-action";
+    ActionFamilies.buff.push(marker);
+    try {
+        assert.deepStrictEqual(ActionFamilies.familiesOf(marker), ["buff"]);
+    } finally {
+        ActionFamilies.buff.pop();
+    }
+});
+
 test("familiesOf reports every family a lookup belongs to", () => {
     // Reckless Attack is both, which is why the engine matches on any family.
     assert.deepStrictEqual(
