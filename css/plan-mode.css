@@ -352,7 +352,6 @@
 #builddisplay.plan #actionsdisplay,
 #builddisplay.plan #freeactiondisplay,
 #builddisplay.plan #saveschecks {
-    align-items: start;
     gap: 8px;
 }
 
@@ -402,3 +401,50 @@
 
 
 
+
+/* A toggle must not change size when it activates. build-sheet.css gives
+   .risky-toggle `border: 0px` and .risky-toggle.active `border: 1px solid
+   white`, so clicking one added 2px to the button and pushed the whole card
+   taller. Reserve the border up front and only change its colour. */
+#builddisplay.plan .risky-toggle {
+    border: 1px solid transparent;
+}
+
+#builddisplay.plan .risky-toggle.active {
+    border-color: #fff;
+}
+
+/* Uniform card height. align-items:start let every card hug its own content,
+   which is why a card with no mastery pickers or no toggles ended up shorter
+   than its neighbours - five different heights across one grid. Stretching to
+   a shared row height is only affordable now that the tallest card is ~120px
+   rather than the 171px it was before the reservations came out. */
+#builddisplay.plan #actionsdisplay,
+#builddisplay.plan #freeactiondisplay,
+#builddisplay.plan #saveschecks {
+    align-items: stretch;
+    grid-auto-rows: 1fr;
+}
+
+/* Content stays top-aligned inside the taller box rather than centring in it. */
+#builddisplay.plan .card {
+    justify-content: flex-start;
+}
+
+/* The free actions (Twice/Attack/Rush) are a separate grid from the main
+   actions, so grid-auto-rows cannot give the two a shared track height - they
+   settled at 99px directly above 121px, which reads as a mistake when both sit
+   under one "Actions" heading with identical card styling. A shared floor fixes
+   that; --plan-card-min is the tallest natural card, and the 1fr stretch above
+   still absorbs anything taller than the floor. */
+#builddisplay.plan {
+    --plan-card-min: 121px;
+}
+
+#builddisplay.plan #actionsdisplay .card,
+#builddisplay.plan #freeactiondisplay .card {
+    /* border-box so the floor is the card's real height, not its height plus
+       whatever padding the base .card rules add. */
+    box-sizing: border-box;
+    min-height: var(--plan-card-min);
+}
