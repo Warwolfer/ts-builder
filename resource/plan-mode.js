@@ -314,9 +314,11 @@ const PlanMode = (function () {
             ? '<div class="rollcode clickable-rollcode" onclick="copyRollCode(this)" ' +
               'title="Click to copy">' + roll + "</div>"
             : '<div class="plan-row-noroll">—</div>';
-        html += '<span class="plan-manual">+<input type="number" data-manual="' +
-                escape(resolved.uid) + '" value="' + escape(resolved.manualMod) +
-                '" title="Extra modifier from anyone else"></span>';
+        html += '<span class="plan-manual">+<input type="text" inputmode="numeric" ' +
+                'autocomplete="off" spellcheck="false" data-manual="' +
+                escape(resolved.uid) + '" value="' +
+                escape(window.PlanQueue.isBlankMod(resolved.manualMod) ? "" : resolved.manualMod) +
+                '" placeholder="0" title="Extra modifier from anyone else"></span>';
         html += '<span class="plan-row-remove" data-remove="' + escape(resolved.uid) +
                 '" title="Remove from queue">×</span>';
         html += "</div>";
@@ -604,15 +606,27 @@ const PlanMode = (function () {
             if (!manualUid) return;
             const row = rowByUid(manualUid);
             if (!row) return;
-            row.manualMod = event.target.value;
+            // Digits with an optional leading sign. The field is a text input
+            // (see rowHtml) so the caret survives the re-render below; that is
+            // also why anything else has to be filtered here rather than left
+            // to the browser's number validation.
+            const raw = event.target.value;
+            const clean = raw.replace(/(?!^[+-])[^0-9]/g, "").replace(/^([+-])?0*(\d)/, "$1$2");
+            let caret = event.target.selectionStart;
+            if (typeof caret === "number") caret -= raw.length - clean.length;
 
-            // Keep focus and caret: a full re-render would steal both.
-            const caret = event.target.selectionStart;
+            row.manualMod = clean;
+
             refresh();
             const again = document.querySelector('[data-manual="' + manualUid + '"]');
             if (again) {
                 again.focus();
-                try { again.setSelectionRange(caret, caret); } catch (e) { /* number inputs */ }
+                // Now that this is a text input, selectionStart is a real
+                // number and the caret can actually be put back where it was.
+                if (typeof caret === "number") {
+                    const at = Math.max(0, Math.min(caret, again.value.length));
+                    try { again.setSelectionRange(at, at); } catch (e) { /* ignore */ }
+                }
             }
         });
 

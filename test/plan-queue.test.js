@@ -449,3 +449,20 @@ test("makeRow defaults a missing mastery image to an empty string", () => {
     // The renderer omits the img element entirely rather than emitting src="".
     assert.strictEqual(makeRow({ lookup: "attack" }).masteryImage, "");
 });
+
+test("isBlankMod treats an unset modifier and a literal zero alike", () => {
+    // The field renders empty with a "0" placeholder for these, because a 0
+    // sitting in the box meant typing 5 produced "50".
+    for (const blank of ["", null, undefined, 0, "0", " 0 "]) {
+        assert.ok(PlanQueue.isBlankMod(blank), JSON.stringify(blank));
+    }
+    for (const set of ["5", 5, "-3", "+10", "0.5"]) {
+        assert.ok(!PlanQueue.isBlankMod(set), JSON.stringify(set));
+    }
+});
+
+test("a blank modifier still resolves to zero", () => {
+    // Display and arithmetic must not disagree: blank means no modifier.
+    const rows = [makeRow({ lookup: "attack", manualMod: "" })];
+    assert.strictEqual(resolveQueue(rows)[0].total, 0);
+});

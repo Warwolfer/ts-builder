@@ -76,6 +76,14 @@ const PlanQueue = (function () {
         return row;
     }
 
+    // An unset modifier renders as an empty field with a "0" placeholder rather
+    // than a literal 0: with a 0 sitting in the box, typing 5 produced "50".
+    // Blank and 0 mean the same thing to the engine, so only the display differs.
+    function isBlankMod(value) {
+        if (value === "" || value == null) return true;
+        return typeof value === "number" ? value === 0 : String(value).trim() === "0";
+    }
+
     function toNumber(value) {
         const n = parseInt(value, 10);
         return isNaN(n) ? 0 : n;
@@ -270,7 +278,11 @@ const PlanQueue = (function () {
         }
     }
 
-    return { resolveQueue: resolveQueue, makeRow: makeRow };
+    return {
+        resolveQueue: resolveQueue,
+        makeRow: makeRow,
+        isBlankMod: isBlankMod,
+    };
 })();
 
 window.PlanQueue = PlanQueue;

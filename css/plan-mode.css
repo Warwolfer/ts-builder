@@ -590,3 +590,18 @@
     border-color: #3d475f;
     color: #cfd3e0;
 }
+
+/* No spinner arrows. The field is a text input now, so this only matters for a
+   browser that still decorates one — and it keeps the rule honest if the type
+   ever changes back. */
+.plan-manual input {
+    text-align: right;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.plan-manual input::-webkit-outer-spin-button,
+.plan-manual input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
