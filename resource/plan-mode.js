@@ -285,9 +285,20 @@ const PlanMode = (function () {
                 : "") +
             "</span>";
         if (crit) {
-            out += '<span class="plan-row-crit" title="' + escape(label) +
-                ' on a critical hit"><i>Crit Damage</i><b>' +
-                escape(crit) + "</b></span>";
+            // The inline figure is the crit you actually hit. The rarer tiers -
+            // a natural 100, double 100s - are reported here rather than
+            // stretched into the headline, where they made every crit look
+            // inflated. A dotted underline marks that there is more to read.
+            const tiers = res.critTiers || [];
+            // Escape each line, then join with the newline entity — escaping
+            // the joined string would turn the entity's "&" into "&amp;" and
+            // the tooltip would read a literal "&#10;" between the tiers.
+            const lines = [label + " on a critical hit"];
+            for (let i = 0; i < tiers.length; i++) lines.push(tiers[i]);
+            const title = lines.map(escape).join("&#10;");
+            return out + '<span class="plan-row-crit' +
+                (tiers.length ? " has-tiers" : "") + '" title="' + title +
+                '"><i>Crit Damage</i><b>' + escape(crit) + "</b></span>";
         }
         return out;
     }

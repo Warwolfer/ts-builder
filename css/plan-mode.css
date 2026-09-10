@@ -605,3 +605,11 @@
     -webkit-appearance: none;
     margin: 0;
 }
+
+/* There is more in the tooltip: the rarer crit tiers this figure deliberately
+   excludes. */
+.plan-row-crit.has-tiers b {
+    text-decoration: underline dotted #e0676780;
+    text-underline-offset: 2px;
+    cursor: help;
+}

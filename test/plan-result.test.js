@@ -85,23 +85,56 @@ test("Sneak Attack's floor is a failed roll and its ceiling a successful one", (
     assert.strictEqual(formatRange(r), "51-179");
 });
 
-test("Critical Attack's crit is a span across its multiplier tiers", () => {
+test("Critical Attack shows the reachable crit inline, not the star breaker", () => {
     // offense.js handleCritical: x1.2 baseline, a rank-scaled 1.5-2.0 on any
-    // 85+, x3 for a 100, x7 for double 100. Non-crit therefore caps at 84+84.
+    // 85+, x3 for a 100, x7 for double 100. Non-crit caps at 84+84. Inline we
+    // show only the 85+ tier, which is the crit you actually hit - a x7 ceiling
+    // that needs double 100s made every crit look inflated.
     const r = forRow("critical-attack", "?r critical S S # x", []);
     assert.strictEqual(r.min, Math.round((2 + 80) * 1.2));
     assert.strictEqual(r.max, Math.round((168 + 80) * 1.2));
     assert.strictEqual(r.critMin, Math.round((86 + 80) * 2));
-    assert.strictEqual(r.critMax, Math.round((200 + 80) * 7));
-    assert.ok(formatCrit(r).includes("-"), "crit should be a range, not one number");
+    assert.strictEqual(r.critMax, Math.round((198 + 80) * 2));
+    assert.ok(formatCrit(r).includes("-"), "the 85+ tier is itself a range");
+    // The rarer tiers move to the tooltip rather than being dropped.
+    assert.strictEqual(r.critTiers.length, 2);
+    assert.match(r.critTiers.join(" "), /perfect crit/);
+    assert.match(r.critTiers.join(" "), /star breaker/);
+    assert.ok(
+        r.critTiers.join(" ").includes(String(Math.round((200 + 80) * 7))),
+        "the star breaker figure is still reported, just not inline",
+    );
 });
 
-test("Sharp Attack keeps the higher die and crits from x2 to x7", () => {
-    // offense.js handleSharp: 2d100kh1, one 100 doubles, two 100s multiply by 7
-    // (reachable only with Risky Mode's extra dice).
+test("Sharp Attack's inline crit is the single-100 double", () => {
+    // offense.js handleSharp: 2d100kh1, one 100 doubles. Two 100s multiply by
+    // 7, but the dropped die never counts toward a crit, so a second 100 can
+    // only come from Risky Mode's extra dice - tooltip, not inline.
     const r = forRow("sharp-attack", "?r sharp E E # x", []);
     assert.strictEqual(formatRange(r), "1-99");
-    assert.strictEqual(formatCrit(r), "200-700");
+    assert.strictEqual(formatCrit(r), "200");
+    assert.match(r.critTiers.join(" "), /Risky Mode/);
+});
+
+test("the inline crit never exceeds the tooltip tiers", () => {
+    // The whole point of moving them: what shows inline must be the reachable
+    // crit, with the extremes reported separately rather than inflating it.
+    for (const [lookup, code] of [
+        ["critical-attack", "?r critical S S # x"],
+        ["sharp-attack", "?r sharp A B # x"],
+        ["reckless-attack", "?r reckless S S +25 # x"],
+    ]) {
+        const r = forRow(lookup, code, []);
+        assert.ok(r.critTiers && r.critTiers.length, lookup + " should report its tiers");
+        const biggest = Math.max.apply(
+            null,
+            r.critTiers.join(" ").match(/\d+/g).map(Number),
+        );
+        assert.ok(
+            r.critMax < biggest,
+            lookup + ": inline crit " + r.critMax + " should be below the tier max " + biggest,
+        );
+    }
 });
 
 test("Reckless Attack's dice count follows mastery rank", () => {
@@ -111,6 +144,9 @@ test("Reckless Attack's dice count follows mastery rank", () => {
     assert.strictEqual(low.max, 199 + 99 + 15);
     assert.strictEqual(high.max, 199 + 198 + 40);
     assert.ok(high.max > low.max, "more dice must widen the range");
+    // A single 100 with everything else low is the ordinary crit, so its floor
+    // sits far below its ceiling.
+    assert.ok(high.critMin < high.critMax, "reckless crit is a range");
 });
 
 test("support actions divide by their active spread toggle", () => {

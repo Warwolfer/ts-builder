@@ -128,12 +128,19 @@ const PlanResult = (function () {
         // double 100. Non-crit therefore caps at 84+84.
         "critical-attack": function (base, rank) {
             const BY_RANK = { d: 1.5, c: 1.6, b: 1.7, a: 1.8, s: 2 };
-            const low = BY_RANK[rank] || 1.2;
+            const mult = BY_RANK[rank] || 1.2;
             return {
                 min: r((2 + base) * 1.2),
                 max: r((168 + base) * 1.2),
-                critMin: r((85 + 1 + base) * low),
-                critMax: r((200 + base) * 7),
+                // The reachable crit: either die 85+ and neither a natural 100,
+                // so 85+1 through 99+99, scaled by rank.
+                critMin: r((86 + base) * mult),
+                critMax: r((198 + base) * mult),
+                critTiers: [
+                    "×3 perfect crit (a 100): " +
+                        r((101 + base) * 3) + "-" + r((199 + base) * 3),
+                    "×7 star breaker (100, 100): " + r((200 + base) * 7),
+                ],
             };
         },
 
@@ -145,7 +152,11 @@ const PlanResult = (function () {
                 min: 1 + base,
                 max: 99 + base,
                 critMin: (100 + base) * 2,
-                critMax: (100 + base) * 7,
+                critMax: (100 + base) * 2,
+                critTiers: [
+                    "×7 two 100s, needs Risky Mode's extra dice: " +
+                        (200 + base) * 7 + "+",
+                ],
             };
         },
 
@@ -155,11 +166,20 @@ const PlanResult = (function () {
         "reckless-attack": function (base, rank) {
             const HUNDREDS = { e: 1, d: 1, c: 1, b: 2, a: 2, s: 2 };
             const n = HUNDREDS[rank] || 1;
+            // A single 100 among the d100s is the ordinary crit: the rest of
+            // the dice can still be low, so the floor is much lower than the
+            // ceiling. x7 wants several 100s at once.
+            const critLow = 1 + 100 + (n - 1) + base;
+            const critHigh = 200 + n * 100 + base;
             return {
                 min: 1 + n + base,
                 max: 199 + n * 99 + base,
-                critMin: (200 + n * 100 + base) * 2,
-                critMax: (200 + n * 100 + base) * 7,
+                critMin: critLow * 2,
+                critMax: critHigh * 2,
+                critTiers: [
+                    "×7 multiple 100s or a natural 200 with one: " +
+                        critHigh * 7,
+                ],
             };
         },
     };
