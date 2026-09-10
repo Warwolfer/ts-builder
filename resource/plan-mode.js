@@ -320,7 +320,10 @@ const PlanMode = (function () {
     // a missing roll code with the em-dash placeholder.
     function safeRollHtml(html) {
         if (typeof html !== "string" || html.length > 2000) return "";
-        if (/<\s*(script|iframe|object|embed|link|style|img|svg)\b/i.test(html)) return "";
+        // A roll code is spans and text, nothing else - an allowlist ends the
+        // arms race with tag and scheme denylists (a tag denylist alone misses
+        // scheme-based vectors like <a href="javascript:...">).
+        if (/<\s*\/?\s*(?!span\b)[a-z][^>]*>/i.test(html)) return "";
         if (/\son[a-z]+\s*=/i.test(html)) return "";
         return html;
     }

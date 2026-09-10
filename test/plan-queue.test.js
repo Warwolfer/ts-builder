@@ -349,3 +349,22 @@ test("two rows of the same stackable buff both apply", () => {
     ];
     assert.deepStrictEqual(totals(rows), [0, 0, 50]);
 });
+
+test("makeRow rejects non-array tags and dismissed rather than duck-typing them", () => {
+    // A string has .slice(), so it used to pass straight through and then throw
+    // in the renderer's tags.join() — outside every guard, taking down the page.
+    for (const bad of ["x", 42, true, {}]) {
+        const row = makeRow({ lookup: "attack", tags: bad, dismissed: bad });
+        assert.ok(Array.isArray(row.tags), `tags became ${typeof row.tags}`);
+        assert.ok(Array.isArray(row.dismissed), `dismissed became ${typeof row.dismissed}`);
+    }
+});
+
+test("a row rebuilt from malformed stored fields still resolves and renders", () => {
+    // The renderer calls tags.join and reads chips/total; resolveQueue must
+    // produce something it can safely consume.
+    const resolved = resolveQueue([makeRow({ lookup: "attack", tags: "x" })]);
+    assert.deepStrictEqual(resolved[0].tags, []);
+    assert.strictEqual(typeof resolved[0].total, "number");
+    assert.ok(Array.isArray(resolved[0].chips));
+});

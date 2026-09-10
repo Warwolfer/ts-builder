@@ -20,18 +20,33 @@ const PlanQueue = (function () {
     // starts from the buff's declared target so the engine reads one flag
     // instead of branching on target and selfToggle; only the UI cares which
     // rows let you change it.
+    //
+    // This is the one place every row - live or rebuilt from storage - comes
+    // into being, so it is also the one place to reject a field whose type
+    // would otherwise reach a method call or interpolation downstream and
+    // fail there instead. tags/dismissed are the sharp edge: a string has
+    // .slice(), so `fields.tags ? fields.tags.slice() : []` used to duck-type
+    // a string straight through and only fail later, in the renderer's
+    // tags.join() - outside every restore() guard, taking the whole build
+    // sheet down with it. rollHtml gets the same treatment: it reaches
+    // RollCodeUtils.setRollPlanMod's html.replace(...) unescaped by design
+    // (it is markup), so a non-string there throws for the same reason.
+    function str(value) {
+        return typeof value === "string" ? value : "";
+    }
+
     function makeRow(fields) {
         const entry = buffFor(fields.lookup);
         const row = {
             uid: "r" + nextUid++,
-            lookup: fields.lookup,
-            name: fields.name || fields.lookup,
+            lookup: str(fields.lookup),
+            name: str(fields.name) || str(fields.lookup),
             masteryId: fields.masteryId || null,
-            masteryName: fields.masteryName || "",
-            rankLetter: fields.rankLetter || "",
-            tags: fields.tags ? fields.tags.slice() : [],
-            rollHtml: fields.rollHtml || "",
-            dice: fields.dice || "",
+            masteryName: str(fields.masteryName),
+            rankLetter: str(fields.rankLetter),
+            tags: Array.isArray(fields.tags) ? fields.tags.slice() : [],
+            rollHtml: str(fields.rollHtml),
+            dice: str(fields.dice),
             targetSelf: entry ? entry.target !== "other" : true,
             manualMod: 0,
             dismissed: [],
@@ -42,7 +57,7 @@ const PlanQueue = (function () {
         if (Object.prototype.hasOwnProperty.call(fields, "manualMod")) {
             row.manualMod = fields.manualMod;
         }
-        if (fields.dismissed) row.dismissed = fields.dismissed.slice();
+        if (Array.isArray(fields.dismissed)) row.dismissed = fields.dismissed.slice();
         if (fields.uid) {
             row.uid = fields.uid;
             // Keep the counter ahead of any restored id. Stored uids are not
