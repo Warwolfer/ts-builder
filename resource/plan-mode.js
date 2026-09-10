@@ -275,15 +275,41 @@ const PlanMode = (function () {
 
     // refresh() calls this on every mutation, including once per keystroke in
     // the manual-modifier field - a short debounce keeps that from hitting
-    // localStorage on every keystroke. The window is short enough that no
-    // user-visible action (add/remove/move/clear) reads it back before it
-    // fires; only a navigation inside the window could lose the very last
-    // write, which is the same "queue is scratch" trade-off already made for
-    // private mode and quota failures above.
+    // localStorage on every keystroke. But add/remove/move/clear go through
+    // this same debounce, and a navigation does not wait for a timer: without
+    // flushPersist below, clicking + and reloading inside this window would
+    // lose that row - the exact case persistence exists to prevent. This is
+    // NOT the same trade-off as the private-mode/quota failures above, where
+    // persistence genuinely cannot happen; this window is self-inflicted, so
+    // it is closed by flushPersist rather than accepted.
     let persistTimer = null;
     function persist() {
         if (persistTimer) clearTimeout(persistTimer);
-        persistTimer = setTimeout(persistNow, 250);
+        // Null out persistTimer as the FIRST thing the timer does, not after
+        // persistNow() returns: flushPersist below uses "persistTimer is
+        // non-null" to mean "a write is still owed", and a plain
+        // `setTimeout(persistNow, 250)` would leave it holding a stale,
+        // already-fired id forever - making that check true permanently
+        // after the first ever persist() call, and a later pagehide with no
+        // new mutations would then re-persist whatever `rows` happens to
+        // hold, silently overwriting anything changed in storage since.
+        persistTimer = setTimeout(function () {
+            persistTimer = null;
+            persistNow();
+        }, 250);
+    }
+
+    // A pending debounce must not outlive the page. Without this, clicking
+    // Add and reloading inside the window loses the row. pagehide fires on
+    // reload, back/forward and tab close, including the bfcache path where
+    // unload does not - and unlike beforeunload it is not unreliable on
+    // mobile and does not suppress bfcache, so there is no second listener
+    // needed alongside it.
+    function flushPersist() {
+        if (!persistTimer) return;
+        clearTimeout(persistTimer);
+        persistTimer = null;
+        persistNow();
     }
 
     // rollHtml is markup, so it cannot be escaped on the way out - it reaches
@@ -355,6 +381,11 @@ const PlanMode = (function () {
         const rail = document.getElementById("plan-rail");
         if (!rail) return;
         railBound = true;
+
+        // See flushPersist above: closes the window a debounced persist()
+        // would otherwise leave open across a reload, back/forward, or tab
+        // close.
+        window.addEventListener("pagehide", flushPersist);
 
         rail.addEventListener("click", function (event) {
             const target = event.target;
