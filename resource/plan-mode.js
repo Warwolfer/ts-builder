@@ -278,10 +278,10 @@ const PlanMode = (function () {
         const count = resolved.length;
         let html = '<div class="plan-rail-head">Queue';
         html += count ? " · " + count + (count === 1 ? " action" : " actions") : "";
-        // One queue is one turn. Clearing it IS starting the next one, so the
-        // control says so rather than leaving "Turn" to imply a switcher.
+        // One queue is one turn, so clearing it is how you start the next.
+        // Named for what it does rather than what it means.
         html += '<span class="plan-rail-clear" data-clear="1" ' +
-                'title="Clear the queue and start the next turn">New turn</span></div>';
+                'title="Remove every action from the queue">Clear Queue</span></div>';
 
         if (!count) {
             html += '<div class="plan-empty">Nothing queued yet. Set up a card, ' +
