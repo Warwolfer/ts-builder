@@ -211,13 +211,19 @@ const PlanMode = (function () {
     // stops being two things at once.
     function masteryCellHtml(resolved) {
         if (!resolved.masteryId) return '<span class="plan-row-mastery"></span>';
-        const label = resolved.masteryName +
+
+        // Look the image up live rather than trusting the snapshot: a queue
+        // persisted before masteryImage existed restores without one, and the
+        // cell would fall back to a bare rank letter. masteryId is all we need.
+        const mastery = window.masteries
+            ? window.masteries.find(function (m) { return m.lookup === resolved.masteryId; })
+            : null;
+        const src = (mastery && mastery.image) || resolved.masteryImage || "";
+        const label = (mastery ? mastery.name : resolved.masteryName) +
             (resolved.rankLetter ? " " + resolved.rankLetter : "");
-        const img = resolved.masteryImage
-            ? '<img src="' + escape(resolved.masteryImage) + '" alt="">'
-            : "";
+
         return '<span class="plan-row-mastery" title="' + escape(label) + '">' +
-            img +
+            (src ? '<img class="plan-row-masteryicon" src="' + escape(src) + '" alt="">' : "") +
             (resolved.rankLetter
                 ? '<b class="plan-row-rank">' + escape(resolved.rankLetter) + "</b>"
                 : "") +
@@ -233,9 +239,11 @@ const PlanMode = (function () {
 
         const roll = rollHtmlFor(resolved);
 
-        let html = '<div class="plan-row" data-uid="' + escape(resolved.uid) + '" draggable="true">';
+        let html = '<div class="plan-row" data-uid="' + escape(resolved.uid) + '">';
         html += '<div class="plan-row-main">';
-        html += '<span class="plan-row-index" title="Drag to reorder">' + (index + 1) + "</span>";
+        html += '<span class="plan-row-index" draggable="true" ' +
+                'title="Drag to reorder"><i class="plan-grip"></i>' +
+                (index + 1) + "</span>";
         html += '<span class="plan-row-name">' + escape(resolved.name + tags) + "</span>";
         html += masteryCellHtml(resolved);
         html += '<span class="plan-row-total' + (resolved.total ? "" : " zero") + '">' +
