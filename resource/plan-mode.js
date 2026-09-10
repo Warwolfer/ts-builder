@@ -246,9 +246,66 @@ const PlanMode = (function () {
         if (window.PlanMode && window.PlanMode.persist) window.PlanMode.persist();
     }
 
+    const STORAGE_KEY = "tsbuilder_plan_queue";
+
+    // The queue is turn-scoped scratch: it never enters the build code, the
+    // URL or saved builds, because nobody wants to share it and it would
+    // bloat every code. It does survive a reload, keyed to the build it was
+    // planned against - restoring a queue of roll codes belonging to a
+    // different character would be worse than losing it.
+    function fingerprint() {
+        const state = window.buildState ? window.buildState.getState() : {};
+        return JSON.stringify([
+            state.characterName || "",
+            (state.chosenActions || []).slice().sort(),
+        ]);
+    }
+
+    function persist() {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                fingerprint: fingerprint(),
+                rows: rows,
+            }));
+        } catch (e) {
+            // Private mode or a full quota: the queue simply will not survive
+            // a reload, which is not worth interrupting planning over.
+        }
+    }
+
+    function restore() {
+        let saved = null;
+        try {
+            saved = localStorage.getItem(STORAGE_KEY);
+        } catch (e) {
+            return;
+        }
+        if (!saved) return;
+
+        let parsed = null;
+        try {
+            parsed = JSON.parse(saved);
+        } catch (e) {
+            return;
+        }
+
+        if (!parsed || !Array.isArray(parsed.rows)) return;
+        if (parsed.fingerprint !== fingerprint()) {
+            // A different build. Drop it rather than show stale roll codes.
+            try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
+            return;
+        }
+
+        rows.length = 0;
+        for (let i = 0; i < parsed.rows.length; i++) {
+            rows.push(window.PlanQueue.makeRow(parsed.rows[i]));
+        }
+    }
+
     // One delegated listener set on the rail, so re-rendering never leaves
     // stale handlers behind.
     let railBound = false;
+    let restored = false;
 
     function bindRail() {
         if (railBound) return;
@@ -325,11 +382,78 @@ const PlanMode = (function () {
                 try { again.setSelectionRange(caret, caret); } catch (e) { /* number inputs */ }
             }
         });
+
+        // Drag-to-reorder. The row markup already carries draggable="true" and
+        // the index cell already looks like a handle; this is what makes that
+        // honest.
+        //
+        // refresh() replaces the whole rail via innerHTML, and native HTML5
+        // drag-and-drop ends the drag session the instant the dragged node is
+        // removed from the DOM. So move() - which calls refresh() - is only
+        // ever called from drop, never from dragover: a dragover-driven live
+        // preview would rip the very node the browser is tracking out from
+        // under itself and silently cancel the drag.
+        let draggingUid = null;
+
+        rail.addEventListener("dragstart", function (event) {
+            const rowEl = event.target.closest ? event.target.closest(".plan-row") : null;
+            if (!rowEl) return;
+            draggingUid = rowEl.getAttribute("data-uid");
+            rowEl.classList.add("dragging");
+            event.dataTransfer.effectAllowed = "move";
+            // Firefox refuses to start a drag without data set on it.
+            try { event.dataTransfer.setData("text/plain", draggingUid); } catch (e) { /* ignore */ }
+        });
+
+        // No re-render here on purpose - see the note above bindRail's drag
+        // listeners. Only preventDefault, so the rail accepts the drop at all.
+        rail.addEventListener("dragover", function (event) {
+            if (draggingUid) event.preventDefault();
+        });
+
+        rail.addEventListener("drop", function (event) {
+            if (!draggingUid) return;
+            event.preventDefault();
+
+            // The rail has not been re-rendered since dragstart, so this index
+            // is still the row's original position - which is exactly what
+            // move() needs. It removes the dragged row first and then inserts
+            // it at this same index, and because that second splice always
+            // lands the item at the literal index given, the row ends up at
+            // the numbered slot it was dropped on with no further adjustment.
+            const overRow = event.target.closest ? event.target.closest(".plan-row") : null;
+            const all = rail.querySelectorAll(".plan-row");
+            let toIndex = all.length;
+            for (let i = 0; i < all.length; i++) {
+                if (all[i] === overRow) { toIndex = i; break; }
+            }
+
+            const uid = draggingUid;
+            draggingUid = null;
+            move(uid, toIndex);
+        });
+
+        rail.addEventListener("dragend", function () {
+            draggingUid = null;
+            // A successful drop already re-rendered the rail via move(), so
+            // the node this dragstart marked is gone; this queries fresh
+            // rather than caching a reference, and only matters for a drag
+            // that ends without a drop (e.g. Escape).
+            const dragging = rail.querySelector(".plan-row.dragging");
+            if (dragging) dragging.classList.remove("dragging");
+        });
     }
 
     // Adds an Add button to every card that can be queued, once.
     function installAddButtons() {
         bindRail();
+
+        if (!restored) {
+            restored = true;
+            restore();
+            refresh();
+        }
+
         const containers = ["actionsdisplay", "freeactiondisplay", "saveschecks"];
         for (let c = 0; c < containers.length; c++) {
             const container = document.getElementById(containers[c]);
@@ -373,6 +497,8 @@ const PlanMode = (function () {
         refresh: refresh,
         snapshotCard: snapshotCard,
         installAddButtons: installAddButtons,
+        persist: persist,
+        restore: restore,
     };
 })();
 
