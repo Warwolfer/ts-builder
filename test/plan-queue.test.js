@@ -146,6 +146,20 @@ test("makeRow keeps its counter ahead of a restored uid", () => {
     assert.ok(n > HIGH, `fresh uid ${fresh.uid} must outrank the restored r${HIGH}`);
 });
 
+test("I6: a numeric restored uid is coerced to a string, addressable like any other", () => {
+    // A stored uid of 42 (e.g. hand-edited or a lossy round-trip) must not
+    // silently survive as a number: rowByUid and the DOM's data-uid both
+    // compare with === against a string, and 42 === "42" is false — which
+    // would make remove/move/dismiss/Self silently no-op for that row.
+    const restored = makeRow({ lookup: "attack", uid: 42 });
+    assert.strictEqual(restored.uid, "42");
+    assert.strictEqual(typeof restored.uid, "string");
+    // And the uid counter still catches up from a stringified number.
+    const fresh = makeRow({ lookup: "attack" });
+    const n = parseInt(String(fresh.uid).replace(/^r/, ""), 10);
+    assert.ok(n > 42, `fresh uid ${fresh.uid} must outrank restored uid 42`);
+});
+
 test("a malformed restored uid cannot poison the counter", () => {
     // A hand-edited or corrupted storage value must not turn every later uid
     // into "rNaN", which would collide with itself.
@@ -229,9 +243,12 @@ test("a blocked mastery match does not consume a persistent buff", () => {
 
 test("dismissing a chip zeroes it without removing the producing row", () => {
     // You cast Mark, but someone else spent the charges before your attack.
+    // Dismissed is keyed on the producing row's uid, not its lookup — see the
+    // I4 tests below for why.
+    const mark = row("mark", { rankLetter: "B" });
     const rows = [
-        row("mark", { rankLetter: "B" }),
-        row("attack", { dismissed: ["mark"] }),
+        mark,
+        row("attack", { dismissed: [mark.uid] }),
     ];
     assert.deepStrictEqual(totals(rows), [0, 0]);
     const resolved = resolveQueue(rows);
@@ -239,9 +256,10 @@ test("dismissing a chip zeroes it without removing the producing row", () => {
 });
 
 test("a dismissed chip does not consume a charge, leaving it for a later row", () => {
+    const mark = row("mark", { rankLetter: "B" });
     const rows = [
-        row("mark", { rankLetter: "B" }),
-        row("attack", { dismissed: ["mark"] }),
+        mark,
+        row("attack", { dismissed: [mark.uid] }),
         row("attack"),
         row("attack"),
     ];
@@ -249,12 +267,56 @@ test("a dismissed chip does not consume a charge, leaving it for a later row", (
 });
 
 test("dismissal is per row, not global", () => {
+    const duelist = row("duelist", { rankLetter: "A", tags: ["Challenge"] });
     const rows = [
-        row("duelist", { rankLetter: "A", tags: ["Challenge"] }),
-        row("attack", { dismissed: ["duelist"] }),
+        duelist,
+        row("attack", { dismissed: [duelist.uid] }),
         row("attack"),
     ];
     assert.deepStrictEqual(totals(rows), [0, 0, 40]);
+});
+
+test("I4: two same-source rows are independently dismissible", () => {
+    // Two Mark casts (e.g. two Hyper Sense users) stack per the rules. A chip
+    // keyed on lookup alone cannot tell which Mark produced it, so dismissing
+    // one row's Mark chip would previously dismiss both. Keying on the
+    // producing row's uid keeps them independent.
+    const markLow = row("mark", { rankLetter: "B" }); // +20
+    const markHigh = row("mark", { rankLetter: "S" }); // +30
+    const rows = [markLow, markHigh, row("attack")];
+
+    const bothApplied = resolveQueue(rows);
+    assert.deepStrictEqual(
+        bothApplied[2].chips.map((c) => c.state),
+        ["applied", "applied"],
+    );
+    assert.strictEqual(bothApplied[2].total, 50);
+
+    // Dismiss only the lower-value Mark's chip on the attack row.
+    rows[2].dismissed.push(markLow.uid);
+    const oneApplied = resolveQueue(rows);
+    assert.deepStrictEqual(
+        oneApplied[2].chips.map((c) => c.state),
+        ["dismissed", "applied"],
+    );
+    assert.strictEqual(oneApplied[2].total, 30);
+});
+
+test("I4: a chip carries the producing row's uid, not just its lookup", () => {
+    const mark = row("mark", { rankLetter: "B" });
+    const resolved = resolveQueue([mark, row("attack")]);
+    assert.strictEqual(resolved[1].chips[0].uid, mark.uid);
+    assert.strictEqual(resolved[1].chips[0].source, "mark");
+});
+
+test("I4: a stale lookup-keyed dismissal (pre-fix storage) is dropped, not mis-applied", () => {
+    // A queue persisted before this fix stored dismissed=["mark"] (a lookup).
+    // Restored against the current engine, that string can never equal a
+    // uid ("r123"), so it simply fails to match — the buff applies normally
+    // rather than silently staying dismissed or crashing.
+    const mark = row("mark", { rankLetter: "B" });
+    const rows = [mark, row("attack", { dismissed: ["mark"] })];
+    assert.deepStrictEqual(totals(rows), [0, 20]);
 });
 
 test("an unchecked Self stops an ally-targeted buff feeding your rows", () => {

@@ -12,6 +12,7 @@
 // code span, the same place the Lethal/NG1/armor suffixes are rendered.
 const RollCodeUtils = (function () {
     const THRCODE = /(<span class=['"]thrcode['"]>)/;
+    const THRCODE_SPAN = /(<span class=['"]thrcode['"]>)[^<]*(<\/span>)/;
     const EXTRA_MOD = /<span class=['"]extramod['"]>[^<]*<\/span>/;
     const PLAN_MOD = /<span class=['"]planmod['"]>[^<]*<\/span>/;
 
@@ -77,11 +78,26 @@ const RollCodeUtils = (function () {
         return `${cleared}<span class="planmod"> ${signed}</span>`;
     }
 
+    // Re-stamps the thread-code span's text from the live thread-code field.
+    // Plan Mode freezes a row's roll code at Add time, but the thread code is
+    // page-level state, not card state — updateThreadCode() in build-sheet.js
+    // sweeps every `.thrcode` in the document, including ones inside already
+    // rendered queue rows, which makes it look live right up until the next
+    // refresh() re-renders the rail from the frozen html and reverts it.
+    // Matches updateThreadCode's own empty-value fallback ("Thread Code").
+    function setThreadCode(html, code) {
+        const text = code == null ? "" : String(code);
+        // Free text typed by the user, so it is escaped before reaching innerHTML.
+        const escaped = window.DOMUtils.escapeHtml(text || "Thread Code");
+        return html.replace(THRCODE_SPAN, `$1${escaped}$2`);
+    }
+
     return {
         insertRollTag,
         removeRollTag,
         setRollExtraMod,
         setRollPlanMod,
+        setThreadCode,
     };
 })();
 

@@ -428,8 +428,13 @@ without them Adapt·Fend and Assist·Assign have nothing to consume them.
 ## Persistence
 
 `localStorage["tsbuilder_plan_queue"]`, stored with a fingerprint of
-`characterName` plus `chosenActions`. On load, a fingerprint mismatch clears
-the queue rather than showing roll codes belonging to a different character.
+`characterName`, `chosenActions`, `chosenMasteries` + `chosenMasteriesRanks`
+(paired up and sorted together by mastery id, so selection order does not
+matter but which rank belongs to which mastery is never scrambled),
+`weaponRank`, `armorRank` and `accessoryRank`. On load, a fingerprint mismatch
+clears the queue rather than showing roll codes computed from ranks or
+masteries that no longer match the build — e.g. editing a mastery rank on
+"Edit This Build" and returning.
 
 The queue never enters the build code, the URL, or saved builds. It is
 turn-scoped scratch, and putting it in a shareable code would bloat every
@@ -453,6 +458,7 @@ build code for something nobody wants to share.
 | `use` fix changes an action's filtering | It cannot — nothing reads `use` today. Verified by search across all `.js` and `.html`. |
 | A new main action added to `actions.js` later | `test/action-families.test.js` fails until it is added to the family list. |
 | Queue restored for a different character | Fingerprint mismatch clears it. |
+| Queue restored after a mastery/rank/equipment edit | Fingerprint mismatch clears it, rather than restoring stale rank letters and buff totals. |
 
 ## Testing
 

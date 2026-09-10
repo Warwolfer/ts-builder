@@ -141,9 +141,18 @@ const PlanMode = (function () {
     // The roll code as it should be pasted: the snapshot with this row's
     // computed total spliced into its own planmod span. setRollPlanMod leaves
     // the Lethal passive and any Risky modifier alone.
+    //
+    // The thread code is re-stamped from the live field on every call, unlike
+    // everything else here, which stays frozen from snapshot time. It is a
+    // page-level field, not something the card owns, so a row queued before
+    // the player fills it in (or before they fix a typo) must not keep
+    // rendering the stale value once it is corrected. See setThreadCode.
     function rollHtmlFor(resolved) {
         if (!resolved.rollHtml) return "";
-        return window.RollCodeUtils.setRollPlanMod(resolved.rollHtml, resolved.total);
+        const withMod = window.RollCodeUtils.setRollPlanMod(resolved.rollHtml, resolved.total);
+        const threadInput = document.getElementById("threadcodereplace");
+        const liveCode = threadInput ? threadInput.value : "";
+        return window.RollCodeUtils.setThreadCode(withMod, liveCode);
     }
 
     function chipHtml(chip) {
@@ -162,8 +171,12 @@ const PlanMode = (function () {
             title = "Click to apply this buff again";
         }
 
-        return '<span class="plan-chip ' + chip.state + '" data-source="' +
-            escape(chip.source) + '" title="' + escape(title) + '">' +
+        // Keyed on the producing row's uid, not its lookup: two rows of the
+        // same producer (two Mark casts) must be independently dismissible,
+        // and a lookup alone cannot tell their chips apart. See chip() in
+        // shared/plan-queue.js.
+        return '<span class="plan-chip ' + chip.state + '" data-chip-uid="' +
+            escape(chip.uid) + '" title="' + escape(title) + '">' +
             escape(text) + "</span>";
     }
 
@@ -255,9 +268,28 @@ const PlanMode = (function () {
     // different character would be worse than losing it.
     function fingerprint() {
         const state = window.buildState ? window.buildState.getState() : {};
+
+        // chosenMasteriesRanks is positional against chosenMasteries — the
+        // rank at index i belongs to the mastery at index i. Sorting one
+        // without the other would repair the shape but scramble which rank
+        // goes with which mastery, so two different builds (same masteries,
+        // ranks swapped) could hash identically. Pair them up first, sort the
+        // pairs together by mastery id, then split back out: this keeps the
+        // fingerprint order-insensitive to selection order while ranks always
+        // travel with the mastery they belong to.
+        const masteries = state.chosenMasteries || [];
+        const ranks = state.chosenMasteriesRanks || [];
+        const pairs = masteries
+            .map((id, i) => [id, ranks[i]])
+            .sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
+
         return JSON.stringify([
             state.characterName || "",
             (state.chosenActions || []).slice().sort(),
+            pairs,
+            state.weaponRank || 0,
+            state.armorRank || 0,
+            state.accessoryRank || 0,
         ]);
     }
 
@@ -323,8 +355,18 @@ const PlanMode = (function () {
         // A roll code is spans and text, nothing else - an allowlist ends the
         // arms race with tag and scheme denylists (a tag denylist alone misses
         // scheme-based vectors like <a href="javascript:...">).
-        if (/<\s*\/?\s*(?!span\b)[a-z][^>]*>/i.test(html)) return "";
-        if (/\son[a-z]+\s*=/i.test(html)) return "";
+        //
+        // Both checks below have to treat "/" as an attribute separator, not
+        // just whitespace: an HTML tokenizer leaves the tag-name state on "/"
+        // exactly as it does on a space, so `<span/onclick=...>` parses as a
+        // span carrying a live handler - the `<img/onerror=...>` trick aimed
+        // at the one tag this allows. `(?!span\b)` treated "/" as a word
+        // boundary just like a space, so `<span/onclick=...>` was wrongly
+        // classified as an allowed span and exempted from the tag check
+        // entirely; `\son` required literal whitespace before `on...=`, and
+        // "/" is not whitespace, so the attribute check missed it too.
+        if (/<\s*\/?\s*(?!span[\s\/>])[a-z][^>]*>/i.test(html)) return "";
+        if (/[\s\/]on[a-z]+\s*=/i.test(html)) return "";
         return html;
     }
 
@@ -415,10 +457,10 @@ const PlanMode = (function () {
                 !target.classList.contains("superseded")) {
                 const rowEl = target.closest(".plan-row");
                 const row = rowEl ? rowByUid(rowEl.getAttribute("data-uid")) : null;
-                const source = target.getAttribute("data-source");
-                if (row && source) {
-                    const at = row.dismissed.indexOf(source);
-                    if (at === -1) row.dismissed.push(source);
+                const chipUid = target.getAttribute("data-chip-uid");
+                if (row && chipUid) {
+                    const at = row.dismissed.indexOf(chipUid);
+                    if (at === -1) row.dismissed.push(chipUid);
                     else row.dismissed.splice(at, 1);
                     refresh();
                 }

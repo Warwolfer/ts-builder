@@ -59,11 +59,17 @@ const PlanQueue = (function () {
         }
         if (Array.isArray(fields.dismissed)) row.dismissed = fields.dismissed.slice();
         if (fields.uid) {
-            row.uid = fields.uid;
+            // Coerced through String(), not just str(): str() would reject a
+            // non-string uid outright (e.g. a numeric 42 surviving JSON
+            // round-tripping from storage), and the row would keep looking
+            // fine right up until rowByUid's `===` compare against the DOM's
+            // always-stringy data-uid quietly failed — breaking remove, move,
+            // dismiss and the Self toggle for that one row with no error.
+            row.uid = String(fields.uid);
             // Keep the counter ahead of any restored id. Stored uids are not
             // dense after deletions, so a queue that persisted r4,r5,r6 would
             // otherwise let the next add reuse one of them.
-            const n = parseInt(String(fields.uid).replace(/^r/, ""), 10);
+            const n = parseInt(row.uid.replace(/^r/, ""), 10);
             if (!isNaN(n) && n >= nextUid) nextUid = n + 1;
         }
         return row;
@@ -190,7 +196,7 @@ const PlanQueue = (function () {
                     continue;
                 }
 
-                if (row.dismissed.indexOf(pooled.source) !== -1) {
+                if (row.dismissed.indexOf(pooled.uid) !== -1) {
                     // Same rule: dismissing leaves the charge for a later row.
                     chips.push(chip(pooled, "dismissed"));
                     continue;
@@ -229,9 +235,16 @@ const PlanQueue = (function () {
         return resolved;
     }
 
+    // `source` is the producer's lookup — kept for display and for the
+    // superseded/best-of-source comparison in markSuperseded, where two
+    // different producing rows of the same action should still compete
+    // against each other. `uid` is the producing row's own id, and is what
+    // dismissal keys on: two rows of the same lookup (two Mark casts) must be
+    // independently dismissible, and `source` alone cannot tell them apart.
     function chip(pooled, state) {
         return {
             source: pooled.source,
+            uid: pooled.uid,
             label: pooled.label,
             value: pooled.value,
             state: state,
