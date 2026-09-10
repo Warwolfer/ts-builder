@@ -184,23 +184,27 @@ const PlanMode = (function () {
             ? '<div class="rollcode clickable-rollcode" onclick="copyRollCode(this)" ' +
               'title="Click to copy">' + roll + "</div>"
             : '<div class="plan-row-noroll">—</div>';
+        html += '<span class="plan-manual">+<input type="number" data-manual="' +
+                escape(resolved.uid) + '" value="' + escape(resolved.manualMod) +
+                '" title="Extra modifier from anyone else"></span>';
         html += '<span class="plan-row-remove" data-remove="' + escape(resolved.uid) +
                 '" title="Remove from queue">×</span>';
         html += "</div>";
 
-        html += '<div class="plan-row-meta">';
-        for (let i = 0; i < resolved.chips.length; i++) {
-            html += chipHtml(resolved.chips[i]);
+        const showSelf = !!(entry && entry.selfToggle);
+        if (resolved.chips.length || showSelf) {
+            html += '<div class="plan-row-meta">';
+            for (let i = 0; i < resolved.chips.length; i++) {
+                html += chipHtml(resolved.chips[i]);
+            }
+            if (showSelf) {
+                html += '<label class="plan-self"><input type="checkbox" data-self="' +
+                        escape(resolved.uid) + '"' + (resolved.targetSelf ? " checked" : "") +
+                        "> Self</label>";
+            }
+            html += "</div>";
         }
-        if (entry && entry.selfToggle) {
-            html += '<label class="plan-self"><input type="checkbox" data-self="' +
-                    escape(resolved.uid) + '"' + (resolved.targetSelf ? " checked" : "") +
-                    "> Self</label>";
-        }
-        html += '<span class="plan-manual">+<input type="number" data-manual="' +
-                escape(resolved.uid) + '" value="' + escape(resolved.manualMod) +
-                '" title="Extra modifier from anyone else"></span>';
-        html += "</div></div>";
+        html += "</div>";
 
         return html;
     }
@@ -224,7 +228,8 @@ const PlanMode = (function () {
                     'then press + in its corner.</div>';
         } else {
             html += '<div class="plan-head-row"><span>#</span><span>Action</span>' +
-                    '<span>Mod</span><span>Roll code</span><span></span></div>';
+                    '<span>Mod</span><span>Roll code</span><span>+X</span>' +
+                    '<span></span></div>';
             for (let i = 0; i < resolved.length; i++) {
                 html += rowHtml(resolved[i], i);
             }

@@ -355,14 +355,24 @@ way `tsbuilder_compact` does.
 
 ### Plan card
 
-Title, type, mastery icons, toggle buttons, `[+ Add]`. Description, action
+Title, type, mastery icons, toggle buttons, the corner `+` button. Description, action
 icon, roll formula and roll code are hidden with `display:none` — the roll
 code stays in the DOM because it is what `Add` snapshots.
 
-### The rail
+### The queue
 
-Sticky on the right of the action grid, collapsing to a full-width panel
-below the cards on narrow screens.
+Full width beneath the cards, in the space the note occupies outside plan mode,
+with a labelled header row so the order, action, modifier and roll code read as
+real columns.
+
+This replaces an earlier sticky right rail, which was built and rejected on
+sight: docking it squeezed both halves — the card grid went narrow and the
+queue's columns were too cramped to read a roll code in.
+
+Plan mode also hides the note, the build code, the embed block and the
+navigation buttons. They serve sharing a build, not driving a turn, and the room
+they free is what lets the queue read as a table. The mastery pickers shrink
+from 33px to 22px: a card in plan mode is a control panel, not a display.
 
 ```
 #  Action · Tag (mastery)         Mod     Roll code
