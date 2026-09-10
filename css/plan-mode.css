@@ -349,17 +349,33 @@
 /* Cards hug their content. The grid's default align-items:stretch made every
    card as tall as the tallest in its row, so Lethal — which has no icons and no
    toggles — was still 171px of mostly nothing. */
-#builddisplay.plan #actionsdisplay,
-#builddisplay.plan #freeactiondisplay,
 #builddisplay.plan #saveschecks {
     gap: 8px;
 }
 
 /* More, narrower cards. At three fixed columns a stripped card is mostly empty
    width; auto-fill packs as many as the width honestly allows. */
-#builddisplay.plan #actionsdisplay,
-#builddisplay.plan #freeactiondisplay {
+/* The free actions and the main actions are two separate containers, and the
+   free one holds only three cards — so it filled three of four columns and the
+   main grid restarted below, leaving a short first row with a gap. Collapsing
+   both containers to display:contents makes every card an item of one grid on
+   #actioncards, so they flow continuously. */
+#actioncards {
+    display: contents;
+}
+
+#builddisplay.plan #actioncards {
+    display: grid;
     grid-template-columns: repeat(auto-fill, minmax(178px, 1fr));
+    align-items: stretch;
+    grid-auto-rows: 1fr;
+    gap: 8px;
+    margin-top: 13px;
+}
+
+#builddisplay.plan #freeactiondisplay,
+#builddisplay.plan #actionsdisplay {
+    display: contents;
 }
 
 /* The toggle row reserves 40px for buttons plus an input that may never appear.
@@ -419,8 +435,6 @@
    than its neighbours - five different heights across one grid. Stretching to
    a shared row height is only affordable now that the tallest card is ~120px
    rather than the 171px it was before the reservations came out. */
-#builddisplay.plan #actionsdisplay,
-#builddisplay.plan #freeactiondisplay,
 #builddisplay.plan #saveschecks {
     align-items: stretch;
     grid-auto-rows: 1fr;
@@ -431,12 +445,9 @@
     justify-content: flex-start;
 }
 
-/* The free actions (Twice/Attack/Rush) are a separate grid from the main
-   actions, so grid-auto-rows cannot give the two a shared track height - they
-   settled at 99px directly above 121px, which reads as a mistake when both sit
-   under one "Actions" heading with identical card styling. A shared floor fixes
-   that; --plan-card-min is the tallest natural card, and the 1fr stretch above
-   still absorbs anything taller than the floor. */
+/* With one grid, grid-auto-rows already equalises every row. The floor stays as
+   a backstop so a grid whose tallest card is unusually short (a filtered view
+   with only passives, say) does not collapse to a cramped row. */
 #builddisplay.plan {
     --plan-card-min: 121px;
 }

@@ -2597,7 +2597,12 @@ function toggleActionButton(actionId, suffix, baseText) {
     let html = rollCodeElement.innerHTML;
 
     button.classList.toggle("active", !isActive);
-    button.textContent = baseText;
+    // The label is whatever action-toggles.js declared; only the suffix goes
+    // into the roll code. baseText is the suffix for most toggles but not all -
+    // Heal/Buff declare "Multi" with suffix "AoE", and the Risky toggles
+    // declare "Risky" with suffix "Risky Mode" - so using it as the label
+    // silently renamed those six buttons on first click.
+    button.textContent = config ? config.text : baseText;
 
     if (inputElement) {
         inputElement.style.display = isActive ? "none" : "inline-block";

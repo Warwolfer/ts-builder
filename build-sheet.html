@@ -214,6 +214,10 @@
         <div class="compact-toggle" id="compact-toggle" onclick="toggleCompact(this)">Compact</div>
         <div class="compact-toggle plan-toggle" id="plan-toggle" onclick="togglePlan(this)">Plan</div>
       </h3>
+      <!-- Wrapper so plan mode can flow the free actions and the main actions as
+           one grid. It is display:contents outside plan mode, so it changes
+           nothing there. -->
+      <div id="actioncards">
       <div class="masterycategory" id="freeactiondisplay">
         <!-- Free actions -->
         <div class="card normal attackfinal">
@@ -241,6 +245,7 @@
         </div>
       </div>
       <div class="masterycategory" id="actionsdisplay"></div>
+      </div>
       <aside id="plan-rail" class="plan-rail" hidden></aside>
 
       <!-- Note -->
