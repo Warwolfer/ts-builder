@@ -44,6 +44,13 @@ const PlanMode = (function () {
     // clickMastery routes through addGlowEffect, which stamps "active-glow" on
     // the clicked circle and strips it from its siblings — so exactly one is
     // lit per card, including on the save and check cards.
+    //
+    // Returns null for the Saves and Expertise Check cards, and that is correct
+    // rather than a gap: their lit icons are save types and expertise, not
+    // masteries, so they carry no data-mastery to read. Only the Mastery Check
+    // card does. A buff entry that sets requiresMasteryMatch against the `save`
+    // or `expertiseCheck` family would therefore always block — if one is ever
+    // added, give it its own condition instead of reusing the mastery match.
     function selectedMastery(card) {
         const icon = card.querySelector(".masterycircle.active-glow");
         return icon ? icon.getAttribute("data-mastery") : null;
@@ -264,7 +271,14 @@ const PlanMode = (function () {
             }
 
             // Chips toggle themselves off and back on for the row they sit in.
-            if (target.classList.contains("plan-chip") && !target.classList.contains("blocked")) {
+            // Only applied and dismissed chips toggle. A blocked chip has an
+            // unmet condition to fix, not a choice to make; a superseded one is
+            // reported from its own flag before dismissal is ever consulted, so
+            // clicking it would record a dismissal that does nothing now and
+            // silently removes the buff later, once it stops being superseded.
+            if (target.classList.contains("plan-chip") &&
+                !target.classList.contains("blocked") &&
+                !target.classList.contains("superseded")) {
                 const rowEl = target.closest(".plan-row");
                 const row = rowEl ? rowByUid(rowEl.getAttribute("data-uid")) : null;
                 const source = target.getAttribute("data-source");
@@ -347,7 +361,10 @@ const PlanMode = (function () {
     }
 
     return {
-        rows: rows,
+        // A copy: mutating the queue must go through add/remove/move/clear, each
+        // of which re-resolves and re-renders. Handing out the live array invites
+        // a splice that leaves the rail showing stale totals.
+        getRows: function () { return rows.slice(); },
         add: add,
         remove: remove,
         move: move,
