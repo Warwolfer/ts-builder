@@ -1768,24 +1768,11 @@ class BuildSheet {
     }
 
     getHighestApplicableMasteryRank(state, action) {
-        if (!action || !action.masteries) return 0;
-
-        const applicableMasteries = state.chosenMasteries.filter((masteryId) =>
-            action.masteries.includes(masteryId)
+        return this.calculations.getHighestApplicableMasteryRank(
+            state,
+            action,
+            this.dataLoader.cache.masteries,
         );
-
-        let highestRank = 0;
-        applicableMasteries.forEach((masteryId) => {
-            const masteryIndex = state.chosenMasteries.indexOf(masteryId);
-            if (masteryIndex !== -1) {
-                const rank = state.chosenMasteriesRanks[masteryIndex];
-                if (rank > highestRank) {
-                    highestRank = rank;
-                }
-            }
-        });
-
-        return highestRank;
     }
 
     getPassiveModifier(state, actionLookup) {

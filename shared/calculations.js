@@ -230,6 +230,35 @@ const CharacterCalculations = {
     return highest;
   },
 
+  // Highest effective rank among the masteries an action actually lists,
+  // honouring downcasting the same way getHighestRankForRole does: a mastery
+  // that reaches the action's role only as its secondary role counts one rank
+  // lower, and one that cannot reach the role at all counts for nothing.
+  // Backs the Lethal/Blessed passive modifiers, whose bonus is rank x 5.
+  getHighestApplicableMasteryRank(state, action, masteryList) {
+    if (!action || !action.masteries) return 0;
+    const list = masteryList || window.masteries || window.masterylist;
+    const { chosenMasteries, chosenMasteriesRanks } = state;
+    if (!list || !chosenMasteries) return 0;
+
+    let highest = 0;
+    for (let i = 0; i < chosenMasteries.length; i++) {
+      const lookup = chosenMasteries[i];
+      if (!action.masteries.includes(lookup)) continue;
+      const mastery = list.find((m) => m.lookup === lookup);
+      if (!mastery) continue;
+      const rawRank = parseInt(chosenMasteriesRanks[i]) || 0;
+      let effectiveRank = 0;
+      if (mastery.primaryRole === action.category) {
+        effectiveRank = rawRank;
+      } else if (mastery.secondaryRole === action.category) {
+        effectiveRank = Math.max(0, rawRank - 1);
+      }
+      if (effectiveRank > highest) highest = effectiveRank;
+    }
+    return highest;
+  },
+
   getHighestDefenseRank(state, masteryList) {
     return this.getHighestRankForRole(state, masteryList, "defense");
   },
