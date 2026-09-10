@@ -1911,6 +1911,18 @@ class BuildSheet {
                     const cardElement = this.domUtils.querySelector(`.card#${actionId}final`);
                     if (!cardElement) return;
 
+                    // Light the icon exactly as clickMastery would, so
+                    // selectedMastery() (plan-mode.js) can read it back from
+                    // the DOM regardless of whether the user ever clicked.
+                    // There is exactly one .masterycircle here: this branch
+                    // only runs when applicableMasteries.length === 1, and
+                    // that list is what buildMasteryIconsHtml iterates to
+                    // produce the icons for this card.
+                    const autoIcon = cardElement.querySelector(
+                        `.masterycircle[data-mastery="${masteryId}"]`,
+                    );
+                    if (autoIcon) addGlowEffect(autoIcon, "masterycircle");
+
                     const masteryReplace = cardElement.querySelector(".masteryreplace");
                     const mnameReplace = cardElement.querySelector(".mnamereplace");
                     const breakTypeReplace = cardElement.querySelector(".breaktype");
