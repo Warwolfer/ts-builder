@@ -23,18 +23,6 @@
     display: none;
 }
 
-#builddisplay.plan .cardtitle {
-    font-size: 15px;
-}
-
-#builddisplay.plan .type {
-    font-size: 10px;
-}
-
-#builddisplay.plan .cardtop {
-    padding: 6px 8px;
-}
-
 #builddisplay.plan .risky-toggle {
     padding: 2px 7px;
     font-size: 10px;
@@ -91,10 +79,6 @@
    occupies outside plan mode. A docked side rail squeezed both halves — the
    card grid went narrow and the queue's columns were too cramped to read a
    roll code in. */
-.plan-layout {
-    display: block;
-}
-
 .plan-rail {
     margin-top: 14px;
     background-color: #1b2030;
@@ -196,6 +180,7 @@
 
 .plan-row-mastery {
     color: #8e97ad;
+    font-size: 0.9em;
 }
 
 .plan-row-total {
@@ -219,8 +204,11 @@
 
 /* The roll code cell reuses .rollcode so click-to-copy and the Copied! tooltip
    behave exactly as they do on the cards. */
+/* The roll code is the payload: monospace, tight, and never the thing that
+   wraps first — the Action column yields width to it instead. */
 .plan-rail .rollcode {
     margin: 0;
+    padding: 3px 6px;
     font-size: 0.78em;
     line-height: 1.35;
     word-break: break-word;
@@ -412,17 +400,5 @@
     row-gap: 2px;
 }
 
-/* The roll code is the payload: monospace, tight, and never the thing that
-   wraps first — the Action column yields width to it instead. */
-.plan-rail .rollcode {
-    padding: 3px 6px;
-}
 
-.plan-row-index {
-    text-align: right;
-}
 
-/* A queued row's mastery is context, not headline. */
-.plan-row-mastery {
-    font-size: 0.9em;
-}
