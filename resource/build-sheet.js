@@ -1188,7 +1188,7 @@ class BuildSheet {
 
         // Create armor ability card HTML
         const armorCard = `
-      <div class="card normal" id="armor-ability-card">
+      <div class="card normal" id="armor-ability-card" data-action-id="@armor-ability">
         <div class="cardtop">
             <div class="cardtopleft">
                 <div class="cardtitle">${abilityData.name}</div>

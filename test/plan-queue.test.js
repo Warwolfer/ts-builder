@@ -430,3 +430,22 @@ test("a row rebuilt from malformed stored fields still resolves and renders", ()
     assert.strictEqual(typeof resolved[0].total, "number");
     assert.ok(Array.isArray(resolved[0].chips));
 });
+
+test("makeRow carries the mastery image through to the renderer", () => {
+    // The queue renders the mastery as an icon, so the image URL has to survive
+    // row construction - it was being dropped because makeRow copies a fixed
+    // set of fields and this one was not among them.
+    const row = makeRow({
+        lookup: "attack",
+        masteryId: "power",
+        masteryName: "Power",
+        masteryImage: "https://terrarp.com/db/mastery/w-power.png",
+    });
+    assert.strictEqual(row.masteryImage, "https://terrarp.com/db/mastery/w-power.png");
+    assert.strictEqual(resolveQueue([row])[0].masteryImage, row.masteryImage);
+});
+
+test("makeRow defaults a missing mastery image to an empty string", () => {
+    // The renderer omits the img element entirely rather than emitting src="".
+    assert.strictEqual(makeRow({ lookup: "attack" }).masteryImage, "");
+});

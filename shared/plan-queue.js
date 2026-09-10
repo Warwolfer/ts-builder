@@ -43,6 +43,7 @@ const PlanQueue = (function () {
             name: str(fields.name) || str(fields.lookup),
             masteryId: fields.masteryId || null,
             masteryName: str(fields.masteryName),
+            masteryImage: str(fields.masteryImage),
             rankLetter: str(fields.rankLetter),
             tags: Array.isArray(fields.tags) ? fields.tags.slice() : [],
             rollHtml: str(fields.rollHtml),

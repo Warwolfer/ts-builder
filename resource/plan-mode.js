@@ -71,6 +71,31 @@ const PlanMode = (function () {
         return tags;
     }
 
+    // A card that offers a mastery choice but has none lit would snapshot with
+    // masteryId null: the engine then blocks any mastery-matched buff and the
+    // row shows no mastery at all. Refusing the Add is clearer than queueing a
+    // row that silently under-applies.
+    function addBlockedReason(card) {
+        const icons = card.querySelectorAll(".masterycircle");
+        if (icons.length && !card.querySelector(".masterycircle.active-glow")) {
+            return "Choose a mastery first";
+        }
+        return null;
+    }
+
+    // Called after any click in the card grids, because clicking a mastery is
+    // what unblocks the button and nothing else tells us it happened.
+    function syncAddButtons() {
+        const buttons = document.querySelectorAll(".plan-add");
+        for (let i = 0; i < buttons.length; i++) {
+            const card = buttons[i].closest(".card");
+            if (!card) continue;
+            const reason = addBlockedReason(card);
+            buttons[i].classList.toggle("disabled", !!reason);
+            buttons[i].title = reason || "Add to queue";
+        }
+    }
+
     function snapshotCard(card) {
         const lookup = lookupForCard(card);
         if (!lookup) return null;
@@ -86,6 +111,7 @@ const PlanMode = (function () {
             name: textOf(card, ".cardtitle") || lookup,
             masteryId: masteryId,
             masteryName: mastery ? mastery.name : "",
+            masteryImage: mastery ? mastery.image : "",
             rankLetter: rankLetterOf(card),
             tags: activeTags(card),
             rollHtml: rollCode ? rollCode.innerHTML : "",
@@ -180,12 +206,26 @@ const PlanMode = (function () {
             escape(text) + "</span>";
     }
 
+    // The mastery as an icon plus its rank, rather than "(Astramancy B)" inside
+    // the action name — the icon is recognisable at a glance and the name column
+    // stops being two things at once.
+    function masteryCellHtml(resolved) {
+        if (!resolved.masteryId) return '<span class="plan-row-mastery"></span>';
+        const label = resolved.masteryName +
+            (resolved.rankLetter ? " " + resolved.rankLetter : "");
+        const img = resolved.masteryImage
+            ? '<img src="' + escape(resolved.masteryImage) + '" alt="">'
+            : "";
+        return '<span class="plan-row-mastery" title="' + escape(label) + '">' +
+            img +
+            (resolved.rankLetter
+                ? '<b class="plan-row-rank">' + escape(resolved.rankLetter) + "</b>"
+                : "") +
+            "</span>";
+    }
+
     function rowHtml(resolved, index) {
         const entry = window.PlanBuffs.table[resolved.lookup];
-        const mastery = resolved.masteryName
-            ? " (" + resolved.masteryName +
-              (resolved.rankLetter ? " " + resolved.rankLetter : "") + ")"
-            : "";
         const tags = resolved.tags.length ? " · " + resolved.tags.join(" · ") : "";
         const totalText = resolved.total
             ? (resolved.total > 0 ? "+" : "") + resolved.total
@@ -196,8 +236,8 @@ const PlanMode = (function () {
         let html = '<div class="plan-row" data-uid="' + escape(resolved.uid) + '" draggable="true">';
         html += '<div class="plan-row-main">';
         html += '<span class="plan-row-index" title="Drag to reorder">' + (index + 1) + "</span>";
-        html += '<span class="plan-row-name">' + escape(resolved.name + tags) +
-                '<span class="plan-row-mastery">' + escape(mastery) + "</span></span>";
+        html += '<span class="plan-row-name">' + escape(resolved.name + tags) + "</span>";
+        html += masteryCellHtml(resolved);
         html += '<span class="plan-row-total' + (resolved.total ? "" : " zero") + '">' +
                 escape(totalText) + "</span>";
         html += roll
@@ -248,8 +288,8 @@ const PlanMode = (function () {
                     'then press + in its corner.</div>';
         } else {
             html += '<div class="plan-head-row"><span>#</span><span>Action</span>' +
-                    '<span>Mod</span><span>Roll code</span><span>+X</span>' +
-                    '<span></span></div>';
+                    '<span>Mastery</span><span>Mod</span><span>Roll code</span>' +
+                    '<span>Extra Mods</span><span></span></div>';
             for (let i = 0; i < resolved.length; i++) {
                 html += rowHtml(resolved[i], i);
             }
@@ -419,6 +459,7 @@ const PlanMode = (function () {
     // One delegated listener set on the rail, so re-rendering never leaves
     // stale handlers behind.
     let railBound = false;
+    let addSyncBound = false;
     let restored = false;
 
     function bindRail() {
@@ -567,6 +608,18 @@ const PlanMode = (function () {
     function installAddButtons() {
         bindRail();
 
+        // Clicking a mastery icon is what unblocks an Add button, and those
+        // icons have their own inline onclick handlers - so listen on the way
+        // up instead of trying to hook each one.
+        if (!addSyncBound) {
+            addSyncBound = true;
+            document.addEventListener("click", function (event) {
+                if (event.target.closest && event.target.closest(".masterycircle")) {
+                    syncAddButtons();
+                }
+            });
+        }
+
         if (!restored) {
             restored = true;
             restore();
@@ -589,6 +642,7 @@ const PlanMode = (function () {
                 button.textContent = "+";
                 button.title = "Add to queue";
                 button.addEventListener("click", function () {
+                    if (addBlockedReason(card)) return;
                     add(card);
                     // A moment of feedback, since the card itself does not change.
                     button.classList.add("just-added");
@@ -597,6 +651,10 @@ const PlanMode = (function () {
                 card.appendChild(button);
             }
         }
+
+        // After the buttons exist, not before — the first call ran ahead of the
+        // install loop and styled nothing.
+        syncAddButtons();
 
         // Render once on load. Without this the rail is an empty box whenever
         // Plan was already on from a previous session: applyPlanPreference
