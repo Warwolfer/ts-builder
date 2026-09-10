@@ -310,6 +310,15 @@ const PlanMode = (function () {
         const range = res ? window.PlanResult.formatRange(res) : "";
         const crit = res ? window.PlanResult.formatCrit(res) : "";
         const note = res && res.divisor > 1 ? " (per target)" : "";
+        // Risky Mode spends the modifiers rather than adding them, which is why
+        // the range moves so far when it is lit. Say so, or the numbers look
+        // like a bug.
+        const riskyNote = res && res.risky
+            ? (res.risky.dice
+                ? " · Risky converts " + res.risky.converted + " into " +
+                  res.risky.dice + "d100, +" + res.risky.remainder + " left"
+                : " · Risky converts nothing (40 needed per d100)")
+            : "";
         const label = resultLabel(resolved.lookup, resolved.tags);
         // The colour keys off what it produces, not the spread prefix.
         const kind = /Heal$/.test(label) ? "heal"
@@ -324,7 +333,7 @@ const PlanMode = (function () {
 
         let out = '<span class="plan-row-result is-' + kind + wide + '"' +
             (range ? ' title="Projected ' + escape(label.toLowerCase()) +
-                     " range" + escape(note) + '"' : "") +
+                     " range" + escape(note) + escape(riskyNote) + '"' : "") +
             ">" + (range
                 ? "<i>" + escape(label) + "</i><b>" + escape(range) + "</b>"
                 : "") +

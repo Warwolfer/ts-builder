@@ -55,12 +55,55 @@ const PlanResult = (function () {
         return sum;
     }
 
+    // The comment half, where the NG tag lives.
+    function commentHalf(text) {
+        const hash = text.indexOf("#");
+        return hash === -1 ? "" : text.slice(hash + 1);
+    }
+
+    // helpers.js parseNGTrigger: NG1 is worth +5. Only NG1 is enabled today.
+    function ngBonusIn(rollText) {
+        // Matched without a word-boundary escape on purpose: the tag is always
+        // its own dot-separated segment, and a lowercase indexOf cannot be
+        // mangled by an editing pass the way a regex escape can.
+        const comment = commentHalf(String(rollText || "")).toLowerCase();
+        return comment.indexOf("ng1") !== -1 ? 5 : 0;
+    }
+
     function baseOf(rollText) {
         const dice = diceHalf(String(rollText || ""));
         const ranks = ranksIn(dice);
-        let sum = modsIn(dice);
-        for (let i = 0; i < ranks.length; i++) sum += ranks[i];
-        return { base: sum, ranks: ranks, bare: bareNumbersIn(dice) };
+        let rankSum = 0;
+        for (let i = 0; i < ranks.length; i++) rankSum += ranks[i];
+        const mods = modsIn(dice);
+        return {
+            base: rankSum + mods,
+            ranks: ranks,
+            rankSum: rankSum,
+            mods: mods,
+            bare: bareNumbersIn(dice),
+            ng: ngBonusIn(rollText),
+        };
+    }
+
+    // commands/riskyConversion.js: Risky Mode spends 40 points of flat bonus per
+    // extra d100. The pool is every flat bonus on the roll, the NG1 +5 included,
+    // and what is left over replaces the modifiers entirely - the bot substitutes
+    // `remainder` for `modsTotal`, it does not add both. Projecting Risky as a
+    // plain roll therefore got it wrong twice: too few dice, and a flat base that
+    // still counted bonuses already spent.
+    const RISKY_DIE_COST = 40;
+    function riskyConversion(parsed) {
+        const pool = Math.max(0, parsed.mods + parsed.ng);
+        const dice = Math.floor(pool / RISKY_DIE_COST);
+        const converted = dice * RISKY_DIE_COST;
+        return {
+            dice: dice,
+            converted: converted,
+            remainder: pool - converted,
+            pool: pool,
+            ng: parsed.ng,
+        };
     }
 
     // The mastery rank drives several rank-scaled rules. It is the first rank
@@ -167,7 +210,23 @@ const PlanResult = (function () {
         // --- offense.js handleSharp -------------------------------------------
         // 2d100 keeping the higher die. One 100 doubles; two 100s multiply by 7,
         // which needs Risky Mode's extra dice to be reachable at all.
-        "sharp-attack": function (base) {
+        "sharp-attack": function (base, rank, bare, parsed, risky) {
+            if (risky) {
+                // 2d100kh1 keeps one die, plus one d100 per 40 points spent.
+                const n = 1 + risky.dice;
+                const flat = parsed.rankSum + risky.remainder;
+                return {
+                    min: n + flat,
+                    max: n * 99 + flat,
+                    critMin: (100 + (n - 1) + flat) * 2,
+                    critMax: (n * 100 + flat) * 2,
+                    critTiers: [
+                        "×7 two 100s among the kept and Risky dice: " +
+                            (n * 100 + flat) * 7,
+                    ],
+                    risky: risky,
+                };
+            }
             return {
                 min: 1 + base,
                 max: 99 + base,
@@ -191,9 +250,26 @@ const PlanResult = (function () {
         // --- offense.js handleReckless ----------------------------------------
         // 1d200 plus d100s that scale with the mastery rank: one at E/D/C, two
         // at B/A, and at S one plus a kept-highest pair. Crit runs ×2 to ×7.
-        "reckless-attack": function (base, rank) {
+        "reckless-attack": function (base, rank, bare, parsed, risky) {
             const HUNDREDS = { e: 1, d: 1, c: 1, b: 2, a: 2, s: 2 };
-            const n = HUNDREDS[rank] || 1;
+            let n = HUNDREDS[rank] || 1;
+            if (risky) {
+                // The spent bonuses become dice, and only the remainder stays
+                // flat - counting the mods as well would add them twice.
+                n += risky.dice;
+                const flat = parsed.rankSum + risky.remainder;
+                const critHigh = 200 + n * 100 + flat;
+                return {
+                    min: 1 + n + flat,
+                    max: 199 + n * 99 + flat,
+                    critMin: (1 + 100 + (n - 1) + flat) * 2,
+                    critMax: critHigh * 2,
+                    critTiers: [
+                        "×7 multiple 100s or a natural 200 with one: " + critHigh * 7,
+                    ],
+                    risky: risky,
+                };
+            }
             // A single 100 among the d100s is the ordinary crit: the rest of
             // the dice can still be low, so the floor is much lower than the
             // ceiling. x7 wants several 100s at once.
@@ -252,7 +328,14 @@ const PlanResult = (function () {
         }
 
         if (!BUILDERS.hasOwnProperty(lookup)) return null;
-        return BUILDERS[lookup](parsed.base, rank, parsed.bare);
+
+        // Risky Mode only exists on Reckless and Sharp, and only when its
+        // toggle is lit. The tag is the configured suffix, "Risky Mode".
+        const riskyOn = list.indexOf("Risky Mode") !== -1 &&
+            (lookup === "reckless-attack" || lookup === "sharp-attack");
+        const risky = riskyOn ? riskyConversion(parsed) : null;
+
+        return BUILDERS[lookup](parsed.base, rank, parsed.bare, parsed, risky);
     }
 
     // "21-119", or "7-140 ↑" when the dice explode past the stated ceiling.

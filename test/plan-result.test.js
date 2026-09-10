@@ -212,3 +212,72 @@ test("advantage does not change a check's bounds", () => {
     const adv = forRow("@save", "?r save adv 70 # x", []);
     assert.strictEqual(formatRange(plain), formatRange(adv));
 });
+
+// Risky Mode converts flat bonuses into dice instead of adding them, so a
+// projection that treats a Risky roll as a plain one is wrong twice over: too
+// few dice, and a base that still counts bonuses already spent.
+const RISKY_CODE =
+    "?r reckless C B +10 +230 # Power · Physical · Lune · Lethal · Risky Mode · NG1 · 2768";
+
+test("Risky Mode converts the bonus pool exactly as the bot does", () => {
+    // Reproduces a real roll: Lethal +10 and a +230 plan modifier, with NG1
+    // folded in, giving the bot's own line "converted 240 into 6d100,
+    // remainder: +5. NG⋅1 +5 counted toward the conversion."
+    const r = forRow("reckless-attack", RISKY_CODE, ["Risky Mode"]);
+    assert.strictEqual(r.risky.pool, 245);
+    assert.strictEqual(r.risky.dice, 6);
+    assert.strictEqual(r.risky.converted, 240);
+    assert.strictEqual(r.risky.remainder, 5);
+    assert.strictEqual(r.risky.ng, 5, "NG1 counts toward the pool, not after it");
+});
+
+test("a Risky roll's own result falls inside its projected range", () => {
+    // The roll that exposed this: 1d200 (45) + 1d100 (49) + 6d100 (172)
+    // + 15 (MR·C) + 25 (WR·B) + 5 (mods·R) = 311.
+    const r = forRow("reckless-attack", RISKY_CODE, ["Risky Mode"]);
+    assert.ok(311 >= r.min && 311 <= r.max, "311 should be inside " + r.min + "-" + r.max);
+    // Floor: every die minimal, plus ranks and the remainder.
+    assert.strictEqual(r.min, 1 + 7 + 40 + 5);
+    // Ceiling: a non-crit d200 and seven non-crit d100s.
+    assert.strictEqual(r.max, 199 + 7 * 99 + 45);
+});
+
+test("Risky widens the range in both directions against the plain projection", () => {
+    // The spent bonuses stop propping up the floor and start buying dice, so
+    // the floor drops a long way and the ceiling rises.
+    const plain = forRow("reckless-attack", RISKY_CODE, []);
+    const risky = forRow("reckless-attack", RISKY_CODE, ["Risky Mode"]);
+    assert.ok(risky.min < plain.min, "Risky's floor must be lower");
+    assert.ok(risky.max > plain.max, "Risky's ceiling must be higher");
+});
+
+test("Risky applies to Sharp Attack too, and only to those two actions", () => {
+    // offense.js wires the conversion into handleSharp and handleReckless only.
+    const sharp = forRow("sharp-attack", "?r sharp C B +230 # x · Risky Mode · NG1", ["Risky Mode"]);
+    assert.ok(sharp.risky, "Sharp supports Risky Mode");
+    assert.strictEqual(sharp.risky.dice, Math.floor((230 + 5) / 40));
+
+    // An attack cannot go Risky, so the tag must not change its projection.
+    const plainAttack = forRow("attack", "?r attack A S +25 # x", []);
+    const tagged = forRow("attack", "?r attack A S +25 # x", ["Risky Mode"]);
+    assert.strictEqual(formatRange(tagged), formatRange(plainAttack));
+    assert.ok(!tagged.risky);
+});
+
+test("a Risky pool too small for one die still leaves the remainder flat", () => {
+    // Under 40 buys nothing, and the whole pool stays as a modifier.
+    const r = forRow("reckless-attack", "?r reckless C B +30 # x · Risky Mode", ["Risky Mode"]);
+    assert.strictEqual(r.risky.dice, 0);
+    assert.strictEqual(r.risky.remainder, 30);
+});
+
+test("NG1 is detected without a regex escape that an edit could mangle", () => {
+    // This exact line once held a literal backspace byte instead of \b, so the
+    // NG bonus silently never counted. Pin the behaviour, not the syntax.
+    const withNg = forRow("reckless-attack", "?r reckless C B +235 # x · Risky Mode · NG1", ["Risky Mode"]);
+    const without = forRow("reckless-attack", "?r reckless C B +235 # x · Risky Mode", ["Risky Mode"]);
+    assert.strictEqual(withNg.risky.pool, 240);
+    assert.strictEqual(without.risky.pool, 235);
+    assert.strictEqual(withNg.risky.dice, 6);
+    assert.strictEqual(without.risky.dice, 5);
+});
