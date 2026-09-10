@@ -233,13 +233,25 @@ const PlanMode = (function () {
     // The projection is named for what it actually produces, so a heal does not
     // read "Damage". The families already encode this - heal and buff are their
     // own, and everything else that rolls a projectable result deals damage.
-    function resultLabel(lookup) {
+    function resultLabel(lookup, tags) {
         const families = window.ActionFamilies
             ? window.ActionFamilies.familiesOf(lookup)
             : [];
-        if (families.indexOf("heal") !== -1) return "Heal";
-        if (families.indexOf("buff") !== -1) return "Buff";
-        return "Damage";
+        const isHeal = families.indexOf("heal") !== -1;
+        const isBuff = families.indexOf("buff") !== -1;
+        if (!isHeal && !isBuff) return "Damage";
+
+        // Name the spread as well: the figure is per target once one of these is
+        // active, and a divided heal labelled plainly "Heal" reads like the
+        // whole pool. The card calls the AoE toggle "Multi"; the suffix is what
+        // the engine and the roll code carry, so that is what we match.
+        const list = tags || [];
+        let prefix = "";
+        if (list.indexOf("AoE") !== -1) prefix = "AoE ";
+        else if (list.indexOf("Simulcast") !== -1) prefix = "Simulcast ";
+        else if (list.indexOf("Versatile") !== -1) prefix = "Versatile ";
+
+        return prefix + (isHeal ? "Heal" : "Buff");
     }
 
     // What the roll will land between, and what a crit turns it into. Both are
@@ -254,16 +266,30 @@ const PlanMode = (function () {
         const range = res ? window.PlanResult.formatRange(res) : "";
         const crit = res ? window.PlanResult.formatCrit(res) : "";
         const note = res && res.divisor > 1 ? " (per target)" : "";
-        const label = resultLabel(resolved.lookup);
+        const label = resultLabel(resolved.lookup, resolved.tags);
+        // The colour keys off what it produces, not the spread prefix.
+        const kind = /Heal$/.test(label) ? "heal"
+            : /Buff$/.test(label) ? "buff"
+            : "damage";
 
-        return '<span class="plan-row-result"' +
+        // With no crit to sit beside it — heals and buffs never crit — the
+        // result takes the crit column's space too, so it lands flush right
+        // instead of stranded mid-row with a gap after it.
+        const wide = crit ? "" : " is-wide";
+
+        let out = '<span class="plan-row-result is-' + kind + wide + '"' +
             (range ? ' title="Projected ' + escape(label.toLowerCase()) +
                      " range" + escape(note) + '"' : "") +
-            ">" + (range ? "<i>" + escape(label) + "</i> " + escape(range) : "—") +
-            "</span>" +
-            '<span class="plan-row-crit"' +
-            (crit ? ' title="' + escape(label) + ' on a critical hit"' : "") +
-            ">" + (crit ? '<i>Crit Damage</i> ' + escape(crit) : "—") + "</span>";
+            ">" + (range
+                ? "<i>" + escape(label) + "</i><b>" + escape(range) + "</b>"
+                : "") +
+            "</span>";
+        if (crit) {
+            out += '<span class="plan-row-crit" title="' + escape(label) +
+                ' on a critical hit"><i>Crit Damage</i><b>' +
+                escape(crit) + "</b></span>";
+        }
+        return out;
     }
 
     function rowHtml(resolved, index) {

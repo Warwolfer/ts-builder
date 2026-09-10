@@ -274,18 +274,28 @@
     gap: 5px;
 }
 
+/* Label above value, right-aligned so the numbers line up down the column and
+   sit against the edge of the space they share with the roll code. */
+.plan-row-result,
+.plan-row-crit {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.25;
+    font-variant-numeric: tabular-nums;
+}
+
 .plan-row-result {
     grid-column: 5;
-    font-size: 11px;
-    color: #cfd3e0;
-    font-variant-numeric: tabular-nums;
+}
+
+/* No crit cell follows, so take its column and finish flush right. */
+.plan-row-result.is-wide {
+    grid-column: 5 / -1;
 }
 
 .plan-row-crit {
     grid-column: 6 / -1;
-    font-size: 11px;
-    color: #e0a367;
-    font-variant-numeric: tabular-nums;
 }
 
 .plan-row-result i,
@@ -295,7 +305,33 @@
     font-size: 9px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-right: 3px;
+    white-space: nowrap;
+}
+
+.plan-row-result b,
+.plan-row-crit b {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Coloured for what the roll produces, reusing the roles the app already
+   speaks: the bot's support blue, offense red and defense orange, plus the
+   green already in this palette. Brightened a step for 11px text on the dark
+   rail. */
+.plan-row-result.is-damage b {
+    color: #e0a367;
+}
+
+.plan-row-result.is-heal b {
+    color: #45c495;
+}
+
+.plan-row-result.is-buff b {
+    color: #62a8ea;
+}
+
+.plan-row-crit b {
+    color: #e06767;
 }
 
 .plan-chip {
