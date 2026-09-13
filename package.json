@@ -4,6 +4,7 @@
   "private": true,
   "description": "TerraSphere Build Editor",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "stamp": "node scripts/stamp-version.js"
   }
 }
