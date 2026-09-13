@@ -1201,8 +1201,8 @@ class BuildSheet {
         <div class="cardinfo">
           <p>${abilityData.description}</p>
         </div>
-        <div class="rollcode clickable-rollcode" onclick="copyRollCode(this)" title="Click to copy">${abilityData.rollCode}</div>
         <div class="risky-toggle-container"></div>
+        <div class="rollcode clickable-rollcode" onclick="copyRollCode(this)" title="Click to copy">${abilityData.rollCode}</div>
       </div>
     `;
 
@@ -1446,9 +1446,9 @@ class BuildSheet {
       </div>
       <div class="cardinfo">${description}</div>
       ${rollSection}
-      ${rollCodeSection}
       ${masteryIcons}
       ${toggleButtons}
+      ${rollCodeSection}
     `;
     }
 
