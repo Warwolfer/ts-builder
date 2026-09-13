@@ -52,3 +52,45 @@ test("onChange callbacks are stored and install is safe without a document", () 
     assert.doesNotThrow(() => global.window.CardGate.install());
     assert.strictEqual(calls, 0);
 });
+
+test("syncRollCodes locks the roll code of an unready card and unlocks a ready one", () => {
+    // A minimal document: two containers, one card each.
+    function rollCode() {
+        const classes = new Set();
+        return {
+            title: "Click to copy",
+            classList: {
+                toggle: (name, on) => { if (on) classes.add(name); else classes.delete(name); },
+                contains: (name) => classes.has(name),
+            },
+        };
+    }
+    function domCard(icons, code) {
+        return {
+            querySelectorAll: (sel) => (sel === ".masterycircle" ? icons : []),
+            querySelector: (sel) => {
+                if (sel === ".masterycircle.active-glow") return icons.find((i) => i.lit) || null;
+                if (sel === ".rollcode") return code;
+                return null;
+            },
+        };
+    }
+    const lockedCode = rollCode();
+    const readyCode = rollCode();
+    const containers = {
+        actionsdisplay: { querySelectorAll: () => [domCard([icon({ mastery: "power" })], lockedCode)] },
+        saveschecks: { querySelectorAll: () => [domCard([icon({ lit: true })], readyCode)] },
+    };
+    global.document = {
+        getElementById: (id) => containers[id] || null,
+        addEventListener: () => {},
+    };
+
+    global.window.CardGate.syncRollCodes();
+
+    assert.strictEqual(lockedCode.classList.contains("locked"), true);
+    assert.strictEqual(lockedCode.title, "Choose a mastery first");
+    assert.strictEqual(readyCode.classList.contains("locked"), false);
+    assert.strictEqual(readyCode.title, "Click to copy");
+    delete global.document;
+});

@@ -41,8 +41,25 @@ const CardGate = (function () {
     }
 
     // Marks every unready roll code so copyRollCode can refuse it and the
-    // player can see why. Filled in by Task 3; here so the shape is stable.
-    function syncRollCodes() {}
+    // player can see why. Runs after the cards render and after every icon
+    // click. Cheap: a handful of querySelectors per card.
+    function syncRollCodes() {
+        if (typeof document === "undefined") return;
+        for (let c = 0; c < CONTAINER_IDS.length; c++) {
+            const container = document.getElementById(CONTAINER_IDS[c]);
+            if (!container) continue;
+            const cards = container.querySelectorAll(".card");
+            for (let i = 0; i < cards.length; i++) {
+                const code = cards[i].querySelector(".rollcode");
+                if (!code) continue;
+                const reason = addBlockedReason(cards[i]);
+                code.classList.toggle("locked", !!reason);
+                code.title = reason || "Click to copy";
+            }
+        }
+    }
+
+    onChange(syncRollCodes);
 
     return {
         addBlockedReason: addBlockedReason,

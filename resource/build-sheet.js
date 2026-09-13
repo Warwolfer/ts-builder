@@ -196,6 +196,10 @@ class BuildSheet {
         this.applyCompactPreference();
 
         if (window.PlanMode) window.PlanMode.installAddButtons();
+        if (window.CardGate) {
+            window.CardGate.install();
+            window.CardGate.syncRollCodes();
+        }
     }
 
     applyCompactPreference() {
@@ -3143,6 +3147,20 @@ function refreshAllActionFilters() {
 
 // Copy rollcode to clipboard function
 function copyRollCode(element) {
+    // Locked means the card still has a mastery or type to pick (see
+    // resource/card-gate.js). Copying now would paste a command with MR and
+    // Mastery unfilled, so refuse and point at the icons instead.
+    if (element.classList.contains("locked")) {
+        const card = element.closest(".card");
+        const icons = card ? card.querySelectorAll(".masterycircle") : [];
+        for (let i = 0; i < icons.length; i++) {
+            icons[i].classList.remove("nudge");
+            void icons[i].offsetWidth; // restart the animation on a repeat click
+            icons[i].classList.add("nudge");
+        }
+        return;
+    }
+
     // Clone the element to get text without any existing tooltips
     const clone = element.cloneNode(true);
 
