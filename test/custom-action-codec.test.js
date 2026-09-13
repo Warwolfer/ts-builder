@@ -441,3 +441,151 @@ test("a payload past the cap is refused before it becomes a code", async () => {
         return true;
     });
 });
+
+// --- final-review additions ---------------------------------------------------
+
+const zlib = require("zlib");
+
+function b64url(buf) {
+    return Buffer.from(buf).toString("base64url");
+}
+
+test("a zip bomb is refused while reading, not after", async () => {
+    const bomb = "1" + b64url(zlib.deflateRawSync(Buffer.alloc(1000000)));
+    await assert.rejects(() => Codec.decodeAction(bomb), (e) => {
+        assert.strictEqual(e.name, "CodecError");
+        assert.match(e.message, /more than a chart/i);
+        return true;
+    });
+});
+
+test("an odd-length body is refused as damaged, not thrown raw", async () => {
+    await assert.rejects(() => Codec.decodeAction("1A"), (e) => {
+        assert.strictEqual(e.name, "CodecError");
+        return true;
+    });
+});
+
+test("a list of 100 full actions fits under the list cap and round-trips", async () => {
+    const actions = [];
+    for (let i = 0; i < 100; i++) {
+        const a = JSON.parse(JSON.stringify(FIXTURES.splitter.action));
+        a.n = "Splitter " + i;
+        actions.push(a);
+    }
+    const code = await Codec.encodeList(actions);
+    assert.deepStrictEqual(await Codec.decodeList(code), actions);
+});
+
+test("a 3-cycle, 5-action screen fits under the screen cap and round-trips", async () => {
+    const cycles = [];
+    for (let c = 0; c < 3; c++) {
+        const entries = [];
+        for (let a = 0; a < 5; a++) {
+            entries.push({ id: `c${c}a${a}`, action: FIXTURES.splitter.action });
+        }
+        cycles.push({ id: `c${c}`, name: `Cycle ${c + 1}`, actions: entries });
+    }
+    const s = { v: 1, id: "s1", name: "Night Watch", cycles, createdAt: 1, updatedAt: 1 };
+    const code = await Codec.encodeScreen(s);
+    assert.deepStrictEqual(await Codec.decodeScreen(code), s);
+});
+
+test("the action cap is still 4000 bytes and applies to actions only", async () => {
+    assert.strictEqual(Codec.MAX_BYTES, 4000);
+    assert.strictEqual(Codec.CAPS["1"], 4000);
+    assert.ok(Codec.CAPS.L1 > 4000);
+    assert.ok(Codec.CAPS.S1 > Codec.CAPS.L1);
+});
+
+test("decodeActionSync agrees with decodeAction on the pinned codes", async () => {
+    for (const key of ["smash", "splitter"]) {
+        assert.deepStrictEqual(Codec.decodeActionSync(FIXTURES[key].importCode),
+            await Codec.decodeAction(FIXTURES[key].importCode));
+        assert.deepStrictEqual(Codec.decodeActionSync(FIXTURES[key].rollCode),
+            await Codec.decodeAction(FIXTURES[key].rollCode));
+    }
+});
+
+test("decodeActionSync refuses the same things decodeAction does", async () => {
+    const screenCode = await Codec.encodeScreen({
+        v: 1, id: "x", name: "N",
+        cycles: [{ id: "c", name: "Cycle 1", actions: [] }],
+        createdAt: 1, updatedAt: 1,
+    });
+    assert.throws(() => Codec.decodeActionSync(screenCode), /DM Screen/i);
+    assert.throws(() => Codec.decodeActionSync("1AAAA"), (e) => e.name === "CodecError");
+    assert.throws(() => Codec.decodeActionSync(""), (e) => e.name === "CodecError");
+    const bomb = "1" + b64url(zlib.deflateRawSync(Buffer.alloc(1000000)));
+    assert.throws(() => Codec.decodeActionSync(bomb), /more than a chart/i);
+});
+
+test("isRollPayload tells a stripped action from an import code", () => {
+    assert.strictEqual(Codec.isRollPayload(FIXTURES.smash.action), false);
+    assert.strictEqual(Codec.isRollPayload(Codec.stripForRoll(FIXTURES.smash.action)), true);
+    assert.strictEqual(Codec.isRollPayload(null), false);
+});
+
+test("control characters and newlines are refused where they would misalign output", () => {
+    const a = () => JSON.parse(JSON.stringify(FIXTURES.smash.action));
+    let x = a(); x.n = "Bad\u0000name";
+    assert.match(Codec.validateAction(x), /control/i);
+    x = a(); x.n = "Two\nlines";
+    assert.match(Codec.validateAction(x), /one line/i);
+    x = a(); x.g[0][1] = "Take\n40 damage";
+    assert.match(Codec.validateAction(x), /one line/i);
+    x = a(); x.d = "Line one.\nLine two.";
+    assert.strictEqual(Codec.validateAction(x), null, "the description may hold a newline");
+});
+
+test("a missing version and a non-string label read plainly", () => {
+    const a = JSON.parse(JSON.stringify(FIXTURES.splitter.action));
+    delete a.v;
+    assert.match(Codec.validateAction(a), /no version/i);
+    const b = JSON.parse(JSON.stringify(FIXTURES.splitter.action));
+    b.p = [[7, "20d20"]];
+    assert.match(Codec.validateAction(b), /label must be text/i);
+});
+
+test("the name length is measured after trimming", () => {
+    const a = JSON.parse(JSON.stringify(FIXTURES.splitter.action));
+    a.n = "  " + "x".repeat(60) + "  ";
+    assert.strictEqual(Codec.validateAction(a), null);
+});
+
+test("a screen with a polluting cycle key or a non-string id is refused", () => {
+    const base = () => ({
+        v: 1, id: "s1", name: "N",
+        cycles: [{ id: "c1", name: "Cycle 1", actions: [{ id: "a1", action: FIXTURES.smash.action }] }],
+        createdAt: 1, updatedAt: 1,
+    });
+    let s = base(); s.cycles[0].evil = 1;
+    assert.match(Codec.validateScreen(s), /evil/);
+    s = base(); s.cycles[0].actions[0].extra = 1;
+    assert.match(Codec.validateScreen(s), /extra/);
+    s = base(); s.id = 5;
+    assert.match(Codec.validateScreen(s), /id/i);
+    s = base(); s.createdAt = "x";
+    assert.match(Codec.validateScreen(s), /timestamp/i);
+});
+
+test("an empty list code is refused on decode too", async () => {
+    const code = await Codec.encodeUnchecked(Codec.LIST_PREFIX, []);
+    await assert.rejects(() => Codec.decodeList(code), /empty/i);
+});
+
+test("the zlib fallback produces the pinned codes when CompressionStream is absent", async () => {
+    const savedC = globalThis.CompressionStream;
+    const savedD = globalThis.DecompressionStream;
+    globalThis.CompressionStream = undefined;
+    globalThis.DecompressionStream = undefined;
+    try {
+        for (const key of ["smash", "splitter"]) {
+            assert.strictEqual(await Codec.encodeAction(FIXTURES[key].action), FIXTURES[key].importCode);
+            assert.deepStrictEqual(await Codec.decodeAction(FIXTURES[key].importCode), FIXTURES[key].action);
+        }
+    } finally {
+        globalThis.CompressionStream = savedC;
+        globalThis.DecompressionStream = savedD;
+    }
+});
