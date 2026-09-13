@@ -64,9 +64,32 @@ Every local `<script src>` and `<link href>` carries `?v=<stamp>`. The stamp
 script rewrites them with the current time and writes `shared/app-version.js`
 and `version.json`. Browsers and Cloudflare then fetch the new files instead
 of serving cached ones, and an old cached page reloads itself once
-(`shared/update-check.js`). `pnpm test` fails if any asset is unstamped, so
-run the stamp, run the tests, then upload everything including
-`version.json`.
+(`shared/update-check.js`). `pnpm test` fails if any asset is unstamped.
+
+Steps, in this order:
+
+1. `pnpm run stamp`
+2. `pnpm test`
+3. Upload `shared/`, `resource/` and `css/` first.
+4. Upload the `*.html` files next.
+5. Upload `version.json` last.
+
+The order matters. If an HTML file lands before the JS it points at, a visitor
+in that window fetches the new URL and gets the old file, and Cloudflare caches
+that old file under the new URL for up to two hours. Uploading `version.json`
+last means no page reloads itself until everything else is in place.
+
+If the site is broken after an upload, run `pnpm run stamp` again and re-upload
+in the same order. A fresh stamp is a clean slate; nothing has to be purged.
+
+Cloudflare must stay on its default caching level, where the query string is
+part of the cache key. Do not add a "Cache Everything" rule for `/build/`, or
+`?v=` stops busting the edge cache and the reload brings back old HTML.
+
+Every `pnpm run stamp` rewrites the stamp on about 120 lines across the 8 HTML
+files plus the two generated files. When two branches both changed a `<head>`,
+do not hand-resolve those hunks: take either side, then run `pnpm run stamp`
+once after the merge.
 
 ### Adding Features
 

@@ -246,7 +246,10 @@ const LoadingManager = {
       const link = document.createElement("link");
       link.id = "ts-loading-styles";
       link.rel = "stylesheet";
-      link.href = "shared/loading-spinners.css";
+      // Injected at runtime, so the stamp script never sees it. Carry the
+      // build stamp by hand, or this one file could stay cached across an
+      // upload while everything else is fresh.
+      link.href = "shared/loading-spinners.css?v=" + (window.TS_BUILD || "0");
       document.head.appendChild(link);
     }
 
