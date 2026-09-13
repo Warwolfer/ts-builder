@@ -59,6 +59,15 @@ A web-based character build planner for the TerraSphere RPG system featuring mul
 - No compilation or package management required
 - Edit files directly and refresh browser to test
 
+### Before every upload: `pnpm run stamp`
+Every local `<script src>` and `<link href>` carries `?v=<stamp>`. The stamp
+script rewrites them with the current time and writes `shared/app-version.js`
+and `version.json`. Browsers and Cloudflare then fetch the new files instead
+of serving cached ones, and an old cached page reloads itself once
+(`shared/update-check.js`). `pnpm test` fails if any asset is unstamped, so
+run the stamp, run the tests, then upload everything including
+`version.json`.
+
 ### Adding Features
 
 #### Data Modifications
