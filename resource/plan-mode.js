@@ -71,23 +71,6 @@ const PlanMode = (function () {
         return tags;
     }
 
-    // A card that offers a mastery choice but has none lit would snapshot with
-    // masteryId null: the engine then blocks any mastery-matched buff and the
-    // row shows no mastery at all. Refusing the Add is clearer than queueing a
-    // row that silently under-applies.
-    function addBlockedReason(card) {
-        const icons = card.querySelectorAll(".masterycircle");
-        if (icons.length && !card.querySelector(".masterycircle.active-glow")) {
-            // The Saves and Expertise Check cards light a save type and an
-            // expertise, not a mastery, so name what the card is actually
-            // asking for.
-            return icons[0].getAttribute("data-mastery")
-                ? "Choose a mastery first"
-                : "Choose a type first";
-        }
-        return null;
-    }
-
     // Called after any click in the card grids, because clicking a mastery is
     // what unblocks the button and nothing else tells us it happened.
     function syncAddButtons() {
@@ -95,7 +78,7 @@ const PlanMode = (function () {
         for (let i = 0; i < buttons.length; i++) {
             const card = buttons[i].closest(".card");
             if (!card) continue;
-            const reason = addBlockedReason(card);
+            const reason = window.CardGate.addBlockedReason(card);
             buttons[i].classList.toggle("disabled", !!reason);
             buttons[i].title = reason || "Add to queue";
         }
@@ -760,16 +743,12 @@ const PlanMode = (function () {
     function installAddButtons() {
         bindRail();
 
-        // Clicking a mastery icon is what unblocks an Add button, and those
-        // icons have their own inline onclick handlers - so listen on the way
-        // up instead of trying to hook each one.
+        // Clicking a mastery icon is what unblocks an Add button. CardGate
+        // owns the one document listener that watches those clicks.
         if (!addSyncBound) {
             addSyncBound = true;
-            document.addEventListener("click", function (event) {
-                if (event.target.closest && event.target.closest(".masterycircle")) {
-                    syncAddButtons();
-                }
-            });
+            window.CardGate.onChange(syncAddButtons);
+            window.CardGate.install();
         }
 
         if (!restored) {
@@ -794,7 +773,7 @@ const PlanMode = (function () {
                 button.textContent = "+";
                 button.title = "Add to queue";
                 button.addEventListener("click", function () {
-                    if (addBlockedReason(card)) return;
+                    if (window.CardGate.addBlockedReason(card)) return;
                     add(card);
                     // A moment of feedback, since the card itself does not change.
                     button.classList.add("just-added");
