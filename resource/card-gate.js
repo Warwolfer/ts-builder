@@ -55,6 +55,11 @@ const CardGate = (function () {
                 const reason = addBlockedReason(cards[i]);
                 code.classList.toggle("locked", !!reason);
                 code.title = reason || "Click to copy";
+                // The roll code is a div with an onclick, so there is no
+                // disabled state to set. aria-disabled is what tells a screen
+                // reader the click will be refused.
+                if (reason) code.setAttribute("aria-disabled", "true");
+                else code.removeAttribute("aria-disabled");
             }
         }
     }

@@ -759,7 +759,10 @@ const PlanMode = (function () {
             // same rail twice on every first load.
         }
 
-        const containers = ["actionsdisplay", "freeactiondisplay", "saveschecks"];
+        // One list, shared with the roll-code gate: a container added there
+        // must get + buttons too. Ids that do not exist yet are skipped by the
+        // getElementById check below.
+        const containers = window.CardGate.CONTAINER_IDS;
         for (let c = 0; c < containers.length; c++) {
             const container = document.getElementById(containers[c]);
             if (!container) continue;
@@ -773,6 +776,10 @@ const PlanMode = (function () {
                 button.textContent = "+";
                 button.title = "Add to queue";
                 button.addEventListener("click", function () {
+                    // A card with no mastery lit would snapshot with masteryId
+                    // null: the engine then blocks any mastery-matched buff and
+                    // the row shows no mastery at all. Refusing the Add is
+                    // clearer than queueing a row that silently under-applies.
                     if (window.CardGate.addBlockedReason(card)) return;
                     add(card);
                     // A moment of feedback, since the card itself does not change.

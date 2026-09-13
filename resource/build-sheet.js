@@ -196,10 +196,11 @@ class BuildSheet {
         this.applyCompactPreference();
 
         if (window.PlanMode) window.PlanMode.installAddButtons();
-        if (window.CardGate) {
-            window.CardGate.install();
-            window.CardGate.syncRollCodes();
-        }
+        // card-gate.js is a hard dependency, not an optional one: plan-mode.js
+        // calls into it unguarded from installAddButtons above, so a guard here
+        // could never be the thing that saves us.
+        window.CardGate.install();
+        window.CardGate.syncRollCodes();
     }
 
     applyCompactPreference() {
@@ -3154,9 +3155,16 @@ function copyRollCode(element) {
         const card = element.closest(".card");
         const icons = card ? card.querySelectorAll(".masterycircle") : [];
         for (let i = 0; i < icons.length; i++) {
-            icons[i].classList.remove("nudge");
-            void icons[i].offsetWidth; // restart the animation on a repeat click
-            icons[i].classList.add("nudge");
+            const dot = icons[i];
+            dot.classList.remove("nudge");
+            void dot.offsetWidth; // restart the animation on a repeat click
+            dot.classList.add("nudge");
+            // Drop the class once the shake finishes, so it is not left behind
+            // on every icon the player ever bounced off. `once` means a repeat
+            // click's fresh listener is the only one alive.
+            dot.addEventListener("animationend", function () {
+                dot.classList.remove("nudge");
+            }, { once: true });
         }
         return;
     }

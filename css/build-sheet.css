@@ -1005,8 +1005,10 @@
     75% { transform: translateX(3px); }
 }
 
-.masterycircle.nudge {
-    animation: card-nudge 0.3s ease;
+@media (prefers-reduced-motion: no-preference) {
+    .masterycircle.nudge {
+        animation: card-nudge 0.3s ease;
+    }
 }
 
 /* Copy tooltip */

@@ -57,12 +57,16 @@ test("syncRollCodes locks the roll code of an unready card and unlocks a ready o
     // A minimal document: two containers, one card each.
     function rollCode() {
         const classes = new Set();
+        const attrs = new Map();
         return {
             title: "Click to copy",
             classList: {
                 toggle: (name, on) => { if (on) classes.add(name); else classes.delete(name); },
                 contains: (name) => classes.has(name),
             },
+            setAttribute: (name, value) => { attrs.set(name, value); },
+            removeAttribute: (name) => { attrs.delete(name); },
+            getAttribute: (name) => (attrs.has(name) ? attrs.get(name) : null),
         };
     }
     function domCard(icons, code) {
@@ -92,5 +96,49 @@ test("syncRollCodes locks the roll code of an unready card and unlocks a ready o
     assert.strictEqual(lockedCode.title, "Choose a mastery first");
     assert.strictEqual(readyCode.classList.contains("locked"), false);
     assert.strictEqual(readyCode.title, "Click to copy");
+    assert.strictEqual(lockedCode.getAttribute("aria-disabled"), "true");
+    assert.strictEqual(readyCode.getAttribute("aria-disabled"), null);
+    delete global.document;
+});
+
+test("install binds one document listener that runs every registered callback on an icon click", () => {
+    let handler = null;
+    let bindCount = 0;
+    global.document = {
+        addEventListener: (type, fn) => { if (type === "click") { bindCount++; handler = fn; } },
+        getElementById: () => null,
+    };
+
+    let calls = 0;
+    global.window.CardGate.onChange(() => { calls++; });
+    global.window.CardGate.install();
+
+    assert.strictEqual(bindCount, 1, "install should bind exactly one click listener");
+    assert.ok(handler, "install should have captured the handler");
+
+    // A click on something inside a .masterycircle runs the callbacks.
+    handler({ target: { closest: (sel) => (sel === ".masterycircle" ? {} : null) } });
+    assert.ok(calls > 0, "an icon click should run the registered callbacks");
+
+    // A click elsewhere does not.
+    const before = calls;
+    handler({ target: { closest: () => null } });
+    assert.strictEqual(calls, before, "a click outside an icon should run nothing");
+
+    delete global.document;
+});
+
+test("install is idempotent: a second call binds no second listener", () => {
+    let bindCount = 0;
+    global.document = {
+        addEventListener: (type) => { if (type === "click") bindCount++; },
+        getElementById: () => null,
+    };
+
+    global.window.CardGate.install();
+    global.window.CardGate.install();
+
+    assert.strictEqual(bindCount, 0, "install already ran in the previous test, so it must not bind again");
+
     delete global.document;
 });
