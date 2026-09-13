@@ -1,43 +1,58 @@
 // State management for TerraSphere Build Editor
+
+// Bumped whenever the stored shape changes in a way defaults cannot absorb.
+// loadFromStorage() runs migrate() when a stored state is older than this, so
+// an upload never leaves a player with a state the new code cannot read.
+const STATE_VERSION = 2;
+
+// Everything a fresh state holds. Built by a function so reset() and the
+// constructor cannot drift apart, and so migrate() has one source of defaults.
+function defaultState() {
+  return {
+    // Mastery Selection Phase
+    chosenMasteries: [],
+    armorType: null, // 'heavy', 'medium', 'light'
+    accessoryType: null, // 'combat', 'utility', 'magic'
+
+    // Expertise Selection Phase
+    chosenExpertise: [],
+
+    // Rank Assignment Phase
+    chosenMasteriesRanks: [],
+    chosenExpertiseRanks: [],
+    weaponRank: 0,
+    armorRank: 0,
+    accessoryRank: 0,
+
+    // Action Selection Phase
+    chosenActions: [],
+
+    // Character Info
+    characterName: "",
+    characterRace: "",
+    characterTitle: "",
+    threadCode: "",
+    note: "",
+    ng: 0, // New Game Plus indicator (0 or 1)
+
+    // Imported Character Data
+    profileBannerUrl: "",
+    bannerPositionY: 0,
+    avatarUrl: "",
+    imported: false, // Flag to track if character was imported from API
+
+    // Build Metadata
+    buildId: null,
+    stateVersion: STATE_VERSION,
+    lastModified: new Date(),
+  };
+}
+
 class BuildState {
+  static STATE_VERSION = STATE_VERSION;
+
   constructor() {
-    this.state = {
-      // Mastery Selection Phase
-      chosenMasteries: [],
-      armorType: null, // 'heavy', 'medium', 'light'
-      accessoryType: null, // 'combat', 'utility', 'magic'
-
-      // Expertise Selection Phase
-      chosenExpertise: [],
-
-      // Rank Assignment Phase
-      chosenMasteriesRanks: [],
-      chosenExpertiseRanks: [],
-      weaponRank: 0,
-      armorRank: 0,
-      accessoryRank: 0,
-
-      // Action Selection Phase
-      chosenActions: [],
-
-      // Character Info
-      characterName: "",
-      characterRace: "",
-      characterTitle: "",
-      threadCode: "",
-      note: "",
-      ng: 0, // New Game Plus indicator (0 or 1)
-
-      // Imported Character Data
-      profileBannerUrl: "",
-      bannerPositionY: 0,
-      avatarUrl: "",
-      imported: false, // Flag to track if character was imported from API
-
-      // Build Metadata
-      buildId: null,
-      lastModified: new Date(),
-    };
+    this.state = defaultState();
 
     this.loadFromStorage();
   }
@@ -57,27 +72,7 @@ class BuildState {
 
   // Reset state to initial values
   reset() {
-    this.state = {
-      chosenMasteries: [],
-      armorType: null,
-      chosenExpertise: [],
-      chosenMasteriesRanks: [],
-      chosenExpertiseRanks: [],
-      weaponRank: 0,
-      armorRank: 0,
-      chosenActions: [],
-      characterName: "",
-      characterRace: "",
-      characterTitle: "",
-      threadCode: "",
-      ng: 0,
-      profileBannerUrl: "",
-      bannerPositionY: 0,
-      avatarUrl: "",
-      imported: false,
-      buildId: null,
-      lastModified: new Date(),
-    };
+    this.state = defaultState();
     this.saveToStorage();
     this.notifyListeners();
   }
@@ -95,13 +90,27 @@ class BuildState {
   loadFromStorage() {
     try {
       const saved = localStorage.getItem("tsbuilder_state");
-      if (saved) {
-        const parsedState = JSON.parse(saved);
+      if (!saved) return;
+      const parsedState = JSON.parse(saved);
+      if (parsedState.stateVersion === STATE_VERSION) {
         this.state = { ...this.state, ...parsedState };
+        return;
       }
+      this.state = BuildState.migrate(parsedState, parsedState.stateVersion);
+      this.saveToStorage();
     } catch (e) {
       console.error("💾 StateManager: Error loading from localStorage:", e);
     }
+  }
+
+  // Brings a stored state from `fromVersion` (undefined for pre-versioned
+  // states) up to STATE_VERSION. Today every change is absorbed by the
+  // defaults merge; add a `if (fromVersion < N)` block here when a later
+  // shape change needs real work.
+  static migrate(saved, fromVersion) {
+    const out = { ...defaultState(), ...saved };
+    out.stateVersion = STATE_VERSION;
+    return out;
   }
 
   // Load from URL parameters (deprecated - localStorage-first approach)
@@ -186,3 +195,4 @@ class BuildState {
 
 // Global state instance
 window.buildState = new BuildState();
+window.BuildState = BuildState;
