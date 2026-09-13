@@ -277,3 +277,167 @@ test("a screen with an unnamed cycle is refused", () => {
     s.cycles[0].name = "";
     assert.match(Codec.validateScreen(s), /cycle/i);
 });
+
+// --- the wire format ---------------------------------------------------------
+
+const fs = require("fs");
+const FIXTURES = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "fixtures", "custom-actions.json"), "utf8"),
+);
+
+test("the pinned import codes decode to the pinned actions", async () => {
+    for (const key of ["smash", "splitter"]) {
+        const decoded = await Codec.decodeAction(FIXTURES[key].importCode);
+        assert.deepStrictEqual(decoded, FIXTURES[key].action, `${key} import code`);
+    }
+});
+
+test("the pinned roll codes decode to the stripped actions", async () => {
+    for (const key of ["smash", "splitter"]) {
+        const decoded = await Codec.decodeAction(FIXTURES[key].rollCode);
+        assert.deepStrictEqual(decoded, Codec.stripForRoll(FIXTURES[key].action), `${key} roll code`);
+    }
+});
+
+test("encoding reproduces the pinned codes byte for byte", async () => {
+    for (const key of ["smash", "splitter"]) {
+        assert.strictEqual(await Codec.encodeAction(FIXTURES[key].action),
+            FIXTURES[key].importCode, `${key} import code`);
+        assert.strictEqual(await Codec.encodeAction(Codec.stripForRoll(FIXTURES[key].action)),
+            FIXTURES[key].rollCode, `${key} roll code`);
+    }
+});
+
+test("the codes stay well inside a Discord message", async () => {
+    for (const key of ["smash", "splitter"]) {
+        assert.ok(FIXTURES[key].rollCode.length < 500,
+            `${key} roll code is ${FIXTURES[key].rollCode.length} characters`);
+    }
+});
+
+test("a code carries no character that would break a Discord argument", () => {
+    for (const key of ["smash", "splitter"]) {
+        assert.match(FIXTURES[key].importCode, /^[A-Za-z0-9_-]+$/);
+        assert.match(FIXTURES[key].rollCode, /^[A-Za-z0-9_-]+$/);
+    }
+});
+
+test("a list round-trips and keeps its order", async () => {
+    const actions = [FIXTURES.smash.action, FIXTURES.splitter.action];
+    const code = await Codec.encodeList(actions);
+    assert.match(code, /^L1/);
+    assert.deepStrictEqual(await Codec.decodeList(code), actions);
+});
+
+test("a screen round-trips", async () => {
+    const s = {
+        v: 1,
+        id: "1757000000000-ab12",
+        name: "Night Watch",
+        cycles: [{ id: "c1", name: "Cycle 1", actions: [{ id: "a1", action: FIXTURES.splitter.action }] }],
+        createdAt: 1757000000000,
+        updatedAt: 1757000000000,
+    };
+    const code = await Codec.encodeScreen(s);
+    assert.match(code, /^S1/);
+    assert.deepStrictEqual(await Codec.decodeScreen(code), s);
+});
+
+test("decodeAny names what it found", async () => {
+    const action = await Codec.decodeAny(FIXTURES.smash.importCode);
+    assert.strictEqual(action.kind, "action");
+    assert.deepStrictEqual(action.value, FIXTURES.smash.action);
+
+    const list = await Codec.decodeAny(await Codec.encodeList([FIXTURES.smash.action]));
+    assert.strictEqual(list.kind, "list");
+    assert.strictEqual(list.value.length, 1);
+
+    const screenCode = await Codec.encodeScreen({
+        v: 1, id: "x", name: "N",
+        cycles: [{ id: "c", name: "Cycle 1", actions: [] }],
+        createdAt: 1, updatedAt: 1,
+    });
+    const screen = await Codec.decodeAny(screenCode);
+    assert.strictEqual(screen.kind, "screen");
+});
+
+test("a screen code offered to decodeAction is refused by name", async () => {
+    const screenCode = await Codec.encodeScreen({
+        v: 1, id: "x", name: "N",
+        cycles: [{ id: "c", name: "Cycle 1", actions: [] }],
+        createdAt: 1, updatedAt: 1,
+    });
+    await assert.rejects(() => Codec.decodeAction(screenCode), (e) => {
+        assert.strictEqual(e.name, "CodecError");
+        assert.match(e.message, /DM Screen/i);
+        return true;
+    });
+});
+
+test("an action code offered to decodeScreen is refused by name", async () => {
+    await assert.rejects(() => Codec.decodeScreen(FIXTURES.smash.importCode), (e) => {
+        assert.match(e.message, /custom action/i);
+        return true;
+    });
+});
+
+test("junk is refused rather than throwing something unreadable", async () => {
+    for (const junk of ["", "   ", "hello", "1", "1!!!!", "1AAAA", "L1zzzz"]) {
+        await assert.rejects(() => Codec.decodeAny(junk), (e) => {
+            assert.strictEqual(e.name, "CodecError", `for input ${JSON.stringify(junk)}`);
+            return true;
+        });
+    }
+});
+
+test("surrounding whitespace in a pasted code is ignored", async () => {
+    const decoded = await Codec.decodeAction("  \n" + FIXTURES.smash.importCode + "\t ");
+    assert.deepStrictEqual(decoded, FIXTURES.smash.action);
+});
+
+test("a code whose content fails validation is refused with the validation reason", async () => {
+    const bad = JSON.parse(JSON.stringify(FIXTURES.smash.action));
+    bad.g = [[60, "a"], [40, "b"], [null, "c"]];
+    // Encode without validating, the way a tampered code would look.
+    const code = await Codec.encodeUnchecked(Codec.ACTION_PREFIX, bad);
+    await assert.rejects(() => Codec.decodeAction(code), (e) => {
+        assert.match(e.message, /rise/i);
+        return true;
+    });
+});
+
+test("encoding refuses an action that is not valid", async () => {
+    await assert.rejects(() => Codec.encodeAction({ v: 1, n: "", g: [[null, "x"]] }), (e) => {
+        assert.match(e.message, /name/i);
+        return true;
+    });
+});
+
+test("the biggest chart the rules allow still fits in a code", async () => {
+    // 20 degrees is the maximum, 150 characters each: 3182 bytes of JSON,
+    // inside the 4000-byte cap. This is the worst case a DM can legitimately
+    // write, so it must encode and come back unchanged.
+    const rows = [];
+    for (let i = 0; i < 19; i++) rows.push([i + 1, "y".repeat(150)]);
+    rows.push([null, "z".repeat(150)]);
+    const big = { v: 1, n: "Big chart", g: rows };
+    assert.strictEqual(Codec.validateAction(big), null);
+    const code = await Codec.encodeAction(big);
+    assert.deepStrictEqual(await Codec.decodeAction(code), big);
+});
+
+test("a payload past the cap is refused before it becomes a code", async () => {
+    // 20 degrees at the 200-character text limit is 4177 bytes, past the cap.
+    // Every field is individually legal, so only the whole-payload check
+    // catches it - which is the point of having one.
+    const rows = [];
+    for (let i = 0; i < 19; i++) rows.push([i + 1, "y".repeat(200)]);
+    rows.push([null, "z".repeat(200)]);
+    const huge = { v: 1, n: "Huge", g: rows };
+    assert.strictEqual(Codec.validateAction(huge), null, "each field is legal on its own");
+    await assert.rejects(() => Codec.encodeAction(huge), (e) => {
+        assert.strictEqual(e.name, "CodecError");
+        assert.match(e.message, /too long/i);
+        return true;
+    });
+});

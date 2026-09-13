@@ -282,6 +282,239 @@
         return out;
     }
 
+    // --- the wire format -----------------------------------------------------
+    //
+    //   code = PREFIX + base64url( deflate-raw( utf8( JSON ) ) )
+    //
+    // The prefix is the format version and says what the payload is, so an
+    // action code pasted into the screen importer is refused by name instead of
+    // failing somewhere deeper. base64url's alphabet is [A-Za-z0-9_-], so a code
+    // contains no space and no '#' and survives as one Discord argument.
+    //
+    // Compression goes through CompressionStream, which Node 22 and every
+    // current browser have, so both copies of this file run the same path. zlib
+    // is kept only as a fallback for a Node older than 18; its output was
+    // measured byte-identical to CompressionStream's for these payloads.
+
+    const ACTION_PREFIX = "1";
+    const LIST_PREFIX = "L1";
+    const SCREEN_PREFIX = "S1";
+    const MAX_BYTES = 4000;
+
+    const B64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+    const B64_INDEX = (function () {
+        const map = {};
+        for (let i = 0; i < B64.length; i++) map[B64[i]] = i;
+        return map;
+    })();
+
+    // Hand-rolled rather than Buffer or btoa: the two environments must produce
+    // the same string, and no padding is emitted, so a code has no '='.
+    function bytesToBase64url(bytes) {
+        let out = "";
+        for (let i = 0; i < bytes.length; i += 3) {
+            const b0 = bytes[i];
+            const b1 = bytes[i + 1];
+            const b2 = bytes[i + 2];
+            out += B64[b0 >> 2];
+            out += B64[((b0 & 3) << 4) | ((b1 === undefined ? 0 : b1) >> 4)];
+            if (b1 === undefined) break;
+            out += B64[((b1 & 15) << 2) | ((b2 === undefined ? 0 : b2) >> 6)];
+            if (b2 === undefined) break;
+            out += B64[b2 & 63];
+        }
+        return out;
+    }
+
+    function base64urlToBytes(text) {
+        const out = [];
+        let buffer = 0;
+        let bits = 0;
+        for (let i = 0; i < text.length; i++) {
+            const value = B64_INDEX[text[i]];
+            if (value === undefined) {
+                throw new CodecError("That code has characters that do not belong in it.");
+            }
+            // bits never exceeds 13 before this shift, so no overflow.
+            buffer = (buffer << 6) | value;
+            bits += 6;
+            if (bits >= 8) {
+                bits -= 8;
+                out.push((buffer >> bits) & 255);
+            }
+        }
+        return new Uint8Array(out);
+    }
+
+    // Drains a stream, refusing to buffer more than `cap` bytes. The cap is what
+    // stops a small code from inflating into a large allocation.
+    async function readAll(stream, cap) {
+        const reader = stream.getReader();
+        const chunks = [];
+        let total = 0;
+        for (;;) {
+            const step = await reader.read();
+            if (step.done) break;
+            total += step.value.length;
+            if (cap && total > cap) {
+                reader.cancel().catch(function () {});
+                throw new CodecError("That code holds more than a chart should.");
+            }
+            chunks.push(step.value);
+        }
+        const out = new Uint8Array(total);
+        let at = 0;
+        for (let i = 0; i < chunks.length; i++) {
+            out.set(chunks[i], at);
+            at += chunks[i].length;
+        }
+        return out;
+    }
+
+    function nodeZlib() {
+        try {
+            return typeof require === "function" ? require("zlib") : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    async function deflate(bytes) {
+        if (typeof CompressionStream === "function") {
+            const cs = new CompressionStream("deflate-raw");
+            const writer = cs.writable.getWriter();
+            // Errors from a broken transform surface through the readable side,
+            // which readAll already reports as a CodecError; without this catch
+            // the writable side's own rejection goes unhandled alongside it.
+            writer.write(bytes).catch(function () {});
+            writer.close().catch(function () {});
+            return readAll(cs.readable, null);
+        }
+        const zlib = nodeZlib();
+        if (zlib) return new Uint8Array(zlib.deflateRawSync(Buffer.from(bytes), { level: 9 }));
+        throw new CodecError("This browser cannot make custom action codes. Please update it.");
+    }
+
+    async function inflate(bytes) {
+        if (typeof DecompressionStream === "function") {
+            const ds = new DecompressionStream("deflate-raw");
+            const writer = ds.writable.getWriter();
+            // Same as deflate(): a malformed payload errors the transform, and
+            // this stray promise must not be left to reject unobserved.
+            writer.write(bytes).catch(function () {});
+            writer.close().catch(function () {});
+            return readAll(ds.readable, MAX_BYTES);
+        }
+        const zlib = nodeZlib();
+        if (zlib) {
+            return new Uint8Array(zlib.inflateRawSync(Buffer.from(bytes), { maxOutputLength: MAX_BYTES }));
+        }
+        throw new CodecError("This browser cannot read custom action codes. Please update it.");
+    }
+
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+
+    /** Encodes without validating. Exported for tests that need a tampered code. */
+    async function encodeUnchecked(prefix, value) {
+        const bytes = encoder.encode(JSON.stringify(value));
+        if (bytes.length > MAX_BYTES) {
+            throw new CodecError("That is too long to turn into a code.");
+        }
+        return prefix + bytesToBase64url(await deflate(bytes));
+    }
+
+    // Names the payload a code claims to be, so a mis-pasted code is refused
+    // with the place it belongs rather than a parse error.
+    const PREFIX_NAMES = {};
+    PREFIX_NAMES[ACTION_PREFIX] = "a custom action";
+    PREFIX_NAMES[LIST_PREFIX] = "a list of custom actions";
+    PREFIX_NAMES[SCREEN_PREFIX] = "a DM Screen";
+
+    function kindOf(code) {
+        const text = String(code == null ? "" : code).trim();
+        if (text.slice(0, SCREEN_PREFIX.length) === SCREEN_PREFIX) return SCREEN_PREFIX;
+        if (text.slice(0, LIST_PREFIX.length) === LIST_PREFIX) return LIST_PREFIX;
+        if (text.slice(0, ACTION_PREFIX.length) === ACTION_PREFIX) return ACTION_PREFIX;
+        return null;
+    }
+
+    async function decodeUnchecked(prefix, code) {
+        const text = String(code == null ? "" : code).trim();
+        const found = kindOf(text);
+        if (found === null) {
+            throw new CodecError("That does not look like a code.");
+        }
+        if (found !== prefix) {
+            throw new CodecError(`That is ${PREFIX_NAMES[found]} code, not ${PREFIX_NAMES[prefix]} code.`);
+        }
+        const body = text.slice(prefix.length);
+        if (body.length === 0) throw new CodecError("That code is empty.");
+
+        let json;
+        try {
+            json = decoder.decode(await inflate(base64urlToBytes(body)));
+        } catch (e) {
+            if (e instanceof CodecError) throw e;
+            throw new CodecError("That code is damaged; ask for it again.");
+        }
+
+        try {
+            return JSON.parse(json);
+        } catch (e) {
+            throw new CodecError("That code is damaged; ask for it again.");
+        }
+    }
+
+    function refuse(problem) {
+        if (problem) throw new CodecError(problem);
+    }
+
+    async function encodeAction(action) {
+        refuse(validateAction(action));
+        return encodeUnchecked(ACTION_PREFIX, action);
+    }
+
+    async function decodeAction(code) {
+        const value = await decodeUnchecked(ACTION_PREFIX, code);
+        refuse(validateAction(value));
+        return value;
+    }
+
+    async function encodeList(actions) {
+        if (!Array.isArray(actions) || actions.length === 0) {
+            throw new CodecError("There is nothing to export.");
+        }
+        for (let i = 0; i < actions.length; i++) refuse(validateAction(actions[i]));
+        return encodeUnchecked(LIST_PREFIX, actions);
+    }
+
+    async function decodeList(code) {
+        const value = await decodeUnchecked(LIST_PREFIX, code);
+        if (!Array.isArray(value)) throw new CodecError("That code is damaged; ask for it again.");
+        for (let i = 0; i < value.length; i++) refuse(validateAction(value[i]));
+        return value;
+    }
+
+    async function encodeScreen(screen) {
+        refuse(validateScreen(screen));
+        return encodeUnchecked(SCREEN_PREFIX, screen);
+    }
+
+    async function decodeScreen(code) {
+        const value = await decodeUnchecked(SCREEN_PREFIX, code);
+        refuse(validateScreen(value));
+        return value;
+    }
+
+    async function decodeAny(code) {
+        const prefix = kindOf(code);
+        if (prefix === SCREEN_PREFIX) return { kind: "screen", value: await decodeScreen(code) };
+        if (prefix === LIST_PREFIX) return { kind: "list", value: await decodeList(code) };
+        if (prefix === ACTION_PREFIX) return { kind: "action", value: await decodeAction(code) };
+        throw new CodecError("That does not look like a code.");
+    }
+
     return {
         VERSION: VERSION,
         KINDS: KINDS,
@@ -292,5 +525,18 @@
         matchDegree: matchDegree,
         rangeLabel: rangeLabel,
         diceIn: diceIn,
+
+        ACTION_PREFIX: ACTION_PREFIX,
+        LIST_PREFIX: LIST_PREFIX,
+        SCREEN_PREFIX: SCREEN_PREFIX,
+        MAX_BYTES: MAX_BYTES,
+        encodeAction: encodeAction,
+        decodeAction: decodeAction,
+        encodeList: encodeList,
+        decodeList: decodeList,
+        encodeScreen: encodeScreen,
+        decodeScreen: decodeScreen,
+        decodeAny: decodeAny,
+        encodeUnchecked: encodeUnchecked,
     };
 });
