@@ -1154,9 +1154,20 @@
     box-shadow: 0 0 6px rgba(236, 72, 153, 0.4);
 }
 
-/* Glow effect for active clicked elements */
+/* The picked mastery, save type, expertise, or Adv/Normal/Dis button.
+   A hard ring, not a halo: the icons already carry a 2px role-coloured
+   border, so another soft glow reads as more of the same and vanishes at
+   arm's length. Three stacked shadows draw a dark gap, then a bright ring,
+   then a faint lift — the gap is what makes the ring its own shape instead
+   of a rim on a coloured circle.
+   box-shadow takes no layout space, so nothing shifts when you click, and it
+   follows border-radius, so the same rule serves the round mastery icons and
+   the pill-shaped save/check toggles. */
 .active-glow {
-    box-shadow: 0 0 8px #dc7330 !important;
+    box-shadow:
+        0 0 0 2px #11141c,
+        0 0 0 5px #ffa94d,
+        0 0 14px 2px rgba(255, 169, 77, 0.5) !important;
 }
 
 /* Thread code input styling */
