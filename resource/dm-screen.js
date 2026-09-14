@@ -590,6 +590,16 @@
             const select = event.target.closest("[data-copy-to]");
             if (!select || !select.value) return;
             const card = select.closest("[data-action]");
+            // The other cap check lives in renderGrid, which simply stops
+            // drawing the + card. This path adds an action to a cycle the DM
+            // is not looking at, so it needs its own check or a full cycle
+            // could be pushed past what validateScreen accepts.
+            const target = State.findCycle(screen, select.value);
+            if (target && target.actions.length >= MAX_CYCLE_ACTIONS) {
+                alert('"' + target.name + '" already holds ' + MAX_CYCLE_ACTIONS + " actions, the most a cycle can have.");
+                select.value = "";
+                return;
+            }
             // No flashButton here: #dm-copy-all is unrelated to this control, and
             // flashing it would corrupt its label. commit() already re-renders,
             // and the card visibly appears in the other cycle once the DM
