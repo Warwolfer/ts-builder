@@ -4,7 +4,7 @@ const assert = require("node:assert");
 const { load } = require("./helpers/load.js");
 
 const { PlanResult } = load();
-const { forRow, formatRange, formatCrit } = PlanResult;
+const { forRow, formatRange, formatCrit, formatCritChance } = PlanResult;
 
 // Every expectation below is derived from a named ts-discord-bot handler, so a
 // failure here means either this module or the bot moved.
@@ -280,4 +280,87 @@ test("NG1 is detected without a regex escape that an edit could mangle", () => {
     assert.strictEqual(without.risky.pool, 235);
     assert.strictEqual(withNg.risky.dice, 6);
     assert.strictEqual(without.risky.dice, 5);
+});
+
+// --- crit chance --------------------------------------------------------------
+
+test("a plain d100 attack crits on a nat 100 and nothing else", () => {
+    for (const lookup of ["attack", "protect", "counter", "ultra-protect", "ultra-counter"]) {
+        const r = forRow(lookup, "?r " + lookup + " A S # x");
+        assert.strictEqual(r.critChance, 0.01, lookup);
+    }
+});
+
+test("a sneak attack crits on its one d100 showing 100", () => {
+    assert.strictEqual(forRow("sneak-attack", "?r sneak A S # x").critChance, 0.01);
+});
+
+test("a critical attack crits when either of 2d100 reaches 85", () => {
+    const r = forRow("critical-attack", "?r critical A S # x");
+    // 1 - 0.84^2. Rounded because binary floating point cannot hold it exactly.
+    assert.strictEqual(Math.round(r.critChance * 10000) / 10000, 0.2944);
+});
+
+test("a critical attack's rarer tiers carry their own odds", () => {
+    const r = forRow("critical-attack", "?r critical A S # x");
+    assert.match(r.critTiers[0], /\(2\.0%\)$/);
+    assert.match(r.critTiers[1], /\(0\.0%\)$/);
+});
+
+test("a sharp attack's pool is both of its 2d100, because it keeps the higher", () => {
+    const r = forRow("sharp-attack", "?r sharp A S # x");
+    assert.strictEqual(Math.round(r.critChance * 10000) / 10000, 0.0199);
+});
+
+test("Risky dice widen a sharp attack's crit pool", () => {
+    const r = forRow("sharp-attack", "?r sharp A S +80 # x · Risky Mode", ["Risky Mode"]);
+    assert.strictEqual(r.risky.dice, 2);
+    // 2 kept-pair dice + 2 Risky dice.
+    assert.strictEqual(Math.round(r.critChance * 10000) / 10000, 0.0394);
+});
+
+test("a reckless attack counts its d200 as another crit die", () => {
+    // C rank: 1 base d100 + the d200.
+    const r = forRow("reckless-attack", "?r reckless C S # x");
+    assert.strictEqual(Math.round(r.critChance * 10000) / 10000, 0.0199);
+});
+
+test("a reckless attack at B rank has two base d100s", () => {
+    const r = forRow("reckless-attack", "?r reckless B S # x");
+    assert.strictEqual(Math.round(r.critChance * 10000) / 10000, 0.0297);
+});
+
+test("a reckless attack at S counts the kept pair as two dice", () => {
+    // 1 base d100 + the 2d100 kept pair + the d200 = four dice of chance.
+    const r = forRow("reckless-attack", "?r reckless S S # x");
+    assert.strictEqual(Math.round(r.critChance * 10000) / 10000, 0.0394);
+});
+
+test("Risky dice widen a reckless attack's crit pool too", () => {
+    const r = forRow("reckless-attack", "?r reckless C S +80 # x · Risky Mode", ["Risky Mode"]);
+    assert.strictEqual(r.risky.dice, 2);
+    assert.strictEqual(Math.round(r.critChance * 10000) / 10000, 0.0394);
+});
+
+test("nothing that cannot crit reports a chance", () => {
+    for (const [lookup, code] of [
+        ["stable-attack", "?r stable A S # x"],
+        ["burst-attack", "?r burst A S # x"],
+        ["heal", "?r heal A S # x"],
+        ["power-heal", "?r powerheal A S # x"],
+        ["buff", "?r buff A # x"],
+        ["power-buff", "?r powerbuff A # x"],
+        ["@save", "?r save 70 # x"],
+        ["@mastery-check", "?r mastery A # x"],
+        ["@expertise-check", "?r expertise A # x"],
+    ]) {
+        assert.strictEqual(forRow(lookup, code).critChance, null, lookup);
+    }
+});
+
+test("formatCritChance reads as a percentage with one decimal", () => {
+    assert.strictEqual(formatCritChance(0.01), "1.0%");
+    assert.strictEqual(formatCritChance(1 - Math.pow(0.84, 2)), "29.4%");
+    assert.strictEqual(formatCritChance(null), "");
+    assert.strictEqual(formatCritChance(undefined), "");
 });

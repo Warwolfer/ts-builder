@@ -267,7 +267,7 @@
 }
 
 .plan-row-chips {
-    grid-column: 2 / 5;
+    grid-column: 2 / 4;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -277,7 +277,8 @@
 /* Label above value, right-aligned so the numbers line up down the column and
    sit against the edge of the space they share with the roll code. */
 .plan-row-result,
-.plan-row-crit {
+.plan-row-crit,
+.plan-row-critpct {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -298,8 +299,16 @@
     grid-column: 6 / -1;
 }
 
+/* The chance of a crit, immediately left of what a crit pays. Its own column
+   so the percentages line up down the rail. */
+.plan-row-critpct {
+    grid-column: 4;
+    color: #8c94a8;
+}
+
 .plan-row-result i,
-.plan-row-crit i {
+.plan-row-crit i,
+.plan-row-critpct i {
     color: #7d879e;
     font-style: normal;
     font-size: 9px;
@@ -309,7 +318,8 @@
 }
 
 .plan-row-result b,
-.plan-row-crit b {
+.plan-row-crit b,
+.plan-row-critpct b {
     font-size: 12px;
     font-weight: 600;
 }
@@ -434,6 +444,10 @@
     .plan-row-chips { grid-column: 1 / -1; }
     .plan-row-result { grid-column: 2; }
     .plan-row-crit { grid-column: 3; }
+
+    /* No room for three numbers on a phone; the crit payoff matters more than
+       its odds. */
+    .plan-row-critpct { display: none; }
 }
 
 /* Plan mode drives a turn; it does not share a build. The note, build code,

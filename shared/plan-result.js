@@ -120,6 +120,20 @@ const PlanResult = (function () {
 
     function r(n) { return Math.round(n); }
 
+    // The chance a roll crits, as a fraction. Transcribed from the bot's crit
+    // rules the same way the ranges are, and for the same reason: a wrong
+    // number here becomes a decision at a live table.
+    //
+    // Every rule below reduces to "no die showed the crit face", so the shape
+    // is always 1 - (miss chance)^(dice). A d100 misses a nat 100 with
+    // probability 0.99; a d200 misses both 100 and 200 with probability 0.99
+    // as well (198 of 200).
+    const D100_MISS = 0.99;
+
+    function anyHundred(dice) {
+        return 1 - Math.pow(D100_MISS, dice);
+    }
+
     // A single d100 plus flat additions, doubled on a natural 100. Shared by
     // attack (basic.js handleAttack), protect and counter, and their Ultra
     // variants (defense.js) — all four use the identical shape.
@@ -129,6 +143,7 @@ const PlanResult = (function () {
             max: 99 + base,
             critMin: (100 + base) * 2,
             critMax: (100 + base) * 2,
+            critChance: 0.01,
         };
     }
 
@@ -143,6 +158,7 @@ const PlanResult = (function () {
             max: count * sides + base,
             critMin: null,
             critMax: null,
+            critChance: null,
             exploding: true,
         };
     }
@@ -153,7 +169,7 @@ const PlanResult = (function () {
     // lower, which changes the odds but not the bounds, so the range is the
     // same either way.
     function check(base) {
-        return { min: 1 + base, max: 100 + base, critMin: null, critMax: null };
+        return { min: 1 + base, max: 100 + base, critMin: null, critMax: null, critChance: null };
     }
 
     const BUILDERS = {
@@ -175,6 +191,7 @@ const PlanResult = (function () {
                 max: 99 + win + base,
                 critMin: (100 + win + base) * 2,
                 critMax: (100 + win + base) * 2,
+                critChance: 0.01,
             };
         },
 
@@ -199,10 +216,15 @@ const PlanResult = (function () {
                 // so 85+1 through 99+99, scaled by rank.
                 critMin: r((86 + base) * mult),
                 critMax: r((198 + base) * mult),
+                // 2d100; a crit needs either die at 85+, so the miss chance is
+                // 0.84 per die. The rarer tiers are reported in critTiers.
+                critChance: 1 - Math.pow(0.84, 2),
                 critTiers: [
                     "×3 perfect crit (a 100): " +
-                        r((101 + base) * 3) + "-" + r((199 + base) * 3),
-                    "×7 star breaker (100, 100): " + r((200 + base) * 7),
+                        r((101 + base) * 3) + "-" + r((199 + base) * 3) +
+                        " (" + formatCritChance(anyHundred(2)) + ")",
+                    "×7 star breaker (100, 100): " + r((200 + base) * 7) +
+                        " (" + formatCritChance(0.0001) + ")",
                 ],
             };
         },
@@ -220,6 +242,7 @@ const PlanResult = (function () {
                     max: n * 99 + flat,
                     critMin: (100 + (n - 1) + flat) * 2,
                     critMax: (n * 100 + flat) * 2,
+                    critChance: anyHundred(2 + risky.dice),
                     critTiers: [
                         "×7 two 100s among the kept and Risky dice: " +
                             (n * 100 + flat) * 7,
@@ -232,6 +255,7 @@ const PlanResult = (function () {
                 max: 99 + base,
                 critMin: (100 + base) * 2,
                 critMax: (100 + base) * 2,
+                critChance: anyHundred(2),
                 critTiers: [
                     "×7 two 100s, needs Risky Mode's extra dice: " +
                         (200 + base) * 7 + "+",
@@ -253,6 +277,12 @@ const PlanResult = (function () {
         "reckless-attack": function (base, rank, bare, parsed, risky) {
             const HUNDREDS = { e: 1, d: 1, c: 1, b: 2, a: 2, s: 2 };
             let n = HUNDREDS[rank] || 1;
+            // The crit pool is not the same count as the dice that add up.
+            // At S the bot rolls an extra 2d100 and keeps the higher; only the
+            // kept value joins the pool, but it shows 100 whenever EITHER die
+            // does, so it is worth two dice of probability. The d200 crits on
+            // 100 or 200, which is the same 0.99 miss chance as a d100.
+            const poolBase = rank === "s" ? 3 : (HUNDREDS[rank] || 1);
             if (risky) {
                 // The spent bonuses become dice, and only the remainder stays
                 // flat - counting the mods as well would add them twice.
@@ -264,6 +294,7 @@ const PlanResult = (function () {
                     max: 199 + n * 99 + flat,
                     critMin: (1 + 100 + (n - 1) + flat) * 2,
                     critMax: critHigh * 2,
+                    critChance: anyHundred(poolBase + risky.dice + 1),
                     critTiers: [
                         "×7 multiple 100s or a natural 200 with one: " + critHigh * 7,
                     ],
@@ -280,6 +311,7 @@ const PlanResult = (function () {
                 max: 199 + n * 99 + base,
                 critMin: critLow * 2,
                 critMax: critHigh * 2,
+                critChance: anyHundred(poolBase + 1),
                 critTiers: [
                     "×7 multiple 100s or a natural 200 with one: " +
                         critHigh * 7,
@@ -323,6 +355,7 @@ const PlanResult = (function () {
                 max: Math.floor((spec.count * spec.sides + parsed.base) / div),
                 critMin: null,
                 critMax: null,
+                critChance: null,
                 divisor: div,
             };
         }
@@ -353,10 +386,18 @@ const PlanResult = (function () {
         return res.exploding ? span + " ↑" : span;
     }
 
+    // One decimal, because the interesting range runs from 1% to 30% and a
+    // second decimal is noise at a table.
+    function formatCritChance(chance) {
+        if (chance == null) return "";
+        return (chance * 100).toFixed(1) + "%";
+    }
+
     return {
         forRow: forRow,
         formatRange: formatRange,
         formatCrit: formatCrit,
+        formatCritChance: formatCritChance,
         RANK_VALUE: RANK_VALUE,
     };
 })();

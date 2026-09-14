@@ -314,6 +314,13 @@ const PlanMode = (function () {
         // instead of stranded mid-row with a gap after it.
         const wide = crit ? "" : " is-wide";
 
+        const critPct = res ? window.PlanResult.formatCritChance(res.critChance) : "";
+        const critPctHtml = critPct
+            ? '<span class="plan-row-critpct" title="' +
+              escape("Chance this roll crits at all. " + label + " above is what a crit pays.") +
+              '"><i>Crit %</i><b>' + escape(critPct) + "</b></span>"
+            : "";
+
         let out = '<span class="plan-row-result is-' + kind + wide + '"' +
             (range ? ' title="Projected ' + escape(label.toLowerCase()) +
                      " range" + escape(note) + escape(riskyNote) + '"' : "") +
@@ -333,11 +340,11 @@ const PlanMode = (function () {
             const lines = [label + " on a critical hit"];
             for (let i = 0; i < tiers.length; i++) lines.push(tiers[i]);
             const title = lines.map(escape).join("&#10;");
-            return out + '<span class="plan-row-crit' +
+            return critPctHtml + out + '<span class="plan-row-crit' +
                 (tiers.length ? " has-tiers" : "") + '" title="' + title +
                 '"><i>Crit Damage</i><b>' + escape(crit) + "</b></span>";
         }
-        return out;
+        return critPctHtml + out;
     }
 
     function rowHtml(resolved, index) {
