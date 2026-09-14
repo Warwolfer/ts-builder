@@ -492,6 +492,17 @@
     border-width: 2px !important;
 }
 
+/* The selection ring is a box-shadow on this element, so the 0.5 above dimmed
+   the ring along with the icon and a picked downcast mastery stopped reading as
+   picked. Keep the element solid once it is lit and dim only the artwork, so
+   the icon still says downcast. */
+.masterycircle.downcast.active-glow {
+    opacity: 1;
+}
+.masterycircle.downcast.active-glow img {
+    opacity: 0.5;
+}
+
 .masterycircle .downcast-indicator {
     position: absolute;
     bottom: -3px;

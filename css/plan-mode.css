@@ -473,6 +473,19 @@
     font-size: 6px;
 }
 
+/* The card's downcast badge sits at top:12px/right:12px at 20px across, which
+   in plan mode lands on the Add button (top:5px, right:5px, 21px) and outranks
+   it on z-index, so the corner of the button could not be clicked. Smaller, and
+   parked to the left of the button. */
+#builddisplay.plan .action-downcast-indicator {
+    top: 6px;
+    right: 30px;
+    width: 14px;
+    height: 14px;
+    font-size: 9px;
+    border-width: 1px;
+}
+
 /* ---- Compactness ----------------------------------------------------------
    Plan mode is a control panel: every pixel of card height is a pixel of queue
    you cannot see at the same time. */
