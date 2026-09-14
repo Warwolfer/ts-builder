@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TerraSphere Build Editor - DM Screen</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/app.css?v=20260914-162225">
+  <link rel="stylesheet" href="css/index.css?v=20260914-162225">
+  <link rel="stylesheet" href="css/dm-screen.css?v=20260914-162225">
+  <link rel="shortcut icon" href="https://www.terrarp.com//favicon.ico">
+  <script src="shared/app-version.js?v=20260914-162225"></script>
+  <script src="shared/update-check.js?v=20260914-162225"></script>
+  <script src="shared/dom-utils.js?v=20260914-162225"></script>
+  <script src="shared/custom-action-codec.js?v=20260914-162225"></script>
+  <script src="shared/saved-builds-store.js?v=20260914-162225"></script>
+  <script src="shared/dm-screen-state.js?v=20260914-162225"></script>
+  <script src="resource/dm-screen.js?v=20260914-162225"></script>
+  <script src="shared/components/site-nav.js?v=20260914-162225"></script>
+</head>
+<body>
+  <div id="site-nav"></div>
+
+  <div id="bodyback">
+    <div id="dm-screen-page">
+
+      <div class="dm-topbar">
+        <input type="text" id="dm-screen-name" class="dm-screen-name" maxlength="60"
+               autocomplete="off" spellcheck="false" placeholder="Screen name">
+        <span id="dm-dirty" class="dm-dirty" hidden title="Changes not yet saved">unsaved</span>
+        <div class="dm-topbar-actions">
+          <button type="button" id="dm-save" class="dm-btn dm-btn-primary">Save</button>
+          <select id="dm-saved" class="dm-select" title="Load a saved screen">
+            <option value="">Saved screens…</option>
+          </select>
+          <button type="button" id="dm-delete-saved" class="dm-btn" title="Delete the selected saved screen">Delete saved</button>
+          <span class="dm-sep"></span>
+          <button type="button" id="dm-export" class="dm-btn">Export Screen Code</button>
+          <button type="button" id="dm-import" class="dm-btn">Import Screen Code</button>
+          <button type="button" id="dm-new" class="dm-btn">New Screen</button>
+        </div>
+      </div>
+
+      <div class="dm-tabs" id="dm-tabs"></div>
+
+      <div class="dm-cyclebar">
+        <span id="dm-cycle-count" class="dm-cycle-count"></span>
+        <button type="button" id="dm-copy-all" class="dm-btn">Copy all codes in this cycle</button>
+      </div>
+
+      <div class="dm-grid" id="dm-grid"></div>
+
+      <textarea id="dm-code-out" class="dm-code-out" readonly hidden
+                title="The code, in case the clipboard was unavailable"></textarea>
+    </div>
+  </div>
+
+  <!-- Action editor -->
+  <div id="dm-modal" class="dm-modal" hidden>
+    <div class="dm-modal-box" role="dialog" aria-modal="true" aria-labelledby="dm-modal-title">
+      <h2 id="dm-modal-title">New Action</h2>
+      <form id="dm-form" autocomplete="off">
+        <label class="dm-field">
+          <span>Name</span>
+          <input type="text" name="n" maxlength="60" required>
+        </label>
+        <label class="dm-field">
+          <span>Short description</span>
+          <textarea name="d" rows="2" maxlength="300"></textarea>
+        </label>
+
+        <fieldset class="dm-field">
+          <legend>Dice before the roll <small>(everyone takes these; up to 5 rows)</small></legend>
+          <div id="dm-pre-rows"></div>
+          <button type="button" class="dm-btn dm-btn-small" data-add="pre">+ dice row</button>
+        </fieldset>
+
+        <fieldset class="dm-field">
+          <legend>Allowed rolls <small>(pick at least one)</small></legend>
+          <div class="dm-kinds">
+            <label><input type="checkbox" name="k" value="fortitude"> Fortitude Save</label>
+            <label><input type="checkbox" name="k" value="reflex"> Reflex Save</label>
+            <label><input type="checkbox" name="k" value="will"> Will Save</label>
+            <label><input type="checkbox" name="k" value="mastery"> Mastery Check</label>
+            <label><input type="checkbox" name="k" value="expertise"> Expertise Check</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="dm-field">
+          <legend>Degrees of success <small>(bounds must rise; the last row is "and above")</small></legend>
+          <div id="dm-degree-rows"></div>
+          <button type="button" class="dm-btn dm-btn-small" data-add="degree">+ degree</button>
+        </fieldset>
+
+        <div class="dm-preview">
+          <div class="dm-preview-label">Preview</div>
+          <div id="dm-preview-card" class="dm-card dm-card-preview"></div>
+          <div id="dm-preview-meta" class="dm-preview-meta"></div>
+        </div>
+
+        <div id="dm-form-error" class="dm-form-error" role="alert"></div>
+
+        <div class="dm-modal-actions">
+          <button type="button" id="dm-cancel" class="dm-btn">Cancel</button>
+          <button type="submit" id="dm-submit" class="dm-btn dm-btn-primary" disabled>Save action</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
