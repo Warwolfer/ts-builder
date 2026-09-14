@@ -295,7 +295,7 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 12px;
+    gap: 24px;
     min-width: 0;
 }
 
@@ -441,10 +441,6 @@
 
     .plan-row-chips { grid-column: 1 / -1; }
     .plan-row-numbers { grid-column: 2 / -1; }
-
-    /* No room for three numbers on a phone; the crit payoff matters more than
-       its odds. */
-    .plan-row-critpct { display: none; }
 }
 
 /* Plan mode drives a turn; it does not share a build. The note, build code,
