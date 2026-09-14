@@ -4,7 +4,8 @@
    what #saved-builds-page uses for the same reason. */
 #dm-screen-page {
     padding: 20px 16px 40px;
-    max-width: 1100px;
+    /* #bodyback caps at 900px; this used to say 1100px, which was dead. */
+    max-width: 900px;
     margin: 80px auto 0;
 }
 
@@ -189,6 +190,17 @@
     border-style: dashed;
 }
 .dm-card-add:hover { background: #262b3d; color: #c4b5fd; }
+
+/* At the codec's limit: the control stays visible so the reason is readable,
+   but it is plainly not a button any more. */
+.dm-tab-full,
+.dm-card-add.is-full {
+    color: #889;
+    cursor: not-allowed;
+    font-size: 0.9em;
+    text-align: center;
+}
+.dm-card-add.is-full:hover { background: #1e2131; color: #889; }
 
 .dm-empty-note { grid-column: 1 / -1; color: #889; text-align: center; padding: 20px; }
 

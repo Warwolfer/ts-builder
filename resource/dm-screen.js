@@ -29,6 +29,12 @@
     // Discord message once the command and comment are added.
     const LONG_CODE = 1800;
 
+    // The codec's own limits (validateScreen). The UI has to hold the line
+    // too: a screen past them still saves to IndexedDB but fails validation
+    // on the next load, which used to mean a silent blank page.
+    const MAX_CYCLES = 50;
+    const MAX_CYCLE_ACTIONS = 100;
+
     const State = window.DmScreenState;
     const Codec = window.CustomActionCodec;
     const Store = window.SavedScreensStore;
@@ -38,6 +44,8 @@
     let savedSnapshot = "";     // JSON of the screen as last saved/loaded
     let activeCycleId = null;
     let editing = null;         // { cycleId, actionId|null } while the modal is open
+    let editingSnapshot = "";   // JSON of the form as it looked when the modal opened
+    let quotaWarned = false;
 
     function now() { return Date.now(); }
     function newId() { return Store.generateId(); }
@@ -49,7 +57,17 @@
             localStorage.setItem(STORAGE_KEY, JSON.stringify({
                 screen: screen, activeCycleId: activeCycleId, savedSnapshot: savedSnapshot,
             }));
-        } catch (e) { /* private mode or full quota: the copy just will not survive a reload */ }
+        } catch (e) {
+            // Private mode, or this screen is bigger than the browser will
+            // hold. Either way the working copy stops surviving reloads, and
+            // saying nothing would let the DM find that out the hard way.
+            if (!quotaWarned) {
+                quotaWarned = true;
+                alert("This browser will not store the working copy of this screen" +
+                    " (it may be too large, or storage may be blocked). Use Save, and" +
+                    " export a screen code before closing the page.");
+            }
+        }
     }
 
     let persistTimer = null;
@@ -67,11 +85,19 @@
     function restore() {
         let parsed = null;
         try { parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); } catch (e) { parsed = null; }
-        if (parsed && parsed.screen && Codec.validateScreen(parsed.screen) === null) {
-            screen = parsed.screen;
-            savedSnapshot = typeof parsed.savedSnapshot === "string" ? parsed.savedSnapshot : "";
-            activeCycleId = State.findCycle(screen, parsed.activeCycleId) ? parsed.activeCycleId : screen.cycles[0].id;
-            return;
+        if (parsed && parsed.screen) {
+            const problem = Codec.validateScreen(parsed.screen);
+            if (problem === null) {
+                screen = parsed.screen;
+                savedSnapshot = typeof parsed.savedSnapshot === "string" ? parsed.savedSnapshot : "";
+                activeCycleId = State.findCycle(screen, parsed.activeCycleId) ? parsed.activeCycleId : screen.cycles[0].id;
+                return;
+            }
+            // The stored copy is still in localStorage under STORAGE_KEY, so
+            // this is recoverable by hand. Saying so beats a blank page.
+            alert("The screen saved in this browser could not be reopened: " + problem +
+                "\n\nStarting a new one. The old copy is still in this browser's storage " +
+                "under " + STORAGE_KEY + " if you need to recover it.");
         }
         screen = State.newScreen({ id: newId(), now: now() });
         savedSnapshot = "";
@@ -127,7 +153,8 @@
         if (action.d) html += '<div class="dm-card-desc">' + esc(action.d) + "</div>";
         const pre = action.p || [];
         for (let i = 0; i < pre.length; i++) {
-            html += '<div class="dm-card-dice">' + esc(pre[i][0] || pre[i][1]) + ": " + esc(pre[i][1]) + "</div>";
+            const label = pre[i][0] ? esc(pre[i][0]) + ": " : "";
+            html += '<div class="dm-card-dice">' + label + esc(pre[i][1]) + "</div>";
         }
         if (action.k && action.k.length) {
             html += '<div class="dm-kind-badges">' + action.k.map(kindBadge).join("") + "</div>";
@@ -160,7 +187,12 @@
                 (lone ? "" : '<span class="dm-tab-close" data-close="' + esc(c.id) + '" title="Delete this cycle">×</span>') +
                 "</div>";
         }
-        html += '<div class="dm-tab dm-tab-add" data-add-cycle title="Add a cycle">+</div>';
+        if (screen.cycles.length < MAX_CYCLES) {
+            html += '<div class="dm-tab dm-tab-add" data-add-cycle title="Add a cycle">+</div>';
+        } else {
+            html += '<div class="dm-tab dm-tab-full" title="A screen holds at most ' +
+                MAX_CYCLES + ' cycles">' + MAX_CYCLES + ' cycles is the limit</div>';
+        }
         tabs.innerHTML = html;
     }
 
@@ -181,7 +213,12 @@
         if (!cycle.actions.length) {
             html += '<div class="dm-empty-note">No actions in this cycle yet. Press + to write one.</div>';
         }
-        html += '<div class="dm-card dm-card-add" data-new-action title="New action">+</div>';
+        if (cycle.actions.length < MAX_CYCLE_ACTIONS) {
+            html += '<div class="dm-card dm-card-add" data-new-action title="New action">+</div>';
+        } else {
+            html += '<div class="dm-card dm-card-add is-full" title="A cycle holds at most ' +
+                MAX_CYCLE_ACTIONS + ' actions">' + MAX_CYCLE_ACTIONS + ' actions is the limit</div>';
+        }
         grid.innerHTML = html;
 
         document.getElementById("dm-cycle-count").textContent =
@@ -328,11 +365,22 @@
         refreshPreview();
         document.getElementById("dm-modal").hidden = false;
         document.getElementById("dm-form").elements.n.focus();
+        editingSnapshot = JSON.stringify(readForm());
     }
 
     function closeModal() {
         editing = null;
+        if (previewTimer) { clearTimeout(previewTimer); previewTimer = null; }
+        document.getElementById("dm-preview-meta").textContent = "";
         document.getElementById("dm-modal").hidden = true;
+    }
+
+    // Closing throws away whatever is in the form, so only do it silently when
+    // nothing has been typed since it opened.
+    function closeModalSafely() {
+        if (JSON.stringify(readForm()) !== editingSnapshot &&
+            !confirm("Close the editor and lose these changes?")) return;
+        closeModal();
     }
 
     function submitModal(event) {
@@ -351,9 +399,14 @@
     // --- screen-level actions -----------------------------------------------------
 
     async function saveScreen() {
+        // Capture before the await: an edit during the write reassigns
+        // `screen`, and marking THAT one clean would hide an edit no store
+        // ever received.
+        const saving = screen;
+        const snapshot = JSON.stringify(saving);
         try {
-            await Store.save(screen);
-            savedSnapshot = JSON.stringify(screen);
+            await Store.save(saving);
+            savedSnapshot = snapshot;
             render();
             persist();
             await refreshSavedList();
@@ -379,8 +432,10 @@
         const record = records.find(function (r) { return r.id === id; });
         if (!record) return;
         if (!confirmDiscard()) { document.getElementById("dm-saved").value = ""; return; }
+        // Capture the record itself: it is what savedSnapshot must describe,
+        // not `screen` re-read after any later reassignment.
         screen = record;
-        savedSnapshot = JSON.stringify(screen);
+        savedSnapshot = JSON.stringify(record);
         activeCycleId = screen.cycles[0].id;
         render();
         persist();
@@ -393,7 +448,7 @@
         const name = select.options[select.selectedIndex].textContent;
         if (!confirm('Delete the saved screen "' + name + '"? The one you are editing stays open.')) return;
         await Store.delete(id);
-        if (screen.id === id) savedSnapshot = "";
+        if (screen.id === id) { savedSnapshot = ""; persist(); }
         render();
         await refreshSavedList();
     }
@@ -406,6 +461,7 @@
         render();
         persist();
         document.getElementById("dm-code-out").hidden = true;
+        document.getElementById("dm-saved").value = "";
     }
 
     function exportScreen() {
@@ -464,10 +520,11 @@
                 return;
             }
             if (event.target.closest("[data-add-cycle]")) {
+                if (screen.cycles.length >= MAX_CYCLES) return;
                 const id = newId();
-                commit(State.addCycle(screen, { id: id, now: now() }));
-                activeCycleId = id;
-                render();
+                const next = State.addCycle(screen, { id: id, now: now() });
+                activeCycleId = id;   // before commit, so one render shows the new tab selected
+                commit(next);
                 return;
             }
             const tab = event.target.closest("[data-cycle]");
@@ -533,18 +590,31 @@
             const select = event.target.closest("[data-copy-to]");
             if (!select || !select.value) return;
             const card = select.closest("[data-action]");
+            // No flashButton here: #dm-copy-all is unrelated to this control, and
+            // flashing it would corrupt its label. commit() already re-renders,
+            // and the card visibly appears in the other cycle once the DM
+            // switches to it.
             commit(State.copyAction(screen, activeCycleId, card.getAttribute("data-action"), select.value, { id: newId(), now: now() }));
-            flashButton("dm-copy-all", "Copied to " + State.findCycle(screen, select.value).name);
         });
 
         // Modal.
         document.getElementById("dm-form").addEventListener("submit", submitModal);
         document.getElementById("dm-cancel").addEventListener("click", closeModal);
-        document.getElementById("dm-modal").addEventListener("click", function (event) {
-            if (event.target.id === "dm-modal") closeModal();
+        // A click is dispatched on the nearest ancestor common to mousedown and
+        // mouseup, so a drag-select that starts in a field and ends over the
+        // backdrop would otherwise close the editor and lose the chart. Only
+        // treat it as a backdrop click when the press STARTED there too.
+        let pressedBackdrop = false;
+        const modal = document.getElementById("dm-modal");
+        modal.addEventListener("mousedown", function (event) {
+            pressedBackdrop = event.target.id === "dm-modal";
+        });
+        modal.addEventListener("click", function (event) {
+            if (event.target.id === "dm-modal" && pressedBackdrop) closeModalSafely();
+            pressedBackdrop = false;
         });
         document.addEventListener("keydown", function (event) {
-            if (event.key === "Escape" && editing && !document.querySelector(".dm-tab input")) closeModal();
+            if (event.key === "Escape" && editing && !document.querySelector(".dm-tab input")) closeModalSafely();
         });
         document.getElementById("dm-form").addEventListener("input", refreshPreview);
         document.getElementById("dm-form").addEventListener("change", refreshPreview);
@@ -553,13 +623,17 @@
             if (add) {
                 if (add.getAttribute("data-add") === "pre") {
                     const host = document.getElementById("dm-pre-rows");
-                    if (host.children.length >= 5) return;
+                    if (host.children.length >= 5) { alert("An action holds at most 5 dice rows."); return; }
                     host.insertAdjacentHTML("beforeend", preRowHtml("", ""));
                 } else {
                     const host = document.getElementById("dm-degree-rows");
-                    if (host.children.length >= 20) return;
+                    if (host.children.length >= 20) { alert("An action holds at most 20 degrees."); return; }
                     // Insert before the last row so "and above" stays last.
-                    host.lastElementChild.insertAdjacentHTML("beforebegin", degreeRowHtml("", ""));
+                    if (host.lastElementChild) {
+                        host.lastElementChild.insertAdjacentHTML("beforebegin", degreeRowHtml("", ""));
+                    } else {
+                        host.insertAdjacentHTML("beforeend", degreeRowHtml("", ""));
+                    }
                     markLastDegree();
                 }
                 refreshPreview();
