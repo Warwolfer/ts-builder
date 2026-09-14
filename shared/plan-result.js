@@ -213,12 +213,17 @@ const PlanResult = (function () {
             return {
                 min: r((2 + base) * 1.2),
                 max: r((168 + base) * 1.2),
-                // The reachable crit: either die 85+ and the other at least 2 (a
-                // natural 1 is a crit fail), so 85+2 through 99+99, scaled by rank.
+                // The reachable crit: either die 85+ and the other at least 2,
+                // so 85+2 through 99+99, scaled by rank. A natural 1 alongside
+                // an 85+ does not reach here - the handler's `any1` branch is
+                // checked first and leaves the multiplier at the 1.2 every roll
+                // gets, so the damage still lands, just in the ordinary range.
                 critMin: r((87 + base) * mult),
                 critMax: r((198 + base) * mult),
                 // 2d100. A crit needs either die at 85+, BUT a natural 1 on
-                // either die is a crit fail that wins over the 85+, and any
+                // either die takes the `any1` branch first, which keeps the
+                // baseline 1.2 rather than the rank multiplier - so that roll
+                // is not a crit, even though it still deals its damage. A
                 // natural 100 is a crit regardless. So: P(any 100) plus
                 // P(no 100, no 1, and at least one die 85..99).
                 critChance: anyHundred(2) + (Math.pow(0.98, 2) - Math.pow(0.83, 2)),

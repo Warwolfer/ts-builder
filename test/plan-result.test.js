@@ -95,7 +95,8 @@ test("Critical Attack shows the reachable crit inline, not the star breaker", ()
     const r = forRow("critical-attack", "?r critical S S # x", []);
     assert.strictEqual(r.min, Math.round((2 + 80) * 1.2));
     assert.strictEqual(r.max, Math.round((168 + 80) * 1.2));
-    // 85 with a natural 1 is a crit fail, so the reachable floor is 85+2.
+    // 85 alongside a natural 1 takes the any1 branch and keeps the baseline
+    // 1.2, so the lowest rank-multiplied sum is 85+2.
     assert.strictEqual(r.critMin, Math.round((87 + 80) * 2));
     assert.strictEqual(r.critMax, Math.round((198 + 80) * 2));
     assert.ok(formatCrit(r).includes("-"), "the 85+ tier is itself a range");
@@ -296,9 +297,9 @@ test("a plain d100 attack crits on a nat 100 and nothing else", () => {
 
 test("a critical attack crits when either of 2d100 reaches 85", () => {
     const r = forRow("critical-attack", "?r critical A S # x");
-    // P(any 100) + P(no 100, no 1, some 85+). A natural 1 is a crit fail that
-    // beats an 85+ on the other die. Rounded: binary floating point cannot hold
-    // it exactly.
+    // P(any 100) + P(no 100, no 1, some 85+). A natural 1 alongside an 85+
+    // keeps the baseline 1.2 instead of the rank multiplier, so it is not a
+    // crit. Rounded: binary floating point cannot hold it exactly.
     assert.strictEqual(Math.round(r.critChance * 10000) / 10000, 0.2914);
 });
 
