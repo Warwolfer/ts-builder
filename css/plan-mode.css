@@ -299,7 +299,7 @@
     min-width: 0;
 }
 
-/* The chance of a crit, immediately left of the damage it applies to. */
+/* The chance of a crit, leftmost of the three numbers. */
 .plan-row-critpct {
     color: #8c94a8;
 }

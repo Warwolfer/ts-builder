@@ -80,9 +80,11 @@ test("Burst gains dice with mastery rank", () => {
 
 test("Sneak Attack's floor is a failed roll and its ceiling a successful one", () => {
     // offense.js handleSneak: a success adds a rank bonus, a failure a flat 10.
-    // At S the bonus is 40, so 1+10 through 99+40.
+    // At S the bonus is 40, so 1+10 through 100+40. There is no crit branch in
+    // the handler, so a natural 100 is simply 100.
     const r = forRow("sneak-attack", "?r sneak S E # x", []);
-    assert.strictEqual(formatRange(r), "51-179");
+    assert.strictEqual(formatRange(r), "51-180");
+    assert.strictEqual(r.critMin, null);
 });
 
 test("Critical Attack shows the reachable crit inline, not the star breaker", () => {
@@ -93,7 +95,8 @@ test("Critical Attack shows the reachable crit inline, not the star breaker", ()
     const r = forRow("critical-attack", "?r critical S S # x", []);
     assert.strictEqual(r.min, Math.round((2 + 80) * 1.2));
     assert.strictEqual(r.max, Math.round((168 + 80) * 1.2));
-    assert.strictEqual(r.critMin, Math.round((86 + 80) * 2));
+    // 85 with a natural 1 is a crit fail, so the reachable floor is 85+2.
+    assert.strictEqual(r.critMin, Math.round((87 + 80) * 2));
     assert.strictEqual(r.critMax, Math.round((198 + 80) * 2));
     assert.ok(formatCrit(r).includes("-"), "the 85+ tier is itself a range");
     // The rarer tiers move to the tooltip rather than being dropped.
@@ -291,20 +294,18 @@ test("a plain d100 attack crits on a nat 100 and nothing else", () => {
     }
 });
 
-test("a sneak attack crits on its one d100 showing 100", () => {
-    assert.strictEqual(forRow("sneak-attack", "?r sneak A S # x").critChance, 0.01);
-});
-
 test("a critical attack crits when either of 2d100 reaches 85", () => {
     const r = forRow("critical-attack", "?r critical A S # x");
-    // 1 - 0.84^2. Rounded because binary floating point cannot hold it exactly.
-    assert.strictEqual(Math.round(r.critChance * 10000) / 10000, 0.2944);
+    // P(any 100) + P(no 100, no 1, some 85+). A natural 1 is a crit fail that
+    // beats an 85+ on the other die. Rounded: binary floating point cannot hold
+    // it exactly.
+    assert.strictEqual(Math.round(r.critChance * 10000) / 10000, 0.2914);
 });
 
 test("a critical attack's rarer tiers carry their own odds", () => {
     const r = forRow("critical-attack", "?r critical A S # x");
     assert.match(r.critTiers[0], /\(2\.0%\)$/);
-    assert.match(r.critTiers[1], /\(0\.0%\)$/);
+    assert.match(r.critTiers[1], /\(0\.01%\)$/);
 });
 
 test("a sharp attack's pool is both of its 2d100, because it keeps the higher", () => {
@@ -344,6 +345,7 @@ test("Risky dice widen a reckless attack's crit pool too", () => {
 
 test("nothing that cannot crit reports a chance", () => {
     for (const [lookup, code] of [
+        ["sneak-attack", "?r sneak A S # x"],
         ["stable-attack", "?r stable A S # x"],
         ["burst-attack", "?r burst A S # x"],
         ["heal", "?r heal A S # x"],
@@ -360,7 +362,7 @@ test("nothing that cannot crit reports a chance", () => {
 
 test("formatCritChance reads as a percentage with one decimal", () => {
     assert.strictEqual(formatCritChance(0.01), "1.0%");
-    assert.strictEqual(formatCritChance(1 - Math.pow(0.84, 2)), "29.4%");
+    assert.strictEqual(formatCritChance(0.2914), "29.1%");
     assert.strictEqual(formatCritChance(null), "");
     assert.strictEqual(formatCritChance(undefined), "");
 });

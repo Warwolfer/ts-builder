@@ -182,16 +182,17 @@ const PlanResult = (function () {
 
         // --- offense.js handleSneak -------------------------------------------
         // A success adds a rank bonus, a failure adds a flat 10. The floor is a
-        // failed roll and the ceiling a successful one.
+        // failed roll and the ceiling a successful one. There is no crit: the
+        // handler has no natural-100 branch, so a 100 is simply 100 + the bonus.
         "sneak-attack": function (base, rank) {
             const BONUS = { d: 25, c: 25, b: 30, a: 35, s: 40 };
             const win = BONUS[rank] || 10;
             return {
                 min: 1 + 10 + base,
-                max: 99 + win + base,
-                critMin: (100 + win + base) * 2,
-                critMax: (100 + win + base) * 2,
-                critChance: 0.01,
+                max: 100 + win + base,
+                critMin: null,
+                critMax: null,
+                critChance: null,
             };
         },
 
@@ -212,19 +213,21 @@ const PlanResult = (function () {
             return {
                 min: r((2 + base) * 1.2),
                 max: r((168 + base) * 1.2),
-                // The reachable crit: either die 85+ and neither a natural 100,
-                // so 85+1 through 99+99, scaled by rank.
-                critMin: r((86 + base) * mult),
+                // The reachable crit: either die 85+ and the other at least 2 (a
+                // natural 1 is a crit fail), so 85+2 through 99+99, scaled by rank.
+                critMin: r((87 + base) * mult),
                 critMax: r((198 + base) * mult),
-                // 2d100; a crit needs either die at 85+, so the miss chance is
-                // 0.84 per die. The rarer tiers are reported in critTiers.
-                critChance: 1 - Math.pow(0.84, 2),
+                // 2d100. A crit needs either die at 85+, BUT a natural 1 on
+                // either die is a crit fail that wins over the 85+, and any
+                // natural 100 is a crit regardless. So: P(any 100) plus
+                // P(no 100, no 1, and at least one die 85..99).
+                critChance: anyHundred(2) + (Math.pow(0.98, 2) - Math.pow(0.83, 2)),
                 critTiers: [
                     "×3 perfect crit (a 100): " +
                         r((101 + base) * 3) + "-" + r((199 + base) * 3) +
                         " (" + formatCritChance(anyHundred(2)) + ")",
                     "×7 star breaker (100, 100): " + r((200 + base) * 7) +
-                        " (" + formatCritChance(0.0001) + ")",
+                        " (0.01%)",
                 ],
             };
         },
