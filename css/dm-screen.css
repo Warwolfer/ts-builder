@@ -1,12 +1,19 @@
 /* css/dm-screen.css — the DM Screen page and its action editor. */
 
-/* The nav is position:fixed, so the page has to clear it itself. 80px is
-   what #saved-builds-page uses for the same reason. */
+/* The nav is position:fixed, so the page has to clear it itself. app.css gives
+   #bodyback a 20px top margin shared by every page, and the other pages clear
+   the bar from inside (.header-info, .sheetbody, #saved-builds-page), so this
+   override lives here — in the stylesheet only this page loads — rather than
+   in the shared rule, where it would add a gap to the other six. */
+#bodyback {
+    margin-top: 80px;
+}
+
 #dm-screen-page {
     padding: 20px 16px 40px;
     /* #bodyback caps at 900px; this used to say 1100px, which was dead. */
     max-width: 900px;
-    margin: 80px auto 0;
+    margin: 0 auto;
 }
 
 /* --- top bar ----------------------------------------------------------- */
