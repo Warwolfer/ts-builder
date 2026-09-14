@@ -281,6 +281,17 @@ const PlanMode = (function () {
         return prefix + (isHeal ? "Heal" : "Buff");
     }
 
+    // Crit % and the projected result share one cell, right-aligned, so the
+    // odds sit the same 8px from the damage that the damage sits from the crit
+    // damage. They cannot be two grid columns: the result column is the wide
+    // flexible one that carries the roll code on the line above, so a Crit %
+    // in its own column would be stranded at that column's left edge, a third
+    // of the rail away from the number it belongs to.
+    function numbers(critPctHtml, resultHtml, wide) {
+        return '<span class="plan-row-numbers' + wide + '">' +
+            critPctHtml + resultHtml + "</span>";
+    }
+
     // What the roll will land between, and what a crit turns it into. Both are
     // derived from the rendered roll code, so they account for every modifier
     // already spliced into it. An action with no projectable roll shows a dash.
@@ -321,7 +332,7 @@ const PlanMode = (function () {
               '"><i>Crit %</i><b>' + escape(critPct) + "</b></span>"
             : "";
 
-        let out = '<span class="plan-row-result is-' + kind + wide + '"' +
+        let out = '<span class="plan-row-result is-' + kind + '"' +
             (range ? ' title="Projected ' + escape(label.toLowerCase()) +
                      " range" + escape(note) + escape(riskyNote) + '"' : "") +
             ">" + (range
@@ -340,11 +351,12 @@ const PlanMode = (function () {
             const lines = [label + " on a critical hit"];
             for (let i = 0; i < tiers.length; i++) lines.push(tiers[i]);
             const title = lines.map(escape).join("&#10;");
-            return critPctHtml + out + '<span class="plan-row-crit' +
+            return numbers(critPctHtml, out, wide) +
+                '<span class="plan-row-crit' +
                 (tiers.length ? " has-tiers" : "") + '" title="' + title +
                 '"><i>Crit Damage</i><b>' + escape(crit) + "</b></span>";
         }
-        return critPctHtml + out;
+        return numbers(critPctHtml, out, wide);
     }
 
     function rowHtml(resolved, index) {

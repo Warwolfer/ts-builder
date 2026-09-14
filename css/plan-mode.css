@@ -267,7 +267,7 @@
 }
 
 .plan-row-chips {
-    grid-column: 2 / 4;
+    grid-column: 2 / 5;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -286,12 +286,19 @@
     font-variant-numeric: tabular-nums;
 }
 
-.plan-row-result {
+/* Crit % and the result travel together in the roll-code column, flush right,
+   so the odds sit beside the damage rather than a third of the rail away. */
+.plan-row-numbers {
     grid-column: 5;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    min-width: 0;
 }
 
 /* No crit cell follows, so take its column and finish flush right. */
-.plan-row-result.is-wide {
+.plan-row-numbers.is-wide {
     grid-column: 5 / -1;
 }
 
@@ -299,10 +306,8 @@
     grid-column: 6 / -1;
 }
 
-/* The chance of a crit, immediately left of what a crit pays. Its own column
-   so the percentages line up down the rail. */
+/* The chance of a crit, immediately left of the damage it applies to. */
 .plan-row-critpct {
-    grid-column: 4;
     color: #8c94a8;
 }
 
@@ -442,7 +447,7 @@
     }
 
     .plan-row-chips { grid-column: 1 / -1; }
-    .plan-row-result { grid-column: 2; }
+    .plan-row-numbers { grid-column: 2; }
     .plan-row-crit { grid-column: 3; }
 
     /* No room for three numbers on a phone; the crit payoff matters more than
