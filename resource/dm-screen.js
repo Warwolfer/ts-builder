@@ -43,9 +43,12 @@
     let activeCycleId = null;
     let editing = null;         // { cycleId, actionId|null } while the modal is open
     let editingSnapshot = "";   // JSON of the form as it looked when the modal opened
-    let quotaWarned = false;
+    let saveFailureWarned = false;
     let pendingWrite = null;    // the IndexedDB write in flight, if any
-    let lastSaved = null;       // the screen object the last successful write stored
+    // A pre-autosave screen read out of localStorage that the database has not
+    // accepted yet. While this is true the legacy payload is the ONLY copy, so
+    // rememberOpen() must not overwrite the key it sits under.
+    let migrationPending = false;
 
     function now() { return Date.now(); }
     function newId() { return Store.generateId(); }
@@ -56,6 +59,9 @@
     // open and which cycle tab, so a reload lands where the DM left off.
 
     function rememberOpen() {
+        // The legacy payload under this key is still the only copy of a screen
+        // the database has refused; leave it until a save lands.
+        if (migrationPending) return;
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify({
                 screenId: screen.id, activeCycleId: activeCycleId,
@@ -64,8 +70,8 @@
     }
 
     function warnOnce(e) {
-        if (quotaWarned) return;
-        quotaWarned = true;
+        if (saveFailureWarned) return;
+        saveFailureWarned = true;
         alert("This browser could not save the screen: " +
             (e && e.message ? e.message : "storage is blocked or full") +
             "\n\nExport a screen code before closing the page, or your changes will be lost.");
@@ -86,7 +92,7 @@
         rememberOpen();
         const saving = screen;
         pendingWrite = Store.save(saving).then(function () {
-            lastSaved = saving;
+            migrationPending = false;
             flashSaved();
             return renderSwitcher();
         }, warnOnce);
@@ -128,7 +134,6 @@
 
     function openScreen(record, cycleId) {
         screen = record;
-        lastSaved = record;
         activeCycleId = State.findCycle(screen, cycleId) ? cycleId : screen.cycles[0].id;
         render();
         rememberOpen();
@@ -142,13 +147,30 @@
         // The version before autosave kept the whole screen here. Carry it
         // into the database once so nobody loses the screen they had open.
         if (parsed && parsed.screen) {
-            if (Codec.validateScreen(parsed.screen) === null) {
-                try { await Store.save(parsed.screen); } catch (e) { warnOnce(e); }
+            const problem = Codec.validateScreen(parsed.screen);
+            if (problem === null) {
+                try {
+                    await Store.save(parsed.screen);
+                } catch (e) {
+                    // The database refused it (another tab holds an older
+                    // version, or storage is off). Keep the legacy payload
+                    // exactly where it is - rememberOpen checks this flag - or
+                    // the reload the error message asks for would lose the only
+                    // copy of the screen this migration exists to protect.
+                    migrationPending = true;
+                    warnOnce(e);
+                }
                 openScreen(parsed.screen, parsed.activeCycleId);
                 return;
             }
-            alert("The screen saved in this browser could not be reopened: " +
-                Codec.validateScreen(parsed.screen) + "\n\nStarting a new one.");
+            // Invalid under today's rules. Park it under a sibling key so it
+            // can still be recovered by hand, and say where it went.
+            try {
+                localStorage.setItem(STORAGE_KEY + "_rejected", JSON.stringify(parsed));
+            } catch (e) { /* best effort; the alert still names the key */ }
+            alert("The screen saved in this browser could not be reopened: " + problem +
+                "\n\nStarting a new one. The old copy was kept under " +
+                STORAGE_KEY + "_rejected in this browser's storage.");
             parsed = null;
         }
 
@@ -299,14 +321,22 @@
 
     // The switcher lists every screen, newest first, with the open one
     // selected. Called after each successful write, so a rename shows up.
+    let switcherKey = "";
     async function renderSwitcher() {
         const select = document.getElementById("dm-saved");
         let records = [];
         try { records = await Store.getAll(); } catch (e) { records = []; }
         if (!records.some(function (r) { return r.id === screen.id; })) records.unshift(screen);
-        select.innerHTML = records.map(function (r) {
-            return '<option value="' + esc(r.id) + '">' + esc(r.name) + "</option>";
-        }).join("");
+        // Replacing the options closes the dropdown if the DM has it open,
+        // and this runs after every autosave - so only rebuild when the
+        // list actually changed.
+        const key = records.map(function (r) { return r.id + "|" + r.name; }).join("\n");
+        if (key !== switcherKey) {
+            switcherKey = key;
+            select.innerHTML = records.map(function (r) {
+                return '<option value="' + esc(r.id) + '">' + esc(r.name) + "</option>";
+            }).join("");
+        }
         select.value = screen.id;
     }
 
@@ -470,7 +500,15 @@
         if (id === screen.id) return;
         await settle();
         let records = [];
-        try { records = await Store.getAll(); } catch (e) { warnOnce(e); return; }
+        try {
+            records = await Store.getAll();
+        } catch (e) {
+            // The select shows the screen the user picked, but `screen` is
+            // still the old one; put it back so the two agree.
+            warnOnce(e);
+            await renderSwitcher();
+            return;
+        }
         const record = records.find(function (r) { return r.id === id; });
         if (!record) { await renderSwitcher(); return; }
         openScreen(record, null);
@@ -479,7 +517,9 @@
     async function deleteScreen() {
         if (!confirm('Delete "' + screen.name + '"? This cannot be undone.')) return;
         if (persistTimer) { clearTimeout(persistTimer); persistTimer = null; }
-        if (pendingWrite) { try { await pendingWrite; } catch (e) { /* already warned */ } }
+        // persistNow attaches warnOnce as the rejection handler, so this
+        // always resolves.
+        if (pendingWrite) await pendingWrite;
         const doomed = screen.id;
         try { await Store.delete(doomed); } catch (e) { warnOnce(e); return; }
         let records = [];
@@ -511,7 +551,11 @@
     function importScreen() {
         const code = prompt("Paste a DM Screen code (it starts with S1):");
         if (code == null || !code.trim()) return;
-        Codec.decodeScreen(code).then(function (imported) {
+        Codec.decodeScreen(code).then(async function (imported) {
+            // settle() protects the screen being left behind: persist() below
+            // clears its pending debounce, so without this its last edit would
+            // never reach the database.
+            await settle();
             openScreen(State.withNewIds(imported, { idFn: newId, now: now() }), null);
             persist();
         }, function (e) { alert(e && e.message ? e.message : "That is not a DM Screen code."); });
@@ -520,8 +564,6 @@
     // --- wiring ---------------------------------------------------------------------
 
     function bind() {
-        window.addEventListener("pagehide", flushPersist);
-
         document.getElementById("dm-screen-name").addEventListener("input", function (event) {
             commit(State.renameScreen(screen, event.target.value, now()));
         });
@@ -694,10 +736,23 @@
     }
 
     async function init() {
-        bind();
-        await restore();
-        await renderSwitcher();
+        // These two are safe before a screen exists, and must be armed early:
+        // flushPersist checks for a pending timer and does nothing without one.
+        window.addEventListener("pagehide", flushPersist);
+        // Mobile browsers often fire this and never pagehide before discarding
+        // a tab, so it gives the write a head start.
+        document.addEventListener("visibilitychange", function () {
+            if (document.visibilityState === "hidden") flushPersist();
+        });
+        // A closure, so it needs no screen yet.
         window.DmScreen = { getScreen: function () { return screen; } };
+
+        // Every other listener reads `screen`, so nothing may be clickable
+        // until restore() has one. indexedDB.open is not instant on a cold
+        // profile, and a click in that window used to throw.
+        await restore();
+        bind();
+        await renderSwitcher();
     }
 
     document.addEventListener("DOMContentLoaded", init);
