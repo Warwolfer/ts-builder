@@ -2091,6 +2091,12 @@ td {
     color: #30adbb;
 }
 
+/* The page you are on. Set by shared/components/site-nav.js. */
+.link a.active {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
 /* Dropdown Content (Hidden by Default) */
 .dropdown-content {
     /*display: none;
