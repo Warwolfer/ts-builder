@@ -1,36 +1,48 @@
 // TerraSphere - Saved Builds Store
-// Vanilla IndexedDB wrapper for persisting saved builds in the browser.
-// Exposed as window.SavedBuildsStore. No DOM dependencies.
+// Vanilla IndexedDB wrapper for the builder's browser-side records. Exposed as
+// window.SavedBuildsStore and window.SavedScreensStore. No DOM dependencies.
+//
+// One database, two object stores. The file keeps its original name because
+// every page already loads it by that name; renaming would touch seven pages
+// for nothing. DB_VERSION went 1 -> 2 when saved-screens was added; the
+// upgrade only creates what is missing, so existing saved builds are never
+// touched.
 
-const SavedBuildsStore = (() => {
+const SavedStoreShared = (() => {
   const DB_NAME = "tsbuilder-db";
-  const DB_VERSION = 1;
-  const STORE_NAME = "saved-builds";
+  const DB_VERSION = 2;
+  const STORES = ["saved-builds", "saved-screens"];
 
   let dbPromise = null;
+
+  // Creates whatever object stores the database does not have yet. Pure over
+  // the db handle it is given, so the upgrade path can be tested without an
+  // IndexedDB.
+  function ensureStores(db) {
+    for (const name of STORES) {
+      if (!db.objectStoreNames.contains(name)) {
+        db.createObjectStore(name, { keyPath: "id" });
+      }
+    }
+  }
 
   function openDB() {
     if (dbPromise) return dbPromise;
     dbPromise = new Promise((resolve, reject) => {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
-      request.onupgradeneeded = (event) => {
-        const db = event.target.result;
-        if (!db.objectStoreNames.contains(STORE_NAME)) {
-          db.createObjectStore(STORE_NAME, { keyPath: "id" });
-        }
-      };
+      request.onupgradeneeded = (event) => ensureStores(event.target.result);
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
     return dbPromise;
   }
 
-  function tx(mode, fn) {
+  function tx(storeName, mode, fn) {
     return openDB().then(
       (db) =>
         new Promise((resolve, reject) => {
-          const transaction = db.transaction(STORE_NAME, mode);
-          const store = transaction.objectStore(STORE_NAME);
+          const transaction = db.transaction(storeName, mode);
+          const store = transaction.objectStore(storeName);
           let result;
           const req = fn(store);
           if (req) req.onsuccess = () => (result = req.result);
@@ -41,27 +53,32 @@ const SavedBuildsStore = (() => {
     );
   }
 
-  // Return all saved builds, newest first.
-  function getAll() {
-    return tx("readonly", (store) => store.getAll()).then((records) =>
-      (records || []).sort((a, b) => b.createdAt - a.createdAt),
-    );
+  // The CRUD trio for one object store, newest first on read.
+  function makeStore(storeName) {
+    return {
+      getAll() {
+        return tx(storeName, "readonly", (store) => store.getAll()).then((records) =>
+          (records || []).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)),
+        );
+      },
+      save(record) {
+        return tx(storeName, "readwrite", (store) => store.put(record));
+      },
+      delete(id) {
+        return tx(storeName, "readwrite", (store) => store.delete(id));
+      },
+    };
   }
 
-  // Insert or update a record (put-based, keyed by id).
-  function save(record) {
-    return tx("readwrite", (store) => store.put(record));
-  }
-
-  // Delete a record by id.
-  function remove(id) {
-    return tx("readwrite", (store) => store.delete(id));
-  }
-
-  // Generate a unique id for a new record.
   function generateId() {
     return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
   }
+
+  return { DB_VERSION, STORES, ensureStores, makeStore, generateId };
+})();
+
+const SavedBuildsStore = (() => {
+  const store = SavedStoreShared.makeStore("saved-builds");
 
   // Format an epoch-ms timestamp as MM-DD-YYYY HH:MM:SS (local time).
   function formatTimestamp(epochMs) {
@@ -87,15 +104,31 @@ const SavedBuildsStore = (() => {
   }
 
   return {
-    getAll,
-    save,
-    delete: remove,
-    generateId,
+    getAll: store.getAll,
+    save: store.save,
+    delete: store.delete,
+    generateId: SavedStoreShared.generateId,
     formatTimestamp,
     computeDefaultName,
   };
 })();
 
+const SavedScreensStore = (() => {
+  const store = SavedStoreShared.makeStore("saved-screens");
+  return {
+    getAll: store.getAll,
+    save: store.save,
+    delete: store.delete,
+    generateId: SavedStoreShared.generateId,
+  };
+})();
+
 if (typeof window !== "undefined") {
   window.SavedBuildsStore = SavedBuildsStore;
+  window.SavedScreensStore = SavedScreensStore;
+  window.SavedStoreInternals = {
+    DB_VERSION: SavedStoreShared.DB_VERSION,
+    STORES: SavedStoreShared.STORES,
+    ensureStores: SavedStoreShared.ensureStores,
+  };
 }
