@@ -489,7 +489,14 @@
             nameSpan.replaceWith(input);
             input.focus();
             input.select();
+            // One shot. Both endings re-render the tab bar, which removes this
+            // input from the page, and removing a focused element fires blur in
+            // some browsers — so Escape would reach the blur handler and commit
+            // the name it was meant to discard.
+            let done = false;
             const finish = function (keep) {
+                if (done) return;
+                done = true;
                 if (keep) commit(State.renameCycle(screen, cycleId, input.value, now()));
                 else render();
             };
