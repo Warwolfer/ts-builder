@@ -69,3 +69,15 @@ test("computeDefaultName still behaves as before", () => {
     assert.strictEqual(SavedBuildsStore.computeDefaultName({ threadCode: "2768", note: "alt" }), "2768 - alt");
     assert.match(SavedBuildsStore.computeDefaultName({ createdAt: 0 }), /^Unnamed Build /);
 });
+
+test("openDB is written to reject rather than hang when the upgrade is blocked", () => {
+    // The source is the contract here: IndexedDB cannot be driven under Node,
+    // but a missing onblocked is exactly the bug that leaves every caller
+    // waiting forever, so pin that the handler exists.
+    const fs = require("fs");
+    const path = require("path");
+    const source = fs.readFileSync(
+        path.join(__dirname, "..", "shared", "saved-builds-store.js"), "utf8");
+    assert.match(source, /request\.onblocked\s*=/);
+    assert.match(source, /onversionchange\s*=/);
+});

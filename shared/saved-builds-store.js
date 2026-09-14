@@ -31,8 +31,20 @@ const SavedStoreShared = (() => {
     dbPromise = new Promise((resolve, reject) => {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
       request.onupgradeneeded = (event) => ensureStores(event.target.result);
-      request.onsuccess = () => resolve(request.result);
+      request.onsuccess = () => {
+        // A later version bump in another tab must not find THIS tab
+        // holding the database open. Closing here is what keeps that
+        // upgrade from blocking; it cannot help the current one,
+        // because the tab blocking us is running older code.
+        request.result.onversionchange = () => request.result.close();
+        resolve(request.result);
+      };
       request.onerror = () => reject(request.error);
+      // Without this the promise neither resolves nor rejects and every
+      // caller waits forever, silently.
+      request.onblocked = () => reject(new Error(
+        "Another TerraSphere tab is open with an older version. Close it and reload this page."
+      ));
     });
     return dbPromise;
   }
