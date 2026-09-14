@@ -38,10 +38,10 @@
 }
 .dm-screen-name:focus { outline: none; border-color: #a78bfa; }
 
-.dm-dirty {
+.dm-saved-flash {
     font-size: 0.8em;
-    color: #f97316;
-    border: 1px solid #f97316;
+    color: #4ade80;
+    border: 1px solid #4ade80;
     border-radius: 10px;
     padding: 1px 8px;
 }

@@ -5,10 +5,9 @@
 // model), CustomActionCodec (the codes) and SavedScreensStore (IndexedDB) —
 // and the DOM.
 //
-// The working screen lives in localStorage and is written on every change
-// (debounced, flushed on pagehide: the same pattern as plan-mode.js). Save
-// puts it in IndexedDB; "unsaved" means the working copy differs from what
-// was last saved or loaded.
+// The open screen autosaves to IndexedDB on every change (debounced, flushed
+// on pagehide). localStorage holds only which screen is open and which cycle
+// tab, so a reload lands where the DM left off.
 (function () {
     "use strict";
 
@@ -41,33 +40,57 @@
     const esc = function (v) { return window.DOMUtils.escapeHtml(String(v == null ? "" : v)); };
 
     let screen = null;          // the working screen
-    let savedSnapshot = "";     // JSON of the screen as last saved/loaded
     let activeCycleId = null;
     let editing = null;         // { cycleId, actionId|null } while the modal is open
     let editingSnapshot = "";   // JSON of the form as it looked when the modal opened
     let quotaWarned = false;
+    let pendingWrite = null;    // the IndexedDB write in flight, if any
+    let lastSaved = null;       // the screen object the last successful write stored
 
     function now() { return Date.now(); }
     function newId() { return Store.generateId(); }
 
-    // --- persistence of the working copy -----------------------------------
+    // --- persistence -----------------------------------------------------------
+    //
+    // The screen autosaves to IndexedDB. localStorage holds only which screen is
+    // open and which cycle tab, so a reload lands where the DM left off.
 
-    function persistNow() {
+    function rememberOpen() {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify({
-                screen: screen, activeCycleId: activeCycleId, savedSnapshot: savedSnapshot,
+                screenId: screen.id, activeCycleId: activeCycleId,
             }));
-        } catch (e) {
-            // Private mode, or this screen is bigger than the browser will
-            // hold. Either way the working copy stops surviving reloads, and
-            // saying nothing would let the DM find that out the hard way.
-            if (!quotaWarned) {
-                quotaWarned = true;
-                alert("This browser will not store the working copy of this screen" +
-                    " (it may be too large, or storage may be blocked). Use Save, and" +
-                    " export a screen code before closing the page.");
-            }
-        }
+        } catch (e) { /* a few dozen bytes; if this fails the DB write will too and warn */ }
+    }
+
+    function warnOnce(e) {
+        if (quotaWarned) return;
+        quotaWarned = true;
+        alert("This browser could not save the screen: " +
+            (e && e.message ? e.message : "storage is blocked or full") +
+            "\n\nExport a screen code before closing the page, or your changes will be lost.");
+    }
+
+    function flashSaved() {
+        const flash = document.getElementById("dm-saved-flash");
+        if (!flash) return;
+        flash.hidden = false;
+        clearTimeout(flash._timer);
+        flash._timer = setTimeout(function () { flash.hidden = true; }, 900);
+    }
+
+    // Writes the open screen. Captures `screen` first: an edit during the
+    // write reassigns it, and the record that lands must be the one we
+    // stringified, not a later one.
+    function persistNow() {
+        rememberOpen();
+        const saving = screen;
+        pendingWrite = Store.save(saving).then(function () {
+            lastSaved = saving;
+            flashSaved();
+            return renderSwitcher();
+        }, warnOnce);
+        return pendingWrite;
     }
 
     let persistTimer = null;
@@ -75,6 +98,10 @@
         if (persistTimer) clearTimeout(persistTimer);
         persistTimer = setTimeout(function () { persistTimer = null; persistNow(); }, 250);
     }
+
+    // pagehide: the browser may not wait for an IndexedDB write started here,
+    // but the debounce is 250 ms, so the window where a change is unsaved is
+    // tiny. Export Screen Code is the deliberate backup.
     function flushPersist() {
         if (!persistTimer) return;
         clearTimeout(persistTimer);
@@ -82,29 +109,62 @@
         persistNow();
     }
 
-    function restore() {
-        let parsed = null;
-        try { parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); } catch (e) { parsed = null; }
-        if (parsed && parsed.screen) {
-            const problem = Codec.validateScreen(parsed.screen);
-            if (problem === null) {
-                screen = parsed.screen;
-                savedSnapshot = typeof parsed.savedSnapshot === "string" ? parsed.savedSnapshot : "";
-                activeCycleId = State.findCycle(screen, parsed.activeCycleId) ? parsed.activeCycleId : screen.cycles[0].id;
-                return;
-            }
-            // The stored copy is still in localStorage under STORAGE_KEY, so
-            // this is recoverable by hand. Saying so beats a blank page.
-            alert("The screen saved in this browser could not be reopened: " + problem +
-                "\n\nStarting a new one. The old copy is still in this browser's storage " +
-                "under " + STORAGE_KEY + " if you need to recover it.");
+    // Before switching screens: get any pending write onto disk first, or the
+    // last few keystrokes of the old screen would be lost.
+    async function settle() {
+        if (persistTimer) {
+            clearTimeout(persistTimer);
+            persistTimer = null;
+            await persistNow();
+        } else if (pendingWrite) {
+            await pendingWrite;
         }
-        screen = State.newScreen({ id: newId(), now: now() });
-        savedSnapshot = "";
-        activeCycleId = screen.cycles[0].id;
     }
 
-    function isDirty() { return JSON.stringify(screen) !== savedSnapshot; }
+    function isBlank(s) {
+        return s.name === State.DEFAULT_SCREEN_NAME &&
+            s.cycles.length === 1 && s.cycles[0].actions.length === 0;
+    }
+
+    function openScreen(record, cycleId) {
+        screen = record;
+        lastSaved = record;
+        activeCycleId = State.findCycle(screen, cycleId) ? cycleId : screen.cycles[0].id;
+        render();
+        rememberOpen();
+        document.getElementById("dm-code-out").hidden = true;
+    }
+
+    async function restore() {
+        let parsed = null;
+        try { parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); } catch (e) { parsed = null; }
+
+        // The version before autosave kept the whole screen here. Carry it
+        // into the database once so nobody loses the screen they had open.
+        if (parsed && parsed.screen) {
+            if (Codec.validateScreen(parsed.screen) === null) {
+                try { await Store.save(parsed.screen); } catch (e) { warnOnce(e); }
+                openScreen(parsed.screen, parsed.activeCycleId);
+                return;
+            }
+            alert("The screen saved in this browser could not be reopened: " +
+                Codec.validateScreen(parsed.screen) + "\n\nStarting a new one.");
+            parsed = null;
+        }
+
+        let records = [];
+        try { records = await Store.getAll(); } catch (e) { warnOnce(e); }
+
+        const wanted = parsed && parsed.screenId
+            ? records.find(function (r) { return r.id === parsed.screenId; })
+            : null;
+        if (wanted) { openScreen(wanted, parsed.activeCycleId); return; }
+        if (records.length) { openScreen(records[0], null); return; }   // newest first
+
+        const fresh = State.newScreen({ id: newId(), now: now() });
+        openScreen(fresh, null);
+        persist();
+    }
 
     // Every change to the model funnels through here.
     function commit(next) {
@@ -229,7 +289,6 @@
     function renderTopbar() {
         const nameInput = document.getElementById("dm-screen-name");
         if (nameInput.value !== screen.name && document.activeElement !== nameInput) nameInput.value = screen.name;
-        document.getElementById("dm-dirty").hidden = !isDirty();
     }
 
     function render() {
@@ -238,15 +297,17 @@
         renderGrid();
     }
 
-    async function refreshSavedList() {
+    // The switcher lists every screen, newest first, with the open one
+    // selected. Called after each successful write, so a rename shows up.
+    async function renderSwitcher() {
         const select = document.getElementById("dm-saved");
         let records = [];
         try { records = await Store.getAll(); } catch (e) { records = []; }
-        select.innerHTML = '<option value="">Saved screens…</option>' + records.map(function (r) {
+        if (!records.some(function (r) { return r.id === screen.id; })) records.unshift(screen);
+        select.innerHTML = records.map(function (r) {
             return '<option value="' + esc(r.id) + '">' + esc(r.name) + "</option>";
         }).join("");
-        select.value = "";
-        document.getElementById("dm-delete-saved").disabled = records.length === 0;
+        select.value = screen.id;
     }
 
     // --- the action editor -----------------------------------------------------
@@ -398,24 +459,6 @@
 
     // --- screen-level actions -----------------------------------------------------
 
-    async function saveScreen() {
-        // Capture before the await: an edit during the write reassigns
-        // `screen`, and marking THAT one clean would hide an edit no store
-        // ever received.
-        const saving = screen;
-        const snapshot = JSON.stringify(saving);
-        try {
-            await Store.save(saving);
-            savedSnapshot = snapshot;
-            render();
-            persist();
-            await refreshSavedList();
-            flashButton("dm-save", "Saved!");
-        } catch (e) {
-            alert("Could not save: " + (e && e.message ? e.message : e));
-        }
-    }
-
     function flashButton(id, text) {
         const button = document.getElementById(id);
         const original = button.textContent;
@@ -423,45 +466,39 @@
         setTimeout(function () { button.textContent = original; }, 900);
     }
 
-    function confirmDiscard() {
-        return !isDirty() || confirm("This screen has unsaved changes. Discard them?");
-    }
-
-    async function loadSaved(id) {
-        const records = await Store.getAll();
+    async function switchTo(id) {
+        if (id === screen.id) return;
+        await settle();
+        let records = [];
+        try { records = await Store.getAll(); } catch (e) { warnOnce(e); return; }
         const record = records.find(function (r) { return r.id === id; });
-        if (!record) return;
-        if (!confirmDiscard()) { document.getElementById("dm-saved").value = ""; return; }
-        // Capture the record itself: it is what savedSnapshot must describe,
-        // not `screen` re-read after any later reassignment.
-        screen = record;
-        savedSnapshot = JSON.stringify(record);
-        activeCycleId = screen.cycles[0].id;
-        render();
-        persist();
+        if (!record) { await renderSwitcher(); return; }
+        openScreen(record, null);
     }
 
-    async function deleteSaved() {
-        const select = document.getElementById("dm-saved");
-        const id = select.value;
-        if (!id) { alert("Pick a saved screen in the list first."); return; }
-        const name = select.options[select.selectedIndex].textContent;
-        if (!confirm('Delete the saved screen "' + name + '"? The one you are editing stays open.')) return;
-        await Store.delete(id);
-        if (screen.id === id) { savedSnapshot = ""; persist(); }
-        render();
-        await refreshSavedList();
+    async function deleteScreen() {
+        if (!confirm('Delete "' + screen.name + '"? This cannot be undone.')) return;
+        if (persistTimer) { clearTimeout(persistTimer); persistTimer = null; }
+        if (pendingWrite) { try { await pendingWrite; } catch (e) { /* already warned */ } }
+        const doomed = screen.id;
+        try { await Store.delete(doomed); } catch (e) { warnOnce(e); return; }
+        let records = [];
+        try { records = await Store.getAll(); } catch (e) { warnOnce(e); }
+        records = records.filter(function (r) { return r.id !== doomed; });
+        if (records.length) { openScreen(records[0], null); }
+        else { openScreen(State.newScreen({ id: newId(), now: now() }), null); persist(); }
+        await renderSwitcher();
     }
 
-    function newScreenAction() {
-        if (!confirmDiscard()) return;
-        screen = State.newScreen({ id: newId(), now: now() });
-        savedSnapshot = "";
-        activeCycleId = screen.cycles[0].id;
-        render();
+    async function newScreenAction() {
+        if (isBlank(screen)) {
+            // Nothing to leave behind; a second blank would only clutter the list.
+            document.getElementById("dm-screen-name").focus();
+            return;
+        }
+        await settle();
+        openScreen(State.newScreen({ id: newId(), now: now() }), null);
         persist();
-        document.getElementById("dm-code-out").hidden = true;
-        document.getElementById("dm-saved").value = "";
     }
 
     function exportScreen() {
@@ -475,11 +512,7 @@
         const code = prompt("Paste a DM Screen code (it starts with S1):");
         if (code == null || !code.trim()) return;
         Codec.decodeScreen(code).then(function (imported) {
-            if (!confirmDiscard()) return;
-            screen = State.withNewIds(imported, { idFn: newId, now: now() });
-            savedSnapshot = "";
-            activeCycleId = screen.cycles[0].id;
-            render();
+            openScreen(State.withNewIds(imported, { idFn: newId, now: now() }), null);
             persist();
         }, function (e) { alert(e && e.message ? e.message : "That is not a DM Screen code."); });
     }
@@ -492,11 +525,10 @@
         document.getElementById("dm-screen-name").addEventListener("input", function (event) {
             commit(State.renameScreen(screen, event.target.value, now()));
         });
-        document.getElementById("dm-save").addEventListener("click", saveScreen);
         document.getElementById("dm-saved").addEventListener("change", function (event) {
-            if (event.target.value) loadSaved(event.target.value);
+            switchTo(event.target.value);
         });
-        document.getElementById("dm-delete-saved").addEventListener("click", deleteSaved);
+        document.getElementById("dm-delete-saved").addEventListener("click", deleteScreen);
         document.getElementById("dm-export").addEventListener("click", exportScreen);
         document.getElementById("dm-import").addEventListener("click", importScreen);
         document.getElementById("dm-new").addEventListener("click", newScreenAction);
@@ -531,7 +563,7 @@
             if (tab && !tab.querySelector("input")) {
                 activeCycleId = tab.getAttribute("data-cycle");
                 render();
-                persist();
+                rememberOpen();
             }
         });
         tabs.addEventListener("dblclick", function (event) {
@@ -661,11 +693,10 @@
         });
     }
 
-    function init() {
-        restore();
+    async function init() {
         bind();
-        render();
-        refreshSavedList();
+        await restore();
+        await renderSwitcher();
         window.DmScreen = { getScreen: function () { return screen; } };
     }
 

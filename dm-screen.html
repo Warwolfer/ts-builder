@@ -4,18 +4,18 @@
   <title>TerraSphere Build Editor - DM Screen</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="css/app.css?v=20260914-215338">
-  <link rel="stylesheet" href="css/index.css?v=20260914-215338">
-  <link rel="stylesheet" href="css/dm-screen.css?v=20260914-215338">
+  <link rel="stylesheet" href="css/app.css?v=20260914-220128">
+  <link rel="stylesheet" href="css/index.css?v=20260914-220128">
+  <link rel="stylesheet" href="css/dm-screen.css?v=20260914-220128">
   <link rel="shortcut icon" href="https://www.terrarp.com//favicon.ico">
-  <script src="shared/app-version.js?v=20260914-215338"></script>
-  <script src="shared/update-check.js?v=20260914-215338"></script>
-  <script src="shared/dom-utils.js?v=20260914-215338"></script>
-  <script src="shared/custom-action-codec.js?v=20260914-215338"></script>
-  <script src="shared/saved-builds-store.js?v=20260914-215338"></script>
-  <script src="shared/dm-screen-state.js?v=20260914-215338"></script>
-  <script src="resource/dm-screen.js?v=20260914-215338"></script>
-  <script src="shared/components/site-nav.js?v=20260914-215338"></script>
+  <script src="shared/app-version.js?v=20260914-220128"></script>
+  <script src="shared/update-check.js?v=20260914-220128"></script>
+  <script src="shared/dom-utils.js?v=20260914-220128"></script>
+  <script src="shared/custom-action-codec.js?v=20260914-220128"></script>
+  <script src="shared/saved-builds-store.js?v=20260914-220128"></script>
+  <script src="shared/dm-screen-state.js?v=20260914-220128"></script>
+  <script src="resource/dm-screen.js?v=20260914-220128"></script>
+  <script src="shared/components/site-nav.js?v=20260914-220128"></script>
 </head>
 <body>
   <div id="site-nav"></div>
@@ -26,13 +26,10 @@
       <div class="dm-topbar">
         <input type="text" id="dm-screen-name" class="dm-screen-name" maxlength="60"
                autocomplete="off" spellcheck="false" placeholder="Screen name">
-        <span id="dm-dirty" class="dm-dirty" hidden title="Changes not yet saved">unsaved</span>
+        <span id="dm-saved-flash" class="dm-saved-flash" hidden>Saved</span>
         <div class="dm-topbar-actions">
-          <button type="button" id="dm-save" class="dm-btn dm-btn-primary">Save</button>
-          <select id="dm-saved" class="dm-select" title="Load a saved screen">
-            <option value="">Saved screens…</option>
-          </select>
-          <button type="button" id="dm-delete-saved" class="dm-btn" title="Delete the selected saved screen">Delete saved</button>
+          <select id="dm-saved" class="dm-select" title="Switch to another screen"></select>
+          <button type="button" id="dm-delete-saved" class="dm-btn" title="Delete the open screen">Delete screen</button>
           <span class="dm-sep"></span>
           <button type="button" id="dm-export" class="dm-btn">Export Screen Code</button>
           <button type="button" id="dm-import" class="dm-btn">Import Screen Code</button>
