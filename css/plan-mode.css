@@ -286,24 +286,17 @@
     font-variant-numeric: tabular-nums;
 }
 
-/* Crit % and the result travel together in the roll-code column, flush right,
-   so the odds sit beside the damage rather than a third of the rail away. */
+/* Crit %, the result and the crit damage travel together, flush right, in one
+   flex cell spanning the roll-code column to the rail's edge. One gap value
+   is what keeps the three evenly spaced; grid columns could not, because a
+   fixed-width crit column parks its slack between itself and the damage. */
 .plan-row-numbers {
-    grid-column: 5;
+    grid-column: 5 / -1;
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 8px;
+    gap: 12px;
     min-width: 0;
-}
-
-/* No crit cell follows, so take its column and finish flush right. */
-.plan-row-numbers.is-wide {
-    grid-column: 5 / -1;
-}
-
-.plan-row-crit {
-    grid-column: 6 / -1;
 }
 
 /* The chance of a crit, immediately left of the damage it applies to. */
@@ -447,8 +440,7 @@
     }
 
     .plan-row-chips { grid-column: 1 / -1; }
-    .plan-row-numbers { grid-column: 2; }
-    .plan-row-crit { grid-column: 3; }
+    .plan-row-numbers { grid-column: 2 / -1; }
 
     /* No room for three numbers on a phone; the crit payoff matters more than
        its odds. */

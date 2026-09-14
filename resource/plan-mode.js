@@ -281,15 +281,15 @@ const PlanMode = (function () {
         return prefix + (isHeal ? "Heal" : "Buff");
     }
 
-    // Crit % and the projected result share one cell, right-aligned, so the
-    // odds sit the same 8px from the damage that the damage sits from the crit
-    // damage. They cannot be two grid columns: the result column is the wide
-    // flexible one that carries the roll code on the line above, so a Crit %
-    // in its own column would be stranded at that column's left edge, a third
-    // of the rail away from the number it belongs to.
-    function numbers(critPctHtml, resultHtml, wide) {
-        return '<span class="plan-row-numbers' + wide + '">' +
-            critPctHtml + resultHtml + "</span>";
+    // Crit %, the projected result and the crit damage share one flex cell,
+    // flush right, so every gap between them is the same gap by construction.
+    // They cannot be separate grid columns: the result column is the wide
+    // flexible one that carries the roll code on the line above, and a fixed
+    // crit column leaves its slack between itself and the damage, so the two
+    // gaps never matched.
+    function numbers(critPctHtml, resultHtml, critHtml) {
+        return '<span class="plan-row-numbers">' +
+            critPctHtml + resultHtml + critHtml + "</span>";
     }
 
     // What the roll will land between, and what a crit turns it into. Both are
@@ -320,11 +320,6 @@ const PlanMode = (function () {
             : label === "Result" ? "check"
             : "damage";
 
-        // With no crit to sit beside it — heals and buffs never crit — the
-        // result takes the crit column's space too, so it lands flush right
-        // instead of stranded mid-row with a gap after it.
-        const wide = crit ? "" : " is-wide";
-
         const critPct = res ? window.PlanResult.formatCritChance(res.critChance) : "";
         const critPctHtml = critPct
             ? '<span class="plan-row-critpct" title="' +
@@ -351,12 +346,11 @@ const PlanMode = (function () {
             const lines = [label + " on a critical hit"];
             for (let i = 0; i < tiers.length; i++) lines.push(tiers[i]);
             const title = lines.map(escape).join("&#10;");
-            return numbers(critPctHtml, out, wide) +
-                '<span class="plan-row-crit' +
+            return numbers(critPctHtml, out, '<span class="plan-row-crit' +
                 (tiers.length ? " has-tiers" : "") + '" title="' + title +
-                '"><i>Crit Damage</i><b>' + escape(crit) + "</b></span>";
+                '"><i>Crit Damage</i><b>' + escape(crit) + "</b></span>");
         }
-        return numbers(critPctHtml, out, wide);
+        return numbers(critPctHtml, out, "");
     }
 
     function rowHtml(resolved, index) {
