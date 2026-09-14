@@ -11,6 +11,7 @@ A web-based character build planner for the TerraSphere RPG system featuring mul
 ├── rank-selector.html       # Page 3: Assign ranks to masteries and expertise
 ├── action-selector.html     # Page 4: Choose actions based on masteries
 ├── build-sheet.html         # Page 5: Final build display and sharing
+├── dm-screen.html           # DM Screen: author custom actions per cycle, export codes
 ├── index.html               # Entry point for imports and character loading
 ├── shared/                  # Shared modules
 │   ├── state-manager.js     # Global state + localStorage persistence
@@ -19,19 +20,24 @@ A web-based character build planner for the TerraSphere RPG system featuring mul
 │   ├── build-encoder.js     # Build code encoding/decoding
 │   ├── buildpack.js         # v1 bit-packed build code codec
 │   ├── data-loader.js       # Data loading and caching
+│   ├── dm-screen-state.js   # Pure, immutable model of a DM screen
 │   ├── loading-manager.js   # Loading spinners and status
 │   ├── rollcode-utils.js    # Roll code tag/modifier splicing helpers
+│   ├── custom-action-codec.js # Custom action codes (byte-identical copy in ts-discord-bot)
 │   └── components/          # Reusable UI components
+│       └── site-nav.js      # The one nav bar, mounted into #site-nav on every page
 ├── resource/                # Data files
 │   ├── masteries.js         # 40+ mastery definitions with roles
 │   ├── expertise.js         # Expertise system definitions
 │   ├── actions.js           # 60+ action definitions
 │   ├── armor-abilities.js   # Equipment abilities by type/rank
 │   ├── build-sheet.js       # Build sheet rendering logic
+│   ├── dm-screen.js         # DM Screen page controller
 │   └── action-toggles.js    # Per-action toggle buttons and inputs
 └── css/                     # Styling
     ├── app.css              # Main application styles
     ├── build-sheet.css      # Build sheet specific styles
+    ├── dm-screen.css        # DM Screen styles
     └── index.css            # Landing page styles
 ```
 
@@ -51,6 +57,11 @@ A web-based character build planner for the TerraSphere RPG system featuring mul
 - **Build Sharing**: Compact build codes for easy sharing
 - **API Integration**: Import characters from TerraSphere Character Manager
 - **Discord Integration**: Generate bot commands from actions
+
+### DM Screen
+- `dm-screen.html` lets a DM write **custom actions** — a name, dice everyone takes, a save or check, and a chart of degrees — grouped into cycles.
+- Each action exports as a pasteable code (`1…`); a whole cycle as a list (`L1…`); a whole screen as a backup (`S1…`). Players paste action codes into their build sheet; the Discord bot rolls them with `?r custom`.
+- The working screen autosaves in the browser; **Save** keeps named screens in IndexedDB beside saved builds.
 
 ## Development Workflow
 
