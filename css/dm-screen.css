@@ -1,9 +1,11 @@
 /* css/dm-screen.css — the DM Screen page and its action editor. */
 
+/* The nav is position:fixed, so the page has to clear it itself. 80px is
+   what #saved-builds-page uses for the same reason. */
 #dm-screen-page {
     padding: 20px 16px 40px;
     max-width: 1100px;
-    margin: 0 auto;
+    margin: 80px auto 0;
 }
 
 /* --- top bar ----------------------------------------------------------- */
