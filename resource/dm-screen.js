@@ -394,7 +394,7 @@
         const card = document.getElementById("dm-preview-card");
         const meta = document.getElementById("dm-preview-meta");
         if (problem) {
-            card.innerHTML = '<div class="dm-card-desc">Fix the note above to see the preview.</div>';
+            card.innerHTML = '<div class="ca-card-desc">Fix the note above to see the preview.</div>';
             meta.textContent = "";
             return;
         }
