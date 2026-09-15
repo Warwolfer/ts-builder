@@ -24,19 +24,24 @@ A web-based character build planner for the TerraSphere RPG system featuring mul
 │   ├── loading-manager.js   # Loading spinners and status
 │   ├── rollcode-utils.js    # Roll code tag/modifier splicing helpers
 │   ├── custom-action-codec.js # Custom action codes (byte-identical copy in ts-discord-bot)
+│   ├── pending-build.js     # Saved-build handoff: customActions carried across the import navigation
 │   └── components/          # Reusable UI components
-│       └── site-nav.js      # The one nav bar, mounted into #site-nav on every page
+│       ├── site-nav.js      # The one nav bar, mounted into #site-nav on every page
+│       └── custom-action-card.js # Pure renderer for a custom action card (shared by build sheet and DM Screen)
 ├── resource/                # Data files
 │   ├── masteries.js         # 40+ mastery definitions with roles
 │   ├── expertise.js         # Expertise system definitions
 │   ├── actions.js           # 60+ action definitions
 │   ├── armor-abilities.js   # Equipment abilities by type/rank
 │   ├── build-sheet.js       # Build sheet rendering logic
+│   ├── custom-cards.js      # Build sheet Custom tab: render, select, delete, import modal
 │   ├── dm-screen.js         # DM Screen page controller
 │   └── action-toggles.js    # Per-action toggle buttons and inputs
 └── css/                     # Styling
     ├── app.css              # Main application styles
     ├── build-sheet.css      # Build sheet specific styles
+    ├── custom-action-card.css # Custom action card chart/icon styling (shared)
+    ├── custom-cards.css     # Custom tab card grid, + card, import modal
     ├── dm-screen.css        # DM Screen styles
     └── index.css            # Landing page styles
 ```
