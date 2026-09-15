@@ -50,3 +50,8 @@ test("reset() stamps the version too", () => {
     assert.strictEqual(state.getState().stateVersion, 2);
     assert.strictEqual(state.getState().characterName, "");
 });
+
+test("a stored state from before the Custom tab loads with an empty list", () => {
+    const { state } = freshLoad({ characterName: "Lune", stateVersion: 2 });
+    assert.deepStrictEqual(state.getState().customActions, []);
+});

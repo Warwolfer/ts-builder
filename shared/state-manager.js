@@ -27,6 +27,12 @@ function defaultState() {
     // Action Selection Phase
     chosenActions: [],
 
+    // Custom actions imported on the build sheet's Custom tab. Each entry is
+    // { id, action, payload }. They never enter the build code, the URL, the
+    // embed code or the plan queue fingerprint — only this state, the saved
+    // record, and the pending-build handoff.
+    customActions: [],
+
     // Character Info
     characterName: "",
     characterRace: "",
