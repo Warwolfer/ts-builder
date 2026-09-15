@@ -125,11 +125,189 @@
             "</div>";
     }
 
+    // --- glue -----------------------------------------------------------
+
+    let sheet = null;          // buildSheetInstance
+    let bound = false;
+
+    function stateActions() {
+        if (!sheet) return [];
+        const list = sheet.state.getState().customActions;
+        return Array.isArray(list) ? list : [];
+    }
+
+    function setActions(list) {
+        sheet.state.updateState({ customActions: list });
+    }
+
+    // The two lists the icon strip draws from, in the sheet's own order and
+    // already narrowed to what this character has.
+    function renderOpts() {
+        const state = sheet.state.getState();
+        const allMasteries = sheet.dataLoader.cache.masteries || [];
+        const allExpertise = sheet.dataLoader.cache.expertise || [];
+        const borderColors = { physical: "#ce6541", creative: "#a84b72", crafting: "#d2aa49" };
+
+        const masteries = (state.chosenMasteries || []).map(function (id) {
+            return allMasteries.find(function (m) { return m.lookup === id; });
+        }).filter(Boolean);
+
+        const expertise = (state.chosenExpertise || []).map(function (id) {
+            const found = allExpertise.find(function (e) { return e.lookup === id; });
+            if (!found) return null;
+            const firstType = found.types && found.types[0];
+            return {
+                lookup: found.lookup,
+                name: found.name,
+                image: found.image,
+                borderColor: borderColors[firstType] || "#6e51cb",
+            };
+        }).filter(Boolean);
+
+        return {
+            characterName: state.characterName || "",
+            threadCode: state.threadCode || "",
+            ng: state.ng,
+            masteries: masteries,
+            expertise: expertise,
+        };
+    }
+
+    function render() {
+        const container = document.getElementById("customdisplay");
+        if (!container || !sheet) return;
+        const entries = stateActions();
+        const opts = renderOpts();
+        let html = "";
+        for (let i = 0; i < entries.length; i++) html += cardHtml(entries[i], opts);
+        if (entries.length < MAX_CUSTOM_ACTIONS) {
+            html += '<div class="card customcard-add" data-import title="Import a custom action">+</div>';
+        } else {
+            html += '<div class="card customcard-add is-full">' + MAX_CUSTOM_ACTIONS +
+                " custom actions is the limit</div>";
+        }
+        container.innerHTML = html;
+        // A fresh card has nothing lit, so its roll code starts locked.
+        window.CardGate.syncRollCodes();
+    }
+
+    function add(entries) {
+        setActions(stateActions().concat(entries));
+        render();
+    }
+
+    function remove(id) {
+        setActions(stateActions().filter(function (e) { return e.id !== id; }));
+        render();
+    }
+
+    // --- stamping ---------------------------------------------------------
+
+    function setSpan(card, selector, value) {
+        const span = card.querySelector(selector);
+        if (span) span.textContent = String(value == null ? "" : value);
+    }
+
+    // A save's bonus is a number the sheet already computes; a mastery's or an
+    // expertise's is the rank letter. Mirrors clickSave and clickExpertise,
+    // scoped to one card instead of the page's single check card.
+    function stampIcon(card, icon) {
+        const kind = icon.getAttribute("data-kind");
+        const lookup = icon.getAttribute("data-lookup");
+        const state = sheet.state.getState();
+        let bonus = "";
+        let typeLabel = "";
+
+        if (kind === "mastery") {
+            const index = (state.chosenMasteries || []).indexOf(lookup);
+            if (index === -1) return;
+            const mastery = (sheet.dataLoader.cache.masteries || [])
+                .find(function (m) { return m.lookup === lookup; });
+            bonus = sheet.getRankLabel(state.chosenMasteriesRanks[index]);
+            typeLabel = mastery ? mastery.name : "Mastery";
+        } else if (kind === "expertise") {
+            const index = (state.chosenExpertise || []).indexOf(lookup);
+            if (index === -1) return;
+            const found = (sheet.dataLoader.cache.expertise || [])
+                .find(function (e) { return e.lookup === lookup; });
+            bonus = sheet.getRankLabel(state.chosenExpertiseRanks[index]);
+            typeLabel = found ? found.name : "Expertise";
+        } else {
+            const stats = sheet.calculations.getCompleteStats(
+                state,
+                sheet.dataLoader.cache.masteries,
+                sheet.dataLoader.cache.actions,
+            );
+            bonus = stats.saves[kind];
+            typeLabel = CardView.KIND_LABELS[kind] || kind;
+        }
+
+        setSpan(card, ".customkind", kind);
+        setSpan(card, ".custombonus", bonus);
+        setSpan(card, ".customtype", typeLabel);
+    }
+
+    // --- events -------------------------------------------------------------
+
+    function openImport() {}
+    function bindImportModal() {}
+
+    function onClick(event) {
+        const container = document.getElementById("customdisplay");
+        if (!container || !container.contains(event.target)) return;
+
+        const importCard = event.target.closest("[data-import]");
+        if (importCard) { openImport(); return; }
+
+        const card = event.target.closest(".customcard");
+        if (!card) return;
+
+        const removeButton = event.target.closest("[data-remove]");
+        if (removeButton) {
+            const entry = stateActions().find(function (e) {
+                return e.id === card.getAttribute("data-custom-id");
+            });
+            if (entry && window.confirm("Remove " + entry.action.n + " from this build?")) {
+                remove(entry.id);
+            }
+            return;
+        }
+
+        const icon = event.target.closest(".masterycircle");
+        if (icon) {
+            // addGlowEffect is global on the build sheet and now knows about
+            // .customicons, so one lit icon per card is its job, not ours.
+            window.addGlowEffect(icon, "masterycircle");
+            stampIcon(card, icon);
+            return;
+        }
+
+        const toggle = event.target.closest(".togglesavechecks");
+        if (toggle) {
+            window.addGlowEffect(toggle, "togglesavechecks");
+            setSpan(card, ".customadv", toggle.getAttribute("data-adv"));
+        }
+    }
+
+    function install(instance) {
+        sheet = instance;
+        if (!bound) {
+            bound = true;
+            document.addEventListener("click", onClick);
+            bindImportModal();
+        }
+        render();
+    }
+
     return {
         MAX_CUSTOM_ACTIONS: MAX_CUSTOM_ACTIONS,
         sameAction: sameAction,
         iconsHtml: iconsHtml,
         rollCodeHtml: rollCodeHtml,
         cardHtml: cardHtml,
+        install: install,
+        render: render,
+        add: add,
+        remove: remove,
     };
 });

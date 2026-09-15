@@ -4,44 +4,49 @@
   <title>TerraSphere Build Editor - Character Build</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="css/app.css?v=20260915-165512">
-  <link rel="stylesheet" href="css/index.css?v=20260915-165512">
-  <link rel="stylesheet" href="css/build-sheet.css?v=20260915-165512">
-  <link rel="stylesheet" href="css/plan-mode.css?v=20260915-165512">
+  <link rel="stylesheet" href="css/app.css?v=20260915-175751">
+  <link rel="stylesheet" href="css/index.css?v=20260915-175751">
+  <link rel="stylesheet" href="css/build-sheet.css?v=20260915-175751">
+  <link rel="stylesheet" href="css/plan-mode.css?v=20260915-175751">
+  <link rel="stylesheet" href="css/custom-action-card.css?v=20260915-175751">
+  <link rel="stylesheet" href="css/custom-cards.css?v=20260915-175751">
   <link rel="shortcut icon" href="https://www.terrarp.com//favicon.ico">
   <link rel="preconnect" href="https://fonts.gstatic.com">
   
   <!-- Shared modules -->
-  <script src="shared/app-version.js?v=20260915-165512"></script>
-  <script src="shared/update-check.js?v=20260915-165512"></script>
-  <script src="shared/state-manager.js?v=20260915-165512"></script>
-  <script src="shared/dom-utils.js?v=20260915-165512"></script>
-  <script src="shared/data-loader.js?v=20260915-165512"></script>
-  <script src="shared/calculations.js?v=20260915-165512"></script>
-  <script src="shared/rollcode-utils.js?v=20260915-165512"></script>
-  <script src="shared/plan-queue.js?v=20260915-165512"></script>
-  <script src="shared/plan-result.js?v=20260915-165512"></script>
-  <script src="shared/embedcode.js?v=20260915-165512"></script>
-  <script src="shared/buildpack.js?v=20260915-165512"></script>
-  <script src="shared/build-encoder.js?v=20260915-165512"></script>
-  <script src="shared/saved-builds-store.js?v=20260915-165512"></script>
-  <script src="shared/loading-manager.js?v=20260915-165512"></script>
-  <script src="shared/xenforo-api.js?v=20260915-165512"></script>
-  <script src="shared/pending-build.js?v=20260915-165512"></script>
+  <script src="shared/app-version.js?v=20260915-175751"></script>
+  <script src="shared/update-check.js?v=20260915-175751"></script>
+  <script src="shared/state-manager.js?v=20260915-175751"></script>
+  <script src="shared/dom-utils.js?v=20260915-175751"></script>
+  <script src="shared/data-loader.js?v=20260915-175751"></script>
+  <script src="shared/calculations.js?v=20260915-175751"></script>
+  <script src="shared/rollcode-utils.js?v=20260915-175751"></script>
+  <script src="shared/plan-queue.js?v=20260915-175751"></script>
+  <script src="shared/plan-result.js?v=20260915-175751"></script>
+  <script src="shared/embedcode.js?v=20260915-175751"></script>
+  <script src="shared/buildpack.js?v=20260915-175751"></script>
+  <script src="shared/build-encoder.js?v=20260915-175751"></script>
+  <script src="shared/saved-builds-store.js?v=20260915-175751"></script>
+  <script src="shared/loading-manager.js?v=20260915-175751"></script>
+  <script src="shared/xenforo-api.js?v=20260915-175751"></script>
+  <script src="shared/pending-build.js?v=20260915-175751"></script>
 
   <!-- Data files -->
-  <script src="resource/masteries.js?v=20260915-165512"></script>
-  <script src="resource/expertise.js?v=20260915-165512"></script>
-  <script src="resource/actions.js?v=20260915-165512"></script>
-  <script src="resource/action-families.js?v=20260915-165512"></script>
-  <script src="resource/plan-buffs.js?v=20260915-165512"></script>
-  <script src="resource/safecharacters.js?v=20260915-165512"></script>
-  <script src="resource/armor-abilities.js?v=20260915-165512"></script>
-  <script src="resource/action-toggles.js?v=20260915-165512"></script>
-  <script src="resource/build-sheet.js?v=20260915-165512"></script>
-  <script src="resource/card-gate.js?v=20260915-165512"></script>
-  <script src="resource/plan-mode.js?v=20260915-165512"></script>
-  <script src="shared/components/site-nav.js?v=20260915-165512"></script>
+  <script src="resource/masteries.js?v=20260915-175751"></script>
+  <script src="resource/expertise.js?v=20260915-175751"></script>
+  <script src="resource/actions.js?v=20260915-175751"></script>
+  <script src="resource/action-families.js?v=20260915-175751"></script>
+  <script src="resource/plan-buffs.js?v=20260915-175751"></script>
+  <script src="resource/safecharacters.js?v=20260915-175751"></script>
+  <script src="resource/armor-abilities.js?v=20260915-175751"></script>
+  <script src="resource/action-toggles.js?v=20260915-175751"></script>
+  <script src="shared/custom-action-codec.js?v=20260915-175751"></script>
+  <script src="shared/components/custom-action-card.js?v=20260915-175751"></script>
+  <script src="resource/custom-cards.js?v=20260915-175751"></script>
+  <script src="resource/build-sheet.js?v=20260915-175751"></script>
+  <script src="resource/card-gate.js?v=20260915-175751"></script>
+  <script src="resource/plan-mode.js?v=20260915-175751"></script>
+  <script src="shared/components/site-nav.js?v=20260915-175751"></script>
 </head>
 
 <body>
@@ -205,6 +210,7 @@
           <div class="filter-tab" onclick="toggleActionFilter('defense')" data-filter="defense">Defense</div>
           <div class="filter-tab" onclick="toggleActionFilter('support')" data-filter="support">Support</div>
           <div class="filter-tab" onclick="toggleActionFilter('alter')" data-filter="alter">Alter</div>
+          <div class="filter-tab" onclick="toggleActionFilter('custom')" data-filter="custom">Custom</div>
         </div>
         <div class="compact-toggle" id="compact-toggle" onclick="toggleCompact(this)">Compact</div>
         <div class="compact-toggle plan-toggle" id="plan-toggle" onclick="togglePlan(this)">Plan</div>
@@ -240,6 +246,7 @@
         </div>
       </div>
       <div class="masterycategory" id="actionsdisplay"></div>
+      <div class="masterycategory" id="customdisplay"></div>
       </div>
       <aside id="plan-rail" class="plan-rail" hidden></aside>
 
@@ -297,6 +304,20 @@
     </div>
   </div>
 
+  <div class="custom-modal" id="custom-import-modal" hidden>
+    <div class="custom-modal-box">
+      <h2>Import a Custom Action</h2>
+      <label class="custom-field">
+        <span>Paste a Custom Action Code</span>
+        <textarea id="custom-import-text" rows="5" placeholder="1… or L1…"></textarea>
+      </label>
+      <div class="custom-form-error" id="custom-import-error"></div>
+      <div class="custom-modal-actions">
+        <button type="button" class="dm-btn" id="custom-import-cancel">Cancel</button>
+        <button type="button" class="dm-btn dm-btn-primary" id="custom-import-go">Import</button>
+      </div>
+    </div>
+  </div>
 
 </body>
 </html>

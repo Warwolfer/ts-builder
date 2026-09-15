@@ -201,6 +201,9 @@ class BuildSheet {
         // could never be the thing that saves us.
         window.CardGate.install();
         window.CardGate.syncRollCodes();
+        // Last, so the cards it draws see the finished thread code and the
+        // resolved character name.
+        if (window.CustomCards) window.CustomCards.install(this);
     }
 
     applyCompactPreference() {
@@ -2530,7 +2533,10 @@ function addGlowEffect(element, containerClass) {
             element.closest(".masteryicon") ||
             element.closest("#savesicons") ||
             element.closest("#masterycheckicons") ||
-            element.closest("#expertiseicons");
+            element.closest("#expertiseicons") ||
+            // Every custom card has its own icon strip, so the lit icon must
+            // clear only within that card, not across the whole tab.
+            element.closest(".customicons");
     } else if (containerClass === "togglesavechecks") {
         container = element.closest(".togglecontainer");
     }
@@ -3130,20 +3136,32 @@ function refreshAllActionFilters() {
 
     const actions = buildSheetInstance.dataLoader.cache.actions;
 
+    // The Custom tab is the one filter that hides the built-in cards outright
+    // instead of narrowing them: its cards live in their own container.
+    const custom = document.getElementById("customdisplay");
+    if (custom) custom.style.display = activeFilter === "custom" ? "" : "none";
+
+    const showBuiltIns = activeFilter !== "custom";
+
     // Show/hide actions based on selected filter
     actions.forEach((action) => {
         const actionCard = document.getElementById(action.lookup + "final");
         if (actionCard) {
-            const shouldShow = activeFilter === "all" || action.category === activeFilter;
-
+            const shouldShow = showBuiltIns &&
+                (activeFilter === "all" || action.category === activeFilter);
             actionCard.style.display = shouldShow ? "flex" : "none";
         }
     });
 
+    // The free-action cards (Attack, Rush, and the armor card when present)
+    // are not in the action list, so they need hiding by hand.
+    const freeActions = document.getElementById("freeactiondisplay");
+    if (freeActions) freeActions.style.display = showBuiltIns ? "" : "none";
+
     // Handle basic attack card (always visible regardless of filter)
     const attackCard = document.querySelector(".attackfinal");
     if (attackCard) {
-        attackCard.style.display = "flex";
+        attackCard.style.display = showBuiltIns ? "flex" : "none";
     }
 }
 
