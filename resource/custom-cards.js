@@ -43,6 +43,28 @@
         return canonical(a) === canonical(b);
     }
 
+    const SCREEN_REFUSAL = "That is a DM Screen code. Open it on the DM Screen page.";
+
+    function screenRefusal() {
+        return SCREEN_REFUSAL;
+    }
+
+    // Skips an action whose n, d, p, k and g all match one already in the
+    // build — and one that repeats inside the pasted list itself, which a DM
+    // exporting two cycles will produce every time.
+    function dedupe(incoming, existing) {
+        const seen = (existing || []).map(function (e) { return canonical(e.action); });
+        const fresh = [];
+        let skipped = 0;
+        for (let i = 0; i < incoming.length; i++) {
+            const key = canonical(incoming[i]);
+            if (seen.indexOf(key) !== -1) { skipped += 1; continue; }
+            seen.push(key);
+            fresh.push(incoming[i]);
+        }
+        return { fresh: fresh, skipped: skipped };
+    }
+
     function saveIconHtml(kind) {
         return "<div class='display masterycircle' data-kind=\"" + kind + "\"" +
             " title=\"" + esc(CardView.KIND_LABELS[kind]) + "\">" +
@@ -249,8 +271,122 @@
 
     // --- events -------------------------------------------------------------
 
-    function openImport() {}
-    function bindImportModal() {}
+    function modalParts() {
+        return {
+            modal: document.getElementById("custom-import-modal"),
+            text: document.getElementById("custom-import-text"),
+            error: document.getElementById("custom-import-error"),
+            go: document.getElementById("custom-import-go"),
+            cancel: document.getElementById("custom-import-cancel"),
+        };
+    }
+
+    function showError(message, isNote) {
+        const parts = modalParts();
+        if (!parts.error) return;
+        parts.error.textContent = message || "";
+        parts.error.classList.toggle("is-note", !!isNote);
+    }
+
+    function openImport() {
+        const parts = modalParts();
+        if (!parts.modal) return;
+        parts.text.value = "";
+        showError("");
+        parts.modal.hidden = false;
+        parts.text.focus();
+    }
+
+    function closeImport() {
+        const parts = modalParts();
+        if (parts.modal) parts.modal.hidden = true;
+    }
+
+    // The code arrives from a Discord message, so the paste may carry spaces
+    // and line breaks. Everything the codec reads is base64url, which has
+    // neither.
+    function cleanCode(raw) {
+        return String(raw == null ? "" : raw).replace(/\s+/g, "");
+    }
+
+    async function runImport() {
+        const parts = modalParts();
+        const code = cleanCode(parts.text.value);
+        if (!code) {
+            showError("Paste a code first.");
+            return;
+        }
+
+        parts.go.disabled = true;
+        try {
+            const decoded = await Codec.decodeAny(code);
+            if (decoded.kind === "screen") {
+                showError(screenRefusal());
+                return;
+            }
+
+            const incoming = decoded.kind === "list" ? decoded.value : [decoded.value];
+            const room = MAX_CUSTOM_ACTIONS - stateActions().length;
+            const result = dedupe(incoming, stateActions());
+
+            if (!result.fresh.length) {
+                showError(result.skipped === 1
+                    ? "That action is already in this build."
+                    : "All " + result.skipped + " actions are already in this build.");
+                return;
+            }
+            if (result.fresh.length > room) {
+                showError("Only room for " + room + " more. Remove a card first, or paste fewer.");
+                return;
+            }
+
+            // The payload is what the roll code carries, so it is computed once
+            // here and stored. Rendering then stays synchronous.
+            const entries = [];
+            for (let i = 0; i < result.fresh.length; i++) {
+                const stripped = Codec.stripForRoll(result.fresh[i]);
+                entries.push({
+                    id: window.SavedBuildsStore.generateId(),
+                    action: result.fresh[i],
+                    payload: await Codec.encodeAction(stripped),
+                });
+            }
+
+            add(entries);
+            if (result.skipped) {
+                // Left open on purpose: this count is the only place that
+                // number is reported, and a closed modal would eat it.
+                showError("Imported " + entries.length + ". Skipped " + result.skipped +
+                    " already in this build.", true);
+            } else {
+                closeImport();
+            }
+        } catch (e) {
+            showError(e && e.message ? e.message : "That code could not be read.");
+        } finally {
+            parts.go.disabled = false;
+        }
+    }
+
+    function bindImportModal() {
+        const parts = modalParts();
+        if (!parts.modal) return;
+        parts.go.addEventListener("click", runImport);
+        parts.cancel.addEventListener("click", closeImport);
+        // Click the dark surround to dismiss, but only when the press started
+        // there too: a text selection dragged out of the textarea ends on the
+        // backdrop and must not count as a dismissal.
+        let pressedBackdrop = false;
+        parts.modal.addEventListener("mousedown", function (event) {
+            pressedBackdrop = event.target === parts.modal;
+        });
+        parts.modal.addEventListener("click", function (event) {
+            if (event.target === parts.modal && pressedBackdrop) closeImport();
+        });
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape" && !parts.modal.hidden) closeImport();
+        });
+    }
 
     function onClick(event) {
         const container = document.getElementById("customdisplay");
@@ -302,6 +438,8 @@
     return {
         MAX_CUSTOM_ACTIONS: MAX_CUSTOM_ACTIONS,
         sameAction: sameAction,
+        screenRefusal: screenRefusal,
+        dedupe: dedupe,
         iconsHtml: iconsHtml,
         rollCodeHtml: rollCodeHtml,
         cardHtml: cardHtml,

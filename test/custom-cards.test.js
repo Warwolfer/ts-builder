@@ -135,3 +135,30 @@ test("key order does not matter", () => {
     const reordered = { g: action.g, k: action.k, p: action.p, d: action.d, n: action.n, v: 1 };
     assert.strictEqual(CustomCards.sameAction(action, reordered), true);
 });
+
+test("a screen code is refused with the spec's wording", () => {
+    assert.strictEqual(
+        CustomCards.screenRefusal(),
+        "That is a DM Screen code. Open it on the DM Screen page.",
+    );
+});
+
+test("dedupe keeps what is new and counts what is not", () => {
+    const other = { ...action, n: "Another" };
+    const out = CustomCards.dedupe([action, other], [{ id: "c1", action: action, payload: "1P" }]);
+    assert.strictEqual(out.fresh.length, 1);
+    assert.strictEqual(out.fresh[0].n, "Another");
+    assert.strictEqual(out.skipped, 1);
+});
+
+test("dedupe also catches duplicates inside one pasted list", () => {
+    const out = CustomCards.dedupe([action, JSON.parse(JSON.stringify(action))], []);
+    assert.strictEqual(out.fresh.length, 1);
+    assert.strictEqual(out.skipped, 1);
+});
+
+test("dedupe with nothing to skip reports zero", () => {
+    const out = CustomCards.dedupe([action], []);
+    assert.strictEqual(out.fresh.length, 1);
+    assert.strictEqual(out.skipped, 0);
+});
