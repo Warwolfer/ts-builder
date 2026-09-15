@@ -53,7 +53,12 @@
     // build — and one that repeats inside the pasted list itself, which a DM
     // exporting two cycles will produce every time.
     function dedupe(incoming, existing) {
-        const seen = (existing || []).map(function (e) { return canonical(e.action); });
+        // existing is state.customActions, sourced from localStorage or a
+        // saved record — neither validates shape. One hand-edited or
+        // half-written entry must not block every future import.
+        const seen = (existing || [])
+            .filter(function (e) { return e && e.action && typeof e.action === "object"; })
+            .map(function (e) { return canonical(e.action); });
         const fresh = [];
         let skipped = 0;
         for (let i = 0; i < incoming.length; i++) {

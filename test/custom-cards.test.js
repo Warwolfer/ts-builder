@@ -162,3 +162,13 @@ test("dedupe with nothing to skip reports zero", () => {
     assert.strictEqual(out.fresh.length, 1);
     assert.strictEqual(out.skipped, 0);
 });
+
+test("dedupe ignores malformed existing entries instead of throwing", () => {
+    const out = CustomCards.dedupe([action], [
+        { id: "bad" },
+        { id: "worse", action: null },
+        { id: "ok", action: action },
+    ]);
+    assert.strictEqual(out.fresh.length, 0);
+    assert.strictEqual(out.skipped, 1);
+});
