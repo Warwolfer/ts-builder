@@ -153,30 +153,6 @@
     min-height: 160px;
 }
 
-.dm-card-title { font-weight: bold; font-size: 1.05em; color: #fff; }
-.dm-card-desc { color: #bbc; font-size: 0.9em; white-space: pre-wrap; }
-.dm-card-dice { color: #ffb257; font-family: monospace; font-size: 0.9em; }
-
-.dm-kind-badges { display: flex; flex-wrap: wrap; gap: 4px; }
-.dm-kind-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.75em;
-    padding: 2px 7px;
-    border-radius: 10px;
-    background: #2c3448;
-    color: #cfd3e0;
-    border: 1px solid #3d475f;
-}
-.dm-kind-badge img { width: 14px; height: 14px; }
-
-.dm-chart { font-size: 0.85em; margin: 0; padding: 0; list-style: none; }
-.dm-chart li { display: flex; gap: 8px; padding: 2px 0; border-top: 1px dashed #2c3448; }
-.dm-chart li:first-child { border-top: none; }
-.dm-chart b { color: #a78bfa; white-space: nowrap; min-width: 7.5em; }
-.dm-chart span { color: #dde; }
-
 .dm-card-actions {
     margin-top: auto;
     display: flex;

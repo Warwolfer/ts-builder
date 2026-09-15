@@ -1,0 +1,28 @@
+/* css/custom-action-card.css — the body of one custom action card.
+   Shared by the DM Screen grid, the DM Screen modal preview and the build
+   sheet's Custom tab, because all three draw the same action. The shell
+   around it (.dm-card / .card) belongs to each page's own stylesheet. */
+
+.ca-card-title { font-weight: bold; font-size: 1.05em; color: #fff; }
+.ca-card-desc { color: #bbc; font-size: 0.9em; white-space: pre-wrap; }
+.ca-card-dice { color: #ffb257; font-family: monospace; font-size: 0.9em; }
+
+.ca-kind-badges { display: flex; flex-wrap: wrap; gap: 4px; }
+.ca-kind-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75em;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: #2c3448;
+    color: #cfd3e0;
+    border: 1px solid #3d475f;
+}
+.ca-kind-badge img { width: 14px; height: 14px; }
+
+.ca-chart { font-size: 0.85em; margin: 0; padding: 0; list-style: none; }
+.ca-chart li { display: flex; gap: 8px; padding: 2px 0; border-top: 1px dashed #2c3448; }
+.ca-chart li:first-child { border-top: none; }
+.ca-chart b { color: #a78bfa; white-space: nowrap; min-width: 7.5em; }
+.ca-chart span { color: #dde; }

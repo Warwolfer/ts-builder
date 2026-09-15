@@ -12,18 +12,6 @@
     "use strict";
 
     const STORAGE_KEY = "tsbuilder_dm_screen";
-    const KIND_LABELS = {
-        fortitude: "Fortitude",
-        reflex: "Reflex",
-        will: "Will",
-        mastery: "Mastery Check",
-        expertise: "Expertise Check",
-    };
-    const SAVE_ICONS = {
-        fortitude: "https://terrarp.com/db/tool/fortitude.png",
-        reflex: "https://terrarp.com/db/tool/reflex.png",
-        will: "https://terrarp.com/db/tool/will.png",
-    };
     // Past this many characters the roll payload is at risk of not fitting a
     // Discord message once the command and comment are added.
     const LONG_CODE = 1800;
@@ -37,6 +25,7 @@
     const State = window.DmScreenState;
     const Codec = window.CustomActionCodec;
     const Store = window.SavedScreensStore;
+    const CardView = window.CustomActionCard;
     const esc = function (v) { return window.DOMUtils.escapeHtml(String(v == null ? "" : v)); };
 
     let screen = null;          // the working screen
@@ -224,31 +213,6 @@
 
     // --- rendering -----------------------------------------------------------
 
-    function kindBadge(kind) {
-        const icon = SAVE_ICONS[kind] ? '<img src="' + SAVE_ICONS[kind] + '" alt="">' : "";
-        return '<span class="dm-kind-badge">' + icon + esc(KIND_LABELS[kind] || kind) + "</span>";
-    }
-
-    // The card body shared by the grid and the modal preview.
-    function cardBodyHtml(action) {
-        let html = '<div class="dm-card-title">' + esc(action.n) + "</div>";
-        if (action.d) html += '<div class="dm-card-desc">' + esc(action.d) + "</div>";
-        const pre = action.p || [];
-        for (let i = 0; i < pre.length; i++) {
-            const label = pre[i][0] ? esc(pre[i][0]) + ": " : "";
-            html += '<div class="dm-card-dice">' + label + esc(pre[i][1]) + "</div>";
-        }
-        if (action.k && action.k.length) {
-            html += '<div class="dm-kind-badges">' + action.k.map(kindBadge).join("") + "</div>";
-        }
-        html += '<ul class="dm-chart">';
-        for (let i = 0; i < action.g.length; i++) {
-            html += "<li><b>" + esc(Codec.rangeLabel(action.g, i)) + "</b><span>" + esc(action.g[i][1]) + "</span></li>";
-        }
-        html += "</ul>";
-        return html;
-    }
-
     function copyToOptions(cycleId) {
         const others = screen.cycles.filter(function (c) { return c.id !== cycleId; });
         if (!others.length) return "";
@@ -284,7 +248,7 @@
         let html = "";
         for (let i = 0; i < cycle.actions.length; i++) {
             const entry = cycle.actions[i];
-            html += '<div class="dm-card" data-action="' + esc(entry.id) + '">' + cardBodyHtml(entry.action) +
+            html += '<div class="dm-card" data-action="' + esc(entry.id) + '">' + CardView.bodyHtml(entry.action) +
                 '<div class="dm-card-actions">' +
                 '<button type="button" class="dm-btn dm-btn-small" data-edit>Edit</button>' +
                 '<button type="button" class="dm-btn dm-btn-small" data-copy-code>Copy code</button>' +
@@ -434,7 +398,7 @@
             meta.textContent = "";
             return;
         }
-        card.innerHTML = cardBodyHtml(action);
+        card.innerHTML = CardView.bodyHtml(action);
 
         // The code length is what a player will paste into Discord; encode is
         // async, so debounce it behind the keystrokes.
