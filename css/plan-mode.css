@@ -473,13 +473,10 @@
     font-size: 6px;
 }
 
-/* The card's downcast badge sits at top:12px/right:12px at 20px across, which
-   in plan mode lands on the Add button (top:5px, right:5px, 21px) and outranks
-   it on z-index, so the corner of the button could not be clicked. Smaller, and
-   parked to the left of the button. */
+/* The card's downcast badge is 20px across, big enough in plan mode to crowd
+   the Add button above it. Smaller only — it keeps its place at
+   top:12px/right:12px from css/build-sheet.css. */
 #builddisplay.plan .action-downcast-indicator {
-    top: 6px;
-    right: 30px;
     width: 14px;
     height: 14px;
     font-size: 9px;
