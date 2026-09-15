@@ -2201,6 +2201,7 @@ class BuildSheet {
             threadCode: state.threadCode || "",
             threadName,
             note: state.note || "",
+            customActions: state.customActions || [],
             createdAt,
         };
 

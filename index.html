@@ -4,26 +4,27 @@
   <title>TerraSphere Build Editor</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="css/app.css?v=20260915-164132">
+  <link rel="stylesheet" href="css/app.css?v=20260915-165512">
   <link rel="shortcut icon" href="https://www.terrarp.com//favicon.ico">
 
   <!-- Shared modules -->
-  <script src="shared/app-version.js?v=20260915-164132"></script>
-  <script src="shared/update-check.js?v=20260915-164132"></script>
-  <script src="shared/state-manager.js?v=20260915-164132"></script>
-  <script src="shared/buildpack.js?v=20260915-164132"></script>
-  <script src="shared/build-encoder.js?v=20260915-164132"></script>
-  <script src="shared/loading-manager.js?v=20260915-164132"></script>
-  <script src="shared/calculations.js?v=20260915-164132"></script>
-  <script src="shared/xenforo-api.js?v=20260915-164132"></script>
+  <script src="shared/app-version.js?v=20260915-165512"></script>
+  <script src="shared/update-check.js?v=20260915-165512"></script>
+  <script src="shared/state-manager.js?v=20260915-165512"></script>
+  <script src="shared/buildpack.js?v=20260915-165512"></script>
+  <script src="shared/build-encoder.js?v=20260915-165512"></script>
+  <script src="shared/loading-manager.js?v=20260915-165512"></script>
+  <script src="shared/calculations.js?v=20260915-165512"></script>
+  <script src="shared/xenforo-api.js?v=20260915-165512"></script>
+  <script src="shared/pending-build.js?v=20260915-165512"></script>
 
   <!-- Data files -->
-  <script src="resource/masteries.js?v=20260915-164132"></script>
-  <script src="resource/expertise.js?v=20260915-164132"></script>
-  <script src="resource/actions.js?v=20260915-164132"></script>
-  <script src="resource/safecharacters.js?v=20260915-164132"></script>
-  <script src="resource/armor-abilities.js?v=20260915-164132"></script>
-  <script src="shared/components/site-nav.js?v=20260915-164132"></script>
+  <script src="resource/masteries.js?v=20260915-165512"></script>
+  <script src="resource/expertise.js?v=20260915-165512"></script>
+  <script src="resource/actions.js?v=20260915-165512"></script>
+  <script src="resource/safecharacters.js?v=20260915-165512"></script>
+  <script src="resource/armor-abilities.js?v=20260915-165512"></script>
+  <script src="shared/components/site-nav.js?v=20260915-165512"></script>
 
   <style>
     body {
@@ -383,12 +384,25 @@
       const buildData = result.data;
       console.log('✅ Index: Build imported successfully:', buildData);
 
+      // A build loaded from Saved Builds left its custom actions in
+      // localStorage, because the build code cannot carry them. A pasted code
+      // or a #load. character import leaves the key absent, and the sheet's
+      // existing custom actions stay as they are.
+      const pending = window.PendingBuild.read(window.localStorage);
+      if (pending) {
+        buildData.buildId = pending.id;
+        buildData.customActions = pending.customActions;
+      }
+      window.PendingBuild.clear(window.localStorage);
+
       // Update state with imported data
       window.buildState.updateState(buildData);
 
       // Redirect to build sheet to display the imported build
       window.location.href = 'build-sheet.html';
     } catch (error) {
+      window.PendingBuild.clear(window.localStorage);
+
       console.error('❌ Index: Import failed:', error);
 
       LoadingManager.hide('status');

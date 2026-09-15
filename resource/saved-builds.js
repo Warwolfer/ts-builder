@@ -32,6 +32,14 @@
   }
 
   function loadBuild(record) {
+    // The build code cannot carry custom actions, so they ride in localStorage
+    // for the one hop through index.html. index.html removes the key whether
+    // the import succeeds or fails, so it can never attach itself to the next
+    // build somebody loads.
+    window.PendingBuild.write(window.localStorage, {
+      id: record.id,
+      customActions: record.customActions || [],
+    });
     window.location.href = "index.html#import." + record.buildCode;
   }
 
