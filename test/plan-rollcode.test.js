@@ -158,3 +158,34 @@ test("setThreadCode does not disturb the other modifier spans", () => {
     assert.match(out, /<span class="planmod">\+55 <\/span>/);
     assert.strictEqual(thrcodeText(out), "9001");
 });
+
+test("a Cycle N name appends CN to the thread code", () => {
+    assert.strictEqual(RollCodeUtils.withCycleSuffix("2768", "Cycle 1"), "2768C1");
+    assert.strictEqual(RollCodeUtils.withCycleSuffix("2768", "Cycle 2"), "2768C2");
+    assert.strictEqual(RollCodeUtils.withCycleSuffix("2768", "Cycle 12"), "2768C12");
+});
+
+test("an existing trailing suffix is replaced, not stacked", () => {
+    assert.strictEqual(RollCodeUtils.withCycleSuffix("2768C1", "Cycle 2"), "2768C2");
+    assert.strictEqual(RollCodeUtils.withCycleSuffix("2768C12", "Cycle 3"), "2768C3");
+});
+
+test("a name that is not exactly Cycle N adds nothing", () => {
+    for (const name of ["Boss", "cycle 1", "Cycle", "Cycle one", "Cycle 1a", "", null]) {
+        assert.strictEqual(RollCodeUtils.withCycleSuffix("2768", name), "2768", String(name));
+    }
+});
+
+test("a name that is not Cycle N leaves an existing suffix alone", () => {
+    assert.strictEqual(RollCodeUtils.withCycleSuffix("2768C1", "Boss"), "2768C1");
+});
+
+test("no thread code means nothing to suffix", () => {
+    assert.strictEqual(RollCodeUtils.withCycleSuffix("", "Cycle 1"), "");
+    assert.strictEqual(RollCodeUtils.withCycleSuffix(null, "Cycle 1"), "");
+    assert.strictEqual(RollCodeUtils.withCycleSuffix(undefined, "Cycle 1"), "");
+});
+
+test("surrounding whitespace in the name is tolerated", () => {
+    assert.strictEqual(RollCodeUtils.withCycleSuffix("2768", "  Cycle 1  "), "2768C1");
+});

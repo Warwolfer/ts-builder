@@ -92,12 +92,29 @@ const RollCodeUtils = (function () {
         return html.replace(THRCODE_SPAN, `$1${escaped}$2`);
     }
 
+    // Only a tab still named exactly "Cycle N" suffixes its rows. A DM who
+    // renames a tab "Boss" has said the thread code is not per-cycle any more,
+    // and guessing a suffix for them would put a code in a forum post that
+    // does not match the thread.
+    //
+    // A trailing C<digits> is replaced rather than appended to, so moving a row
+    // from Cycle 1 to Cycle 2 gives 2768C2 and never 2768C1C2.
+    function withCycleSuffix(threadCode, cycleName) {
+        const code = typeof threadCode === "string" ? threadCode : "";
+        if (!code) return "";
+        const name = typeof cycleName === "string" ? cycleName.trim() : "";
+        const match = /^Cycle (\d+)$/.exec(name);
+        if (!match) return code;
+        return code.replace(/C\d+$/, "") + "C" + match[1];
+    }
+
     return {
         insertRollTag,
         removeRollTag,
         setRollExtraMod,
         setRollPlanMod,
         setThreadCode,
+        withCycleSuffix,
     };
 })();
 
