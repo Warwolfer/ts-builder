@@ -365,6 +365,12 @@
         // restored one may already be ready. Restore before syncing, not
         // after, so the gate sees the final state once.
         window.CardGate.syncRollCodes();
+        // innerHTML above threw away any + buttons Plan mode had stamped on
+        // these cards, and installAddButtons already ran once, before this
+        // container had any cards in it at all. Put them back.
+        if (window.PlanMode && window.PlanMode.refreshAddButtons) {
+            window.PlanMode.refreshAddButtons();
+        }
     }
 
     function add(entries) {

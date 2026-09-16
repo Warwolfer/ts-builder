@@ -70,11 +70,13 @@
 }
 .customcard-remove:hover { color: #f87171; }
 
-/* .masteryicon (css/app.css) already centres this row; these two only let a
-   long icon list wrap instead of overflowing the card. */
+/* .masteryicon (css/app.css) already centres this row. wrap is the only thing
+   added, so a long icon list breaks to a second line instead of overflowing.
+   No `gap` here on purpose: .masterycircle carries `margin: 5px 10px`, so a
+   built-in card's icons sit 20px apart, and a gap stacked on top of that made
+   the custom card's picker visibly looser than every other card's. */
 .customicons {
     flex-wrap: wrap;
-    gap: 6px;
 }
 
 .customcard-add {

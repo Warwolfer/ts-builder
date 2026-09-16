@@ -993,9 +993,26 @@ const PlanMode = (function () {
             // same rail twice on every first load.
         }
 
-        // One list, shared with the roll-code gate: a container added there
-        // must get + buttons too. Ids that do not exist yet are skipped by the
-        // getElementById check below.
+        stampAddButtons();
+
+        // After the buttons exist, not before — the first call ran ahead of the
+        // install loop and styled nothing.
+        syncAddButtons();
+
+        // Render once on load. Without this the rail is an empty box whenever
+        // Plan was already on from a previous session: applyPlanPreference
+        // unhides it but never draws it, and togglePlan only fires on a click
+        // the user never makes because the preference restored it for them.
+        refresh();
+    }
+
+    // Stamps a + on every queueable card that does not already carry one.
+    // Idempotent, so it is safe to re-run after a container rewrites itself.
+    //
+    // One list, shared with the roll-code gate: a container added there must
+    // get + buttons too. Ids that do not exist yet are skipped by the
+    // getElementById check below.
+    function stampAddButtons() {
         const containers = window.CardGate.CONTAINER_IDS;
         for (let c = 0; c < containers.length; c++) {
             const container = document.getElementById(containers[c]);
@@ -1023,16 +1040,16 @@ const PlanMode = (function () {
                 card.appendChild(button);
             }
         }
+    }
 
-        // After the buttons exist, not before — the first call ran ahead of the
-        // install loop and styled nothing.
+    // #customdisplay is drawn by CustomCards AFTER installAddButtons has run,
+    // and every CustomCards.render() replaces that container's innerHTML —
+    // which throws the buttons away with it. Nothing put them back, so a custom
+    // card never showed a + in Plan mode. CustomCards.render calls this at the
+    // end of every redraw.
+    function refreshAddButtons() {
+        stampAddButtons();
         syncAddButtons();
-
-        // Render once on load. Without this the rail is an empty box whenever
-        // Plan was already on from a previous session: applyPlanPreference
-        // unhides it but never draws it, and togglePlan only fires on a click
-        // the user never makes because the preference restored it for them.
-        refresh();
     }
 
     return {
@@ -1048,6 +1065,7 @@ const PlanMode = (function () {
         refresh: refresh,
         snapshotCard: snapshotCard,
         installAddButtons: installAddButtons,
+        refreshAddButtons: refreshAddButtons,
         persist: persist,
         restore: restore,
         getCycles: getCycles,

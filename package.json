@@ -5,6 +5,7 @@
   "description": "TerraSphere Build Editor",
   "scripts": {
     "test": "node --test",
-    "stamp": "node scripts/stamp-version.js"
+    "stamp": "node scripts/stamp-version.js",
+    "serve": "node scripts/serve.js"
   }
 }
