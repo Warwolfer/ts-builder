@@ -96,15 +96,42 @@
         });
     }
 
+    /** A usable active index for a list of this length, defaulting to 0 for
+     * anything out of range, non-numeric, or missing. */
+    function normalizeActive(active, length) {
+        if (!length) return 0;
+        const n = parseInt(active, 10);
+        if (isNaN(n) || n < 0 || n >= length) return 0;
+        return n;
+    }
+
     /**
      * Drops one cycle and says which is active afterwards. The last cycle
      * cannot go: an empty tab bar has nowhere to put a row.
+     *
+     * `active` is the caller's current active index, not the index being
+     * deleted - the caller passes both because only it knows which tab
+     * someone is actually sitting on. Deleting the active cycle clamps onto
+     * a neighbor, same as before; deleting one before it shifts the active
+     * cycle's own index down by one, since everything after the deleted
+     * slot moves up; deleting one after it leaves the active cycle exactly
+     * where it was, index and all.
      */
-    function deleteCycle(cycles, index) {
+    function deleteCycle(cycles, index, active) {
         const list = Array.isArray(cycles) ? cycles : [];
-        if (list.length <= 1 || !list[index]) return { cycles: cycles, active: 0 };
+        const safeActive = normalizeActive(active, list.length);
+        if (list.length <= 1 || !list[index]) return { cycles: cycles, active: safeActive };
+
         const out = list.slice(0, index).concat(list.slice(index + 1));
-        return { cycles: out, active: Math.max(0, Math.min(index, out.length - 1)) };
+        let nextActive;
+        if (index === safeActive) {
+            nextActive = Math.max(0, Math.min(index, out.length - 1));
+        } else if (index < safeActive) {
+            nextActive = safeActive - 1;
+        } else {
+            nextActive = safeActive;
+        }
+        return { cycles: out, active: nextActive };
     }
 
     return {

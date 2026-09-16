@@ -132,19 +132,60 @@ test("renaming an index that is not there changes nothing", () => {
     assert.strictEqual(PlanCycles.renameCycle(before, 5, "Boss"), before);
 });
 
-test("deleteCycle drops the cycle and moves active back when needed", () => {
-    const before = [
-        { name: "Cycle 1", rows: [] },
-        { name: "Cycle 2", rows: [] },
-        { name: "Cycle 3", rows: [] },
+// A,B,C at indices 0,1,2. Table from the review: who is sitting where when
+// which tab is deleted, and where they land afterwards. Deleting the active
+// tab clamps onto a neighbor; deleting one before it shifts it down by one;
+// deleting one after it leaves it exactly where it was.
+test("deleteCycle keeps the sitting cycle current, not just a clamped index", () => {
+    const named = ["A", "B", "C"];
+    function make() {
+        return named.map((name) => ({ name: name, rows: [] }));
+    }
+    const cases = [
+        // [active index, deleted index, expected surviving cycle name]
+        [0, 1, "A"], // on A, delete B -> A,C, land on A
+        [0, 2, "A"], // on A, delete C -> A,B, land on A
+        [1, 0, "B"], // on B, delete A -> B,C, land on B
+        [1, 2, "B"], // on B, delete C -> A,B, land on B
+        [2, 0, "C"], // on C, delete A -> B,C, land on C
+        [2, 1, "C"], // on C, delete B -> A,C, land on C
+        [1, 1, "C"], // on B, delete B -> A,C, clamped to C
+        [2, 2, "B"], // on C, delete C -> A,B, clamped to B
     ];
-    assert.deepStrictEqual(PlanCycles.deleteCycle(before, 2).active, 1);
-    assert.deepStrictEqual(PlanCycles.deleteCycle(before, 0).cycles.map((c) => c.name),
-        ["Cycle 2", "Cycle 3"]);
+    for (const [active, deleted, expectName] of cases) {
+        const before = make();
+        const out = PlanCycles.deleteCycle(before, deleted, active);
+        const label = "active=" + active + " delete=" + deleted;
+        assert.strictEqual(out.cycles.length, 2, label);
+        assert.strictEqual(out.cycles[out.active].name, expectName, label);
+    }
 });
 
 test("the last cycle cannot be deleted", () => {
     const before = [{ name: "Cycle 1", rows: rows(1) }];
-    const out = PlanCycles.deleteCycle(before, 0);
+    const out = PlanCycles.deleteCycle(before, 0, 0);
     assert.strictEqual(out.cycles, before);
+});
+
+test("an out-of-range delete index returns the input unchanged", () => {
+    const before = [{ name: "Cycle 1", rows: [] }, { name: "Cycle 2", rows: [] }];
+    const out = PlanCycles.deleteCycle(before, 5, 0);
+    assert.strictEqual(out.cycles, before);
+    assert.strictEqual(out.active, 0);
+});
+
+test("an out-of-range or missing active defaults to 0 rather than throwing", () => {
+    const before = [{ name: "Cycle 1", rows: [] }, { name: "Cycle 2", rows: [] }];
+    for (const active of [-1, 9, "x", null, undefined, NaN]) {
+        // Delete index 1 (after wherever a defaulted active of 0 lands):
+        // active should default to 0 and stay there, untouched by deleting
+        // something after it.
+        const out = PlanCycles.deleteCycle(before, 1, active);
+        assert.strictEqual(out.active, 0, String(active));
+    }
+    // Same defaulting on the no-op path (deleting an index that isn't there).
+    for (const active of [-1, 9, "x", null, undefined, NaN]) {
+        const out = PlanCycles.deleteCycle(before, 5, active);
+        assert.strictEqual(out.active, 0, String(active));
+    }
 });

@@ -193,15 +193,22 @@ const PlanMode = (function () {
     // Cycle management. Each mutates cycles/active and always persists and
     // re-renders, mirroring what add/remove/move/clear do within one cycle.
     function setActive(index) {
-        if (index < 0 || index >= cycles.length || index === active) return;
+        // !(index >= 0) catches NaN too - NaN < 0, NaN >= length and
+        // NaN === active are all false, so a plain lower-bound check would
+        // let it through and cycles[NaN].rows would throw on the next
+        // activeRows() call.
+        if (!(index >= 0) || index >= cycles.length || index === active) return;
         active = index;
         persist();
         refresh();
     }
 
     function addCycle() {
+        const before = cycles.length;
         cycles = window.PlanCycles.addCycle(cycles);
-        active = cycles.length - 1;
+        // addCycle returns the input unchanged at the cap, so only move to
+        // the new tab when one was actually added.
+        if (cycles.length > before) active = cycles.length - 1;
         persist();
         refresh();
     }
@@ -217,7 +224,7 @@ const PlanMode = (function () {
     }
 
     function deleteCycle(index) {
-        const result = window.PlanCycles.deleteCycle(cycles, index);
+        const result = window.PlanCycles.deleteCycle(cycles, index, active);
         cycles = result.cycles;
         active = result.active;
         persist();
