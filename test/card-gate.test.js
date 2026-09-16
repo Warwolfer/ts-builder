@@ -15,10 +15,12 @@ function icon(opts) {
         getAttribute: (name) => (name === "data-mastery" ? opts.mastery || null : null),
     };
 }
-function card(icons) {
+function card(icons, attrs) {
+    attrs = attrs || {};
     return {
         querySelectorAll: (sel) => (sel === ".masterycircle" ? icons : []),
         querySelector: (sel) => (sel === ".masterycircle.active-glow" ? icons.find((i) => i.lit) || null : null),
+        getAttribute: (name) => (Object.prototype.hasOwnProperty.call(attrs, name) ? attrs[name] : null),
     };
 }
 
@@ -44,6 +46,24 @@ test("save or expertise icons (no data-mastery) with none lit ask for a type", (
 test("save icons with one lit are not blocked", () => {
     const c = card([icon({}), icon({ lit: true }), icon({})]);
     assert.strictEqual(addBlockedReason(c), null);
+});
+
+test("a card with no icons to offer at all (data-requires-pick) is blocked", () => {
+    const c = card([], { "data-requires-pick": "1" });
+    assert.strictEqual(
+        addBlockedReason(c),
+        "This action needs a mastery or expertise you have not chosen",
+    );
+});
+
+test("data-requires-pick is cleared once an icon on the card is lit", () => {
+    const c = card([icon({ lit: true })], { "data-requires-pick": "1" });
+    assert.strictEqual(addBlockedReason(c), null);
+});
+
+test("a card with icons and no data-requires-pick is unaffected by the new check", () => {
+    const c = card([icon({ mastery: "power" })]);
+    assert.strictEqual(addBlockedReason(c), "Choose a mastery first");
 });
 
 test("onChange callbacks are stored and install is safe without a document", () => {
@@ -77,6 +97,7 @@ test("syncRollCodes locks the roll code of an unready card and unlocks a ready o
                 if (sel === ".rollcode") return code;
                 return null;
             },
+            getAttribute: () => null,
         };
     }
     const lockedCode = rollCode();

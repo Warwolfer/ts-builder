@@ -163,6 +163,61 @@ test("dedupe with nothing to skip reports zero", () => {
     assert.strictEqual(out.skipped, 0);
 });
 
+test("isWellFormedEntry accepts a real entry", () => {
+    assert.strictEqual(CustomCards.isWellFormedEntry(entry), true);
+});
+
+test("isWellFormedEntry rejects an entry with no action", () => {
+    assert.strictEqual(CustomCards.isWellFormedEntry({ id: "c1" }), false);
+});
+
+test("isWellFormedEntry rejects a null action", () => {
+    assert.strictEqual(CustomCards.isWellFormedEntry({ id: "c1", action: null, payload: "1P" }), false);
+});
+
+test("isWellFormedEntry rejects an action missing g", () => {
+    assert.strictEqual(
+        CustomCards.isWellFormedEntry({ id: "c1", action: { n: "Hit" }, payload: "1P" }),
+        false,
+    );
+});
+
+test("isWellFormedEntry rejects an action whose g is not an array", () => {
+    assert.strictEqual(
+        CustomCards.isWellFormedEntry({ id: "c1", action: { n: "Hit", g: "nope" }, payload: "1P" }),
+        false,
+    );
+});
+
+test("isWellFormedEntry rejects a non-string n", () => {
+    assert.strictEqual(
+        CustomCards.isWellFormedEntry({ id: "c1", action: { n: 5, g: [] }, payload: "1P" }),
+        false,
+    );
+});
+
+test("isWellFormedEntry rejects a bare null entry", () => {
+    assert.strictEqual(CustomCards.isWellFormedEntry(null), false);
+});
+
+test("isWellFormedEntry rejects an entry missing payload", () => {
+    assert.strictEqual(CustomCards.isWellFormedEntry({ id: "c1", action: action }), false);
+});
+
+test("cardHtml flags a card with no icons to offer as needing a pick", () => {
+    const html = CustomCards.cardHtml(
+        { id: "c3", action: { ...action, k: ["mastery"] }, payload: "1P" },
+        { ...opts, masteries: [] },
+    );
+    assert.match(html, /data-requires-pick="1"/);
+    assert.match(html, /customcard-needspick/);
+});
+
+test("cardHtml does not flag a card that has at least one icon", () => {
+    const html = CustomCards.cardHtml(entry, opts);
+    assert.doesNotMatch(html, /data-requires-pick/);
+});
+
 test("dedupe ignores malformed existing entries instead of throwing", () => {
     const out = CustomCards.dedupe([action], [
         { id: "bad" },

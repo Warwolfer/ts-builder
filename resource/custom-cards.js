@@ -136,13 +136,25 @@
             "</div>";
     }
 
+    // When k lists only mastery and/or expertise and the character has chosen
+    // neither, iconsHtml has nothing to draw and returns "". CardGate's block
+    // check keys off icons.length, so a card with zero icons was never blocked
+    // — the roll code stayed unlocked and copied its placeholders literally.
+    // data-requires-pick tells card-gate.js this card needs a pick it cannot
+    // offer.
     function cardHtml(entry, opts) {
-        return '<div class="card customcard" data-custom-id="' + esc(entry.id) + '">' +
+        const icons = iconsHtml(entry.action, opts);
+        const iconsBlock = icons ||
+            '<div class="customcard-needspick">This action needs a mastery or ' +
+            "expertise this character has not chosen.</div>";
+        return '<div class="card customcard"' +
+            (icons ? "" : ' data-requires-pick="1"') +
+            ' data-custom-id="' + esc(entry.id) + '">' +
             '<div class="customcard-head">' +
             CardView.bodyHtml(entry.action) +
             '<button type="button" class="customcard-remove" data-remove title="Remove from this build">×</button>' +
             "</div>" +
-            '<div class="customicons">' + iconsHtml(entry.action, opts) + "</div>" +
+            '<div class="customicons">' + iconsBlock + "</div>" +
             '<div class="togglecontainer">' +
             '<div class="togglesavechecks" data-adv="adv ">Adv</div>' +
             '<div class="togglesavechecks" data-adv="">Normal</div>' +
@@ -150,6 +162,21 @@
             "</div>" +
             rollCodeHtml(entry, opts) +
             "</div>";
+    }
+
+    // state.customActions is merged straight out of localStorage, and
+    // PendingBuild.read only checks Array.isArray on the list itself — one
+    // hand-edited or half-written entry must not take cardHtml, and with it
+    // the whole tab including the `+` card, down.
+    function isWellFormedEntry(entry) {
+        return !!entry &&
+            typeof entry === "object" &&
+            entry.id != null &&
+            entry.payload !== undefined &&
+            !!entry.action &&
+            typeof entry.action === "object" &&
+            typeof entry.action.n === "string" &&
+            Array.isArray(entry.action.g);
     }
 
     // --- glue -----------------------------------------------------------
@@ -200,13 +227,105 @@
         };
     }
 
+    function skippedNoteHtml(count) {
+        const words = count === 1
+            ? "1 saved card could not be read and was skipped."
+            : count + " saved cards could not be read and were skipped.";
+        return '<div class="customcards-note">' + words + "</div>";
+    }
+
+    // render() rebuilds container.innerHTML from state, so the picked icon and
+    // the lit Adv/Normal/Dis toggle — both DOM-only — would otherwise be wiped
+    // on every card whenever any one of them is imported or removed. Capture
+    // before the rewrite, restore after, keyed by data-custom-id, and nothing
+    // else: not which entries were skipped, not scroll position, nothing the
+    // spec did not ask for.
+    function captureCardState(container) {
+        const captured = {};
+        const cards = container.querySelectorAll(".customcard");
+        for (let i = 0; i < cards.length; i++) {
+            const card = cards[i];
+            const id = card.getAttribute("data-custom-id");
+            if (!id) continue;
+            const icon = card.querySelector(".masterycircle.active-glow");
+            const toggle = card.querySelector(".togglesavechecks.active-glow");
+            captured[id] = {
+                kind: icon ? icon.getAttribute("data-kind") : null,
+                lookup: icon ? icon.getAttribute("data-lookup") : null,
+                adv: toggle ? toggle.getAttribute("data-adv") : null,
+            };
+        }
+        return captured;
+    }
+
+    // Same kind and same lookup (both null for a save icon, which carries no
+    // data-lookup). If the player removed that mastery or expertise, no icon
+    // matches any more and this returns null — the card stays locked, same as
+    // a freshly imported one.
+    function findMatchingIcon(card, picked) {
+        if (!picked.kind) return null;
+        const icons = card.querySelectorAll(".masterycircle");
+        for (let i = 0; i < icons.length; i++) {
+            const candidate = icons[i];
+            if (candidate.getAttribute("data-kind") !== picked.kind) continue;
+            if ((candidate.getAttribute("data-lookup") || null) === (picked.lookup || null)) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
+    function findMatchingToggle(card, picked) {
+        if (picked.adv == null) return null;
+        const toggles = card.querySelectorAll(".togglesavechecks");
+        for (let i = 0; i < toggles.length; i++) {
+            if (toggles[i].getAttribute("data-adv") === picked.adv) return toggles[i];
+        }
+        return null;
+    }
+
+    // Re-lights each card's captured pick through the exact same functions a
+    // real click runs — addGlowEffect and stampIcon/setSpan — so a restored
+    // card cannot end up in a state a click could never have produced. Each
+    // card's icon strip is its own addGlowEffect scope (see build-sheet.js),
+    // so two cards that both had the same mastery lit restore independently
+    // and do not fight over one glow.
+    function restoreCardState(container, captured) {
+        const cards = container.querySelectorAll(".customcard");
+        for (let i = 0; i < cards.length; i++) {
+            const card = cards[i];
+            const id = card.getAttribute("data-custom-id");
+            const picked = id ? captured[id] : null;
+            if (!picked) continue;
+
+            const icon = findMatchingIcon(card, picked);
+            if (icon) {
+                window.addGlowEffect(icon, "masterycircle");
+                stampIcon(card, icon);
+            }
+
+            const toggle = findMatchingToggle(card, picked);
+            if (toggle) {
+                window.addGlowEffect(toggle, "togglesavechecks");
+                setSpan(card, ".customadv", toggle.getAttribute("data-adv"));
+            }
+        }
+    }
+
     function render() {
         const container = document.getElementById("customdisplay");
         if (!container || !sheet) return;
+        const captured = captureCardState(container);
         const entries = stateActions();
         const opts = renderOpts();
-        let html = "";
-        for (let i = 0; i < entries.length; i++) html += cardHtml(entries[i], opts);
+        let cardsHtml = "";
+        let skipped = 0;
+        for (let i = 0; i < entries.length; i++) {
+            if (!isWellFormedEntry(entries[i])) { skipped += 1; continue; }
+            cardsHtml += cardHtml(entries[i], opts);
+        }
+        let html = skipped ? skippedNoteHtml(skipped) : "";
+        html += cardsHtml;
         if (entries.length < MAX_CUSTOM_ACTIONS) {
             html += '<div class="card customcard-add" data-import title="Import a custom action">+</div>';
         } else {
@@ -214,7 +333,10 @@
                 " custom actions is the limit</div>";
         }
         container.innerHTML = html;
-        // A fresh card has nothing lit, so its roll code starts locked.
+        restoreCardState(container, captured);
+        // A fresh card has nothing lit, so its roll code starts locked; a
+        // restored one may already be ready. Restore before syncing, not
+        // after, so the gate sees the final state once.
         window.CardGate.syncRollCodes();
     }
 
@@ -448,6 +570,7 @@
         iconsHtml: iconsHtml,
         rollCodeHtml: rollCodeHtml,
         cardHtml: cardHtml,
+        isWellFormedEntry: isWellFormedEntry,
         install: install,
         render: render,
         add: add,

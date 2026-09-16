@@ -6,10 +6,52 @@
    css/dm-screen.css: that stylesheet also carries a #bodyback margin-top
    override, which would push the whole build sheet down. */
 
+/* Hidden until refreshAllActionFilters (resource/build-sheet.js) picks the
+   Custom tab — this is what keeps the tab correct on first paint, before
+   that function has ever run. Grid columns match #actionsdisplay /
+   #freeactiondisplay (css/app.css); without a rule here the cards stacked
+   one per row, full width.
+
+   The active state is a class, not an inline style, on purpose: an inline
+   display would beat every stylesheet rule including Plan mode's higher-
+   specificity `#builddisplay.plan #customdisplay { display: contents }`
+   (css/plan-mode.css), which needs to keep winning while the Custom tab is
+   active and Plan mode is on. */
+#customdisplay {
+    display: none;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+#customdisplay.custom-tab-active {
+    display: grid;
+}
+
+@media (max-width: 768px) {
+    #customdisplay {
+        grid-template-columns: 1fr;
+    }
+}
+
 #customdisplay .customcard {
     display: flex;
     flex-direction: column;
     gap: 8px;
+}
+
+/* A card whose k lists only mastery and/or expertise, on a character with
+   none chosen, has no icons to show at all — this line replaces them. */
+.customcard-needspick {
+    color: #ffb257;
+    font-size: 0.85em;
+}
+
+/* A malformed saved entry render() skipped instead of throwing on. Spans the
+   full grid row rather than sitting in one column like a card would. */
+.customcards-note {
+    grid-column: 1 / -1;
+    color: #ffb257;
+    font-size: 0.9em;
+    margin-bottom: 4px;
 }
 
 .customcard-head { position: relative; padding-right: 22px; }

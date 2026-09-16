@@ -515,7 +515,8 @@
 }
 
 #builddisplay.plan #freeactiondisplay,
-#builddisplay.plan #actionsdisplay {
+#builddisplay.plan #actionsdisplay,
+#builddisplay.plan #customdisplay {
     display: contents;
 }
 

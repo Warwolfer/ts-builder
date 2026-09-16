@@ -7,14 +7,24 @@
 // inline onclick handlers, so a single document-level listener watches for
 // those clicks on the way up and runs every registered callback.
 const CardGate = (function () {
-    // Every container that holds cards with roll codes. #customdisplay does
-    // not exist yet; getElementById returns null for it and it is skipped.
+    // Every container that holds cards with roll codes.
     const CONTAINER_IDS = ["freeactiondisplay", "actionsdisplay", "saveschecks", "customdisplay"];
 
     // A card that offers a choice but has none lit. The Saves and Expertise
     // Check cards light a save type and an expertise, not a mastery, so name
     // what the card is actually asking for.
+    //
+    // A custom card whose k lists only mastery and/or expertise, on a
+    // character with none chosen, has no icons to offer at all — iconsHtml
+    // returns "" — so the icons.length check below would never see it and the
+    // roll code would stay unlocked with its placeholders unfilled.
+    // data-requires-pick (resource/custom-cards.js, cardHtml) flags that card
+    // so it is caught here first.
     function addBlockedReason(card) {
+        if (card.getAttribute("data-requires-pick") === "1" &&
+            !card.querySelector(".masterycircle.active-glow")) {
+            return "This action needs a mastery or expertise you have not chosen";
+        }
         const icons = card.querySelectorAll(".masterycircle");
         if (icons.length && !card.querySelector(".masterycircle.active-glow")) {
             return icons[0].getAttribute("data-mastery")

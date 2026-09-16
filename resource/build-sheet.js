@@ -3138,8 +3138,14 @@ function refreshAllActionFilters() {
 
     // The Custom tab is the one filter that hides the built-in cards outright
     // instead of narrowing them: its cards live in their own container.
+    // #customdisplay defaults to display:none in css/custom-cards.css, so the
+    // tab is correct on first paint, before this function has ever run — a
+    // class rather than an inline style shows it, so Plan mode's higher-
+    // specificity `#builddisplay.plan #customdisplay { display: contents }`
+    // (css/plan-mode.css) can still win over it; an inline style would beat
+    // that rule outright and break Plan mode's Custom-tab layout.
     const custom = document.getElementById("customdisplay");
-    if (custom) custom.style.display = activeFilter === "custom" ? "" : "none";
+    if (custom) custom.classList.toggle("custom-tab-active", activeFilter === "custom");
 
     const showBuiltIns = activeFilter !== "custom";
 
