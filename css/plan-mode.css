@@ -637,3 +637,69 @@
     text-underline-offset: 2px;
     cursor: help;
 }
+
+/* --- the Custom tab's cards ------------------------------------------------
+   A custom card carries its whole reference sheet: a description, the base
+   dice, a kind badge and a degree chart of up to 20 rows. That is several
+   times the height of any other card here, and `grid-auto-rows: 1fr` above
+   stretches every card in the row to match the tallest — so one custom card
+   made the entire action grid tall and mostly empty.
+
+   Plan mode is a control panel, so the card is stripped to what you configure:
+   title, the icon row, and Adv/Normal/Dis. The reading material goes, exactly
+   as .cardinfo and .cardroll do on every other card. The roll code stays in
+   the DOM because that is what the queue snapshots — hidden, never removed. */
+#builddisplay.plan .customcard .ca-card-desc,
+#builddisplay.plan .customcard .ca-card-dice,
+#builddisplay.plan .customcard .ca-kind-badges,
+#builddisplay.plan .customcard .ca-chart,
+#builddisplay.plan .customcard .customcard-needspick,
+#builddisplay.plan .customcard .rollcode {
+    display: none;
+}
+
+/* Remove is a management control, not a planning one, and it sits exactly
+   where every other card puts its Add button. */
+#builddisplay.plan .customcard-remove {
+    display: none;
+}
+
+#builddisplay.plan .customcard-head {
+    padding-right: 0;
+}
+
+#builddisplay.plan .ca-card-title {
+    font-size: 13px;
+    line-height: 1.25;
+}
+
+#builddisplay.plan .customcard {
+    gap: 4px;
+}
+
+#builddisplay.plan .customicons {
+    margin: 4px auto 2px;
+    row-gap: 2px;
+}
+
+/* Full-size pills do not fit a 178px column. Matches the scale the rest of
+   plan mode uses for its controls. */
+#builddisplay.plan .customcard .togglecontainer {
+    margin: 2px auto 4px;
+}
+
+#builddisplay.plan .customcard .togglesavechecks {
+    padding: 2px 8px;
+    margin: 1px;
+    font-size: 10px;
+    border-radius: 12px;
+}
+
+/* --- Compact --------------------------------------------------------------
+   Compact hides .cardinfo and .cardroll on every other card; the custom
+   card's equivalents are its own classes, so they need naming here. The chart
+   stays: in Compact the card is still a reference you read, unlike Plan. */
+#builddisplay.compact .customcard .ca-card-desc,
+#builddisplay.compact .customcard .ca-card-dice {
+    display: none;
+}

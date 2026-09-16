@@ -70,7 +70,16 @@
 }
 .customcard-remove:hover { color: #f87171; }
 
-.customicons { display: flex; flex-wrap: wrap; gap: 6px; }
+/* Centred with the same margin as #savesicons / #masterycheckicons /
+   #expertiseicons (css/app.css), so a custom card's icon row sits where every
+   other card's does instead of hugging the left edge. */
+.customicons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    margin: 10px auto;
+}
 
 .customcard-add {
     display: flex;
