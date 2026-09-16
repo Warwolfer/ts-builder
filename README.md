@@ -25,6 +25,9 @@ A web-based character build planner for the TerraSphere RPG system featuring mul
 │   ├── rollcode-utils.js    # Roll code tag/modifier splicing helpers
 │   ├── custom-action-codec.js # Custom action codes (byte-identical copy in ts-discord-bot)
 │   ├── pending-build.js     # Saved-build handoff: customActions carried across the import navigation
+│   ├── plan-cycles.js       # Pure cycle model: migrate, add, rename, delete (max 20)
+│   ├── plan-queue.js        # Pure queue model: rows, ordering, buff resolution
+│   ├── plan-result.js       # Pure projection: min/max, crit, crit %, custom chart summary
 │   └── components/          # Reusable UI components
 │       ├── site-nav.js      # The one nav bar, mounted into #site-nav on every page
 │       └── custom-action-card.js # Pure renderer for a custom action card (shared by build sheet and DM Screen)
@@ -36,6 +39,10 @@ A web-based character build planner for the TerraSphere RPG system featuring mul
 │   ├── build-sheet.js       # Build sheet rendering logic
 │   ├── custom-cards.js      # Build sheet Custom tab: render, select, delete, import modal
 │   ├── dm-screen.js         # DM Screen page controller
+│   ├── action-families.js   # Which family a lookup or row belongs to (takes either)
+│   ├── card-gate.js         # Why a card cannot be rolled or queued yet
+│   ├── plan-buffs.js        # Which queued buffs apply to which rows
+│   ├── plan-mode.js         # Plan Mode rail: cycle tabs, Add buttons, row rendering
 │   └── action-toggles.js    # Per-action toggle buttons and inputs
 └── css/                     # Styling
     ├── app.css              # Main application styles
@@ -43,6 +50,7 @@ A web-based character build planner for the TerraSphere RPG system featuring mul
     ├── custom-action-card.css # Custom action card chart/icon styling (shared)
     ├── custom-cards.css     # Custom tab card grid, + card, import modal
     ├── dm-screen.css        # DM Screen styles
+    ├── plan-mode.css        # Plan Mode rail, cycle tabs and result cells
     └── index.css            # Landing page styles
 ```
 
