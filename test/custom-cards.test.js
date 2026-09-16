@@ -227,3 +227,48 @@ test("dedupe ignores malformed existing entries instead of throwing", () => {
     assert.strictEqual(out.fresh.length, 0);
     assert.strictEqual(out.skipped, 1);
 });
+
+// --- the card wears the built-in action card's skeleton ---------------------
+// Matching it element for element is what gives the card the same padding,
+// title weight and type pill as its neighbours, and what lets Compact's
+// .cardinfo rule and Plan's .cardinfo / .masteryicon rules apply to it.
+
+test("the card uses the same header skeleton as a built-in action card", () => {
+    const html = CustomCards.cardHtml(entry, opts);
+    assert.match(html, /<div class="cardtop"><div class="cardtopleft"><div class="cardtitle">Enraged Tide Splitter<\/div>/);
+    assert.match(html, /<div class="filler"><\/div><p class="type">/);
+});
+
+test("the description, dice and chart live in .cardinfo", () => {
+    const html = CustomCards.cardHtml(entry, opts);
+    const info = html.slice(html.indexOf('<div class="cardinfo">'));
+    assert.match(info, /ca-card-desc/);
+    assert.match(info, /ca-card-dice/);
+    assert.match(info, /ca-chart/);
+});
+
+test("the icon row carries .masteryicon so the shared rules reach it", () => {
+    assert.match(CustomCards.cardHtml(entry, opts), /class="masteryicon customicons"/);
+});
+
+test("the type pill names the rolls the action allows", () => {
+    const html = CustomCards.cardHtml(entry, opts);
+    assert.match(html, /<p class="type">Fortitude \/ Mastery Check<\/p>/);
+});
+
+test("one allowed kind gives the pill that kind's label", () => {
+    const one = { id: "c9", action: { ...action, k: ["expertise"] }, payload: "1P" };
+    assert.match(CustomCards.cardHtml(one, opts), /<p class="type">Expertise Check<\/p>/);
+});
+
+test("an action that allows everything just says Custom", () => {
+    for (const k of [undefined, ["fortitude", "reflex", "will", "mastery", "expertise"]]) {
+        const any = { id: "c8", action: { ...action, k }, payload: "1P" };
+        assert.match(CustomCards.cardHtml(any, opts), /<p class="type">Custom<\/p>/, String(k));
+    }
+});
+
+test("the title in the pill and the header is escaped", () => {
+    const nasty = { id: "c7", action: { ...action, n: '"><img src=x>' }, payload: "1P" };
+    assert.doesNotMatch(CustomCards.cardHtml(nasty, opts), /<img src=x>/);
+});

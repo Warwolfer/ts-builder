@@ -32,10 +32,10 @@
     }
 }
 
-#customdisplay .customcard {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+/* A custom action has no role, so it cannot take a role colour. Purple is the
+   custom-action accent the DM Screen already uses. */
+.customcard {
+    border-bottom-color: #a78bfa;
 }
 
 /* A card whose k lists only mastery and/or expertise, on a character with
@@ -54,12 +54,12 @@
     margin-bottom: 4px;
 }
 
-.customcard-head { position: relative; padding-right: 22px; }
-
+/* Sits where a built-in card puts its .cardicon, and where Plan mode puts the
+   Add button. .card is already position:relative (css/build-sheet.css). */
 .customcard-remove {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: 8px;
+    right: 10px;
     background: none;
     border: none;
     color: #889;
@@ -70,15 +70,11 @@
 }
 .customcard-remove:hover { color: #f87171; }
 
-/* Centred with the same margin as #savesicons / #masterycheckicons /
-   #expertiseicons (css/app.css), so a custom card's icon row sits where every
-   other card's does instead of hugging the left edge. */
+/* .masteryicon (css/app.css) already centres this row; these two only let a
+   long icon list wrap instead of overflowing the card. */
 .customicons {
-    display: flex;
     flex-wrap: wrap;
-    justify-content: center;
     gap: 6px;
-    margin: 10px auto;
 }
 
 .customcard-add {

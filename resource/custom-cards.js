@@ -142,6 +142,25 @@
     // — the roll code stayed unlocked and copied its placeholders literally.
     // data-requires-pick tells card-gate.js this card needs a pick it cannot
     // offer.
+    // The `type` pill under the title, in the slot every other card gives its
+    // role ("Support", "Alter - Aura"). A custom action has no role, so it
+    // names what you roll instead. No `k` means the DM allowed everything,
+    // which is too long for the pill and says nothing useful.
+    function typeLabel(action) {
+        const kinds = (action.k || []).filter(function (kind) {
+            return CardView.KIND_LABELS[kind];
+        });
+        if (!kinds.length || kinds.length === Codec.KINDS.length) return "Custom";
+        return kinds.map(function (kind) { return CardView.KIND_LABELS[kind]; }).join(" / ");
+    }
+
+    // The skeleton is the built-in action card's, element for element:
+    // .cardtop > .cardtopleft > .cardtitle + .filler + .type, then .cardinfo,
+    // then the icon row, the toggles and the roll code. Matching it is what
+    // gives a custom card the same padding, the same title weight and the same
+    // pill as its neighbours — and it means Compact's `.cardinfo` rule and
+    // Plan's `.cardinfo` / `.masteryicon` rules apply to it for free, instead
+    // of needing a parallel set keyed on this card's own class names.
     function cardHtml(entry, opts) {
         const icons = iconsHtml(entry.action, opts);
         const iconsBlock = icons ||
@@ -150,11 +169,19 @@
         return '<div class="card customcard"' +
             (icons ? "" : ' data-requires-pick="1"') +
             ' data-custom-id="' + esc(entry.id) + '">' +
-            '<div class="customcard-head">' +
-            CardView.bodyHtml(entry.action) +
+            '<div class="cardtop">' +
+            '<div class="cardtopleft">' +
+            '<div class="cardtitle">' + esc(entry.action.n) + "</div>" +
+            '<div class="filler"></div>' +
+            '<p class="type">' + esc(typeLabel(entry.action)) + "</p>" +
+            "</div>" +
+            '<div class="filler"></div>' +
             '<button type="button" class="customcard-remove" data-remove title="Remove from this build">×</button>' +
             "</div>" +
-            '<div class="customicons">' + iconsBlock + "</div>" +
+            '<div class="cardinfo">' + CardView.detailHtml(entry.action) + "</div>" +
+            // .masteryicon is what addGlowEffect and Plan mode already key on;
+            // .customicons is how this file finds the row again.
+            '<div class="masteryicon customicons">' + iconsBlock + "</div>" +
             '<div class="togglecontainer">' +
             '<div class="togglesavechecks" data-adv="adv ">Adv</div>' +
             '<div class="togglesavechecks" data-adv="">Normal</div>' +

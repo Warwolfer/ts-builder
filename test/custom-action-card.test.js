@@ -72,3 +72,18 @@ test("a dice row with no label prints just the dice", () => {
     const html = Card.bodyHtml({ v: 1, n: "Bare", p: [["", "20d20"]], g: [[null, "x"]] });
     assert.match(html, /ca-card-dice">20d20</);
 });
+
+test("detailHtml is the body without the title or the kind badges", () => {
+    const html = Card.detailHtml(splitter);
+    assert.doesNotMatch(html, /ca-card-title/);
+    assert.doesNotMatch(html, /ca-kind-badge/);
+    assert.match(html, /ca-card-desc">The tide answers\./);
+    assert.match(html, /ca-card-dice">Base damage: 20d20/);
+    assert.match(html, /ca-chart/);
+});
+
+test("detailHtml drops the description when there is none", () => {
+    const html = Card.detailHtml({ v: 1, n: "Bare", g: [[null, "x"]] });
+    assert.doesNotMatch(html, /ca-card-desc/);
+    assert.match(html, /ca-chart/);
+});

@@ -72,6 +72,17 @@
         return html + "</ul>";
     }
 
+    // Everything below the title, minus the kind badges: the description, the
+    // pre-roll dice and the chart. The build sheet's Custom tab draws its own
+    // title and puts the kinds in the card's `type` pill instead, so it takes
+    // this rather than bodyHtml. The DM Screen still wants the whole thing.
+    function detailHtml(action) {
+        let html = "";
+        if (action.d) html += '<div class="ca-card-desc">' + escapeHtml(action.d) + "</div>";
+        html += diceRowsHtml(action);
+        return html + chartHtml(action);
+    }
+
     function bodyHtml(action) {
         let html = '<div class="ca-card-title">' + escapeHtml(action.n) + "</div>";
         if (action.d) html += '<div class="ca-card-desc">' + escapeHtml(action.d) + "</div>";
@@ -89,6 +100,7 @@
         kindBadge: kindBadge,
         diceRowsHtml: diceRowsHtml,
         chartHtml: chartHtml,
+        detailHtml: detailHtml,
         bodyHtml: bodyHtml,
     };
 });
