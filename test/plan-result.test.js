@@ -364,3 +364,70 @@ test("formatCritChance reads as a percentage with one decimal", () => {
     assert.strictEqual(formatCritChance(null), "");
     assert.strictEqual(formatCritChance(undefined), "");
 });
+
+const DEGREES = [
+    [20, "5d20 extra damage"],
+    [40, "4d20 extra damage"],
+    [60, "3d20 extra damage"],
+    [80, "2d20 extra damage"],
+    [1001, "1d20 extra damage"],
+    [null, "No extra damage"],
+];
+
+test("a custom save row projects like a save", () => {
+    const row = { lookup: "@custom:abc", kind: "fortitude", degrees: DEGREES };
+    const res = PlanResult.forRow(row, "?r custom PAYLOAD fortitude 7", []);
+    assert.strictEqual(res.min, 1 + 7);
+    assert.strictEqual(res.max, 100 + 7);
+    assert.strictEqual(res.critChance, null);
+    assert.strictEqual(res.critMin, null);
+});
+
+test("a custom mastery row projects like a mastery check", () => {
+    const row = { lookup: "@custom:abc", kind: "mastery", degrees: DEGREES };
+    const res = PlanResult.forRow(row, "?r custom PAYLOAD mastery A", []);
+    assert.ok(res.max > res.min);
+    assert.strictEqual(res.critChance, null);
+});
+
+test("the chart summary counts the bands and spans the extra dice", () => {
+    const s = PlanResult.chartSummary(DEGREES);
+    assert.strictEqual(s.bands, 6);
+    assert.strictEqual(s.diceMin, "0");
+    assert.strictEqual(s.diceMax, "5d20");
+    assert.strictEqual(s.label, "6 bands · 0-5d20");
+});
+
+test("a chart whose every band rolls the same dice reads as one figure", () => {
+    const s = PlanResult.chartSummary([[50, "2d20 damage"], [null, "2d20 damage"]]);
+    assert.strictEqual(s.label, "2 bands · 2d20");
+});
+
+test("a chart with no dice anywhere says so", () => {
+    const s = PlanResult.chartSummary([[50, "You are knocked prone"], [null, "Nothing"]]);
+    assert.strictEqual(s.label, "2 bands · no dice");
+});
+
+test("a missing or malformed chart summarises to null", () => {
+    for (const bad of [null, undefined, [], "nope", 5]) {
+        assert.strictEqual(PlanResult.chartSummary(bad), null, String(bad));
+    }
+});
+
+test("the degree span names the bands the min and max land in", () => {
+    // 107 is under the fifth band's 1001 bound, so it lands there, not in the
+    // open-ended last band.
+    assert.strictEqual(PlanResult.degreeSpan(DEGREES, 8, 107), "(20 or under) → (81-1001)");
+});
+
+test("a max past the last bound lands in the open-ended band", () => {
+    assert.strictEqual(PlanResult.degreeSpan(DEGREES, 8, 1100), "(20 or under) → (1002+)");
+});
+
+test("a min and max in the same band read as one band", () => {
+    assert.strictEqual(PlanResult.degreeSpan(DEGREES, 5, 19), "(20 or under)");
+});
+
+test("a degree span with no chart is empty", () => {
+    assert.strictEqual(PlanResult.degreeSpan(null, 1, 2), "");
+});

@@ -29,6 +29,7 @@ function load() {
     "resource/action-families.js",
     "resource/plan-buffs.js",
     "shared/plan-queue.js",
+    "shared/custom-action-codec.js",
     "shared/plan-result.js",
     "shared/embedcode.js",
     "shared/buildpack.js", // may not exist yet — tolerated below

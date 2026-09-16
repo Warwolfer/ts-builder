@@ -373,6 +373,16 @@
     font-weight: 600;
 }
 
+/* The chart caption under a custom row's headline: "6 bands · 0-5d20". A <u>
+   only because the cell already spends <i> on the label and <b> on the figure;
+   the underline is removed so it reads as a caption, not a link. */
+.plan-row-result u {
+    color: #7d879e;
+    text-decoration: none;
+    font-size: 9px;
+    white-space: nowrap;
+}
+
 /* Coloured for what the roll produces, reusing the roles the app already
    speaks: the bot's support blue, offense red and defense orange, plus the
    green already in this palette. Brightened a step for 11px text on the dark

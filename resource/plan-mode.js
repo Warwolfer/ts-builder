@@ -348,14 +348,22 @@ const PlanMode = (function () {
     // The projection is named for what it actually produces, so a heal does not
     // read "Damage". The families already encode this - heal and buff are their
     // own, and everything else that rolls a projectable result deals damage.
-    function resultLabel(lookup, tags) {
+    //
+    // Takes the whole row, not its lookup: a custom row's family depends on the
+    // kind the player picked, and familiesOf can only see that on the row. Given
+    // a bare string it returns ["customCheck"] alone, which misses the branch
+    // below and labels the cell "Damage".
+    function resultLabel(row, tags) {
         const families = window.ActionFamilies
-            ? window.ActionFamilies.familiesOf(lookup)
+            ? window.ActionFamilies.familiesOf(row)
             : [];
         // A save or check produces a number to compare against a DC, not damage.
+        // A custom row is always one of those: its headline is the d100 total
+        // that selects a band, so it reads "Result" even before a kind is picked.
         if (families.indexOf("save") !== -1 ||
             families.indexOf("masteryCheck") !== -1 ||
-            families.indexOf("expertiseCheck") !== -1) {
+            families.indexOf("expertiseCheck") !== -1 ||
+            families.indexOf("customCheck") !== -1) {
             return "Result";
         }
 
@@ -393,8 +401,9 @@ const PlanMode = (function () {
     function resultCellsHtml(resolved) {
         const roll = rollHtmlFor(resolved);
         const text = roll ? roll.replace(/<[^>]*>/g, "") : "";
+        // The whole row, so the custom branch can read `kind` and `degrees`.
         const res = window.PlanResult
-            ? window.PlanResult.forRow(resolved.lookup, text, resolved.tags)
+            ? window.PlanResult.forRow(resolved, text, resolved.tags)
             : null;
         const range = res ? window.PlanResult.formatRange(res) : "";
         const crit = res ? window.PlanResult.formatCrit(res) : "";
@@ -408,7 +417,7 @@ const PlanMode = (function () {
                   res.risky.dice + "d100, +" + res.risky.remainder + " left"
                 : " · Risky converts nothing (40 needed per d100)")
             : "";
-        const label = resultLabel(resolved.lookup, resolved.tags);
+        const label = resultLabel(resolved, resolved.tags);
         // The colour keys off what it produces, not the spread prefix.
         const kind = /Heal$/.test(label) ? "heal"
             : /Buff$/.test(label) ? "buff"
@@ -422,12 +431,26 @@ const PlanMode = (function () {
               '"><i>Crit %</i><b>' + escape(critPct) + "</b></span>"
             : "";
 
+        // A custom action does not resolve to a number, it resolves to a band on
+        // the DM's chart. The headline stays the d100 total that picks the band;
+        // the chart rides underneath as a caption, and the tooltip names the
+        // bands the projected floor and ceiling actually land in.
+        const chart = res && res.degrees
+            ? window.PlanResult.chartSummary(res.degrees)
+            : null;
+        const span = res && res.degrees
+            ? window.PlanResult.degreeSpan(res.degrees, res.min, res.max)
+            : "";
+        const chartNote = span ? " · lands " + span : "";
+
         let out = '<span class="plan-row-result is-' + kind + '"' +
             (range ? ' title="Projected ' + escape(label.toLowerCase()) +
-                     " range" + escape(note) + escape(riskyNote) + '"' : "") +
+                     " range" + escape(note) + escape(riskyNote) +
+                     escape(chartNote) + '"' : "") +
             ">" + (range
                 ? "<i>" + escape(label) + "</i><b>" + escape(range) + "</b>"
                 : "") +
+            (chart ? "<u>" + escape(chart.label) + "</u>" : "") +
             "</span>";
         if (crit) {
             // The inline figure is the crit you actually hit. The rarer tiers -

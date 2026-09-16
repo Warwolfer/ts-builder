@@ -172,6 +172,81 @@ const PlanResult = (function () {
         return { min: 1 + base, max: 100 + base, critMin: null, critMax: null, critChance: null };
     }
 
+    // Read at call time, not at load time: this file is a plain IIFE that runs
+    // the moment the page parses it, and the codec's script tag may come after.
+    function codec() {
+        return typeof window !== "undefined" ? window.CustomActionCodec : null;
+    }
+
+    // A custom action resolves to a band on a chart, not to a number, so the
+    // headline range is the d100 check that selects the band — a save's bare
+    // addend, or a rank-modified check — and the chart travels as its own
+    // summary. Crit is null: no custom handler has a crit rule.
+    // The existing builders this mirrors, verbatim from BUILDERS below:
+    //   "@save": function (base, rank, bare) { return check(base + bare); }
+    //   "@mastery-check": check
+    // A save's bonus is a bare number in the roll code, so it lands in `bare`;
+    // a check's bonus is a rank letter, which is not a number and so is not in
+    // `bare` at all. Same split, same two lines.
+    const SAVE_KINDS = { fortitude: true, reflex: true, will: true };
+
+    function customResult(row, rollText) {
+        const parsed = baseOf(rollText);
+        const base = SAVE_KINDS[row.kind] ? parsed.base + parsed.bare : parsed.base;
+        const out = check(base);
+        out.degrees = Array.isArray(row.degrees) ? row.degrees : null;
+        return out;
+    }
+
+    /**
+     * How many bands the chart has, and the span of extra dice across them.
+     * "6 bands · 0-5d20". A band whose text names no dice counts as 0.
+     */
+    function chartSummary(degrees) {
+        if (!Array.isArray(degrees) || !degrees.length) return null;
+        let min = null;
+        let max = null;
+        let minText = "0";
+        let maxText = "0";
+        for (let i = 0; i < degrees.length; i++) {
+            const c = codec();
+            const dice = c ? c.diceIn(String((degrees[i] && degrees[i][1]) || "")) : [];
+            let count = 0;
+            let text = "0";
+            if (dice && dice.length) {
+                // The biggest single roll a band can produce, so two bands are
+                // ordered by what they cost, not by how many dice they name.
+                let best = 0;
+                for (let d = 0; d < dice.length; d++) {
+                    const size = dice[d].count * dice[d].sides;
+                    if (size > best) { best = size; text = dice[d].raw; }
+                }
+                count = best;
+            }
+            if (min === null || count < min) { min = count; minText = text; }
+            if (max === null || count > max) { max = count; maxText = text; }
+        }
+        const label = minText === maxText
+            ? (maxText === "0" ? "no dice" : maxText)
+            : minText + "-" + maxText;
+        return {
+            bands: degrees.length,
+            diceMin: minText,
+            diceMax: maxText,
+            label: degrees.length + " bands · " + label,
+        };
+    }
+
+    /** The bands the projected minimum and maximum land in. */
+    function degreeSpan(degrees, min, max) {
+        const c = codec();
+        if (!c || !Array.isArray(degrees) || !degrees.length) return "";
+        // matchDegree returns an index, which is what rangeLabel takes.
+        const loLabel = c.rangeLabel(degrees, c.matchDegree(degrees, min));
+        const hiLabel = c.rangeLabel(degrees, c.matchDegree(degrees, max));
+        return loLabel === hiLabel ? loLabel : loLabel + " → " + hiLabel;
+    }
+
     const BUILDERS = {
         // --- 1d100, ×2 on a nat 100 -------------------------------------------
         attack: d100Double,
@@ -345,8 +420,11 @@ const PlanResult = (function () {
     // Returns null when the action has no roll worth projecting — a passive, a
     // bonus action, or one whose result is not a number (Charge's pool, a
     // narrative effect). The caller renders an em dash for those.
-    function forRow(lookup, rollText, tags) {
+    function forRow(rowOrLookup, rollText, tags) {
+        const row = typeof rowOrLookup === "string" ? { lookup: rowOrLookup } : (rowOrLookup || {});
+        const lookup = row.lookup;
         if (!lookup || !rollText) return null;
+        if (lookup.indexOf("@custom:") === 0) return customResult(row, rollText);
         const parsed = baseOf(rollText);
         const rank = masteryRankLetter(rollText);
         const list = tags || [];
@@ -402,6 +480,8 @@ const PlanResult = (function () {
         formatRange: formatRange,
         formatCrit: formatCrit,
         formatCritChance: formatCritChance,
+        chartSummary: chartSummary,
+        degreeSpan: degreeSpan,
         RANK_VALUE: RANK_VALUE,
     };
 })();
