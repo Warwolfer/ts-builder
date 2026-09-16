@@ -32,11 +32,19 @@ const PlanMode = (function () {
         return found ? (found.textContent || "").trim() : "";
     }
 
-    // Which action this card is. Action cards carry data-action-id; the
-    // save/check cards are identified by their title.
+    // Which action this card is. Action cards carry data-action-id; a custom
+    // card carries data-custom-id; the save/check cards are identified by
+    // their title.
+    //
+    // The data-custom-id check must come before the title lookup: a custom
+    // card is rebuilt on the built-in action card's skeleton, so it now has a
+    // .cardtitle too. A DM-authored action named "Saves" would otherwise
+    // queue as the Saves card, with the wrong roll code and families.
     function lookupForCard(card) {
         const id = card.getAttribute("data-action-id");
         if (id) return id;
+        const customId = card.getAttribute("data-custom-id");
+        if (customId) return "@custom:" + customId;
         const title = textOf(card, ".cardtitle");
         return CHECK_CARD_LOOKUPS[title] || null;
     }
@@ -120,6 +128,21 @@ const PlanMode = (function () {
         };
     }
 
+    // The chart, copied at Add time. The row has to render after the card is
+    // gone — a different tab, a deleted card — so it cannot go back to the
+    // DOM for this; it has to come from the build state instead.
+    function degreesForCustom(id) {
+        const sheet = window.buildSheetInstance;
+        if (!sheet) return null;
+        const list = sheet.state.getState().customActions || [];
+        for (let i = 0; i < list.length; i++) {
+            if (list[i] && list[i].id === id && list[i].action) {
+                return list[i].action.g || null;
+            }
+        }
+        return null;
+    }
+
     function snapshotCard(card) {
         const lookup = lookupForCard(card);
         if (!lookup) return null;
@@ -130,6 +153,8 @@ const PlanMode = (function () {
         const mastery = masteryId && window.masteries
             ? window.masteries.find(function (m) { return m.lookup === masteryId; })
             : null;
+        const customId = card.getAttribute("data-custom-id");
+        const kindIcon = customId ? card.querySelector(".masterycircle.active-glow") : null;
 
         return window.PlanQueue.makeRow({
             lookup: lookup,
@@ -142,6 +167,8 @@ const PlanMode = (function () {
             tags: activeTags(card),
             rollHtml: rollCode ? rollCode.innerHTML : "",
             dice: textOf(card, ".cardroll"),
+            kind: kindIcon ? kindIcon.getAttribute("data-kind") || "" : "",
+            degrees: customId ? degreesForCustom(customId) : null,
         });
     }
 

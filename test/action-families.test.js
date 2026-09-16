@@ -73,3 +73,32 @@ test("familiesOf reports every family a lookup belongs to", () => {
     assert.deepStrictEqual(ActionFamilies.familiesOf("@save"), ["save"]);
     assert.deepStrictEqual(ActionFamilies.familiesOf("torment"), []);
 });
+
+test("a string lookup still returns its families", () => {
+    assert.deepStrictEqual(ActionFamilies.familiesOf("@save").sort(), ["save"]);
+});
+
+test("a row is accepted in place of a lookup", () => {
+    assert.deepStrictEqual(
+        ActionFamilies.familiesOf({ lookup: "@save" }).sort(),
+        ActionFamilies.familiesOf("@save").sort(),
+    );
+});
+
+test("a custom row is a customCheck plus the family of its picked kind", () => {
+    const of = (kind) => ActionFamilies.familiesOf({ lookup: "@custom:abc", kind }).sort();
+    assert.deepStrictEqual(of("fortitude"), ["customCheck", "save"]);
+    assert.deepStrictEqual(of("reflex"), ["customCheck", "save"]);
+    assert.deepStrictEqual(of("will"), ["customCheck", "save"]);
+    assert.deepStrictEqual(of("mastery"), ["customCheck", "masteryCheck"]);
+    assert.deepStrictEqual(of("expertise"), ["customCheck", "expertiseCheck"]);
+});
+
+test("a custom row with no kind picked is only a customCheck", () => {
+    assert.deepStrictEqual(ActionFamilies.familiesOf({ lookup: "@custom:abc" }), ["customCheck"]);
+    assert.deepStrictEqual(ActionFamilies.familiesOf({ lookup: "@custom:abc", kind: "nonsense" }), ["customCheck"]);
+});
+
+test("a custom lookup as a bare string has no kind to read", () => {
+    assert.deepStrictEqual(ActionFamilies.familiesOf("@custom:abc"), ["customCheck"]);
+});

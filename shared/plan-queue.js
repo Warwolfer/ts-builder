@@ -49,6 +49,12 @@ const PlanQueue = (function () {
             tags: Array.isArray(fields.tags) ? fields.tags.slice() : [],
             rollHtml: str(fields.rollHtml),
             dice: str(fields.dice),
+            // The icon kind picked on a custom card (fortitude/reflex/will/
+            // mastery/expertise) and its degree chart, copied at Add time —
+            // familiesOf(row) reads kind to know which family the row's roll
+            // belongs to, and the row has to render after the card is gone.
+            kind: str(fields.kind),
+            degrees: Array.isArray(fields.degrees) ? fields.degrees : null,
             targetSelf: entry ? entry.target !== "other" : true,
             manualMod: 0,
             dismissed: [],
@@ -115,8 +121,11 @@ const PlanQueue = (function () {
         };
     }
 
-    function familiesOf(lookup) {
-        return window.ActionFamilies.familiesOf(lookup);
+    // Takes the row, not just its lookup: a custom row's family depends on
+    // the kind the player lit on the card, which ActionFamilies.familiesOf
+    // reads off row.kind for a @custom: lookup.
+    function familiesOf(row) {
+        return window.ActionFamilies.familiesOf(row);
     }
 
     function appliesToRow(pooled, families) {
@@ -174,7 +183,7 @@ const PlanQueue = (function () {
 
         for (let i = 0; i < rows.length; i++) {
             const row = rows[i];
-            const families = familiesOf(row.lookup);
+            const families = familiesOf(row);
             const chips = [];
             let total = 0;
 

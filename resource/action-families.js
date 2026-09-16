@@ -28,6 +28,10 @@ const ActionFamilies = (function () {
     const masteryCheck = ["@mastery-check"];
     const expertiseCheck = ["@expertise-check"];
 
+    // customCheck has no entry here on purpose: every other family is a fixed
+    // list of lookups, but a custom action is its own id (@custom:<id>), so
+    // there is no list to put it in. familiesOf recognizes the @custom:
+    // prefix directly instead of matching against ALL.
     const ALL = {
         attack: attack,
         heal: heal,
@@ -38,9 +42,33 @@ const ActionFamilies = (function () {
         expertiseCheck: expertiseCheck,
     };
 
+    // Which family a custom action's roll belongs to depends on the type the
+    // player lit on the card, not on the lookup — the same pasted action can
+    // be rolled as a Fortitude save or as a Mastery check. That is why
+    // familiesOf takes the row and not just a lookup string.
+    const CUSTOM_KIND_FAMILY = {
+        fortitude: "save",
+        reflex: "save",
+        will: "save",
+        mastery: "masteryCheck",
+        expertise: "expertiseCheck",
+    };
+
     // A lookup belongs to several families at once — Reckless Attack is both
     // "attack" and "mainAction" — so this returns all of them.
-    function familiesOf(lookup) {
+    //
+    // Accepts either a lookup string (every existing caller) or a row object
+    // with a .lookup and, for a custom row, a .kind — a bare string has no
+    // kind to read, so it can only ever report "customCheck".
+    function familiesOf(rowOrLookup) {
+        const row = typeof rowOrLookup === "string" ? { lookup: rowOrLookup } : (rowOrLookup || {});
+        const lookup = row.lookup;
+
+        if (typeof lookup === "string" && lookup.indexOf("@custom:") === 0) {
+            const family = CUSTOM_KIND_FAMILY[row.kind];
+            return family ? ["customCheck", family] : ["customCheck"];
+        }
+
         const out = [];
         for (const name of Object.keys(ALL)) {
             if (ALL[name].indexOf(lookup) !== -1) out.push(name);

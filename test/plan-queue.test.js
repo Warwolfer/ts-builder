@@ -476,3 +476,19 @@ test("makeRow carries the type label, not just the mastery name", () => {
     assert.strictEqual(resolveQueue([row])[0].typeLabel, "Reflex");
     assert.strictEqual(makeRow({ lookup: "attack" }).typeLabel, "");
 });
+
+test("makeRow carries kind and degrees through for a custom row", () => {
+    const row = makeRow({
+        lookup: "@custom:abc",
+        kind: "mastery",
+        degrees: [1, 2, 3],
+    });
+    assert.strictEqual(row.kind, "mastery");
+    assert.deepStrictEqual(row.degrees, [1, 2, 3]);
+});
+
+test("makeRow defaults kind and degrees when absent", () => {
+    const row = makeRow({ lookup: "attack" });
+    assert.strictEqual(row.kind, "");
+    assert.strictEqual(row.degrees, null);
+});
