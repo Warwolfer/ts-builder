@@ -88,6 +88,57 @@
     color: #cfd3e0;
 }
 
+/* Cycle tabs. Same shape as the DM Screen's tab bar (css/dm-screen.css), a
+   size down, because the rail's type is smaller than that page's. */
+.plan-cycles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #2f374a;
+}
+
+.plan-cycle {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 9px;
+    border: 1px solid #2f374a;
+    border-bottom: none;
+    border-radius: 5px 5px 0 0;
+    background-color: #1b2030;
+    color: #8e97ad;
+    font-size: 11px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.plan-cycle.active {
+    background-color: #2c3448;
+    border-color: #6e51cb;
+    color: #fff;
+}
+
+.plan-cycle-close {
+    padding: 0 2px;
+    border-radius: 3px;
+    color: #7d879e;
+    font-weight: bold;
+}
+.plan-cycle-close:hover { background-color: #a33b3b; color: #fff; }
+
+.plan-cycle-add { color: #a78bfa; font-weight: bold; }
+
+.plan-cycle input {
+    width: 8em;
+    padding: 0 3px;
+    border: 1px solid #6e51cb;
+    border-radius: 3px;
+    background-color: #11141c;
+    color: #fff;
+    font: inherit;
+}
+
 .plan-rail-head {
     display: flex;
     align-items: center;

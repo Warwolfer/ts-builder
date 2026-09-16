@@ -9,7 +9,15 @@
 // different masteries. Reconfiguring a card afterwards does not touch rows
 // already added; delete and re-add instead.
 const PlanMode = (function () {
-    const rows = [];
+    let cycles = [{ name: "Cycle 1", rows: [] }];
+    let active = 0;
+
+    // The active cycle's rows. Every queue operation goes through here, so a
+    // tab switch is the only thing that has to change and the rest of this
+    // file keeps reading as though there were one queue.
+    function activeRows() {
+        return cycles[active].rows;
+    }
 
     // The three cards in #saveschecks have no actions.js entry, so they carry
     // the reserved pseudo-lookups from action-families.js.
@@ -140,12 +148,13 @@ const PlanMode = (function () {
     function add(card) {
         const row = snapshotCard(card);
         if (!row) return null;
-        rows.push(row);
+        activeRows().push(row);
         refresh();
         return row;
     }
 
     function remove(uid) {
+        const rows = activeRows();
         for (let i = 0; i < rows.length; i++) {
             if (rows[i].uid === uid) {
                 rows.splice(i, 1);
@@ -156,6 +165,7 @@ const PlanMode = (function () {
     }
 
     function move(uid, toIndex) {
+        const rows = activeRows();
         let from = -1;
         for (let i = 0; i < rows.length; i++) {
             if (rows[i].uid === uid) { from = i; break; }
@@ -167,15 +177,63 @@ const PlanMode = (function () {
     }
 
     function clear() {
+        const rows = activeRows();
         rows.length = 0;
         refresh();
     }
 
     function rowByUid(uid) {
+        const rows = activeRows();
         for (let i = 0; i < rows.length; i++) {
             if (rows[i].uid === uid) return rows[i];
         }
         return null;
+    }
+
+    // Cycle management. Each mutates cycles/active and always persists and
+    // re-renders, mirroring what add/remove/move/clear do within one cycle.
+    function setActive(index) {
+        if (index < 0 || index >= cycles.length || index === active) return;
+        active = index;
+        persist();
+        refresh();
+    }
+
+    function addCycle() {
+        cycles = window.PlanCycles.addCycle(cycles);
+        active = cycles.length - 1;
+        persist();
+        refresh();
+    }
+
+    // PlanCycles.renameCycle shares the renamed cycle's rows array by
+    // reference rather than cloning it - deliberate, so a rename cannot drop
+    // queued rows - and safe here because `cycles` is reassigned wholesale
+    // right after and the old reference is simply discarded.
+    function renameCycle(index, name) {
+        cycles = window.PlanCycles.renameCycle(cycles, index, name);
+        persist();
+        refresh();
+    }
+
+    function deleteCycle(index) {
+        const result = window.PlanCycles.deleteCycle(cycles, index);
+        cycles = result.cycles;
+        active = result.active;
+        persist();
+        refresh();
+    }
+
+    function getCycles() {
+        // A copy, same reasoning as getRows below: mutating the queue must
+        // go through add/remove/move/clear/addCycle/renameCycle/deleteCycle.
+        return cycles.map(function (cycle) {
+            return { name: cycle.name, rows: cycle.rows.slice() };
+        });
+    }
+
+    function getActive() {
+        return active;
     }
 
     function escape(text) {
@@ -196,7 +254,10 @@ const PlanMode = (function () {
         const withMod = window.RollCodeUtils.setRollPlanMod(resolved.rollHtml, resolved.total);
         const threadInput = document.getElementById("threadcodereplace");
         const liveCode = threadInput ? threadInput.value : "";
-        return window.RollCodeUtils.setThreadCode(withMod, liveCode);
+        return window.RollCodeUtils.setThreadCode(
+            withMod,
+            window.RollCodeUtils.withCycleSuffix(liveCode, cycles[active].name),
+        );
     }
 
     function chipHtml(chip) {
@@ -405,14 +466,35 @@ const PlanMode = (function () {
         return html;
     }
 
+    // The tab bar, matching the DM Screen's (resource/dm-screen.js /
+    // css/dm-screen.css) so the two pages agree on shape.
+    function renderCycleTabs() {
+        let html = "";
+        for (let i = 0; i < cycles.length; i++) {
+            html += '<div class="plan-cycle' + (i === active ? " active" : "") +
+                '" data-cycle="' + i + '" title="Double-click to rename">' +
+                '<span class="plan-cycle-name">' + escape(cycles[i].name) + "</span>" +
+                (cycles.length > 1
+                    ? '<span class="plan-cycle-close" data-close="' + i + '" title="Delete this cycle">×</span>'
+                    : "") +
+                "</div>";
+        }
+        if (cycles.length < window.PlanCycles.MAX_CYCLES) {
+            html += '<div class="plan-cycle plan-cycle-add" data-add-cycle title="Add a cycle">+</div>';
+        }
+        return html;
+    }
+
     function refresh() {
         const rail = document.getElementById("plan-rail");
         if (!rail) return;
 
+        const rows = activeRows();
         const resolved = window.PlanQueue.resolveQueue(rows);
 
         const count = resolved.length;
-        let html = '<div class="plan-rail-head">Queue';
+        let html = '<div class="plan-cycles">' + renderCycleTabs() + "</div>";
+        html += '<div class="plan-rail-head">Queue';
         html += count ? " · " + count + (count === 1 ? " action" : " actions") : "";
         // One queue is one turn, so clearing it is how you start the next.
         // Named for what it does rather than what it means.
@@ -473,7 +555,13 @@ const PlanMode = (function () {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify({
                 fingerprint: fingerprint(),
-                rows: rows,
+                active: active,
+                // No per-row mapping today (persistNow never inlined one -
+                // it wrote `rows` straight through), so this is the same
+                // rows array, just moved under the cycle it belongs to.
+                cycles: cycles.map(function (cycle) {
+                    return { name: cycle.name, rows: cycle.rows };
+                }),
             }));
         } catch (e) {
             // Private mode or a full quota: the queue simply will not survive
@@ -546,6 +634,19 @@ const PlanMode = (function () {
         return html;
     }
 
+    // The per-row restore path, extracted so persistNow's cycle map and this
+    // file's one existing restore path share it rather than each retyping
+    // the row fields. Mutating `fields` in place is fine: it is part of the
+    // object graph JSON.parse just built for this call alone. A malformed
+    // entry (null, a primitive, missing fields) throws here or inside
+    // makeRow - deliberately not guarded - so the catch in restore() below
+    // can drop the whole restore rather than leave a reconstructed row
+    // half-built.
+    function restoreRow(fields) {
+        fields.rollHtml = safeRollHtml(fields.rollHtml);
+        return window.PlanQueue.makeRow(fields);
+    }
+
     function restore() {
         let saved = null;
         try {
@@ -562,32 +663,33 @@ const PlanMode = (function () {
             return;
         }
 
-        if (!parsed || !Array.isArray(parsed.rows)) return;
+        if (!parsed || typeof parsed !== "object") return;
         if (parsed.fingerprint !== fingerprint()) {
-            // A different build. Drop it rather than show stale roll codes.
+            // The build changed; every cycle is meaningless, not just the
+            // active one.
+            try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
+            return;
+        }
+
+        const migrated = window.PlanCycles.migrateStored(parsed);
+        if (!migrated) {
             try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
             return;
         }
 
         try {
-            rows.length = 0;
-            for (let i = 0; i < parsed.rows.length; i++) {
-                const fields = parsed.rows[i];
-                // Mutating this in place is fine: fields is part of the
-                // object graph JSON.parse just built for this call alone. A
-                // malformed entry (null, a primitive, missing fields) throws
-                // here or inside makeRow - deliberately not guarded - so the
-                // catch below can drop the whole queue rather than leave a
-                // reconstructed row half-built.
-                fields.rollHtml = safeRollHtml(fields.rollHtml);
-                rows.push(window.PlanQueue.makeRow(fields));
-            }
+            cycles = migrated.cycles.map(function (cycle) {
+                return { name: cycle.name, rows: cycle.rows.map(restoreRow).filter(Boolean) };
+            });
+            active = migrated.active;
         } catch (e) {
             // The queue is turn-scoped scratch: a malformed stored row costs
             // the user their queue, never their build sheet. Anything that
             // survives JSON.parse but not reconstruction gets dropped, same
-            // as a fingerprint mismatch.
-            rows.length = 0;
+            // as a fingerprint mismatch - for every cycle, since one bad row
+            // aborts this whole rebuild.
+            cycles = [{ name: "Cycle 1", rows: [] }];
+            active = 0;
             try { localStorage.removeItem(STORAGE_KEY); } catch (e2) { /* ignore */ }
         }
     }
@@ -623,6 +725,30 @@ const PlanMode = (function () {
                 return;
             }
 
+            if (target.closest("[data-add-cycle]")) {
+                addCycle();
+                return;
+            }
+
+            const closeEl = target.closest("[data-close]");
+            if (closeEl) {
+                const index = parseInt(closeEl.getAttribute("data-close"), 10);
+                const cycle = cycles[index];
+                if (cycle && confirm('Delete "' + cycle.name + '" and its rows?')) {
+                    deleteCycle(index);
+                }
+                return;
+            }
+
+            // Ignore a click on the tab itself while its name is mid-rename
+            // (the input sits inside the same [data-cycle] element), so a
+            // click meant for the input does not also switch tabs.
+            const cycleEl = target.closest("[data-cycle]");
+            if (cycleEl && !cycleEl.querySelector("input")) {
+                setActive(parseInt(cycleEl.getAttribute("data-cycle"), 10));
+                return;
+            }
+
             // Chips toggle themselves off and back on for the row they sit in.
             // Only applied and dismissed chips toggle. A blocked chip has an
             // unmet condition to fix, not a choice to make; a superseded one is
@@ -642,6 +768,44 @@ const PlanMode = (function () {
                     refresh();
                 }
             }
+        });
+
+        // Double-click a tab's name to rename it inline. Matches
+        // resource/dm-screen.js's cycle-rename handler shape exactly,
+        // including the one-shot `done` guard: re-rendering on either path
+        // removes this input from the page, and removing a focused input
+        // fires blur in some browsers - so without the guard, an Escape that
+        // cancels the rename would still commit it on the way out, via the
+        // blur handler firing after the keydown handler already called
+        // finish(false).
+        rail.addEventListener("dblclick", function (event) {
+            const nameSpan = event.target.closest(".plan-cycle-name");
+            if (!nameSpan) return;
+            const cycleEl = nameSpan.closest("[data-cycle]");
+            if (!cycleEl || cycleEl.querySelector("input")) return;
+            const index = parseInt(cycleEl.getAttribute("data-cycle"), 10);
+            if (!cycles[index]) return;
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.maxLength = 60;
+            input.value = cycles[index].name;
+            nameSpan.replaceWith(input);
+            input.focus();
+            input.select();
+
+            let done = false;
+            const finish = function (keep) {
+                if (done) return;
+                done = true;
+                if (keep) renameCycle(index, input.value);
+                else refresh();
+            };
+            input.addEventListener("keydown", function (e) {
+                if (e.key === "Enter") finish(true);
+                if (e.key === "Escape") finish(false);
+            });
+            input.addEventListener("blur", function () { finish(true); });
         });
 
         rail.addEventListener("change", function (event) {
@@ -818,7 +982,7 @@ const PlanMode = (function () {
         // A copy: mutating the queue must go through add/remove/move/clear, each
         // of which re-resolves and re-renders. Handing out the live array invites
         // a splice that leaves the rail showing stale totals.
-        getRows: function () { return rows.slice(); },
+        getRows: function () { return activeRows().slice(); },
         add: add,
         remove: remove,
         move: move,
@@ -829,6 +993,12 @@ const PlanMode = (function () {
         installAddButtons: installAddButtons,
         persist: persist,
         restore: restore,
+        getCycles: getCycles,
+        getActive: getActive,
+        setActive: setActive,
+        addCycle: addCycle,
+        renameCycle: renameCycle,
+        deleteCycle: deleteCycle,
     };
 })();
 
