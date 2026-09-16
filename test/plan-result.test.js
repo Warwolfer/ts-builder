@@ -386,8 +386,43 @@ test("a custom save row projects like a save", () => {
 test("a custom mastery row projects like a mastery check", () => {
     const row = { lookup: "@custom:abc", kind: "mastery", degrees: DEGREES };
     const res = PlanResult.forRow(row, "?r custom PAYLOAD mastery A", []);
-    assert.ok(res.max > res.min);
+    // Rank A is worth 30. Pinned exactly: `res.max > res.min` alone is true of
+    // check(anything), so it would pass an implementation that dropped the rank.
+    assert.strictEqual(res.min, 1 + 30);
+    assert.strictEqual(res.max, 100 + 30);
     assert.strictEqual(res.critChance, null);
+});
+
+test("a check row does not also collect a bare number the way a save does", () => {
+    // The whole point of the SAVE_KINDS split. Without it both branches read
+    // base + bare, and no other test can tell, because a real mastery roll code
+    // carries no bare number to expose the difference.
+    const row = { lookup: "@custom:abc", kind: "mastery", degrees: DEGREES };
+    const res = PlanResult.forRow(row, "?r custom PAYLOAD mastery A 7", []);
+    assert.strictEqual(res.min, 1 + 30);
+    assert.strictEqual(res.max, 100 + 30);
+});
+
+test("the encoded payload is not parsed as a modifier", () => {
+    // base64url's alphabet includes "-", so a payload can contain "-8" and
+    // modsIn, which scans the dice half unanchored, used to add it. This is the
+    // real shape: "?r custom <payload> <kind> <bonus>".
+    const row = { lookup: "@custom:abc", kind: "fortitude", degrees: DEGREES };
+    const payload = "1bcmxCsIwEAbgVzn--YZLrCJ5Aicdk-8HhyhQyBpLcYcl_2L4fAE";
+    const res = PlanResult.forRow(
+        row,
+        "?r custom " + payload + " fortitude 7 # Vow · Fortitude · Lune · TS1",
+        [],
+    );
+    assert.strictEqual(res.min, 1 + 7);
+    assert.strictEqual(res.max, 100 + 7);
+});
+
+test("a payload that looks like a rank letter run is not parsed as ranks", () => {
+    const row = { lookup: "@custom:abc", kind: "fortitude", degrees: DEGREES };
+    const res = PlanResult.forRow(row, "?r custom a-5s+40b fortitude 7", []);
+    assert.strictEqual(res.min, 1 + 7);
+    assert.strictEqual(res.max, 100 + 7);
 });
 
 test("the chart summary counts the bands and spans the extra dice", () => {
@@ -401,6 +436,13 @@ test("the chart summary counts the bands and spans the extra dice", () => {
 test("a chart whose every band rolls the same dice reads as one figure", () => {
     const s = PlanResult.chartSummary([[50, "2d20 damage"], [null, "2d20 damage"]]);
     assert.strictEqual(s.label, "2 bands · 2d20");
+});
+
+test("bands naming different dice of the same size do not read as one figure", () => {
+    // 5d4 and 1d20 both top out at 20, so neither displaces the other and the
+    // label used to collapse onto whichever band came first.
+    const s = PlanResult.chartSummary([[50, "5d4 damage"], [null, "1d20 damage"]]);
+    assert.strictEqual(s.label, "2 bands · mixed");
 });
 
 test("a chart with no dice anywhere says so", () => {
