@@ -3180,6 +3180,20 @@ function refreshAllActionFilters() {
     }
 }
 
+// The text a roll code element copies as: its own content, with any "Copied!"
+// tooltip a previous copy left behind stripped out first.
+//
+// Its own function because Plan Mode's Copy All reads the same elements. One
+// definition means a single click and a bulk copy can never disagree about what
+// the code actually is.
+function rollCodeText(element) {
+    const clone = element.cloneNode(true);
+    clone.querySelectorAll(".copy-tooltip").forEach(function (tooltip) {
+        tooltip.remove();
+    });
+    return clone.innerText || clone.textContent;
+}
+
 // Copy rollcode to clipboard function
 function copyRollCode(element) {
     // Locked means the card still has a mastery or type to pick (see
@@ -3203,15 +3217,7 @@ function copyRollCode(element) {
         return;
     }
 
-    // Clone the element to get text without any existing tooltips
-    const clone = element.cloneNode(true);
-
-    // Remove any existing copy-tooltip elements from the clone
-    const existingTooltips = clone.querySelectorAll(".copy-tooltip");
-    existingTooltips.forEach(tooltip => tooltip.remove());
-
-    // Get the text content without HTML tags or tooltips
-    const text = clone.innerText || clone.textContent;
+    const text = rollCodeText(element);
 
     // Copy to clipboard
     navigator.clipboard

@@ -153,8 +153,31 @@
     font-weight: 600;
 }
 
-.plan-rail-clear {
+/* The wrapper carries the push to the right, not either control, so the row
+   still lines up when Copy All is hidden. */
+.plan-rail-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     margin-left: auto;
+}
+
+.plan-rail-copy {
+    padding: 2px 9px;
+    background-color: #2c3448;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 400;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.plan-rail-copy:hover {
+    background-color: #4a68a8;
+    color: #fff;
+}
+
+.plan-rail-clear {
     padding: 2px 9px;
     background-color: #2c3448;
     border-radius: 5px;

@@ -12,6 +12,12 @@ const PlanMode = (function () {
     let cycles = [{ name: "Cycle 1", rows: [] }];
     let active = 0;
 
+    // Which paste block Copy All hands over next. It is only ever non-zero when
+    // the active cycle needs more than one Discord message. refresh() puts it
+    // back to 0, and every queue change already goes through refresh(), so an
+    // edit mid-paste always restarts at block 1.
+    let copyIndex = 0;
+
     // The active cycle's rows. Every queue operation goes through here, so a
     // tab switch is the only thing that has to change and the rest of this
     // file keeps reading as though there were one queue.
@@ -299,6 +305,72 @@ const PlanMode = (function () {
         );
     }
 
+    // The active cycle's roll codes, read back off the rendered rail rather
+    // than re-derived from rollHtmlFor. The rail only ever draws the active
+    // cycle, so "active cycle only" comes for free — and the text is character
+    // for character what clicking one row would have copied, because it goes
+    // through the same rollCodeText.
+    function railRollCodes() {
+        const rail = document.getElementById("plan-rail");
+        if (!rail) return [];
+        const nodes = rail.querySelectorAll(".plan-row .rollcode");
+        const out = [];
+        for (let i = 0; i < nodes.length; i++) {
+            const text = window.rollCodeText(nodes[i]).trim();
+            if (text) out.push(text);
+        }
+        return out;
+    }
+
+    function copyAllLabel(blockCount, index) {
+        if (blockCount <= 1) return "Copy All";
+        return "Copy All (" + (index + 1) + " of " + blockCount + ")";
+    }
+
+    // Run after the rail's HTML is in the DOM, never while it is still a
+    // string: the block count is measured off the rendered roll codes.
+    function updateCopyLabel() {
+        const el = document.querySelector("#plan-rail [data-copy-all]");
+        if (!el) return;
+
+        const blocks = window.PlanCopy.chunkRollCodes(railRollCodes());
+        if (!blocks.length) {
+            // Nothing copyable — a queue of rows that project no roll code.
+            el.style.display = "none";
+            return;
+        }
+        el.style.display = "";
+        if (copyIndex >= blocks.length) copyIndex = 0;
+        el.textContent = copyAllLabel(blocks.length, copyIndex);
+    }
+
+    // Steps through the blocks: each click copies the current one and moves on,
+    // wrapping at the end, so the player pastes, clicks, pastes.
+    //
+    // Deliberately does not call refresh(). Re-rendering the rail mid-paste
+    // would reset the step to block 1 and throw away the player's scroll
+    // position, so only this one label is rewritten.
+    function copyAll(el) {
+        const blocks = window.PlanCopy.chunkRollCodes(railRollCodes());
+        if (!blocks.length) return;
+        if (copyIndex >= blocks.length) copyIndex = 0;
+
+        navigator.clipboard
+            .writeText(blocks[copyIndex])
+            .then(function () {
+                copyIndex = (copyIndex + 1) % blocks.length;
+                el.textContent = "Copied!";
+                setTimeout(function () {
+                    el.textContent = copyAllLabel(blocks.length, copyIndex);
+                }, 700);
+            })
+            .catch(function (err) {
+                // The step does not advance, so the same block is still the one
+                // the next click will hand over.
+                console.error("Failed to copy the queue: ", err);
+            });
+    }
+
     function chipHtml(chip) {
         const sign = chip.value >= 0 ? "+" : "";
         let text = chip.label + " " + sign + chip.value;
@@ -558,10 +630,20 @@ const PlanMode = (function () {
         let html = '<div class="plan-cycles">' + renderCycleTabs() + "</div>";
         html += '<div class="plan-rail-head">Queue';
         html += count ? " · " + count + (count === 1 ? " action" : " actions") : "";
+        // Both controls sit in one wrapper, because the wrapper is what carries
+        // the margin-left:auto that pushes them right. On Clear Queue alone it
+        // would break every time Copy All is hidden.
+        html += '<span class="plan-rail-actions">';
+        // The cycle suffix is already on every row's code, so a paste of this
+        // block is a turn's worth of C1 rolls with nothing left to fix up.
+        html += '<span class="plan-rail-copy" data-copy-all="1" ' +
+                'title="Copy the roll codes in this cycle as one Discord paste">' +
+                'Copy All</span>';
         // One queue is one turn, so clearing it is how you start the next.
         // Named for what it does rather than what it means.
         html += '<span class="plan-rail-clear" data-clear="1" ' +
-                'title="Remove every action from the queue">Clear Queue</span></div>';
+                'title="Remove every action from the queue">Clear Queue</span>';
+        html += '</span></div>';
 
         if (!count) {
             html += '<div class="plan-empty">Nothing queued yet. Set up a card, ' +
@@ -576,6 +658,11 @@ const PlanMode = (function () {
         }
 
         rail.innerHTML = html;
+        // After innerHTML, never before: updateCopyLabel measures the rendered
+        // roll codes. The reset is here rather than in each mutation because
+        // every one of them already ends up in refresh().
+        copyIndex = 0;
+        updateCopyLabel();
         if (window.PlanMode && window.PlanMode.persist) window.PlanMode.persist();
     }
 
@@ -775,6 +862,11 @@ const PlanMode = (function () {
 
         rail.addEventListener("click", function (event) {
             const target = event.target;
+
+            if (target.getAttribute("data-copy-all")) {
+                copyAll(target);
+                return;
+            }
 
             if (target.getAttribute("data-clear")) {
                 clear();
