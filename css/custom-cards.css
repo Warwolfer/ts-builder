@@ -57,6 +57,17 @@
     border-bottom-color: #a78bfa;
 }
 
+/* A built-in card's body text lines up under its title because .cardinfo pads
+   5px and its <p> children carry `margin: 0 10px` (css/app.css, `.cardinfo p`),
+   15px in all, the same as .cardtop's 10px padding on top of .card's 5px. A
+   custom card's body is divs and a <ul>, not <p>, so it got none of that margin
+   and sat 10px further left than its own title. Same total, applied as padding
+   here since the children are not paragraphs. */
+.customcard .cardinfo {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
 /* A card whose k lists only mastery and/or expertise, on a character with
    none chosen, has no icons to show at all — this line replaces them. */
 .customcard-needspick {
