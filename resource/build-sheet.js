@@ -2029,6 +2029,15 @@ class BuildSheet {
         // Regenerate build codes with new thread code
         const currentState = this.state.getState();
         this.generateBuildCodes(currentState);
+
+        // The querySelectorAll above sweeps the whole document, so it also
+        // stamps the .thrcode spans inside the Plan rail — with the RAW code,
+        // wiping the C1/C2 suffix the active cycle had given them. The rail is
+        // the one place that suffix is applied, in rollHtmlFor, so re-render it
+        // rather than trying to exclude it here. Without this the suffix stayed
+        // missing until something else redrew the rail, which is why switching
+        // to another tab and back appeared to fix it.
+        if (window.PlanMode && window.PlanMode.refresh) window.PlanMode.refresh();
     }
 
     showThreadCodeInput(focus) {
