@@ -119,8 +119,13 @@
     color: #fff;
 }
 
+/* Pushed away from the label. The tab is an inline-flex with a 5px gap, so on
+   a short name like "Cycle 1" the x landed near the middle of the tab and was
+   easy to hit when aiming at the tab itself; the extra margin puts it out at
+   the edge where a close control is expected. */
 .plan-cycle-close {
-    padding: 0 2px;
+    margin-left: 8px;
+    padding: 0 3px;
     border-radius: 3px;
     color: #7d879e;
     font-weight: bold;
