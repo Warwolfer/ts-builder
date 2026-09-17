@@ -52,7 +52,12 @@ const PlanMode = (function () {
     // The rank letter as rendered, which is already reduced when the mastery is
     // downcast — so downcasting needs no separate handling anywhere.
     function rankLetterOf(card) {
-        const span = card.querySelector(".rollcode .masteryreplace");
+        // .custombonus is the custom card's equivalent slot — it has no
+        // .masteryreplace — and it holds a rank letter for a mastery or
+        // expertise pick and a plain number for a save. The regex below rejects
+        // the number on its own, so no kind check is needed here.
+        const span = card.querySelector(".rollcode .masteryreplace") ||
+            card.querySelector(".rollcode .custombonus");
         const text = span ? (span.textContent || "").trim().toUpperCase() : "";
         return /^[EDCBAS]$/.test(text) ? text : "";
     }
