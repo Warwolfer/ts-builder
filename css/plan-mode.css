@@ -526,6 +526,25 @@
     margin: 2px;
 }
 
+/* The selection ring (.active-glow, css/build-sheet.css) is drawn for icons up
+   to 90px across: a 2px dark gap then a 3px bright ring. Plan mode shrinks the
+   icons to 22px, where 5px of ring eats almost half the radius and the lit icon
+   reads as a blob. Same three shadows, scaled to the smaller icon: a 1px gap, a
+   2px ring and a tighter lift.
+
+   !important and a heavier selector because the rule it overrides is itself
+   !important; among important declarations specificity still decides, and
+   `#builddisplay.plan .active-glow` outranks a bare `.active-glow`.
+
+   Not scoped to .masterycircle: the Adv/Normal/Dis pills use the same class and
+   shrink in plan mode too. */
+#builddisplay.plan .active-glow {
+    box-shadow:
+        0 0 0 1px #11141c,
+        0 0 0 2px #ffa94d,
+        0 0 8px 1px rgba(255, 169, 77, 0.45) !important;
+}
+
 #builddisplay.plan .masterycircle .downcast-indicator {
     width: 10px;
     height: 10px;

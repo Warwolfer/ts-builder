@@ -39,13 +39,45 @@ const CardGate = (function () {
         listeners.push(fn);
     }
 
+    // Runs every callback, but on a fresh task rather than inline.
+    //
+    // A built-in card's icons carry an inline `onclick` (resource/build-sheet.js
+    // writes `onclick='clickMastery(this)'` into the markup), which runs AT THE
+    // TARGET before the click ever reaches the document listener below — so the
+    // glow is already applied and the callbacks read a finished card.
+    //
+    // A custom card's icons have no inline handler. They are driven by
+    // resource/custom-cards.js's own document listener, which is registered
+    // AFTER this one and so runs AFTER it. Calling the callbacks inline read
+    // those cards one click behind: pick an expertise and the + button stayed
+    // greyed out (while still working, because the click handler re-checks
+    // live), then caught up only when you picked something else.
+    //
+    // A timeout, not a promise: a microtask checkpoint runs between the
+    // listeners of a single dispatch, so a microtask would still land before
+    // custom-cards' handler. A timeout is a new task and always runs after the
+    // whole dispatch, whatever order the listeners happened to register in.
+    //
+    // Coalesced, so a burst of clicks costs one pass.
+    let queued = false;
+    function notifyChanged() {
+        if (queued) return;
+        queued = true;
+        const run = function () {
+            queued = false;
+            for (let i = 0; i < listeners.length; i++) listeners[i]();
+        };
+        if (typeof setTimeout === "function") setTimeout(run, 0);
+        else run();
+    }
+
     let installed = false;
     function install() {
         if (installed || typeof document === "undefined" || !document.addEventListener) return;
         installed = true;
         document.addEventListener("click", function (event) {
             if (event.target.closest && event.target.closest(".masterycircle")) {
-                for (let i = 0; i < listeners.length; i++) listeners[i]();
+                notifyChanged();
             }
         });
     }
@@ -79,6 +111,7 @@ const CardGate = (function () {
     return {
         addBlockedReason: addBlockedReason,
         onChange: onChange,
+        notifyChanged: notifyChanged,
         install: install,
         syncRollCodes: syncRollCodes,
         CONTAINER_IDS: CONTAINER_IDS,

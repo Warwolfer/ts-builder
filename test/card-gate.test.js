@@ -122,7 +122,11 @@ test("syncRollCodes locks the roll code of an unready card and unlocks a ready o
     delete global.document;
 });
 
-test("install binds one document listener that runs every registered callback on an icon click", () => {
+// The callbacks are deferred to a fresh task on purpose (resource/card-gate.js
+// explains why), so every assertion about them has to wait one turn.
+const nextTask = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+test("install binds one document listener that runs every registered callback on an icon click", async () => {
     let handler = null;
     let bindCount = 0;
     global.document = {
@@ -137,14 +141,26 @@ test("install binds one document listener that runs every registered callback on
     assert.strictEqual(bindCount, 1, "install should bind exactly one click listener");
     assert.ok(handler, "install should have captured the handler");
 
-    // A click on something inside a .masterycircle runs the callbacks.
+    // A click on something inside a .masterycircle runs the callbacks — but not
+    // until the dispatch it arrived in has finished.
     handler({ target: { closest: (sel) => (sel === ".masterycircle" ? {} : null) } });
-    assert.ok(calls > 0, "an icon click should run the registered callbacks");
+    assert.strictEqual(calls, 0, "the callbacks must not run inline: a later listener in the same dispatch is what lights a custom card's icon");
+    await nextTask();
+    assert.ok(calls > 0, "an icon click should run the registered callbacks on the next task");
 
     // A click elsewhere does not.
     const before = calls;
     handler({ target: { closest: () => null } });
+    await nextTask();
     assert.strictEqual(calls, before, "a click outside an icon should run nothing");
+
+    // A burst of clicks coalesces into one pass.
+    const icon = { target: { closest: (sel) => (sel === ".masterycircle" ? {} : null) } };
+    handler(icon);
+    handler(icon);
+    handler(icon);
+    await nextTask();
+    assert.strictEqual(calls, before + 1, "three clicks in one turn should cost one pass");
 
     delete global.document;
 });
