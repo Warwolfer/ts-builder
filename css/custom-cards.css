@@ -134,6 +134,8 @@
 .dm-btn-primary:hover { background: #7c5fd6; }
 
 /* --- import modal ------------------------------------------------------- */
+/* Above the header. #mw-navigation (css/app.css) sits at z-index 9999, so a
+   modal at 2000 opened underneath it and the top of the box was unreachable. */
 .custom-modal {
     position: fixed;
     inset: 0;
@@ -143,11 +145,16 @@
     justify-content: center;
     padding: 40px 16px;
     overflow-y: auto;
-    z-index: 2000;
+    z-index: 10000;
 }
 .custom-modal[hidden] { display: none; }
 
+/* `margin: auto 0` rather than `align-items: center` on the flex parent: auto
+   margins centre the box while there is room, and collapse to 0 when the box is
+   taller than the viewport, so the top stays reachable by scrolling. Centring
+   with align-items alone clips the overflowing top and puts it out of reach. */
 .custom-modal-box {
+    margin: auto 0;
     background: #171a26;
     border: 1px solid #3d475f;
     border-radius: 10px;
