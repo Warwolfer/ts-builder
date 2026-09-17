@@ -388,13 +388,20 @@
     function refreshPreview() {
         const action = readForm();
         const problem = Codec.validateAction(action);
-        document.getElementById("dm-form-error").textContent = problem || "";
         document.getElementById("dm-submit").disabled = !!problem;
 
         const card = document.getElementById("dm-preview-card");
         const meta = document.getElementById("dm-preview-meta");
         if (problem) {
-            card.innerHTML = '<div class="ca-card-desc">Fix the note above to see the preview.</div>';
+            // The problem reads in the preview itself rather than on a separate
+            // line under it: one place to look, and the preview area is already
+            // the thing the DM is watching while they type. role="alert" rides
+            // on this node, so replacing it is what announces the change.
+            //
+            // Escaped although validateAction writes its own text: some of its
+            // messages quote the value that failed, which is DM-typed.
+            card.innerHTML = '<div class="dm-form-error" role="alert">' +
+                CardView.escapeHtml(problem) + "</div>";
             meta.textContent = "";
             return;
         }

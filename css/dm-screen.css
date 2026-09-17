@@ -266,7 +266,9 @@
 .dm-preview-meta { color: #889; font-size: 0.8em; margin-top: 6px; font-family: monospace; }
 .dm-preview-meta.is-long { color: #f97316; }
 
-.dm-form-error { color: #f87171; font-size: 0.9em; min-height: 1.2em; margin: 4px 0 10px; }
+/* Lives inside the preview card now, not on its own line under the form, so
+   the card's padding does the spacing and this adds none of its own. */
+.dm-form-error { color: #f87171; font-size: 0.9em; }
 
 .dm-modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
 
