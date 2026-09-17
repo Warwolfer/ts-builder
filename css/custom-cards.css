@@ -19,7 +19,26 @@
    active and Plan mode is on. */
 #customdisplay {
     display: none;
-    grid-template-columns: 1fr 1fr 1fr;
+    /* minmax(0, 1fr), not a bare 1fr. `1fr` means `minmax(auto, 1fr)`, and that
+       `auto` floor is the widest min-content any card in the track needs. A
+       custom card's roll code carries the encoded action as ONE unbreakable
+       base64url token — 196 characters for a typical action, in monospace —
+       so the floor was about 196ch and a single card blew the whole grid out
+       to full width. The `0` floor lets the track ignore it; .customcard
+       .rollcode below is what then makes the token wrap instead of overflow.
+       Both are needed: the floor alone would clip it, the wrap alone would not
+       stop the track growing. */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* The payload has no spaces, so nothing in it is a normal break opportunity.
+   `anywhere` lets it break mid-token and, unlike break-word, also counts for
+   min-content so the grid track above can actually reach its 0 floor. Scoped
+   to the custom card: a built-in roll code is all short words and wraps on its
+   own. Plan mode hides this element (css/plan-mode.css), which is why the
+   blow-out only ever showed in Normal and Compact. */
+.customcard .rollcode {
+    overflow-wrap: anywhere;
 }
 
 #customdisplay.custom-tab-active {
@@ -28,7 +47,7 @@
 
 @media (max-width: 768px) {
     #customdisplay {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 }
 
