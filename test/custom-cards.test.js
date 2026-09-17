@@ -86,7 +86,20 @@ test("an expertise kind draws one icon per chosen expertise, with its colour", (
 
 test("icons are .masterycircle so the roll-code gate blocks the card", () => {
     const html = CustomCards.iconsHtml(action, opts);
-    assert.match(html, /class='display masterycircle'/);
+    assert.match(html, /class='display masterycircle(?: |')/);
+});
+
+test("a save icon carries its aci- class, the way the built-in Saves card does", () => {
+    // .aci-fortitude / .aci-reflex / .aci-will is what paints the red border in
+    // css/app.css. It is the icon's own colour, not a selected state, so
+    // without it a custom card's save icons read as a different control.
+    const html = CustomCards.iconsHtml(
+        { ...action, k: ["fortitude", "reflex", "will"] },
+        opts,
+    );
+    assert.match(html, /class='display masterycircle aci-fortitude'/);
+    assert.match(html, /class='display masterycircle aci-reflex'/);
+    assert.match(html, /class='display masterycircle aci-will'/);
 });
 
 test("no data-mastery attribute, so the gate asks for a type and plan mode skips the card", () => {

@@ -70,8 +70,14 @@
         return { fresh: fresh, skipped: skipped };
     }
 
+    // The aci-<kind> class is what gives the built-in Saves card's icons their
+    // red border (css/app.css, `.aci-fortitude, .aci-reflex, .aci-will`). It is
+    // the icon's own colour, not a selected state, so without it a custom
+    // card's save icons read as a different control from the Saves card's.
+    // A mastery or expertise icon gets its colour from item.borderColor in
+    // pickIconHtml, the same way the built-in expertise row does.
     function saveIconHtml(kind) {
-        return "<div class='display masterycircle' data-kind=\"" + kind + "\"" +
+        return "<div class='display masterycircle aci-" + kind + "' data-kind=\"" + kind + "\"" +
             " title=\"" + esc(CardView.KIND_LABELS[kind]) + "\">" +
             "<img src='" + CardView.SAVE_ICONS[kind] + "' alt='" + kind + "'></div>";
     }
