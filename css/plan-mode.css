@@ -527,10 +527,10 @@
 }
 
 /* The selection ring (.active-glow, css/build-sheet.css) is drawn for icons up
-   to 90px across: a 2px dark gap then a 3px bright ring. Plan mode shrinks the
-   icons to 22px, where 5px of ring eats almost half the radius and the lit icon
-   reads as a blob. Same three shadows, scaled to the smaller icon: a 1px gap, a
-   2px ring and a tighter lift.
+   to 90px across: a 2px dark gap then a 3px bright ring (the orange runs from
+   2px to 5px). Plan mode shrinks the icons to 22px, where 5px of ring eats
+   almost half the radius and the lit icon reads as a blob. Same three shadows,
+   scaled down: a 1px gap and a 2px ring, so the orange runs from 1px to 3px.
 
    !important and a heavier selector because the rule it overrides is itself
    !important; among important declarations specificity still decides, and
@@ -541,15 +541,18 @@
 #builddisplay.plan .active-glow {
     box-shadow:
         0 0 0 1px #11141c,
-        0 0 0 2px #ffa94d,
+        0 0 0 3px #ffa94d,
         0 0 8px 1px rgba(255, 169, 77, 0.45) !important;
 }
 
+/* Nudged 4px left and 4px down from where the full-size badge sits, to clear
+   the Add button in the card's top-right corner. bottom goes more negative to
+   move down, right goes less negative to move left. */
 #builddisplay.plan .masterycircle .downcast-indicator {
     width: 10px;
     height: 10px;
-    bottom: -2px;
-    right: -2px;
+    bottom: -6px;
+    right: 2px;
     font-size: 6px;
 }
 
