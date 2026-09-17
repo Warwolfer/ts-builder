@@ -545,25 +545,26 @@
         0 0 8px 1px rgba(255, 169, 77, 0.45) !important;
 }
 
-/* Nudged 4px left and 4px down from where the full-size badge sits, to clear
-   the Add button in the card's top-right corner. bottom goes more negative to
-   move down, right goes less negative to move left. */
 #builddisplay.plan .masterycircle .downcast-indicator {
     width: 10px;
     height: 10px;
-    bottom: -6px;
-    right: 2px;
+    bottom: -2px;
+    right: -2px;
     font-size: 6px;
 }
 
-/* The card's downcast badge is 20px across, big enough in plan mode to crowd
-   the Add button above it. Smaller only — it keeps its place at
-   top:12px/right:12px from css/build-sheet.css. */
+/* The badge that appears when you pick a downcast mastery. At full size it is
+   20px at top:12px/right:12px (css/build-sheet.css), which in plan mode crowds
+   the Add button in the same corner. Shrunk here, and nudged 4px left and 4px
+   down so the two stop overlapping: right 12px -> 16px moves it left, top 12px
+   -> 16px moves it down. */
 #builddisplay.plan .action-downcast-indicator {
     width: 14px;
     height: 14px;
     font-size: 9px;
     border-width: 1px;
+    top: 16px;
+    right: 16px;
 }
 
 /* ---- Compactness ----------------------------------------------------------
